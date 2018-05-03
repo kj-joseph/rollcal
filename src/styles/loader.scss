@@ -1,0 +1,14 @@
+.loader {
+    border: 16px solid $pink;
+    border-top: 16px solid $blue; 
+    border-radius: 50%;
+    width: 90px;
+    height: 90px;
+    margin: 30px auto;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

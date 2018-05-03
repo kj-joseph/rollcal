@@ -1,0 +1,208 @@
+.searchForm {
+
+	.searchDatesLocations {
+		min-width: 320px;
+
+		.searchDates {
+			min-width: 320px;
+			margin-bottom: 2em;
+
+			.dateRange {
+				margin-bottom: 1em;
+
+				strong {
+					margin-right: .3em;
+				}
+
+			}
+
+			.DayPicker__withBorder {
+
+				border: 1px solid $blue;
+				border-radius: 0;
+				box-shadow: none;
+
+				.CalendarMonth_caption {
+					font-family: $stratum-black;
+					color: $pink;
+				}
+
+				.DayPickerNavigation_button {
+					border: none;
+					border-radius: 0;
+
+					.DayPickerNavigation_svg__horizontal {
+						stroke: $pink;
+						stroke-width: 4px;
+						fill: $pink;
+					}
+				}
+
+				.DayPicker_weekHeader_li {
+					color: $pink;
+					padding-bottom: .2em;
+				}
+
+				.CalendarDay__default {
+					font-size: 1.4em;
+					line-height: 1.6em;
+					color: $blue;
+					border: none;
+
+					&:hover,&:active,&:focus {
+						background: $pink;
+						color: $white;
+					}
+				}
+
+				.CalendarDay__selected,
+				.CalendarDay__selected:active,
+				.CalendarDay__selected:hover,
+				.CalendarDay__selected:focus {
+					color: $white;
+					background: $blue;
+				}
+
+				.CalendarDay__selected_span,
+				.CalendarDay__hovered_span {
+					color: $white;
+					background: $lightBlue;
+				}
+
+
+				.CalendarDay__blocked_out_of_range, 
+				.CalendarDay__blocked_out_of_range:focus, 
+				.CalendarDay__blocked_out_of_range:active, 
+				.CalendarDay__blocked_out_of_range:hover {
+					color: $gray;
+					background: none;
+				}
+			}
+		}
+
+
+		.searchLocations {
+			min-width: 320px;
+			max-width: 400px;
+			margin-bottom: 2em;
+
+			.selectedLocationsHeader {
+				font-size: 1.4rem;
+				margin: 1.5em 0 .5em;
+			}
+
+			.selectChoiceText {
+				font-size: 1.4rem;
+				margin-bottom: .3em;
+			}
+
+			.locationButton {
+				margin: .2em 0 .8em;
+			}
+
+			ul.selectedLocations {
+
+				li {
+					margin-bottom: .6em;
+
+					ul {
+						margin: .2em 0 0 1em;
+
+						li {
+							margin-bottom: .2em;
+						}
+					}
+
+				}				
+			}
+		}
+
+	}
+
+	.searchFeatures {
+		margin-bottom: 2em;
+
+		.eventIconGroup {
+			display: block;
+			margin-bottom: 1em;
+
+			.label {
+				display: block;
+				color: $blue;
+				font-weight: bold;
+				margin-bottom: .5em;
+			}
+
+		}
+
+		img {
+			opacity: .4;
+			height: 60px;
+			margin-right: 10px;
+			cursor: pointer;
+
+			&.selected {
+				opacity: 1;
+			}
+		}
+	}
+
+}
+
+.searchButtons {
+
+}
+
+
+@include respond-to("xsmall") {
+
+	.searchForm {
+
+		.searchFeatures {
+
+			img {
+				height: 75px;
+				margin: 0 5px;
+			}
+
+		}
+
+	}
+
+}
+
+@include respond-to("small") {
+
+	.searchForm {
+
+		.searchDatesLocations {
+		}
+
+		.searchFeatures {
+
+			img {
+				height: 90px;
+			}
+		}
+	}
+
+}
+
+@include respond-to("medium") {
+
+	.searchForm {
+		display: flex;
+		padding-right: 20px;
+
+		.searchDatesLocations {
+			width: calc(40%);
+			margin-right: 40px;
+		}
+
+		.searchFeatures {
+			margin-top: .3em;
+			width: calc(50%);
+		}
+
+	}
+}

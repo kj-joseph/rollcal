@@ -1,0 +1,52 @@
+@import "../../node_modules/css-reset-and-normalize-sass/scss/reset-and-normalize";
+@import "breakpoints";
+
+@import "fonts";
+@import "colors";
+@import "text";
+@import "form";
+@import "loader";
+
+@import "header";
+@import "events";
+@import "eventDetails";
+@import "search";
+
+
+html {
+	height: 100%;
+	background: $white;
+
+	body {
+		min-height: calc(100% - 40px);
+		padding: 20px;
+		background: $white;
+
+		#content {
+			padding-top: 85px;
+		}
+	}
+
+}
+
+@include respond-to("xsmall") {
+	
+}
+
+@include respond-to("small") {
+	html {
+		padding: 0 50px;
+		background: $blue;
+
+		body {
+			min-height: calc(100% - 110px);
+			padding: 40px 20px 20px;
+			border-bottom: 50px solid $blue;
+
+			#content {
+				padding-top: 90px;
+			}
+		}
+
+	}
+}

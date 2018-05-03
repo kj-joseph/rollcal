@@ -1,0 +1,87 @@
+.searchDisplay {
+
+	p {
+		font-size: 1.5rem;
+		line-height: 1.3em;
+		margin-bottom: 0;
+
+		strong {
+			margin-right: .2em;
+		}
+
+	}
+
+	+ p {
+		margin-top: 20px;
+	}
+
+}
+
+ul.eventList {
+
+	display: flex;
+	flex-flow: row wrap;
+	margin-bottom: 20px;
+
+	li {
+		position: relative;
+		width: calc(100% - 20px);
+		margin: 20px 0 0;
+		padding: 10px 10px 65px;
+		border: 2px solid $blue;
+
+		.eventDate {
+			margin-bottom: 0;
+		}
+
+		.eventLocation {
+			margin-bottom: .5em;
+		}
+
+		.eventIcons {
+
+			position: absolute;
+			bottom: 10px;
+			left: 10px;
+
+			.eventIconGroup {
+				margin-right: 20px;
+
+				&:last-child {
+					margin-right: 0;
+				}
+			}
+
+			img {
+				height: 35px;
+			}
+		}
+
+	}
+
+}
+
+@include respond-to("small") {
+
+	ul.eventList {
+
+		li {
+			width: calc(45% - 34px);
+			margin: 20px 20px 0 0;
+		}
+
+	}
+
+}
+
+@include respond-to("large") {
+
+	ul.eventList {
+
+		li {
+			width: calc(30% - 34px);
+		}
+
+	}
+
+}

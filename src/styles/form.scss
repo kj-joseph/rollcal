@@ -1,0 +1,94 @@
+.smallButton {
+	font-size: 1.2rem;
+	line-height: 1.3rem;
+	color: $white;
+	margin: 0 0 0 1em;
+	padding-bottom: 2px;
+	background: $blue;
+	border: none;
+	outline: none;
+
+	&:hover,&:focus,&:active {
+		background: $pink;
+	}
+
+	&:disabled {
+		background: $gray;
+	}
+}
+
+.largeButton {
+	font-size: 2rem;
+	line-height: 2.4rem;
+	vertical-align: top;
+	color: $white;
+	font-family: $stratum-black;
+	font-weight: bold;
+	margin: 0;
+	padding: 4px 15px;
+	background: $blue;
+	border: none;
+	outline: none;
+
+	&:hover,&:focus,&:active {
+		background: $pink;
+	}
+
+	&:disabled {
+		background: $gray;
+	}
+
+}
+
+.Select {
+	border: 1px solid $blue;
+	border-radius: 0;
+
+	&.is-disabled {
+		border-color: $gray;
+	}
+
+	.Select-control, input {
+		border: none;
+		border-radius: 0;
+		outline: none;
+	}	
+
+	.Select-arrow,
+	&.is-open .Select-arrow {
+		border-color: $blue transparent transparent;
+	}
+
+	.Select-clear-zone {
+		color: $pink;
+		font-weight: bold;
+	}
+
+	.Select-menu-outer {
+		border-color: $gray;
+		border-top-color: $blue;
+	}
+
+	.Select-option,
+	.Select-option.is-selected,
+	.Select-option.is-focused {
+		color: $black;
+		background-color: $white;
+
+		&:hover, &:active, &:focus {
+			background-color: $lightBlue;
+		}
+
+		&:last-child {
+			border-bottom-right-radius: 0;
+			border-bottom-left-radius: 0; 
+		}
+	}
+
+	.Select-option.is-disabled {
+		color: $gray;
+		font-style: italic;
+		background-color: $white;
+	}
+
+}

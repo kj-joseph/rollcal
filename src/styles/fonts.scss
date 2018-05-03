@@ -1,0 +1,17 @@
+@import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro&amp;subset=latin-ext");
+$source-sans: "Source Sans Pro", Helvetica, Arial, sans-serif;
+
+@font-face {
+    font-family: "Stratum Black";
+    src: url("fonts/Stratum1-Black.eot");
+    src: url("fonts/Stratum1-Black.eot?#iefix") format("embedded-opentype"),
+         url("fonts/stratum1-black-webfont.woff2") format("woff2"),
+         url("fonts/stratum1-black-webfont.woff") format("woff"),
+         url("fonts/Stratum1-Black.ttf") format("truetype"),
+         url("fonts/Stratum1-Black.svg#StratumNo1-Black") format("svg");
+    font-weight: 900;
+    font-style: normal;
+}
+
+$stratum-black: "Stratum Black", $source-sans;
+

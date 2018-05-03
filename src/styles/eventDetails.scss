@@ -1,0 +1,141 @@
+.backToSearch {
+	font-size: 1.4rem;
+	font-weight: bold;
+	margin: 0 0 .7em 0;
+
+	&:hover,&:active,&:focus {
+		cursor: pointer;
+	}
+}
+
+.eventDetails {
+
+	.eventInfo {
+		margin-bottom: 1.5em;
+
+		h1 {
+			margin-bottom: .1em;
+		}
+
+		h3 {
+			margin-bottom: .2em;
+		}
+
+		.eventDate {
+			font-size: 1.8rem;
+			margin-bottom: 0;
+		}
+
+		.eventLink {
+			margin: .8em 0 0 0;
+		}
+
+	}
+
+	.eventUser {
+		font-size: 1.4rem;
+		color: $pink;
+		margin: 1.5em 0 0 0;
+	}
+
+
+	.eventVenueInfo {
+		margin-bottom: 1.5em;
+
+		address {
+			line-height: 1.2em;
+		}
+
+		.venueDescription, .venueLink {
+			margin: .15em 0 0;
+		}
+
+	}
+
+
+
+	dl {
+		margin-bottom: .5em;
+
+		dt {
+			display: block;
+			margin-bottom: .15em;
+
+			strong {
+				display: inline-block;
+				width: 3.5em;
+			}
+		}
+
+		dd {
+			display: block;
+			margin: 0 0 .4em 3.5em;
+		}
+
+	}
+
+	.eventIcons {
+
+		margin-top: 1.5em;
+
+		.eventIconGroup {
+			display: block;
+			margin-bottom: 10px;
+
+			.label {
+				display: block;
+				color: $blue;
+				font-weight: bold;
+				text-decoration: underline;
+				margin-bottom: .15em;
+			}
+
+			&:last-child {
+				margin-right: 0;
+			}
+		}
+
+		img {
+			height: 60px;
+		}
+	}
+
+}
+
+@include respond-to("xsmall") {
+
+	.eventDetails {
+		display: flex;
+		justify-content: space-between;
+		padding-right: 20px;
+
+		.data {
+			width: 60%
+		}
+
+		.eventIcons {
+			text-align: center;
+			margin-top: 2.2em;
+
+			img {
+				height: 75px;
+				margin: 0 5px;
+			}
+
+		}
+
+	}
+
+}
+
+@include respond-to("small") {
+
+	.eventDetails {
+
+		.eventIcons img {
+			height: 90px;
+		}
+	}
+
+}
+
