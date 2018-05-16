@@ -96,7 +96,7 @@ router.post("/checkSession", upload.array(), function(req, res, next) {
 		res.status(500).send();						
 
 	} else {
-		res.locals.connection.query("select user_id, user_isadmin, user_name from user_sessions" 
+		res.locals.connection.query("select sessionId from user_sessions" 
 			+ " where userId = " + res.locals.connection.escape(req.body.userId) 
 			+ " and sessionId = " + res.locals.connection.escape(req.body.sessionId)
 			+ " and isAdmin = " + res.locals.connection.escape(req.body.isAdmin)
