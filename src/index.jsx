@@ -62,6 +62,7 @@ class SiteLogo extends React.Component {
 			<img src={HeaderLogo} />
 		)
 	};
+
 }
 
 class ConnectedSiteRouter extends React.Component {
@@ -75,18 +76,18 @@ class ConnectedSiteRouter extends React.Component {
 		return (
 			<Router>
 				<div id="pageWrapper">
+					<LoginBox />
 					<div id="siteHeader">
 						<div id="siteLogo">
 							<SiteLogo />
 						</div>
-						<LoginBox />
 						<div id="siteMenuHeader">
 							<SiteMenu />
 						</div>
 					</div>
 					<div id="siteMenuDrawer" className= {this.props.menuDrawerOpen ? " drawerOpen" : "drawerClosed"}>
-						<div className="openDrawerIcon">
-							<img src={MenuDrawer} alt="Open menu" onClick={() => {this.props.setMenuState(!this.props.menuDrawerOpen)}} />
+						<div className="openDrawerIcon" title="Open site menu" onClick={() => {this.props.setMenuState(!this.props.menuDrawerOpen)}}>
+							<img src={MenuDrawer} alt="" />
 						</div>
 						<SiteMenu />
 					</div>
@@ -144,6 +145,7 @@ class ConnectedSiteMenu extends React.Component {
 		this.openLoginBox = event => {
 			event.preventDefault();
 			this.props.setLoginBoxState(true);
+			this.props.setMenuState(false);
 		}
 
 		this.logout = event => {
