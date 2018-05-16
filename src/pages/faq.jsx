@@ -20,7 +20,7 @@ export default class Faq extends React.Component {
 		return (
 
 			<div>
-				<h1>Welcome to Roll-Cal</h1>
+				<h1>Frequently Asked Stuff</h1>
 				<p>{this.props.page}</p>
 			</div>
 		);

@@ -33,10 +33,13 @@ export default class EventList extends React.Component {
 				+ d.getDate();
 		};
 
+	}
+
+	componentWillMount() {
+
 		if (this.props.match.params.startDate || window.location.search) {
 			this.isSearch = true;
-		} else if (this.props.lastSearch && this.props.lastSearch !== "/events" && this.props.lastSearch !=="/events/") {
-			this.isSearch = false;
+//		} else if (this.props.lastSearch && this.props.lastSearch !== "/events" && this.props.lastSearch !=="/events/") {
 //			this.isSearch = true;
 //			this.props.history.push(this.props.lastSearch);
 		} else {
@@ -46,13 +49,10 @@ export default class EventList extends React.Component {
 		let queryString = window.location.search;
 		let searchDisplay = {};
 
-		if (this.props.match.params.startDate) {
-			queryString += (!queryString ? "?" : "&") + "startDate=" + (this.props.match.params.startDate || this.getToday());
+		queryString += (!queryString ? "?" : "&") + "startDate=" + (this.props.match.params.startDate || this.getToday());
 
-			if (this.props.match.params.endDate) {
-				queryString += "&endDate=" + this.props.match.params.endDate;
-			}
-
+		if (this.props.match.params.endDate) {
+			queryString += "&endDate=" + this.props.match.params.endDate;
 		}
 
 		searchDisplay.dates = formatDateRange({
@@ -117,7 +117,7 @@ export default class EventList extends React.Component {
 					.then(result => {
 						serverData.countries = result.data.response;
 						resolve();
-					})
+					});
 				})); 
 			}
 
@@ -127,7 +127,7 @@ export default class EventList extends React.Component {
 					.then(result => {
 						serverData.regions = result.data.response;
 						resolve();
-					})
+					});
 				})); 
 			}
 
@@ -137,7 +137,7 @@ export default class EventList extends React.Component {
 					.then(result => {
 						serverData.tracks = result.data.response;
 						resolve();
-					})
+					});
 				})); 
 			}
 
@@ -147,7 +147,7 @@ export default class EventList extends React.Component {
 					.then(result => {
 						serverData.derbytypes = result.data.response;
 						resolve();
-					})
+					});
 				})); 
 			}
 
@@ -157,7 +157,7 @@ export default class EventList extends React.Component {
 					.then(result => {
 						serverData.sanctions = result.data.response;
 						resolve();
-					})
+					});
 				})); 
 			}
 
@@ -319,7 +319,7 @@ export default class EventList extends React.Component {
 		);
 
 	}
-
+/*
 	shouldComponentUpdate(nextProps, nextState) {
 		if (this.state.eventData !== nextState.eventData) {
 			return true;
@@ -329,7 +329,7 @@ export default class EventList extends React.Component {
 		}
 		return false;
 	}
-
+*/
 	componentDidMount() {
 		window.scrollTo(0,0);
 		this.props.changePage("events");

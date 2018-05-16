@@ -38,6 +38,16 @@
 		background: $gray;
 	}
 
+	&.pinkButton {
+		background: $pink;
+	}
+
+}
+
+input {
+	display: block;
+	border: 1px solid $blue;
+	padding: 2px;
 }
 
 .Select {

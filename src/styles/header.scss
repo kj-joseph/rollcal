@@ -7,7 +7,7 @@
 	z-index: 500;
 	width: 100%;
 	height: 65px;
-	color: $white;
+	color: $black;
 	background: $white;
 
 	#siteLogo {
@@ -20,6 +20,11 @@
 
 	.siteMenu {
 		display: none;
+	}
+
+	#loginBox {
+
+
 	}
 
 }
@@ -62,7 +67,7 @@
 
 	.siteMenu {
 		padding: 105px 0 20px;
-		margin-right: 10px;
+		margin: 10px;
 
 		ul {
 			display: flex;
@@ -92,19 +97,101 @@
 		display: none;
 	}
 
-	#siteHeader  {
+	#siteHeader {
 		border-bottom: 20px solid $pink;
+
+		#loginBox {
+			position: absolute;
+			right: 0;
+			top: calc(100% + 10px);
+			z-index: 22222;
+			width: 260px;
+			height: auto;
+			padding: 20px;
+			background: white;
+			border: 10px solid $pink;
+
+			.loginClose {
+				position: absolute;
+				top: 20px;
+				right: 20px;
+				color: $white;
+				font-weight: bold;
+				line-height: 1.2em;
+				padding: 2px 5px;
+				background: $blue;
+
+				&:hover,
+				&:active,
+				&:focus {
+					cursor: pointer;
+					background: $pink;
+				}
+			}
+
+			#loginForm, 
+			#registerForm {
+
+				h2 {
+					margin-bottom: .5em;
+				}
+
+				label {
+					display: block;
+					font-size: .9em;
+					margin-bottom: .2em;
+				}
+
+				input {
+					display: block;
+					margin-bottom: .8em;
+				}
+
+				.buttons {
+					margin-top: 1.5em;
+
+					button:first-child {
+						margin-right: 10px;
+					}
+				}
+
+				.errorMessage {
+					margin-top: .8em;
+					color: $pink;
+				}
+
+				&.open {
+					display: block;
+				}
+
+				&.disabled {
+					opacity: .3;
+				}
+
+			}
+
+			.loader {
+				position: absolute;
+				top: calc(50% - 60px);
+				left: calc(50% - 40px);
+			}
+
+			&.open {
+				display: block;
+			}
+
+		}
 
 		.siteMenu {
 			display: block;
-			margin-right: 10px;
+			margin: 20px 10px 0 0;
 
 			li {
 				display: inline;
-				margin: 0	;
+				margin: 0;
 
 				img {
-					margin-top: 15px;
+					margin-top: 0;
 					height: 40px;
 					vertical-align: middle;
 				}
@@ -132,13 +219,12 @@
 		}
 
 		.siteMenu {
-			margin-right: 20px;
 
 			li {
 				margin: 0 3px;
 
 				img {
-					margin-top: 20px;
+					margin-top: 0;
 					height: 50px;
 				}
 
@@ -167,13 +253,12 @@
 		}
 
 		.siteMenu {
-			margin-right: 20px;
 
 			li {
 				margin: 0 5px;
 
 				img {
-					margin-top: 20px;
+					margin-top: 0;
 					height: 60px;
 				}
 

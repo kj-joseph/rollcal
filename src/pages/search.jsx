@@ -57,6 +57,10 @@ export default class Search extends React.Component {
 		this.toggleFeatureIcon = this.toggleFeatureIcon.bind(this);
 		this.submitSearch = this.submitSearch.bind(this);
 
+	}
+
+	componentWillMount() {
+
 		let promises = [];
 		let countryList = [];
 		let regionLists = {};
@@ -385,7 +389,7 @@ export default class Search extends React.Component {
 		});
 
 	}
-
+/*
 	shouldComponentUpdate(nextProps, nextState) {
 		if (this.state.loading !== nextState.loading
 			|| this.state.dataError !== nextState.dataError
@@ -403,7 +407,7 @@ export default class Search extends React.Component {
 
 		return false;
 	}
-
+*/
 	componentDidMount() {
 		window.scrollTo(0,0);
 		this.props.changePage("search");

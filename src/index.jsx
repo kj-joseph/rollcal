@@ -11,7 +11,15 @@ import {
 import { Provider } from "react-redux";
 import store from "redux/store/index";
 import { connect } from "react-redux";
-import { changePage, saveSearch, setMenuState } from "redux/actions/index";
+import { 
+	changePage,
+	saveSearch,
+	setMenuState,
+	setLoginBoxState,
+	setUserInfo
+} from "redux/actions/index";
+
+import axios from "axios";
 
 import "styles/main.scss";
 import flagIconCss from "flag_icon_css";
@@ -19,6 +27,7 @@ import "react-dates/lib/css/_datepicker.css";
 import "react-select/dist/react-select.css";
 
 import HeaderLogo from "images/header-logo.svg";
+import HeaderLogoPNG from "images/header-logo.png";
 import htaccess from ".htaccess";
 const favicons = require.context("images/favicon", true);
 
@@ -41,6 +50,10 @@ import Events from "pages/events.jsx";
 import Search from "pages/search.jsx";
 import EventDetails from "pages/eventDetails.jsx";
 import Faq from "pages/faq.jsx";
+import Validate from "pages/validate.jsx";
+
+import Login from "pages/login.jsx";
+
 
 class SiteLogo extends React.Component {
 
@@ -66,6 +79,7 @@ class ConnectedSiteRouter extends React.Component {
 						<div id="siteLogo">
 							<SiteLogo />
 						</div>
+						<LoginBox />
 						<div id="siteMenuHeader">
 							<SiteMenu />
 						</div>
@@ -86,6 +100,7 @@ class ConnectedSiteRouter extends React.Component {
 							<Route path="/events/search" component={SearchPage} />
 							<Route path="/events/:startDate?/:endDate?" component={EventsPage} />
 							<Route path="/faq" component={FaqPage} />
+							<Route path="/validate/:validationCode" component={ValidatePage} />
 							<Route component={NotFoundPage} />
 						</Switch>
 					</div>
@@ -97,9 +112,63 @@ class ConnectedSiteRouter extends React.Component {
 
 }
 
-class SiteMenu extends React.Component {
+class ConnectedSiteMenu extends React.Component {
+
+	constructor(props) {
+		super(props);
+
+		if (sessionStorage.rollCalUserId
+			&& sessionStorage.rollCalUserName
+			&& sessionStorage.rollCalUserIsAdmin
+			&& sessionStorage.rollCalUserSessionId) {
+
+			axios.post(this.props.apiLocation + "auth/checkSession", {
+				userId: sessionStorage.rollCalUserId,
+				isAdmin: sessionStorage.rollCalUserIsAdmin,
+				sessionId: sessionStorage.rollCalUserSessionId
+			}).then(results => {
+				if (results.data.response) {
+					this.props.setUserInfo({
+						loggedIn: true,
+						loggedInUserId: sessionStorage.rollCalUserId,
+						loggedInUserAdmin: sessionStorage.rollCalUserIsAdmin
+					});
+
+				} else {
+					this.logout();
+				}
+			});
+			
+		}
+
+		this.openLoginBox = event => {
+			event.preventDefault();
+			this.props.setLoginBoxState(true);
+		}
+
+		this.logout = event => {
+			if (event) {
+				event.preventDefault();
+			}
+
+			axios.delete(this.props.apiLocation + "auth/logout/" + sessionStorage.rollCalUserId);	
+
+			sessionStorage.removeItem("rollCalUserId");
+			sessionStorage.removeItem("rollCalUserName");
+			sessionStorage.removeItem("rollCalUserIsAdmin");
+			sessionStorage.removeItem("rollCalUserSessionId");
+
+			this.props.setUserInfo({
+				loggedIn: false,
+				loggedInUserId: "",
+				loggedInUserAdmin: ""
+			});
+		}
+
+	}
 
 	render() {
+
 		return (
 			<div className="siteMenu">
 				<ul>
@@ -121,9 +190,9 @@ class SiteMenu extends React.Component {
 					{ this.props.loggedIn ? 
 					<React.Fragment>
 						<li>
-							<NavLink to="/logout" title="Log out">
+							<a href="" onClick={this.logout} title="Log out">
 								<img src={MenuLogout} alt="" />
-							</NavLink>
+							</a>
 						</li>
 						<li>
 							<NavLink to="/profile" title="Profile">
@@ -137,11 +206,13 @@ class SiteMenu extends React.Component {
 						</li>
 					</React.Fragment>
 					:
-					<li>
-						<NavLink to="/login" title="Login / Register">
-							<img src={MenuLogin} alt="" />
-						</NavLink>
-					</li>
+					<React.Fragment>
+						<li>
+							<a href="" onClick={this.openLoginBox} title="Login / Register">
+								<img src={MenuLogin} alt="" />
+							</a>
+						</li>
+					</React.Fragment>
 					}
 				</ul>
 			</div>
@@ -162,7 +233,8 @@ const mapStateToProps = state => {
 		page: state.page,
 		lastSearch: state.lastSearch,
 		loggedIn: state.loggedIn,
-		menuDrawerOpen: state.menuDrawerOpen
+		menuDrawerOpen: state.menuDrawerOpen,
+		loginBoxOpen: state.loginBoxOpen
 	};
 };
 
@@ -170,17 +242,25 @@ const mapDispatchToProps = dispatch => {
 	return {
 		changePage: page => dispatch(changePage(page)),
 		saveSearch: search => dispatch(saveSearch(search)),
-		setMenuState: menuState => dispatch(setMenuState(menuState))
+		setMenuState: menuState => dispatch(setMenuState(menuState)),
+		setLoginBoxState: loginBoxState => dispatch(setLoginBoxState(loginBoxState)),
+		setUserInfo: userState => dispatch(setUserInfo(userState))
 	};
 };
 
 
 const SiteRouter = connect(mapStateToProps, mapDispatchToProps)(ConnectedSiteRouter);
+const SiteMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedSiteMenu);
 const EventsPage = connect(mapStateToProps, mapDispatchToProps)(Events);
 const SearchPage = connect(mapStateToProps, mapDispatchToProps)(Search);
 const EventDetailsPage = connect(mapStateToProps, mapDispatchToProps)(EventDetails);
 const FaqPage = connect(mapStateToProps, mapDispatchToProps)(Faq);
 const NotFoundPage = connect(mapStateToProps, mapDispatchToProps)(Error404);
+
+const ValidatePage = connect(mapStateToProps, mapDispatchToProps)(Validate);
+
+const LoginBox = connect(mapStateToProps, mapDispatchToProps)(Login);
+
 
 ReactDOM.render(
 	<Provider store={store}>
