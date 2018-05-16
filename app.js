@@ -1,7 +1,9 @@
 const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
 const logger = require("morgan");
+const cors = require("cors");
 
 const indexRouter = require("./routes/index");
 const authRouter = require("./routes/auth");
@@ -16,11 +18,16 @@ const mysql = require("mysql");
 
 let app = express();
 
-app.use(logger("dev"));
+app.use(cors());
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+
+app.use(logger("dev"));
 
 app.use((req, res, next) => {
 	res.locals.connection = mysql.createPool({

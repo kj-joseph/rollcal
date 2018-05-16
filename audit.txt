@@ -1,0 +1,67 @@
+                                                                                
+                       === npm audit security report ===                        
+                                                                                
+# Run  npm install npm@6.0.1  to resolve 2 vulnerabilities
+SEMVER WARNING: Recommended action is a potentially breaking change
+                                                                                
+  High            Denial of Service                                             
+                                                                                
+  Package         http-proxy-agent                                              
+                                                                                
+  Dependency of   npm                                                           
+                                                                                
+  Path            npm > npm-profile > make-fetch-happen > http-proxy-agent      
+                                                                                
+  More info       https://nodesecurity.io/advisories/607                        
+                                                                                
+
+
+                                                                                
+  High            Denial of Service                                             
+                                                                                
+  Package         https-proxy-agent                                             
+                                                                                
+  Dependency of   npm                                                           
+                                                                                
+  Path            npm > npm-profile > make-fetch-happen > https-proxy-agent     
+                                                                                
+  More info       https://nodesecurity.io/advisories/593                        
+                                                                                
+
+
+                                                                                
+                                 Manual Review                                  
+             Some vulnerabilities require your attention to resolve             
+                                                                                
+          Visit https://go.npm.me/audit-guide for additional guidance           
+                                                                                
+                                                                                
+  Low             Prototype Pollution                                           
+                                                                                
+  Package         lodash                                                        
+                                                                                
+  Patched in      >=4.17.5                                                      
+                                                                                
+  Dependency of   npm                                                           
+                                                                                
+  Path            npm > cli-table2 > lodash                                     
+                                                                                
+  More info       https://nodesecurity.io/advisories/577                        
+                                                                                
+                                                                                
+  Low             Prototype Pollution                                           
+                                                                                
+  Package         lodash                                                        
+                                                                                
+  Patched in      >=4.17.5                                                      
+                                                                                
+  Dependency of   npm                                                           
+                                                                                
+  Path            npm > npm-audit-report > cli-table2 > lodash                  
+                                                                                
+  More info       https://nodesecurity.io/advisories/577                        
+                                                                                
+
+[!] 4 vulnerabilities found - Packages audited: 4842 (0 dev, 32 optional)
+    Severity: 2 Low | 2 High
+

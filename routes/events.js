@@ -17,17 +17,14 @@ router.get("/getEventDetails/:eventId", (req, res, next) => {
 			if (error) {
 				res.locals.connection.end();
 				console.error(error);
-				res.send(JSON.stringify({
-					status: 500,
-					response: "There was an error.  Please try again."
-				}));
+				res.status(500).send();
+
 			} else if (!results.length) {
 				res.locals.connection.end();
-				res.send(JSON.stringify({
-					status: 200,
-					error: null,
-					response: []
+				res.status(200).send(JSON.stringify({
+					response: null
 				}));
+
 			} else {
 
 				let eventResult = results[0];
@@ -42,13 +39,9 @@ router.get("/getEventDetails/:eventId", (req, res, next) => {
 				res.locals.connection.query(query,
 					(error, results, fields) => {
 						if (error) {
-							res.locals.connection.end();
 							console.error(error);
-							res.send(JSON.stringify({
-								status: 500,
-								response: "There was an error.  Please try again."
-							}));
-							next();
+							res.status(500).send();
+
 						} else {
 
 							eventResult.days = results;
@@ -62,10 +55,8 @@ router.get("/getEventDetails/:eventId", (req, res, next) => {
 									if (error) {
 										res.locals.connection.end();
 										console.error(error);
-										res.send(JSON.stringify({
-											status: 500,
-											response: "There was an error.  Please try again."
-										}));
+										res.status(500).send();
+
 									} else {
 
 										eventResult.sanctions = results;
@@ -77,12 +68,9 @@ router.get("/getEventDetails/:eventId", (req, res, next) => {
 											+ " order by derbytype_name",
 											(error, results, fields) => {
 												if (error) {
-													res.locals.connection.end();
 													console.error(error);
-													res.send(JSON.stringify({
-														status: 500,
-														response: "There was an error.  Please try again."
-													}));
+													res.status(500).send();
+
 												} else {
 
 													eventResult.derbytypes = results;
@@ -94,20 +82,15 @@ router.get("/getEventDetails/:eventId", (req, res, next) => {
 														+ " order by track_name",
 														(error, results, fields) => {
 															if (error) {
-																res.locals.connection.end();
 																console.error(error);
-																res.send(JSON.stringify({
-																	status: 500,
-																	response: "There was an error.  Please try again."
-																}));
+																res.status(500).send();
+
 															} else {
 
 																eventResult.tracks = results;
 
 																res.locals.connection.end();
-																res.send(JSON.stringify({
-																	status: 200,
-																	error: null,
+																res.status(200).send(JSON.stringify({
 																	response: [eventResult]
 																}));
 
@@ -210,22 +193,16 @@ router.get("/search", (req, res, next) => {
 		query.where += ")"
 	}
 
-//	console.log(query);
 	res.locals.connection.query(query.select + query.from + query.where + query.order,
 		(error, eventResults, fields) => {
 			if (error) {
 				res.locals.connection.end();
 				console.error(error);
-				res.send(JSON.stringify({
-					status: 500,
-					response: "There was an error.  Please try again."
-				}));
+				res.status(500).send();
 			} else if (!eventResults.length) {
 				res.locals.connection.end();
 
-				res.send(JSON.stringify({
-					status: 200,
-					error: null,
+				res.status(200).send(JSON.stringify({
 					response: []
 				}));
 
@@ -310,9 +287,7 @@ router.get("/search", (req, res, next) => {
 				Promise.all(promises).then((results) => {
 
 					res.locals.connection.end();
-					res.send(JSON.stringify({
-						status: 200,
-						error: null,
+					res.status(200).send(JSON.stringify({
 						response: results
 					}));
 
@@ -320,10 +295,7 @@ router.get("/search", (req, res, next) => {
 
 					res.locals.connection.end();
 					console.error(error);
-					res.send(JSON.stringify({
-						status: 500,
-						response: "There was an error.  Please try again."
-					}));
+					res.status(500).send();
 
 				});
 

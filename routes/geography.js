@@ -10,14 +10,9 @@ router.get("/getAllCountries", (req, res, next) => {
 
 				if (error) {
 					console.error(error);
-					res.send(JSON.stringify({
-						status: 500,
-						response: "There was an error.  Please try again."
-					}));
+					res.status(500).send();
 				} else {
-					res.send(JSON.stringify({
-						status: 200,
-						error: null,
+					res.status(200).send(JSON.stringify({
 						response: results
 					}));
 				}
@@ -43,14 +38,10 @@ router.get("/getCountriesByCodes/:countryIds?", (req, res, next) => {
 
 				if (error) {
 					console.error(error);
-					res.send(JSON.stringify({
-						status: 500,
-						response: "There was an error.  Please try again."
-					}));
+					res.status(500).send();
+
 				} else {
-					res.send(JSON.stringify({
-						status: 200,
-						error: null,
+					res.status(200).send(JSON.stringify({
 						response: results
 					}));
 				}
@@ -68,14 +59,10 @@ router.get("/getRegionsByCountry/:countryId", (req, res, next) => {
 
 				if (error) {
 					console.error(error);
-					res.send(JSON.stringify({
-						status: 500,
-						response: "There was an error.  Please try again."
-					}));
+					res.status(500).send();
+
 				} else {
-					res.send(JSON.stringify({
-						status: 200,
-						error: null,
+					res.status(200).send(JSON.stringify({
 						response: results
 					}));
 				}
@@ -102,14 +89,10 @@ router.get("/getRegionsByIds/:regionIds?", (req, res, next) => {
 
 				if (error) {
 					console.error(error);
-					res.send(JSON.stringify({
-						status: 500,
-						response: "There was an error.  Please try again."
-					}));
+					res.status(500).send();
+
 				} else {
-					res.send(JSON.stringify({
-						status: 200,
-						error: null,
+					res.status(200).send(JSON.stringify({
 						response: results
 					}));
 				}
