@@ -130,7 +130,7 @@ router.get("/search", (req, res, next) => {
 		where: " where event_approved = 1"
 			+ " and vr.venue_id = event_venue and country_code = vr.venue_country"
 			+ " and event_user = user_id and timezone_id = event_timezone",
-		order: " order by eventday_start"
+		order: ""
 	}
 
 	if (req.query.startDate) {
@@ -193,7 +193,12 @@ router.get("/search", (req, res, next) => {
 		query.where += ")"
 	}
 
-	res.locals.connection.query(query.select + query.from + query.where + query.order,
+	res.locals.connection.query(
+		"select *"
+		+ " from (" + query.select + query.from + query.where + query.order + ") subquery"
+		+ " join (select eventday_event, min(eventday_start) eds from eventdays group by eventday_event) ed"
+		+ " on ed.eventday_event = subquery.event_id "
+		+ " order by eds",
 		(error, eventResults, fields) => {
 			if (error) {
 				res.locals.connection.end();
