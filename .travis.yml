@@ -14,12 +14,12 @@ script:
 deploy:
   - provider: script
     skip_cleanup: true
-    script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/build kj@server.bykev.in:/var/www/roll-cal-dev; fi
+    script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/build/* kj@server.bykev.in:/var/www/roll-cal-dev; fi
     on:
       branch: dev
   - provider: script
     skip_cleanup: true
-    script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/build kj@server.bykev.in:/var/www/roll-cal
+    script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/build/* kj@server.bykev.in:/var/www/roll-cal
     on:
       branch: master
 before_install:
