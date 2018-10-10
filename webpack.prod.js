@@ -5,8 +5,6 @@ const MinifyPlugin = require("babel-minify-webpack-plugin");
 const path = require("path");
 const build_dir = path.resolve(__dirname, "build");
 
-const titleEnvTag="";
-
 module.exports = merge(common, {
 	plugins: [
 	new MinifyPlugin({},{}),

@@ -27,7 +27,7 @@ module.exports = {
 
 	plugins: [
 		new HtmlWebpackPlugin({
-			title: titleEnvTag + "Roll-Cal",
+			title: "Roll-Cal",
 			template: "src/index.html",
 			minify: false
 		})
