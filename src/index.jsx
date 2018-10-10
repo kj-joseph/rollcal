@@ -75,7 +75,7 @@ class ConnectedSiteRouter extends React.Component {
 
 		return (
 			<Router>
-				<div id="pageWrapper">
+				<div id="pageWrapper" className={ENV ? "env-" + ENV: ""}>
 					<LoginBox />
 					<div id="siteHeader">
 						<div id="siteLogo">
@@ -262,7 +262,6 @@ const NotFoundPage = connect(mapStateToProps, mapDispatchToProps)(Error404);
 const ValidatePage = connect(mapStateToProps, mapDispatchToProps)(Validate);
 
 const LoginBox = connect(mapStateToProps, mapDispatchToProps)(Login);
-
 
 ReactDOM.render(
 	<Provider store={store}>

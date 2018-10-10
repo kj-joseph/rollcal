@@ -13,7 +13,7 @@ module.exports = merge(common, {
 			"process.env.NODE_ENV": JSON.stringify("production")
 		}),
 		new webpack.DefinePlugin({
-			"API_URL": JSON.stringify("/api/")
+			"API_URL": JSON.stringify("/api/"),
 		})
 	]
 });
