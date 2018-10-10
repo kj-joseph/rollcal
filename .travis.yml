@@ -17,6 +17,11 @@ deploy:
   script: 
   - if [ "$TRAVIS_BRANCH" = "dev" ]; then rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/build kj@server.bykev.in:/var/www/roll-cal-dev; fi
   - if [ "$TRAVIS_BRANCH" = "master" ]; then rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/build kj@server.bykev.in:/var/www/roll-cal
+  on:
+    branches:
+      only:
+        - master
+        - dev
 before_install:
 - openssl aes-256-cbc -K $encrypted_0b0c4b85a4ad_key -iv $encrypted_0b0c4b85a4ad_iv
   -in deploy_rsa.enc -out /tmp/deploy_rsa -d
