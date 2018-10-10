@@ -15,7 +15,7 @@ module.exports = merge(common, {
 	},
 	plugins: [
 		new webpack.DefinePlugin({
-			"API_URL": JSON.stringify("/dev/"),
+			"API_URL": JSON.stringify("/api/"),
 			"ENV": JSON.stringify("dev")
 		})
 	]
