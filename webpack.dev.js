@@ -4,6 +4,8 @@ const common = require("./webpack.common.js");
 const path = require("path");
 const build_dir = path.resolve(__dirname, "build");
 
+const titleEnvTag="[DEV] ";
+
 module.exports = merge(common, {
 	devServer: {
 		contentBase: build_dir,
@@ -15,7 +17,7 @@ module.exports = merge(common, {
 	},
 	plugins: [
 		new webpack.DefinePlugin({
-			"API_URL": JSON.stringify("http://192.168.1.66:55002/")
+			"API_URL": JSON.stringify("/dev/"),
 		})
 	]
 });

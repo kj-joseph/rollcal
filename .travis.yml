@@ -6,10 +6,22 @@ cache:
   - node_modules
 script:
   - npm run build:travis
+  on:
+    branch: dev
+script:
+  - npm run prod:travis
+  on:
+    branch: master
 deploy:
   provider: script
   skip_cleanup: true
   script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/build kj@server.bykev.in:/var/www/roll-cal-dev
+  on:
+    branch: dev
+deploy:
+  provider: script
+  skip_cleanup: true
+  script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/build kj@server.bykev.in:/var/www/roll-cal
   on:
     branch: master
 before_install:
