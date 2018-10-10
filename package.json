@@ -8,7 +8,8 @@
     "prod:win": "rd /s /q build && mkdir build && webpack --config webpack.prod.js --mode production",
     "build": "rm -r build && mkdir build && webpack --config webpack.dev.js --mode development",
     "build:win": "rd /s /q build && mkdir build && webpack --config webpack.dev.js --mode development",
-    "start": "rm -r build/* && mkdir build && webpack-dev-server --progress --config webpack.dev.js --mode development",
+		"build:travis": "webpack --config webpack.dev.js --mode development",
+		"start": "rm -r build/* && mkdir build && webpack-dev-server --progress --config webpack.dev.js --mode development",
     "start:win": "rd /s /q build && mkdir build && webpack-dev-server --progress --config webpack.dev.js --mode development",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
