@@ -75,7 +75,7 @@ class ConnectedSiteRouter extends React.Component {
 
 		return (
 			<Router>
-				<div id="pageWrapper" className={ENV ? "env-" + ENV: ""}>
+				<div id="pageWrapper" className={typeof(ENV) !== "undefined" ? "env-" + ENV: ""}>
 					<LoginBox />
 					<div id="siteHeader">
 						<div id="siteLogo">
