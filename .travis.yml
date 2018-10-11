@@ -6,15 +6,13 @@ cache:
   - node_modules
 branches:
   only:
-  - master
   - dev
 script:
   - if [ "$TRAVIS_BRANCH" = "dev" ]; then npm run deploy:dev; fi
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then npm run deploy:prod; fi
 deploy:
   - provider: script
     skip_cleanup: true
-    script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/build/* kj@server.bykev.in:/var/www/roll-cal-dev; fi
+    script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/build/* kj@server.bykev.in:/var/www/roll-cal/dev; fi
     on:
       branch: dev
 before_install:
