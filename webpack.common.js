@@ -4,20 +4,35 @@ const path = require("path");
 const build_dir = path.resolve(__dirname, "build");
 const src_dir = path.resolve(__dirname, "src");
 
-module.exports = {
+module.exports = () => {
 
-	entry: [src_dir + "/bin/www"],
+//console.log(process.env);
 
-	target: "node",
+	return {
 
-	module: {
-		exprContextCritical: false,
-	},
+		entry: [src_dir + "/bin/www"],
 
-	output: {
-		filename: "rollcal-api.js",
-		path: build_dir,
-		publicPath: "/"
-	}
+		target: "node",
+
+		module: {
+			exprContextCritical: false,
+		},
+
+		output: {
+			filename: "rollcal-api.js",
+			path: build_dir,
+			publicPath: "/"
+		},
+
+		plugins: [
+			new webpack.EnvironmentPlugin([
+				'ROLLCAL_DB_HOST',
+				'ROLLCAL_DB_USER',
+				'ROLLCAL_DB_PASSWORD',
+				'ROLLCAL_DB_DATABASE'
+			])
+		]
+
+	};
 
 };

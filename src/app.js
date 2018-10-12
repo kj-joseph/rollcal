@@ -12,8 +12,6 @@ const eventsRouter = require("./routes/events");
 const venuesRouter = require("./routes/venues");
 const eventFeaturesRouter = require("./routes/eventFeatures");
 
-const dbAuth = require ("./dbAuth");
-
 const mysql = require("mysql");
 
 let app = express();
@@ -31,10 +29,10 @@ app.use(logger("dev"));
 
 app.use((req, res, next) => {
 	res.locals.connection = mysql.createPool({
-		host: dbAuth.host,
-		user: dbAuth.user,
-		password: dbAuth.password,
-		database: dbAuth.database,
+		host: process.env.ROLLCAL_DB_HOST,
+		user: process.env.ROLLCAL_DB_USER, 
+		password: process.env.ROLLCAL_DB_PASSWORD,
+		database: process.env.ROLLCAL_DB_DATABASE,
 		timezone: "utc",
 		connectionLimit: 50
 	});
