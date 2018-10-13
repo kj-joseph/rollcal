@@ -10,7 +10,7 @@ import moment from "moment";
 
 import Select from "react-select";
 
-import { formatDateRange } from "lib/dateTime.jsx";
+import { formatDateRange } from "lib/dateTime";
 
 export default class Search extends React.Component {
 

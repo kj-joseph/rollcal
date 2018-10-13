@@ -4,7 +4,7 @@ import { BrowserRouter as Router, NavLink } from "react-router-dom";
 
 import axios from "axios";
 
-import { formatDateRange } from "lib/dateTime.jsx";
+import { formatDateRange } from "lib/dateTime";
 
 export default class EventList extends React.Component {
 

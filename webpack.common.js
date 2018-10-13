@@ -7,7 +7,7 @@ const src_dir = path.resolve(__dirname, "src");
 const node_dir = path.resolve(__dirname, "node_modules");
 
 module.exports = {
-	entry: ["babel-polyfill", src_dir + "/index.jsx"],
+	entry: ["babel-polyfill", src_dir + "/index.tsx"],
 
 	output: {
 		filename: "bundle.js",
@@ -20,9 +20,7 @@ module.exports = {
 			src_dir,
 			"node_modules"
 		],
-		alias: {
-			flag_icon_css: node_dir + "/flag-icon-css/sass/flag-icon.scss"
-		}
+		extensions: [".ts", ".tsx", ".js", ".jsx", ".json"]
 	},
 
 	plugins: [
@@ -57,6 +55,11 @@ module.exports = {
 			},
 			{
 				test: /\.jsx?/,
+				include: src_dir,
+				loader: "babel-loader"
+			},
+			{
+				test: /\.tsx?/,
 				include: src_dir,
 				loader: "babel-loader"
 			},

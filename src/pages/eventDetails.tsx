@@ -4,30 +4,36 @@ import { BrowserRouter as Router, NavLink } from "react-router-dom";
 
 import axios from "axios";
 
-import { formatDateRange, formatDate, formatTime } from "lib/dateTime.jsx";
-import EventIcons from "pages/eventIcons.jsx";
+import { formatDateRange, formatDate, formatTime } from "lib/dateTime";
+import EventIcons from "pages/eventIcons";
 
-export default class EventDetails extends React.Component {
+interface EventDetailsState {
+	dataError: boolean,
+	eventData: DerbyEvent,
+	limit: number,
+	loading: boolean,
+}
 
-	constructor(props) {
+export default class EventDetails extends React.Component<ReduxStore> {
+
+	state: EventDetailsState;
+
+	constructor(props: ReduxStore) {
 		super(props);
 
 		this.state = {
 			loading: true,
 			dataError: false,
-			eventData: [],
+			eventData: {} as DerbyEvent,
 			limit: this.props.limit || 12
 		}
 
 		axios.get(this.props.apiLocation + "events/getEventDetails/" + this.props.match.params.eventId)
 			.then(result => {
 
-				let eventData = [];
-
-				for (let e = 0; e < result.data.response.length; e ++) {
-					let event = {};
-
-					let eventResult = result.data.response[e];
+					let event: DerbyEvent = ({} as any);
+					
+					let eventResult:DBDerbyEvent = result.data.response[e];
 
 					event.id = eventResult.event_id;
 
@@ -105,14 +111,12 @@ export default class EventDetails extends React.Component {
 
 					event.user = eventResult.user_name;
 
-					eventData.push(event);
-				}
-
 				this.setState({
-					eventData: eventData,
+					eventData: event,
 					loading: false
 				});
 			}).catch(error => {
+				console.error(error);
 
 				this.setState({
 					dataError: true,
@@ -124,13 +128,13 @@ export default class EventDetails extends React.Component {
 
 	}
 
-	shouldComponentUpdate(nextProps, nextState) {
+	shouldComponentUpdate(nextProps: ReduxStore, nextState: ReduxStore) {
 		if (this.state.eventData !== nextState.eventData
 			|| this.state.dataError !== nextState.dataError) {
 			return true;
 		}
 		return false;
-	}
+	} 
 
 	componentDidMount() {
 		window.scrollTo(0,0);

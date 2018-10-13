@@ -9,14 +9,14 @@ module.exports = merge(common, {
 		contentBase: build_dir,
 		historyApiFallback: true,
 		inline: true,
-		open: true,
+		open: false,
 		host: "0.0.0.0",
 		port: 3000
 	},
 	plugins: [
 		new webpack.DefinePlugin({
-			"API_URL": JSON.stringify("http://192.168.1.66:55002/"),
-			"ENV": JSON.stringify("local")
+			"process.env.API_URL": JSON.stringify("https://dev.roll-cal.com/api/"),
+			"process.env.ENV": JSON.stringify("local")
 		})
 	]
 });

@@ -1,36 +1,23 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import {
-	BrowserRouter as Router,
-	Route,
-	NavLink,
-	Switch,
-	withRouter 
-} from "react-router-dom";
+import * as React from "react";
+import * as ReactDOM from "react-dom";
+import { BrowserRouter as Router, Route, NavLink, Switch, withRouter } from "react-router-dom";
 
-import { Provider } from "react-redux";
-import store from "redux/store/index";
-import { connect } from "react-redux";
-import { 
-	changePage,
-	saveSearch,
-	setMenuState,
-	setLoginBoxState,
-	setUserInfo
-} from "redux/actions/index";
+import { Provider, connect } from "react-redux";
+import store from "redux/store";
+import * as reduxActions from "redux/actions";
+import { Dispatch } from "redux";
 
 import axios from "axios";
 
 import "styles/main.scss";
-import flagIconCss from "flag_icon_css";
+import "flag-icon-css/sass/flag-icon.scss";
 import "react-dates/lib/css/_datepicker.css";
 import "react-select/dist/react-select.css";
 
-import HeaderLogo from "images/header-logo.svg";
-import HeaderLogoPNG from "images/header-logo.png";
-import htaccess from ".htaccess";
-const favicons = require.context("images/favicon", true);
+import ".htaccess";
+require.context("images/favicon", true);
 
+import HeaderLogo from "images/header-logo.svg";
 require.context("images/derbytypes", true);
 require.context("images/sanctions", true);
 require.context("images/tracks", true);
@@ -45,15 +32,14 @@ import MenuEdit from "images/menu/edit.svg";
 
 import MenuDrawer from "images/menu/drawer.svg";
 
-import Error404 from "pages/404.jsx";
-import Events from "pages/events.jsx";
-import Search from "pages/search.jsx";
-import EventDetails from "pages/eventDetails.jsx";
-import Faq from "pages/faq.jsx";
-import Validate from "pages/validate.jsx";
+import Error404 from "pages/404";
+import Events from "pages/events";
+import Search from "pages/search";
+import EventDetails from "pages/eventDetails";
+import Faq from "pages/faq";
+import Validate from "pages/validate";
 
-import Login from "pages/login.jsx";
-
+import Login from "pages/login";
 
 class SiteLogo extends React.Component {
 
@@ -65,9 +51,9 @@ class SiteLogo extends React.Component {
 
 }
 
-class ConnectedSiteRouter extends React.Component {
+class ConnectedSiteRouter extends React.Component<ReduxStore> {
 
-	constructor(props) {
+	constructor(props: ReduxStore) {
 		super(props);
 	}
 
@@ -75,7 +61,7 @@ class ConnectedSiteRouter extends React.Component {
 
 		return (
 			<Router>
-				<div id="pageWrapper" className={typeof(ENV) !== "undefined" ? "env-" + ENV: ""}>
+				<div id="pageWrapper" className={typeof(process.env.ENV) !== "undefined" ? "env-" + process.env.ENV: ""}>
 					<LoginBox />
 					<div id="siteHeader">
 						<div id="siteLogo">
@@ -86,12 +72,11 @@ class ConnectedSiteRouter extends React.Component {
 						</div>
 					</div>
 					<div id="siteMenuDrawer" className= {this.props.menuDrawerOpen ? " drawerOpen" : "drawerClosed"}>
-						<div className="openDrawerIcon" title="Open site menu" onClick={() => {this.props.setMenuState(!this.props.menuDrawerOpen)}}>
+						<div className="openDrawerIcon" title="Open site menu" onClick={function() {this.props.setMenuState(!this.props.menuDrawerOpen)}}>
 							<img src={MenuDrawer} alt="" />
 						</div>
 						<SiteMenu />
 					</div>
-
 
 					<div id="content">
 						{this.props.menuDrawerOpen}
@@ -113,10 +98,13 @@ class ConnectedSiteRouter extends React.Component {
 
 }
 
-class ConnectedSiteMenu extends React.Component {
+class ConnectedSiteMenu extends React.Component<ReduxStore> {
 
-	constructor(props) {
+	constructor(props: ReduxStore) {
 		super(props);
+
+		this.logout = this.logout.bind(this);
+		this.openLoginBox = this.openLoginBox.bind(this);
 
 		if (sessionStorage.rollCalUserId
 			&& sessionStorage.rollCalUserName
@@ -127,7 +115,7 @@ class ConnectedSiteMenu extends React.Component {
 				userId: sessionStorage.rollCalUserId,
 				isAdmin: sessionStorage.rollCalUserIsAdmin,
 				sessionId: sessionStorage.rollCalUserSessionId
-			}).then(results => {
+			}).then((results) => {
 				if (results.data.response) {
 					this.props.setUserInfo({
 						loggedIn: true,
@@ -142,31 +130,32 @@ class ConnectedSiteMenu extends React.Component {
 			
 		}
 
-		this.openLoginBox = event => {
+	}
+
+	logout(event?: React.MouseEvent<HTMLAnchorElement>): void {
+		console.log(this);
+		if (event) {
 			event.preventDefault();
-			this.props.setLoginBoxState(true);
-			this.props.setMenuState(false);
 		}
 
-		this.logout = event => {
-			if (event) {
-				event.preventDefault();
-			}
+		axios.delete(this.props.apiLocation + "auth/logout/" + sessionStorage.rollCalUserId);	
 
-			axios.delete(this.props.apiLocation + "auth/logout/" + sessionStorage.rollCalUserId);	
+		sessionStorage.removeItem("rollCalUserId");
+		sessionStorage.removeItem("rollCalUserName");
+		sessionStorage.removeItem("rollCalUserIsAdmin");
+		sessionStorage.removeItem("rollCalUserSessionId");
 
-			sessionStorage.removeItem("rollCalUserId");
-			sessionStorage.removeItem("rollCalUserName");
-			sessionStorage.removeItem("rollCalUserIsAdmin");
-			sessionStorage.removeItem("rollCalUserSessionId");
+		this.props.setUserInfo({
+			loggedIn: false,
+			loggedInUserId: "",
+			loggedInUserAdmin: ""
+		});
+	}
 
-			this.props.setUserInfo({
-				loggedIn: false,
-				loggedInUserId: "",
-				loggedInUserAdmin: ""
-			});
-		}
-
+	openLoginBox(event: React.MouseEvent<HTMLAnchorElement>): void {
+		event.preventDefault();
+		this.props.setLoginBoxState(true);
+		this.props.setMenuState(false);
 	}
 
 	render() {
@@ -229,7 +218,7 @@ const RedirectHome = withRouter(({ history }) => {
 	return null;
 });
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: ReduxStore) => {
 	return {
 		apiLocation: state.apiLocation,
 		page: state.page,
@@ -240,16 +229,15 @@ const mapStateToProps = state => {
 	};
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: Dispatch<ActionType>): ReduxActions => {
 	return {
-		changePage: page => dispatch(changePage(page)),
-		saveSearch: search => dispatch(saveSearch(search)),
-		setMenuState: menuState => dispatch(setMenuState(menuState)),
-		setLoginBoxState: loginBoxState => dispatch(setLoginBoxState(loginBoxState)),
-		setUserInfo: userState => dispatch(setUserInfo(userState))
+		changePage: (page: string) => dispatch(reduxActions.changePage(page)),
+		saveSearch: (search: string) => dispatch(reduxActions.saveSearch(search)),
+		setMenuState: (menuState: boolean) => dispatch(reduxActions.setMenuState(menuState)),
+		setLoginBoxState: (loginBoxState: boolean) => dispatch(reduxActions.setLoginBoxState(loginBoxState)),
+		setUserInfo: (userState: UserInfo) => dispatch(reduxActions.setUserInfo(userState))
 	};
 };
-
 
 const SiteRouter = connect(mapStateToProps, mapDispatchToProps)(ConnectedSiteRouter);
 const SiteMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedSiteMenu);
