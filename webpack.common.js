@@ -7,29 +7,27 @@ const src_dir = path.resolve(__dirname, "src");
 const node_dir = path.resolve(__dirname, "node_modules");
 
 module.exports = {
-	entry: ["babel-polyfill", src_dir + "/index.jsx"],
+	entry: ["@babel/polyfill", src_dir + "/index.tsx"],
 
 	output: {
 		filename: "bundle.js",
 		path: build_dir,
-		publicPath: "/"
+		publicPath: "/",
 	},
 
 	resolve: {
 		modules: [
 			src_dir,
-			"node_modules"
+			"node_modules",
 		],
-		alias: {
-			flag_icon_css: node_dir + "/flag-icon-css/sass/flag-icon.scss"
-		}
+		extensions: [".ts", ".tsx", ".js", ".jsx", ".json"]
 	},
 
 	plugins: [
 		new HtmlWebpackPlugin({
 			title: "Roll-Cal",
 			template: "src/index.html",
-			minify: false
+			minify: false,
 		})
 	],
 
@@ -41,7 +39,7 @@ module.exports = {
 					loader: "file-loader",
 					options: {
 						name: "[name]",
-						outputPath: "/"
+						outputPath: "/",
 					}
 				}
 			},
@@ -51,28 +49,38 @@ module.exports = {
 					loader: "file-loader",
 					options: {
 						name: "[name].[ext]",
-						outputPath: "/images/"
+						outputPath: "/images/",
 					}
 				}
 			},
 			{
 				test: /\.jsx?/,
 				include: src_dir,
-				loader: "babel-loader"
+				loader: "babel-loader",
 			},
+			{
+				test: /\.tsx?/,
+				include: src_dir,
+				loader: "babel-loader",
+			},
+/*			{
+			  test: /\.js$/,
+			  use: ["source-map-loader"],
+			  enforce: "pre"
+			},*/
 			{
 				test: /\.(eot|ttf|woff|woff2)$/,
 				use: {					
 					loader: "file-loader",
 					options: {
 						name: "[name].[ext]",
-						outputPath: "fonts/"
+						outputPath: "fonts/",
 					}
 				}
 			},
 			{
 				test: /\.(css|scss|sass)$/,
-				loader: ["style-loader", "css-loader", "sass-loader"]
+				loader: ["style-loader", "css-loader", "sass-loader"],
 			},
 			{
 				test: /\.ico$/,
@@ -81,7 +89,7 @@ module.exports = {
 						loader: "file-loader",
 						options: {
 							name: "[name].[ext]",
-							outputPath: "images/"
+							outputPath: "images/",
 						}
 					}
 				]
@@ -93,7 +101,7 @@ module.exports = {
 						loader: "file-loader",
 						options: {
 							name: "[name].[ext]",
-							outputPath: "images/"
+							outputPath: "images/",
 						}
 					},
 					{
@@ -101,25 +109,18 @@ module.exports = {
 						options: {
 							mozjpeg: {
 								progressive: true,
-								quality: 75
+								quality: 75,
 							},
-							// optipng.enabled: false will disable optipng
 							optipng: {
 								enabled: false,
 							},
 							pngquant: {
 								enabled: false,
-//								quality: "90-100",
-//								speed: 4
 							},
 							gifsicle: {
 								interlaced: false,
 							},
-							// the webp option will enable WEBP
-/*							webp: {
-								quality: 75
-							}
-*/						}
+						}
 					},
 				],
 			}

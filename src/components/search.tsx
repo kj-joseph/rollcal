@@ -1,0 +1,696 @@
+import React from "react";
+import ReactDOM from "react-dom";
+import { BrowserRouter as Router, NavLink } from "react-router-dom";
+
+import { IDerbyDates, IDerbyFeatures, IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IGeoRegion, IGeoRegionList } from "interfaces";
+
+import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
+
+import { DayPickerRangeController } from "react-dates";
+import "react-dates/initialize";
+
+import * as moment from "moment";
+
+import Select from "react-select";
+
+import FeatureIcon from "components/featureIcon";
+import RemoveCountryButton from "components/removeCountryButton";
+import RemoveRegionButton from "components/removeRegionButton";
+
+import { formatDateRange } from "lib/dateTime";
+
+export default class Search<Props> extends React.Component<any, any, any> {
+
+	constructor(props: Props) {
+		super(props);
+
+		this.state = {
+			countryList: [] as IGeoCountry[],
+			countrySelectValue: {} as IGeoCountry,
+			dateRangeDisplay: formatDateRange({
+				firstDay: moment(),
+			}),
+			endDate: null as moment.Moment,
+			endDateString: null as string,
+			eventFeatures: {} as IDerbyFeatures,
+			focusedInput: "startDate",
+			loading: true,
+			regionLists: {} as IGeoRegionList,
+			regionSelectValue: {} as IGeoRegion[],
+			selectedCountries: [] as IGeoCountry[],
+			selectedEventFeatures: [] as string[],
+			selectedRegions: {} as IGeoRegionList,
+			startDate: null as moment.Moment,
+			startDateString: null as string,
+		};
+
+		this.addLocation = this.addLocation.bind(this);
+		this.addLocationCountry = this.addLocationCountry.bind(this);
+		this.addLocationRegion = this.addLocationRegion.bind(this);
+		this.changeCountrySelect = this.changeCountrySelect.bind(this);
+		this.changeRegionSelect = this.changeRegionSelect.bind(this);
+		this.clearDates = this.clearDates.bind(this);
+		this.getCountryOptionLabel = this.getCountryOptionLabel.bind(this);
+		this.getRegionOptionLabel = this.getRegionOptionLabel.bind(this);
+		this.handleFocusChange = this.handleFocusChange.bind(this);
+		this.isBeforeToday = this.isBeforeToday.bind(this);
+		this.isCountryOptionDisabled = this.isCountryOptionDisabled.bind(this);
+		this.isRegionOptionDisabled = this.isRegionOptionDisabled.bind(this);
+		this.onDatesChange = this.onDatesChange.bind(this);
+		this.removeLocation = this.removeLocation.bind(this);
+		this.submitSearch = this.submitSearch.bind(this);
+		this.toggleFeatureIcon = this.toggleFeatureIcon.bind(this);
+
+	}
+
+	componentWillMount() {
+
+		let countryList: IGeoCountry[] = [];
+		const eventFeatures: IDerbyFeatures = {} as IDerbyFeatures;
+		let eventSanctions: IDerbySanction[] = [];
+		let eventTracks: IDerbyTrack[] = [];
+		let eventTypes: IDerbyType[] = [];
+		const promises: Array<Promise<any>> = [];
+		const regionLists: IGeoRegionList = {};
+
+
+		promises.push(new Promise((resolve, reject) => {
+			axios.get(this.props.apiLocation + "geography/getAllCountries")
+				.then((result: AxiosResponse) => {
+					countryList = result.data.response;
+
+					const regionPromises: Array<Promise<void>> = [];
+					for (let c = 0; c < countryList.length; c ++) {
+						if (countryList[c].country_region_type) {
+							regionPromises.push(new Promise((resolveRegions, rejectRegions) => {
+								axios.get(this.props.apiLocation + "geography/getRegionsByCountry/" + countryList[c].country_code)
+									.then((resultRegions: AxiosResponse) => {
+										if (resultRegions.data.response.length) {
+											regionLists[countryList[c].country_code] = resultRegions.data.response;
+										}
+										resolveRegions();
+									});
+							}));
+						}
+					}
+
+					if (regionPromises.length) {
+						Promise.all(regionPromises).then(() => {
+							resolve();
+						});
+					} else {
+						resolve();
+					}
+
+				});
+		}));
+
+		promises.push(new Promise((resolve, reject) => {
+			axios.get(this.props.apiLocation + "eventFeatures/getTracks")
+				.then((result: AxiosResponse) => {
+					eventTracks = result.data.response;
+					resolve();
+				});
+		}));
+
+		promises.push(new Promise((resolve, reject) => {
+			axios.get(this.props.apiLocation + "eventFeatures/getDerbyTypes")
+				.then((result: AxiosResponse) => {
+					eventTypes = result.data.response;
+					resolve();
+				});
+		}));
+
+		promises.push(new Promise((resolve, reject) => {
+			axios.get(this.props.apiLocation + "eventFeatures/getSanctionTypes")
+				.then((result: AxiosResponse) => {
+					eventSanctions = result.data.response;
+					resolve();
+				});
+		}));
+
+		Promise.all(promises).then(() => {
+
+			this.setState({
+				countryList,
+				eventFeatures: {
+					derbytypes: eventTypes,
+					sanctions: eventSanctions,
+					tracks: eventTracks,
+				},
+				loading: false,
+				regionLists,
+			});
+
+			let startState: {
+				dateRangeDisplay: string,
+				endDate: moment.Moment,
+				endDateString: string,
+				startDate: moment.Moment,
+				startDateString: string,
+				selectedEventFeatures: string[],
+			};
+			startState = {} as typeof startState;
+
+			if (this.props.lastSearch) {
+				const parts = this.props.lastSearch.match(/^\/events(?:\/?)([0-9]{4}-[0-9]{2}-[0-9]{2})?(?:\/)?([0-9]{4}-[0-9]{2}-[0-9]{2})?\??(.*)$/i);
+
+				if (parts[1]) {
+					startState.startDateString = parts[1];
+					startState.startDate = moment(parts[1].substr(0, 4) + "-" + parts[1].substr(5, 2)  + "-" +  parts[1].substr(8, 2));
+
+					if (parts[2]) {
+						startState.endDateString = parts[2];
+						startState.endDate = moment(parts[2].substr(0, 4) + "-" + parts[2].substr(5, 2)  + "-" +  parts[2].substr(8, 2));
+					}
+
+					startState.dateRangeDisplay = formatDateRange({
+						firstDay: moment(parts[1]) || null,
+						lastDay: moment(parts[2]) || null,
+					});
+
+				}
+
+				if (parts[3]) {
+					const qsParts = parts[3].split("&");
+					const features = [];
+
+					for (let q = 0; q < qsParts.length; q ++) {
+						const param = qsParts[q].split("=");
+
+						switch (param[0]) {
+							case "locations":
+								const locations = param[1].split(";");
+
+								for (let l = 0; l < locations.length; l ++) {
+									const loc = locations[l].split("-");
+									const country: IGeoCountry = countryList.filter((c) => c.country_code === loc[0])[0];
+
+									if (loc.length > 1) {
+										const regions = loc[1].split(",");
+
+										for (let reg = 0; reg < regions.length; reg ++) {
+
+											if (regionLists[loc[0]]) {
+												this.addLocation(country,
+													regionLists[loc[0]].filter((r: IGeoRegion) => r.region_id === Number(regions[reg]))[0]);
+											}
+										}
+
+									} else {
+										this.addLocation(country);
+									}
+								}
+
+								break;
+
+							case "track":
+							case "derbytype":
+							case "sanction":
+								const values = param[1].split(",");
+								for (let v = 0; v < values.length; v ++) {
+									features.push(`${param[0]}s-${values[v]}`);
+								}
+								break;
+						}
+					}
+
+					startState.selectedEventFeatures = features;
+				}
+			}
+
+			this.setState(startState);
+
+		});
+
+	}
+
+	isBeforeToday(date: moment.Moment) {
+
+		const todaysDate = moment({hour: 0, minute: 0, seconds: 0, milliseconds: 0});
+		const day = date.hours(0).minute(0).seconds(0);
+
+		return day < todaysDate;
+	}
+
+	clearDates() {
+		this.setState({
+			dateRangeDisplay: formatDateRange({
+				firstDay: moment(),
+			}),
+			endDate: null,
+			endDateString: null,
+			focusedInput: "startDate",
+			startDate: null,
+			startDateString: null,
+		});
+	}
+
+	onDatesChange(dates: {startDate: moment.Moment, endDate: moment.Moment}) {
+		const dateObject: IDerbyDates = {
+			firstDay: dates.startDate ? dates.startDate : moment(),
+			lastDay: dates.endDate ? dates.endDate : null,
+		};
+		this.setState({
+			dateRangeDisplay: formatDateRange(dateObject),
+			endDate: dates.endDate,
+			endDateString: dates.endDate ? dates.endDate.format("YYYY-MM-DD") : null,
+			startDate: dates.startDate,
+			startDateString: dates.startDate ? dates.startDate.format("YYYY-MM-DD") : null,
+		});
+	}
+
+	changeCountrySelect(country: IGeoCountry) {
+		this.setState({
+			countrySelectValue: Object.assign({disabled: true}, country),
+		});
+	}
+
+	changeRegionSelect(region: IGeoRegion) {
+		this.setState({
+			regionSelectValue: region,
+		});
+	}
+
+	addLocation(country: IGeoCountry, region?: IGeoRegion) {
+		let countries = this.state.selectedCountries;
+		const countryList = this.state.countryList;
+		const newState = {} as any;
+		const regionLists = this.state.regionLists;
+		const regions: IGeoRegionList = this.state.selectedRegions;
+
+		const addCountry = (c: IGeoCountry) => {
+			countries = countries.concat([c]);
+			if (!regions[c.country_code]) {
+				countryList[countryList.findIndex((x: IGeoCountry) => x.country_code === c.country_code)].disabled = true;
+			}
+		};
+
+		const addRegion = (c: IGeoCountry, r: IGeoRegion) => {
+			if (!regions[r.region_country]) {
+				regions[r.region_country] = [];
+				addCountry(c);
+			}
+			regions[r.region_country].push(r);
+			regionLists[r.region_country][regionLists[r.region_country].findIndex((x: IGeoRegion) => x.region_id === r.region_id)].disabled = true;
+		};
+
+		if (region) {
+			addRegion(country, region);
+		} else {
+			addCountry(country);
+		}
+
+		newState.selectedRegions = regions;
+		newState.selectedCountries = countries;
+		newState.countryList = countryList;
+		newState.regionLists = regionLists;
+
+		if (region) {
+			newState.regionSelectValue = {} as IGeoRegion;
+		} else {
+			newState.countrySelectValue = {} as IGeoCountry;
+		}
+
+		this.setState(newState);
+
+	}
+
+	addLocationCountry() {
+		this.addLocation(this.state.countrySelectValue);
+	}
+
+	addLocationRegion() {
+		this.addLocation(this.state.countrySelectValue, this.state.regionSelectValue);
+	}
+
+	removeLocation(countryCode: string, regionId?: number) {
+		const countryList = this.state.countryList;
+		const regionLists = this.state.regionLists;
+		const regions = this.state.selectedRegions;
+		let countries = this.state.selectedCountries;
+
+		const removeCountry = (country: string) => {
+			countries = countries.filter((c: IGeoCountry) => c.country_code !== country);
+			if (regions[country]) {
+				delete regions[country];
+			}
+			countryList[countryList.findIndex((x: IGeoCountry) => x.country_code === country)].disabled = false;
+		};
+
+		const removeRegion = (c: string, r: number) => {
+			if (regions[c]) {
+				regionLists[c][regionLists[c].findIndex((x: IGeoRegion) => x.region_id === r)].disabled = false;
+				regions[c] = regions[c].filter((region: IGeoRegion) => region.region_id !== r);
+				if (!regions[c].length) {
+					delete regions[c];
+					removeCountry(c);
+				}
+			}
+		};
+
+		if (regionId) {
+			removeRegion(countryCode, regionId);
+		} else {
+			removeCountry(countryCode);
+		}
+
+		this.setState({
+			countryList,
+			regionLists,
+			selectedCountries: countries,
+			selectedRegions: regions,
+		});
+
+		this.forceUpdate();
+	}
+
+	toggleFeatureIcon(icon: string) {
+
+		const selectedEventFeatures = this.state.selectedEventFeatures;
+		const iconIndex = selectedEventFeatures.indexOf(icon);
+
+		if (iconIndex === -1) {
+			selectedEventFeatures.push(icon);
+		} else {
+			selectedEventFeatures.splice(iconIndex, 1);
+		}
+
+		this.setState({
+			selectedEventFeatures,
+		});
+
+	}
+
+	handleFocusChange(focusedInput: string) {
+		this.setState({ focusedInput });
+	}
+
+	isCountryOptionDisabled(option: IGeoCountry) {
+		return option.disabled;
+	}
+
+	isRegionOptionDisabled(option: IGeoRegion) {
+		return option.disabled;
+	}
+
+	getCountryOptionLabel(option: IGeoCountry) {
+		return option.country_name;
+	}
+
+	getRegionOptionLabel(option: IGeoRegion) {
+		return option.region_name;
+	}
+
+	componentDidMount() {
+		window.scrollTo(0, 0);
+		this.props.changePage("search");
+		this.props.setMenuState(false);
+	}
+
+	render() {
+
+		return (
+
+			<React.Fragment>
+				<h1>Search Events</h1>
+
+				{ this.state.loading ?
+					<div className="loader" />
+				:
+					<React.Fragment>
+						<div className="searchForm">
+							<div className="searchDatesLocations">
+								<div className="searchDates">
+									<p className="dateRange">
+										<strong>Filter by Date:</strong>
+										{this.state.dateRangeDisplay}
+										{(this.state.dateRangeDisplay || this.state.startDate) && !this.state.endDate ? " – (all)" : ""}
+										{this.state.startDate && this.state.endDate && this.state.startDate._d === this.state.endDate._d ? " (only)" : ""}
+										{this.state.startDate ?
+											<button className="smallButton" onClick={this.clearDates}>Clear dates</button>
+										: ""
+										}
+									</p>
+{1 ?
+									<DayPickerRangeController
+										startDate={this.state.startDate}
+										endDate={this.state.endDate}
+										focusedInput={this.state.focusedInput}
+										hideKeyboardShortcutsPanel={true}
+										numberOfMonths={1}
+										enableOutsideDays={false}
+										isOutsideRange={this.isBeforeToday}
+										keepOpenOnDateSelect={true}
+										minimumNights={0}
+										onDatesChange={this.onDatesChange}
+										onFocusChange={this.handleFocusChange}
+									/>
+: ""}
+								</div>
+
+								<div className="searchLocations">
+									<p><strong>Filter by Location</strong></p>
+
+									<Select
+										className="Select searchSelectCountries"
+										classNamePrefix="Select"
+										name="search-countries"
+										value={this.state.countrySelectValue}
+										onChange={this.changeCountrySelect}
+										options={this.state.countryList}
+										isOptionDisabled={this.isCountryOptionDisabled}
+										getOptionLabel={this.getCountryOptionLabel}
+										isSearchable={true}
+										isClearable={true}
+									/>
+
+									{true || this.state.countrySelectValue ?
+										<div className="locationButton">
+											<button
+												className="smallButton"
+												disabled={!this.state.countrySelectValue || this.state.selectedRegions[this.state.countrySelectValue.country_code]}
+												onClick={this.addLocationCountry}
+											>
+												Add Country to Location List
+											</button>
+										</div>
+									: ""
+									}
+
+									{true || (this.state.countrySelectValue && this.state.regionLists[this.state.countrySelectValue.country_code]) ?
+
+										<React.Fragment>
+											<p className="selectChoiceText">or select region (if applicable):</p>
+											<Select
+												className="Select searchSelectRegions"
+												classNamePrefix="Select"
+												name="search-countries"
+												value={this.state.regionSelectValue}
+												isDisabled={!(this.state.countrySelectValue && this.state.regionLists[this.state.countrySelectValue.country_code])}
+												onChange={this.changeRegionSelect}
+												options={this.state.countrySelectValue
+													&& this.state.regionLists[this.state.countrySelectValue.country_code]
+													? this.state.regionLists[this.state.countrySelectValue.country_code]
+													: []}
+												isOptionDisabled={this.isRegionOptionDisabled}
+												getOptionLabel={this.getRegionOptionLabel}
+												isSearchable={true}
+												isClearable={true}
+											/>
+										{true || this.state.regionSelectValue ?
+											<div className="locationButton">
+												<button
+													className="smallButton"
+													disabled={!this.state.regionSelectValue}
+													onClick={this.addLocationRegion}
+												>
+													Add Region to Location List
+												</button>
+											</div>
+										: ""
+										}
+										</React.Fragment>
+
+									: ""
+									}
+
+									<p className="selectedLocationsHeader"><strong>Selected Locations</strong></p>
+
+									<ul className="selectedLocations">
+										{!this.state.selectedCountries.length ?
+											<li>All</li>
+										:
+											<React.Fragment>
+												{this.state.selectedCountries.sort((a: IGeoCountry, b: IGeoCountry) => {
+													if (a.country_name < b.country_name) {
+														return -1;
+													} else if (a.country_name > b.country_name) {
+														return 1;
+													} else {
+														return 0;
+													}
+												}).map((country: IGeoCountry) => (
+													<li key={country.country_code}>
+														{country.country_name} <span title={country.country_name} className={"flag-icon flag-icon-" + country.country_flag} />
+														<RemoveCountryButton
+															className="smallButton"
+															country={country}
+															onButtonClick={this.removeLocation}
+														/>
+														{this.state.selectedRegions[country.country_code] ?
+															<ul className={"selectedRegions" + country.country_code}>
+															{this.state.selectedRegions[country.country_code].sort((a: IGeoRegion, b: IGeoRegion) => {
+																if (a.region_name < b.region_name) {
+																	return -1;
+																} else if (a.region_name > b.region_name) {
+																	return 1;
+																} else {
+																	return 0;
+																}
+															}).map((region: IGeoRegion) => (
+																<li key={region.region_id}>
+																	{region.region_name}
+																	<RemoveRegionButton
+																		className="smallButton"
+																		region={region}
+																		onButtonClick={this.removeLocation}
+																	/>
+
+																</li>
+															))}
+															</ul>
+														: ""
+														}
+
+													</li>
+												))}
+											</React.Fragment>
+										}
+									</ul>
+								</div>
+							</div>
+
+							{this.state.eventFeatures.tracks ?
+								<div className="searchFeatures">
+									{(this.state.eventFeatures.tracks.length ?
+										<span className="eventIconGroup eventIconTracks">
+											<span className="label">Filter Tracks</span>
+											{this.state.eventFeatures.tracks.map((icon: IDerbyTrack) => (
+												<FeatureIcon
+													imageClass={this.state.selectedEventFeatures.indexOf("track-" + icon.track_id) > -1 ? "selected" : ""}
+													abbreviation={icon.track_abbreviation}
+													alt={icon.track_name}
+													id={icon.track_id}
+													key={icon.track_id}
+													title={icon.title}
+													featureType="track"
+													toggleFunction={this.toggleFeatureIcon}
+												/>
+											))}
+										</span>
+										: "" )}
+									{(this.state.eventFeatures.derbytypes.length ?
+										<span className="eventIconGroup eventIconIDerbytypes">
+											<span className="label">Filter IDerby Types</span>
+											{this.state.eventFeatures.derbytypes.map((icon: IDerbyType) => (
+												<FeatureIcon
+													imageClass={this.state.selectedEventFeatures.indexOf("derbytype-" + icon.derbytype_id) > -1 ? "selected" : ""}
+													abbreviation={icon.derbytype_abbreviation}
+													alt={icon.derbytype_name}
+													id={icon.derbytype_id}
+													key={icon.derbytype_id}
+													title={icon.title}
+													featureType="derbytype"
+													toggleFunction={this.toggleFeatureIcon}
+												/>
+											))}
+										</span>
+										: "" )}
+									{(this.state.eventFeatures.sanctions.length ?
+										<span className="eventIconGroup eventIconSanctions">
+											<span className="label">Filter Sanctions</span>
+											{this.state.eventFeatures.sanctions.map((icon: IDerbySanction) => (
+												<FeatureIcon
+													imageClass={this.state.selectedEventFeatures.indexOf("sanction-" + icon.sanction_id) > -1 ? "selected" : ""}
+													abbreviation={icon.sanction_abbreviation}
+													alt={icon.sanction_name}
+													id={icon.sanction_id}
+													key={icon.sanction_id}
+													title={icon.title}
+													featureType="sanction"
+													toggleFunction={this.toggleFeatureIcon}
+												/>
+											))}
+										</span>
+										: "" )}
+
+								</div>
+							: ""
+							}
+						</div>
+
+						<div className="searchButtons">
+							<button className="largeButton" onClick={this.submitSearch}>Search</button>
+						</div>
+
+					</React.Fragment>
+				}
+
+			</React.Fragment>
+		);
+
+	}
+
+	submitSearch() {
+		let searchURL = "/events";
+		let queryString = "";
+		const eventFeatures: {
+			derbytypes: string[],
+			sanctions: string[],
+			tracks: string[],
+			[key: string]: any,
+		} = {
+			derbytypes: [],
+			sanctions: [],
+			tracks: [],
+		};
+
+		if (this.state.startDateString) {
+			searchURL += `/${this.state.startDateString}`;
+		}
+		if (this.state.endDateString) {
+			searchURL += `/${this.state.endDateString}`;
+		}
+
+		if (this.state.selectedCountries.length) {
+			let locationString = "";
+
+			for (let country = 0; country < this.state.selectedCountries.length; country ++) {
+				locationString += `${(country > 0 ? ";" : "")}${this.state.selectedCountries[country].country_code}`;
+
+				if (this.state.selectedRegions[this.state.selectedCountries[country].country_code]) {
+					locationString += `-${this.state.selectedRegions[this.state.selectedCountries[country].country_code].map((reg: IGeoRegion) => (reg.region_id)).join(",")}`;
+				}
+
+			}
+
+			queryString += `${(queryString ? "&" : "?")}locations=${locationString}`;
+		}
+
+		for (let event = 0; event < this.state.selectedEventFeatures.length; event ++) {
+			const pieces: string[] = this.state.selectedEventFeatures[event].split("-");
+			eventFeatures[`${pieces[0]}s`].push(pieces[1]);
+		}
+		for (const feature in eventFeatures) {
+			if (eventFeatures[feature].length) {
+				queryString += `${(queryString ? "&" : "?")}${feature}=${eventFeatures[feature].join(",")}`;
+			}
+		}
+
+		this.props.history.push(searchURL + queryString);
+
+	}
+
+
+}

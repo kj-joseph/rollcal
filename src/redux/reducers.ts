@@ -1,47 +1,41 @@
-import { 
-	CHANGE_PAGE,
-	SAVE_SEARCH,
-	SET_MENU_STATE,
-	SET_LOGIN_BOX_STATE,
-	SET_USER_INFO 
-} from "redux/constants/action-types";
+import { IReduxActionType, IReduxStore } from "interfaces";
 
-const initialState = {
-	page: "home",
+const initialState: IReduxStore = {
+	apiLocation: process.env.API_URL,
 	lastSearch: "",
-	apiLocation: API_URL,
-	menuDrawerOpen: false,
-	loginBoxOpen: false,
 	loggedIn: false,
+	loggedInUserAdmin: "",
 	loggedInUserId: "",
-	loggedInUserAdmin: ""
-}
+	loginBoxOpen: false,
+	menuDrawerOpen: false,
+	page: "home",
+};
 
-const rootReducer = (state = initialState, action) => {
-	let newState = JSON.parse(JSON.stringify(state));
+const rootReducer = (state = initialState, action: IReduxActionType) => {
+	const newState = JSON.parse(JSON.stringify(state));
 	switch (action.type) {
 
-		case CHANGE_PAGE:
+		case "CHANGE_PAGE":
 			newState.page = action.payload;
 			return newState;
 			break;
 
-		case SAVE_SEARCH:
+		case "SAVE_SEARCH":
 			newState.lastSearch = action.payload;
 			return newState;
 			break;
 
-		case SET_MENU_STATE:
+		case "SET_MENU_STATE":
 			newState.menuDrawerOpen = action.payload;
 			return newState;
 			break;
 
-		case SET_LOGIN_BOX_STATE:
+		case "SET_LOGIN_BOX_STATE":
 			newState.loginBoxOpen = action.payload;
 			return newState;
 			break;
 
-		case SET_USER_INFO:
+		case "SET_USER_INFO":
 			newState.loggedIn = action.payload.loggedIn;
 			newState.loggedInUserId = action.payload.userId;
 			newState.loggedInUserAdmin = action.payload.userAdmin;
