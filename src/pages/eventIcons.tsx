@@ -1,9 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-export default class EventIcons extends React.Component {
+import { IDerbyIcon, IDerbyIcons } from "interfaces";
 
-	constructor(props) {
+export default class EventIcons extends React.Component<{icons: IDerbyIcons, showLabels?: boolean}> {
+
+	constructor(props: {icons: IDerbyIcons, showLabels?: boolean}) {
 		super(props);
 	}
 
@@ -24,9 +26,9 @@ export default class EventIcons extends React.Component {
 					</span>
 					: "" )}
 				{(this.props.icons.derbytypes.length ?
-					<span className="eventIconGroup eventIconDerbytypes">
+					<span className="eventIconGroup eventIconIDerbytypes">
 						{(this.props.showLabels) ? 
-							<span className="label">Derby Types</span>
+							<span className="label">IDerby Types</span>
 						:
 							""
 						}
@@ -54,16 +56,16 @@ export default class EventIcons extends React.Component {
 
 }
 
-class EventIconImage extends React.Component {
+class EventIconImage extends React.Component<{icon: IDerbyIcon}> {
 
-	constructor(props) {
+	constructor(props: {icon: IDerbyIcon}) {
 		super(props);
 	}
 
 	render() {
 
 		return (
-			<img src={"/images/" + this.props.icon.filename + ".svg"} title={this.props.icon.title} alt={this.props.icon.title} />
+			<img src={`/images/${this.props.icon.filename}.svg`} title={this.props.icon.title} alt={this.props.icon.title} />
 		);
 
 	}

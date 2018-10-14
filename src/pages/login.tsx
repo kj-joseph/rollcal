@@ -4,9 +4,9 @@ import { BrowserRouter as Router, NavLink } from "react-router-dom";
 
 import axios from "axios";
 
-export default class Login extends React.Component {
+export default class Login<Props> extends React.Component<any, any, any> {
 
-	constructor(props) {
+	constructor(props: Props) {
 		super(props);
 
 		this.state = {
@@ -17,89 +17,93 @@ export default class Login extends React.Component {
 			registerPassword: "",
 			registerPasswordConfirm: "",
 			formValid: false,
-			loader: false,
+			loading: false,
+			status: "login",
+			errorMessage: "",
+		}
+
+		this.closeLoginBox = this.closeLoginBox.bind(this);
+		this.goToLogin = this.goToLogin.bind(this);
+		this.goToRegister = this.goToRegister.bind(this);
+		this.handleInputChange = this.handleInputChange.bind(this);
+		this.submitLogin = this.submitLogin.bind(this);
+		this.submitRegistration = this.submitRegistration.bind(this);
+
+	}
+
+	closeLoginBox (event: React.MouseEvent<HTMLButtonElement>) {
+		event.preventDefault();
+		if (!this.state.loading) {
+			this.props.setLoginBoxState(false);
+			this.setState({
+				loginEmail: "",
+				loginPassword: "",
+				registerEmail: "",
+				registerUsername: "",
+				registerPassword: "",
+				registerPasswordConfirm: "",
+				formValid: false,
+				loading: false,
+				status: "login"
+			});
+		}
+	}
+
+	handleInputChange (event: React.ChangeEvent<HTMLInputElement>) {
+		console.log(event.currentTarget);
+		const formId:string = (this.state.status === "login" ? "loginForm" : this.state.status === "register" ? "registerForm" : null);
+
+		this.setState({
+			[event.currentTarget.name]: event.currentTarget.value,
+			formValid: (document.getElementById(formId) as HTMLFormElement).checkValidity()
+		});
+	}
+
+	goToLogin (event: React.MouseEvent<HTMLButtonElement>) {
+		event.preventDefault();
+
+		this.setState({
+			loginEmail: "",
+			loginPassword: "",
+			registerEmail: "",
+			registerUsername: "",
+			registerPassword: "",
+			registerPasswordConfirm: "",
+			formValid: false,
+			loading: false,
 			status: "login",
 			errorMessage: ""
-		}
+		});
 
-		this.closeLoginBox = event => {
-			event.preventDefault();
-			if (!this.state.loading) {
-				this.props.setLoginBoxState(false);
-				this.setState({
-					loginEmail: "",
-					loginPassword: "",
-					registerEmail: "",
-					registerUsername: "",
-					registerPassword: "",
-					registerPasswordConfirm: "",
-					formValid: false,
-					loading: false,
-					status: "login"
-				});
-			}
-		}
+	}
 
-		this.handleInputChange = event => {
-			let formId;
+	goToRegister (event: React.MouseEvent<HTMLButtonElement>) {
+		event.preventDefault();
 
-			if (this.state.status === "login") {
-				formId = "loginForm";
-			} else if (this.state.status === "register") {
-				formId = "registerForm";
-			}
+		this.setState({
+			loginEmail: "",
+			loginPassword: "",
+			registerEmail: "",
+			registerUsername: "",
+			registerPassword: "",
+			registerPasswordConfirm: "",
+			formValid: false,
+			loading: false,
+			status: "register",
+			errorMessage: ""
+		});
 
-			this.setState({
-				[event.target.name]: event.target.value,
-				formValid: document.getElementById(formId).checkValidity()
-			});
-		}
+	}
 
-		this.goToLogin = event => {
-			event.preventDefault();
+	submitLogin (event: React.MouseEvent<HTMLFormElement>) {
+		event.preventDefault();
+		this.setState({
+			loading: true
+		});
 
-			this.setState({
-				loginEmail: "",
-				loginPassword: "",
-				registerEmail: "",
-				registerUsername: "",
-				registerPassword: "",
-				registerPasswordConfirm: "",
-				formValid: false,
-				loading: false,
-				status: "login",
-				errorMessage: ""
-			});
-
-		}
-
-		this.goToRegister = event => {
-			event.preventDefault();
-
-			this.setState({
-				loginEmail: "",
-				loginPassword: "",
-				registerEmail: "",
-				registerUsername: "",
-				registerPassword: "",
-				registerPasswordConfirm: "",
-				formValid: false,
-				loading: false,
-				status: "register",
-				errorMessage: ""
-			});
-
-		}
-
-		this.submitLogin = event => {
-			event.preventDefault();
-			this.setState({
-				loading: true
-			});
-
-			axios.post(this.props.apiLocation + "auth/login", {
-				email: this.state.loginEmail,
-				password: this.state.loginPassword
+		axios.post(this.props.apiLocation + "auth/login", {
+			email: this.state.loginEmail,
+			password: this.state.loginPassword
 
 			}).then(result => {
 				sessionStorage.setItem("rollCalUserId", result.data.response.userId);
@@ -109,7 +113,7 @@ export default class Login extends React.Component {
 
 				this.props.setLoginBoxState(false);
 
-				this.props.setUserInfo({
+				this.props.setIUserInfo({
 					loggedIn: true,
 					loggedInUserId: result.data.response.userId,
 					loggedInUserAdmin: result.data.response.isAdmin
@@ -134,15 +138,15 @@ export default class Login extends React.Component {
 				});
 			});
 
-		}
+	}
 
-		this.submitRegistration = event => {
-			event.preventDefault();
-			this.setState({
-				loading: true
-			});
+	submitRegistration (event: React.MouseEvent<HTMLFormElement>) {
+		event.preventDefault();
+		this.setState({
+			loading: true
+		});
 
-			axios.post(this.props.apiLocation + "auth/register/checkEmail", {email: this.state.registerEmail})
+		axios.post(this.props.apiLocation + "auth/register/checkEmail", {email: this.state.registerEmail})
 			.then(result => {
 				if (result.data.response) {
 
@@ -158,54 +162,62 @@ export default class Login extends React.Component {
 						username: this.state.registerUsername,
 						password: this.state.registerPassword
 
-					}).then(result => {
+						}).then(result => {
 
-						emailjs.send("server", "account_validation", {
-							username: this.state.registerUsername,
-							usernameEncoded: encodeURIComponent(this.state.registerUsername.replace(/\./g,"%2E")),
-							email: this.state.registerEmail,
-							emailEncoded: encodeURIComponent(this.state.registerEmail.replace(/\./g,"%2E")),
-							validationCode: result.data.response.validationCode
-						}, "user_hX0Eb4e3DRLA6dAAUMHKu").then(response => {
+							axios.post("https://api.emailjs.com/api/v1.0/email/send", {
+								service_id: 'server',
+								template_id: "account_validation",
+								user_id: "user_hX0Eb4e3DRLA6dAAUMHKu",
+								template_params: {
+								username: this.state.registerUsername,
+									usernameEncoded: encodeURIComponent(this.state.registerUsername.replace(/\./g,"%2E")),
+									email: this.state.registerEmail,
+									emailEncoded: encodeURIComponent(this.state.registerEmail.replace(/\./g,"%2E")),
+									validationCode: result.data.response.validationCode
+								}
+							}).then((response: any) => {
 
-							this.setState({
-								loginEmail: "",
-								loginPassword: "",
-								registerEmail: "",
-								registerUsername: "",
-								registerPassword: "",
-								registerPasswordConfirm: "",
-								formValid: false,
-								loading: false,
-								errorMessage: "",
-								status: "regComplete"
-							});
+									this.setState({
+										loginEmail: "",
+										loginPassword: "",
+										registerEmail: "",
+										registerUsername: "",
+										registerPassword: "",
+										registerPasswordConfirm: "",
+										formValid: false,
+										loading: false,
+										errorMessage: "",
+										status: "regComplete"
+									});
+
+								}).catch((error: any) => {
+									console.error(error);
+
+									this.setState({
+										loading: false,
+										errorMessage: "Sorry, something went wrong.  Try again."
+									});
+								});
 
 						}).catch(error => {
+							console.error(error);
+
 							this.setState({
 								loading: false,
 								errorMessage: "Sorry, something went wrong.  Try again."
 							});
 						});
 
-					}).catch(error => {
-						this.setState({
-							loading: false,
-							errorMessage: "Sorry, something went wrong.  Try again."
-						});
-					});
-
-
 				}
 
 			}).catch(error => {
+				console.error(error);
+
 				this.setState({
 					loading: false,
 					errorMessage: "Sorry, something went wrong.  Try again."
 				});
-			})
-
-		}
+			});
 
 	}
 

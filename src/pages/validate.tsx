@@ -4,9 +4,9 @@ import { BrowserRouter as Router, NavLink } from "react-router-dom";
 
 import axios from "axios";
 
-export default class Validate extends React.Component {
+export default class Validate<Props> extends React.Component<any, any, any> {
 
-	constructor(props) {
+	constructor(props: Props) {
 		super(props);
 
 		let validationParts = decodeURIComponent(this.props.match.params.validationCode).split("||")
@@ -15,7 +15,7 @@ export default class Validate extends React.Component {
 			validationCode: validationParts[0],
 			email: validationParts[1],
 			username: validationParts[2],
-			status: "validating"
+			status: "validating",
 		}
 
 	}

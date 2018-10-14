@@ -2,117 +2,86 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter as Router, NavLink } from "react-router-dom";
 
+import { IDBDerbyEvent, IDerbyEvent, IDerbyEventDayFormatted, IDerbyIcon, IDerbyIcons} from "interfaces";
+
 import axios from "axios";
 
-import { formatDateRange, formatDate, formatTime } from "lib/dateTime";
+import * as moment from "moment";
+
+import { formatDateRange } from "lib/dateTime";
 import EventIcons from "pages/eventIcons";
 
-interface EventDetailsState {
-	dataError: boolean,
-	eventData: DerbyEvent,
-	limit: number,
-	loading: boolean,
-}
+export default class EventDetails<Props> extends React.Component<any, any, any> {
 
-export default class EventDetails extends React.Component<ReduxStore> {
-
-	state: EventDetailsState;
-
-	constructor(props: ReduxStore) {
+	constructor(props: Props) {
 		super(props);
 
 		this.state = {
 			loading: true,
 			dataError: false,
-			eventData: {} as DerbyEvent,
+			eventData: [] as IDerbyEvent[],
 			limit: this.props.limit || 12
-		}
+		};
 
-		axios.get(this.props.apiLocation + "events/getEventDetails/" + this.props.match.params.eventId)
+		axios.get(`${this.props.apiLocation}events/getEventDetails/${this.props.match.params.eventId}`)
 			.then(result => {
 
-					let event: DerbyEvent = ({} as any);
-					
-					let eventResult:DBDerbyEvent = result.data.response[e];
+				let eventResult:IDBDerbyEvent = result.data.response[0];
 
-					event.id = eventResult.event_id;
-
-					if (eventResult.event_name) {
-						event.name = eventResult.event_name
-						event.host = eventResult.event_host; 
-					} else {
-						event.name = eventResult.event_host;
+				let eventDays = [] as IDerbyEventDayFormatted[];
+				for (let d = 0; d < eventResult.days.length; d ++) {
+					let day: IDerbyEventDayFormatted = {
+						date: moment.utc(eventResult.days[d].eventday_start_venue).format("MMM D"),
+						startTime: moment.utc(eventResult.days[d].eventday_start_venue).format("h:mm a"),
+						description: eventResult.days[d].eventday_description
 					}
+					eventDays.push(day);
+				}
 
-					event.event_description = eventResult.event_description;
+				let icons:IDerbyIcons = {} as IDerbyIcons;
 
-					event.event_link = eventResult.event_link;
-
-					event.venue_name = eventResult.venue_name;
-					event.address1 = eventResult.venue_address1;
-					event.address2 = eventResult.venue_address2;
-					event.location = eventResult.venue_city;
-					if (eventResult.region_abbreviation) {
-						event.location += ", " + eventResult.region_abbreviation;
-					}
-					event.location += ", " + eventResult.country_code;
-					if (eventResult.country_flag) {
-						event.flag = <span title={eventResult.country_name} className={"flag-icon flag-icon-" + eventResult.country_flag}></span>;
-					}
-					event.venue_description = eventResult.venue_description;
-					event.venue_link = eventResult.venue_link;
-
-					event.multiDay = eventResult.days.length > 1;
-
-					event.days = [];
-					for (let d = 0; d < eventResult.days.length; d ++) {
-						let day = {
-							date: formatDate(eventResult.days[d].eventday_start_venue, false),
-							startTime: formatTime(eventResult.days[d].eventday_start_venue),
-							description: eventResult.days[d].eventday_description
-						}
-						event.days.push(day);
-					}
-
-					event.dates_venue = formatDateRange({
-						firstDay: {
-							start: eventResult.days[0].eventday_start_venue,
-							end: eventResult.days[0].eventday_end_venue
-						},
-						lastDay: {
-							start: eventResult.days[eventResult.days.length - 1].eventday_start_venue,
-							end: eventResult.days[eventResult.days.length - 1].eventday_end_venue
-						}
-					}, "long");
-
-					event.icons = {
-						tracks: [],
-						derbytypes: [],
-						sanctions: []
-					};
-					for (let t = 0; t < eventResult.tracks.length; t ++) {
-						event.icons.tracks.push({
-							title: eventResult.tracks[t].track_name,
-							filename: "track-" + eventResult.tracks[t].track_abbreviation
-						});
-					}
-					for (let dt = 0; dt < eventResult.derbytypes.length; dt ++) {
-						event.icons.derbytypes.push({
-							title: eventResult.derbytypes[dt].derbytype_name,
-							filename: "derbytype-" + eventResult.derbytypes[dt].derbytype_abbreviation
-						});
-					}
-					for (let s = 0; s < eventResult.sanctions.length; s ++) {
-						event.icons.sanctions.push({
-							title: eventResult.sanctions[s].sanction_name,
-							filename: "sanction-" + eventResult.sanctions[s].sanction_abbreviation
-						});
-					}
-
-					event.user = eventResult.user_name;
+				for (let t = 0; t < eventResult.tracks.length; t ++) {
+					icons.tracks.push({
+						title: eventResult.tracks[t].track_name,
+						filename: `track-${eventResult.tracks[t].track_abbreviation}`,
+					});
+				}
+				for (let dt = 0; dt < eventResult.derbytypes.length; dt ++) {
+					icons.derbytypes.push({
+						title: eventResult.derbytypes[dt].derbytype_name,
+						filename: `derbytype-${eventResult.derbytypes[dt].derbytype_abbreviation}`,
+					});
+				}
+				for (let s = 0; s < eventResult.sanctions.length; s ++) {
+					icons.sanctions.push({
+						title: eventResult.sanctions[s].sanction_name,
+						filename: `sanction-${eventResult.sanctions[s].sanction_abbreviation}`,
+					});
+				}
 
 				this.setState({
-					eventData: event,
+					eventData: [{
+						id: eventResult.event_id,
+						name: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
+						host: eventResult.event_name ? eventResult.event_host : null,
+						event_description: eventResult.event_description,
+						event_link: eventResult.event_link,
+						venue_name: eventResult.venue_name,
+						address1: eventResult.venue_address1,
+						address2: eventResult.venue_address2,
+						location: `${eventResult.venue_city} ${eventResult.region_abbreviation ? ", " + eventResult.region_abbreviation : ""}, ${eventResult.country_code}`,
+						flag: eventResult.country_flag ? <span title={eventResult.country_name} className={`flag-icon flag-icon-${eventResult.country_flag}`}></span> : null,
+						venue_description: eventResult.venue_description,
+						venue_link: eventResult.venue_link,
+						multiDay: eventResult.days.length > 1,
+						days: eventDays,
+						dates_venue: formatDateRange({
+								firstDay: moment.utc(eventResult.days[0].eventday_start_venue),
+								lastDay: moment.utc(eventResult.days[eventResult.days.length - 1].eventday_start_venue),
+							}, "long"),
+						icons: icons,
+						user: eventResult.user_name,
+					}],
 					loading: false
 				});
 			}).catch(error => {
@@ -128,7 +97,7 @@ export default class EventDetails extends React.Component<ReduxStore> {
 
 	}
 
-	shouldComponentUpdate(nextProps: ReduxStore, nextState: ReduxStore) {
+	shouldComponentUpdate(nextProps: Props, nextState: any) {
 		if (this.state.eventData !== nextState.eventData
 			|| this.state.dataError !== nextState.dataError) {
 			return true;
@@ -207,7 +176,7 @@ export default class EventDetails extends React.Component<ReduxStore> {
 									<div className="eventDays">
 										<h4>Days</h4>
 										<dl>
-										{this.state.eventData[0].days.map(day => (
+										{this.state.eventData[0].days.map((day: IDerbyEventDayFormatted) => (
 											<React.Fragment key={day.date}>
 												<dt><strong>{day.date}:</strong>{day.startTime}</dt>
 												<dd>{day.description}</dd>
@@ -228,24 +197,24 @@ export default class EventDetails extends React.Component<ReduxStore> {
 								{(this.state.eventData[0].icons.tracks.length ?
 									<span className="eventIconGroup eventIconTracks">
 										<span className="label">Track(s)</span>
-										{this.state.eventData[0].icons.tracks.map(icon => (
-											<img src={"/images/" + icon.filename + ".svg"} title={icon.title} alt={icon.title} key={icon.filename} />
+										{this.state.eventData[0].icons.tracks.map((icon: IDerbyIcon) => (
+											<img src={`/images/${icon.filename}.svg`} title={icon.title} alt={icon.title} key={icon.filename} />
 										))}
 									</span>
 									: "" )}
 								{(this.state.eventData[0].icons.derbytypes.length ?
-									<span className="eventIconGroup eventIconDerbytypes">
-										<span className="label">Derby Types</span>
-										{this.state.eventData[0].icons.derbytypes.map(icon => (
-										<img src={"/images/" + icon.filename + ".svg"} title={icon.title} alt={icon.title} key={icon.filename} />
+									<span className="eventIconGroup eventIconIDerbytypes">
+										<span className="label">IDerby Types</span>
+										{this.state.eventData[0].icons.derbytypes.map((icon: IDerbyIcon) => (
+											<img src={`/images/${icon.filename}.svg`} title={icon.title} alt={icon.title} key={icon.filename} />
 										))}
 									</span>
 									: "" )}
 								{(this.state.eventData[0].icons.sanctions.length ?
 									<span className="eventIconGroup eventIconSanctions">
 										<span className="label">Sanctions</span>
-										{this.state.eventData[0].icons.sanctions.map(icon => (
-										<img src={"/images/" + icon.filename + ".svg"} title={icon.title} alt={icon.title} key={icon.filename} />
+										{this.state.eventData[0].icons.sanctions.map((icon: IDerbyIcon) => (
+											<img src={`/images/${icon.filename}.svg`} title={icon.title} alt={icon.title} key={icon.filename} />
 										))}
 									</span>
 									: "" )}

@@ -1,4 +1,6 @@
-const initialState: ReduxStore = {
+import { IReduxActionType, IReduxStore } from "interfaces";
+
+const initialState: IReduxStore = {
 	page: "home",
 	lastSearch: "",
 	apiLocation: process.env.API_URL,
@@ -9,7 +11,7 @@ const initialState: ReduxStore = {
 	loggedInUserAdmin: ""
 };
 
-const rootReducer = (state = initialState, action: ActionType) => {
+const rootReducer = (state = initialState, action: IReduxActionType) => {
 	let newState = JSON.parse(JSON.stringify(state));
 	switch (action.type) {
 

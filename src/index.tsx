@@ -2,6 +2,8 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { BrowserRouter as Router, Route, NavLink, Switch, withRouter } from "react-router-dom";
 
+import { IReduxActionType, IUserInfo, IReduxActions, IReduxStore } from "interfaces";
+
 import { Provider, connect } from "react-redux";
 import store from "redux/store";
 import * as reduxActions from "redux/actions";
@@ -12,7 +14,6 @@ import axios from "axios";
 import "styles/main.scss";
 import "flag-icon-css/sass/flag-icon.scss";
 import "react-dates/lib/css/_datepicker.css";
-import "react-select/dist/react-select.css";
 
 import ".htaccess";
 require.context("images/favicon", true);
@@ -21,22 +22,23 @@ import HeaderLogo from "images/header-logo.svg";
 require.context("images/derbytypes", true);
 require.context("images/sanctions", true);
 require.context("images/tracks", true);
+import "images/header-logo.png"; // for email header
 
-import MenuFaq from "images/menu/faq.svg";
-import MenuSearch from "images/menu/search.svg";
 import MenuContact from "images/menu/contact.svg";
+import MenuEdit from "images/menu/edit.svg";
+import MenuFaq from "images/menu/faq.svg";
 import MenuLogin from "images/menu/login.svg";
 import MenuLogout from "images/menu/logout.svg";
 import MenuProfile from "images/menu/profile.svg";
-import MenuEdit from "images/menu/edit.svg";
+import MenuSearch from "images/menu/search.svg";
 
 import MenuDrawer from "images/menu/drawer.svg";
 
 import Error404 from "pages/404";
-import Events from "pages/events";
-import Search from "pages/search";
 import EventDetails from "pages/eventDetails";
+import Events from "pages/events";
 import Faq from "pages/faq";
+import Search from "pages/search";
 import Validate from "pages/validate";
 
 import Login from "pages/login";
@@ -51,9 +53,9 @@ class SiteLogo extends React.Component {
 
 }
 
-class ConnectedSiteRouter extends React.Component<ReduxStore> {
+class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
 
-	constructor(props: ReduxStore) {
+	constructor(props: Props) {
 		super(props);
 	}
 
@@ -98,9 +100,9 @@ class ConnectedSiteRouter extends React.Component<ReduxStore> {
 
 }
 
-class ConnectedSiteMenu extends React.Component<ReduxStore> {
+class ConnectedSiteMenu<Props> extends React.Component<any, any, any> {
 
-	constructor(props: ReduxStore) {
+	constructor(props: Props) {
 		super(props);
 
 		this.logout = this.logout.bind(this);
@@ -117,7 +119,7 @@ class ConnectedSiteMenu extends React.Component<ReduxStore> {
 				sessionId: sessionStorage.rollCalUserSessionId
 			}).then((results) => {
 				if (results.data.response) {
-					this.props.setUserInfo({
+					this.props.setIUserInfo({
 						loggedIn: true,
 						loggedInUserId: sessionStorage.rollCalUserId,
 						loggedInUserAdmin: sessionStorage.rollCalUserIsAdmin
@@ -145,7 +147,7 @@ class ConnectedSiteMenu extends React.Component<ReduxStore> {
 		sessionStorage.removeItem("rollCalUserIsAdmin");
 		sessionStorage.removeItem("rollCalUserSessionId");
 
-		this.props.setUserInfo({
+		this.props.setIUserInfo({
 			loggedIn: false,
 			loggedInUserId: "",
 			loggedInUserAdmin: ""
@@ -218,38 +220,36 @@ const RedirectHome = withRouter(({ history }) => {
 	return null;
 });
 
-const mapStateToProps = (state: ReduxStore) => {
+const mapStateToProps = (reduxState: {[key: string]: any}) => {
 	return {
-		apiLocation: state.apiLocation,
-		page: state.page,
-		lastSearch: state.lastSearch,
-		loggedIn: state.loggedIn,
-		menuDrawerOpen: state.menuDrawerOpen,
-		loginBoxOpen: state.loginBoxOpen
+		apiLocation: reduxState.apiLocation,
+		lastSearch: reduxState.lastSearch,
+		loggedIn: reduxState.loggedIn,
+		loginBoxOpen: reduxState.loginBoxOpen,
+		menuDrawerOpen: reduxState.menuDrawerOpen,
+		page: reduxState.page,
 	};
 };
 
-const mapDispatchToProps = (dispatch: Dispatch<ActionType>): ReduxActions => {
+const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>): IReduxActions => {
 	return {
 		changePage: (page: string) => dispatch(reduxActions.changePage(page)),
 		saveSearch: (search: string) => dispatch(reduxActions.saveSearch(search)),
-		setMenuState: (menuState: boolean) => dispatch(reduxActions.setMenuState(menuState)),
+		setIUserInfo: (userState: IUserInfo) => dispatch(reduxActions.setIUserInfo(userState)),
 		setLoginBoxState: (loginBoxState: boolean) => dispatch(reduxActions.setLoginBoxState(loginBoxState)),
-		setUserInfo: (userState: UserInfo) => dispatch(reduxActions.setUserInfo(userState))
+		setMenuState: (menuState: boolean) => dispatch(reduxActions.setMenuState(menuState)),
 	};
 };
 
-const SiteRouter = connect(mapStateToProps, mapDispatchToProps)(ConnectedSiteRouter);
-const SiteMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedSiteMenu);
-const EventsPage = connect(mapStateToProps, mapDispatchToProps)(Events);
-const SearchPage = connect(mapStateToProps, mapDispatchToProps)(Search);
 const EventDetailsPage = connect(mapStateToProps, mapDispatchToProps)(EventDetails);
+const EventsPage = connect(mapStateToProps, mapDispatchToProps)(Events);
 const FaqPage = connect(mapStateToProps, mapDispatchToProps)(Faq);
-const NotFoundPage = connect(mapStateToProps, mapDispatchToProps)(Error404);
-
-const ValidatePage = connect(mapStateToProps, mapDispatchToProps)(Validate);
-
 const LoginBox = connect(mapStateToProps, mapDispatchToProps)(Login);
+const NotFoundPage = connect(mapStateToProps, mapDispatchToProps)(Error404);
+const SearchPage = connect(mapStateToProps, mapDispatchToProps)(Search);
+const SiteMenu = connect(mapStateToProps, mapDispatchToProps)(ConnectedSiteMenu);
+const SiteRouter = connect(mapStateToProps, mapDispatchToProps)(ConnectedSiteRouter);
+const ValidatePage = connect(mapStateToProps, mapDispatchToProps)(Validate);
 
 ReactDOM.render(
 	<Provider store={store}>

@@ -58,30 +58,28 @@ input {
 		border-color: $gray;
 	}
 
-	.Select-control, input {
+	.Select__control, input {
 		border: none;
 		border-radius: 0;
 		outline: none;
 	}	
-
-	.Select-arrow,
-	&.is-open .Select-arrow {
+.Select.is-focused:not(.is-open) > .Select-control
+	.Select__dropdown-indicator,
+	&.is-open .Select__dropdown-indicator {
 		border-color: $blue transparent transparent;
 	}
 
-	.Select-clear-zone {
+	.Select__clear-indicator {
 		color: $pink;
 		font-weight: bold;
 	}
 
-	.Select-menu-outer {
+	.Select__menu-outer {
 		border-color: $gray;
 		border-top-color: $blue;
 	}
 
-	.Select-option,
-	.Select-option.is-selected,
-	.Select-option.is-focused {
+	.Select__option {
 		color: $black;
 		background-color: $white;
 
@@ -95,7 +93,10 @@ input {
 		}
 	}
 
-	.Select-option.is-disabled {
+	.Select__option--is-disabled,
+	.Select__option--is-disabled:hover, 
+	.Select__option--is-disabled:active,
+	.Select__option--is-disabled:focus {
 		color: $gray;
 		font-style: italic;
 		background-color: $white;
