@@ -1,2 +1,2 @@
-declare module '*.svg';
-declare module '.htaccess';
+declare module "*.svg";
+declare module ".htaccess";

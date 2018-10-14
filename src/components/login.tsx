@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter as Router, NavLink } from "react-router-dom";
 
-import axios from "axios";
+import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
 
 export default class Login<Props> extends React.Component<any, any, any> {
 
@@ -10,17 +10,17 @@ export default class Login<Props> extends React.Component<any, any, any> {
 		super(props);
 
 		this.state = {
+			errorMessage: "",
+			formValid: false,
+			loading: false,
 			loginEmail: "",
 			loginPassword: "",
 			registerEmail: "",
-			registerUsername: "",
 			registerPassword: "",
 			registerPasswordConfirm: "",
-			formValid: false,
-			loading: false,
+			registerUsername: "",
 			status: "login",
-			errorMessage: "",
-		}
+		};
 
 		this.closeLoginBox = this.closeLoginBox.bind(this);
 		this.goToLogin = this.goToLogin.bind(this);
@@ -31,81 +31,83 @@ export default class Login<Props> extends React.Component<any, any, any> {
 
 	}
 
-	closeLoginBox (event: React.MouseEvent<HTMLButtonElement>) {
+	closeLoginBox(event: React.MouseEvent<HTMLButtonElement>) {
 		event.preventDefault();
+
 		if (!this.state.loading) {
 			this.props.setLoginBoxState(false);
 			this.setState({
+				formValid: false,
+				loading: false,
 				loginEmail: "",
 				loginPassword: "",
 				registerEmail: "",
-				registerUsername: "",
 				registerPassword: "",
 				registerPasswordConfirm: "",
-				formValid: false,
-				loading: false,
-				status: "login"
+				registerUsername: "",
+				status: "login",
 			});
 		}
+
 	}
 
-	handleInputChange (event: React.ChangeEvent<HTMLInputElement>) {
-		console.log(event.currentTarget);
-		const formId:string = (this.state.status === "login" ? "loginForm" : this.state.status === "register" ? "registerForm" : null);
+	handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+
+		const formId: string = (this.state.status === "login" ? "loginForm" : this.state.status === "register" ? "registerForm" : null);
 
 		this.setState({
 			[event.currentTarget.name]: event.currentTarget.value,
-			formValid: (document.getElementById(formId) as HTMLFormElement).checkValidity()
+			formValid: (document.getElementById(formId) as HTMLFormElement).checkValidity(),
 		});
 	}
 
-	goToLogin (event: React.MouseEvent<HTMLButtonElement>) {
+	goToLogin(event: React.MouseEvent<HTMLButtonElement>) {
 		event.preventDefault();
 
 		this.setState({
+			errorMessage: "",
+			formValid: false,
+			loading: false,
 			loginEmail: "",
 			loginPassword: "",
 			registerEmail: "",
-			registerUsername: "",
 			registerPassword: "",
 			registerPasswordConfirm: "",
-			formValid: false,
-			loading: false,
+			registerUsername: "",
 			status: "login",
-			errorMessage: ""
 		});
 
 	}
 
-	goToRegister (event: React.MouseEvent<HTMLButtonElement>) {
+	goToRegister(event: React.MouseEvent<HTMLButtonElement>) {
 		event.preventDefault();
 
 		this.setState({
+			errorMessage: "",
+			formValid: false,
+			loading: false,
 			loginEmail: "",
 			loginPassword: "",
 			registerEmail: "",
-			registerUsername: "",
 			registerPassword: "",
 			registerPasswordConfirm: "",
-			formValid: false,
-			loading: false,
+			registerUsername: "",
 			status: "register",
-			errorMessage: ""
 		});
 
 	}
 
-	submitLogin (event: React.MouseEvent<HTMLFormElement>) {
+	submitLogin(event: React.MouseEvent<HTMLFormElement>) {
 		event.preventDefault();
 		this.setState({
-			loading: true
+			loading: true,
 		});
 
 		axios.post(this.props.apiLocation + "auth/login", {
 			email: this.state.loginEmail,
-			password: this.state.loginPassword
+			password: this.state.loginPassword,
 
-			}).then(result => {
+			}).then((result: AxiosResponse) => {
 				sessionStorage.setItem("rollCalUserId", result.data.response.userId);
 				sessionStorage.setItem("rollCalUserName", result.data.response.userName);
 				sessionStorage.setItem("rollCalUserIsAdmin", result.data.response.isAdmin);
@@ -115,107 +117,107 @@ export default class Login<Props> extends React.Component<any, any, any> {
 
 				this.props.setIUserInfo({
 					loggedIn: true,
+					loggedInUserAdmin: result.data.response.isAdmin,
 					loggedInUserId: result.data.response.userId,
-					loggedInUserAdmin: result.data.response.isAdmin
 				});
 
 				this.setState({
+					errorMessage: "",
+					loading: false,
 					loginEmail: "",
 					loginPassword: "",
 					registerEmail: "",
-					registerUsername: "",
 					registerPassword: "",
 					registerPasswordConfirm: "",
-					loading: false,
+					registerUsername: "",
 					status: "login",
-					errorMessage: ""
 				});
 
-			}).catch(error => {
+			}).catch((error: AxiosError) => {
 				this.setState({
+					errorMessage: "Sorry, that login wasn't right.  Try again.",
 					loading: false,
-					errorMessage: "Sorry, that login wasn't right.  Try again."
 				});
 			});
 
 	}
 
-	submitRegistration (event: React.MouseEvent<HTMLFormElement>) {
+	submitRegistration(event: React.MouseEvent<HTMLFormElement>) {
 		event.preventDefault();
 		this.setState({
-			loading: true
+			loading: true,
 		});
 
 		axios.post(this.props.apiLocation + "auth/register/checkEmail", {email: this.state.registerEmail})
-			.then(result => {
+			.then((result: AxiosResponse) => {
 				if (result.data.response) {
 
 					this.setState({
+						errorMessage: "Someone's already signed up with that email address.  Try another one.",
 						loading: false,
-						errorMessage: "Someone's already signed up with that email address.  Try another one."
 					});
 
-				} else { 
+				} else {
 
 					axios.post(this.props.apiLocation + "auth/register", {
 						email: this.state.registerEmail,
+						password: this.state.registerPassword,
 						username: this.state.registerUsername,
-						password: this.state.registerPassword
 
-						}).then(result => {
+						}).then((registerResult: AxiosResponse) => {
 
 							axios.post("https://api.emailjs.com/api/v1.0/email/send", {
-								service_id: 'server',
+								email: this.state.registerEmail,
+								emailEncoded: encodeURIComponent(this.state.registerEmail.replace(/\./g, "%2E")),
+								service_id: "server",
 								template_id: "account_validation",
-								user_id: "user_hX0Eb4e3DRLA6dAAUMHKu",
 								template_params: {
+								user_id: "user_hX0Eb4e3DRLA6dAAUMHKu",
 								username: this.state.registerUsername,
-									usernameEncoded: encodeURIComponent(this.state.registerUsername.replace(/\./g,"%2E")),
-									email: this.state.registerEmail,
-									emailEncoded: encodeURIComponent(this.state.registerEmail.replace(/\./g,"%2E")),
-									validationCode: result.data.response.validationCode
-								}
-							}).then((response: any) => {
+								usernameEncoded: encodeURIComponent(this.state.registerUsername.replace(/\./g, "%2E")),
+								validationCode: result.data.response.validationCode,
+							}})
+							.then((response: any) => {
 
-									this.setState({
-										loginEmail: "",
-										loginPassword: "",
-										registerEmail: "",
-										registerUsername: "",
-										registerPassword: "",
-										registerPasswordConfirm: "",
-										formValid: false,
-										loading: false,
-										errorMessage: "",
-										status: "regComplete"
-									});
-
-								}).catch((error: any) => {
-									console.error(error);
-
-									this.setState({
-										loading: false,
-										errorMessage: "Sorry, something went wrong.  Try again."
-									});
+								this.setState({
+									errorMessage: "",
+									formValid: false,
+									loading: false,
+									loginEmail: "",
+									loginPassword: "",
+									registerEmail: "",
+									registerPassword: "",
+									registerPasswordConfirm: "",
+									registerUsername: "",
+									status: "regComplete",
 								});
 
-						}).catch(error => {
+							}).catch((error: any) => {
+								console.error(error);
+
+								this.setState({
+									errorMessage: "Sorry, something went wrong.  Try again.",
+									loading: false,
+								});
+							});
+
+						}).catch((error: AxiosError) => {
 							console.error(error);
 
 							this.setState({
+								errorMessage: "Sorry, something went wrong.  Try again.",
 								loading: false,
-								errorMessage: "Sorry, something went wrong.  Try again."
 							});
 						});
 
 				}
 
-			}).catch(error => {
+			}).catch((error: AxiosError) => {
 				console.error(error);
 
 				this.setState({
+					errorMessage: "Sorry, something went wrong.  Try again.",
 					loading: false,
-					errorMessage: "Sorry, something went wrong.  Try again."
 				});
 			});
 
@@ -227,7 +229,7 @@ export default class Login<Props> extends React.Component<any, any, any> {
 
 			<React.Fragment>
 
-				{this.props.loginBoxOpen ? 
+				{this.props.loginBoxOpen ?
 
 					<div id="loginBox">
 
@@ -240,14 +242,26 @@ export default class Login<Props> extends React.Component<any, any, any> {
 							<h2>Login</h2>
 
 							<label htmlFor="loginEmail">Email Address</label>
-							<input id="loginEmail" name="loginEmail" type="email" required
+							<input
+								id="loginEmail"
+								name="loginEmail"
+								type="email"
+								required={true}
 								disabled={this.state.loading}
-								value={this.state.loginEmail} onChange={this.handleInputChange} />
+								value={this.state.loginEmail}
+								onChange={this.handleInputChange}
+							/>
 
 							<label htmlFor="loginPassword">Password</label>
-							<input id="loginPassword" name="loginPassword" type="password" required
+							<input
+								id="loginPassword"
+								name="loginPassword"
+								type="password"
+								required={true}
 								disabled={this.state.loading}
-								value={this.state.loginPassword} onChange={this.handleInputChange} />
+								value={this.state.loginPassword}
+								onChange={this.handleInputChange}
+							/>
 
 							<div className="buttons">
 								<button type="submit" disabled={!this.state.formValid || this.state.loading} className="largeButton">Login</button>
@@ -267,29 +281,62 @@ export default class Login<Props> extends React.Component<any, any, any> {
 							<h2>Register</h2>
 
 							<label htmlFor="registerEmail">Email Address</label>
-							<input id="registerEmail" name="registerEmail" type="email" required
+							<input
+								id="registerEmail"
+								name="registerEmail"
+								type="email"
+								required={true}
 								disabled={this.state.loading}
-								value={this.state.registerEmail} onChange={this.handleInputChange} />
+								value={this.state.registerEmail}
+								onChange={this.handleInputChange}
+							/>
 
 							<label htmlFor="registerUsername">Username (2+ characters)</label>
-							<input id="registerUsername" name="registerUsername" type="text" required
+							<input
+								id="registerUsername"
+								name="registerUsername"
+								type="text"
+								required={true}
 								title="Must start with a letter; only letters, numbers, -, _, and ."
 								pattern="[A-Za-z][A-Za-z0-9-_\.]+"
 								disabled={this.state.loading}
-								value={this.state.registerUsername} onChange={this.handleInputChange} />
+								value={this.state.registerUsername}
+								onChange={this.handleInputChange}
+							/>
 
 							<label htmlFor="registerPassword">Password (8+ characters)</label>
-							<input id="registerPassword" name="registerPassword" type="password" required
+							<input
+								id="registerPassword"
+								name="registerPassword"
+								type="password"
+								required={true}
 								disabled={this.state.loading}
-								value={this.state.registerPassword} onChange={this.handleInputChange} />
+								value={this.state.registerPassword}
+								onChange={this.handleInputChange}
+							/>
 
 							<label htmlFor="registerPasswordConfirm">Confirm Password</label>
-							<input id="registerPasswordConfirm" name="registerPasswordConfirm" type="password" required
+							<input
+								id="registerPasswordConfirm"
+								name="registerPasswordConfirm"
+								type="password"
+								required={true}
 								disabled={this.state.loading}
-								value={this.state.registerPasswordConfirm} onChange={this.handleInputChange} />
+								value={this.state.registerPasswordConfirm}
+								onChange={this.handleInputChange}
+							/>
 
 							<div className="buttons">
-								<button type="submit" disabled={!this.state.formValid || this.state.registerPassword !== this.state.registerPasswordConfirm || this.state.registerPassword.length < 8 || this.state.loading} className="largeButton">Register</button>
+								<button
+									type="submit"
+									disabled={!this.state.formValid
+										|| this.state.registerPassword !== this.state.registerPasswordConfirm
+										|| this.state.registerPassword.length < 8
+										|| this.state.loading}
+									className="largeButton"
+								>
+									Register
+								</button>
 								<button type="button" onClick={this.goToLogin} disabled={this.state.loading} className="largeButton pinkButton">Login</button>
 							</div>
 
@@ -301,7 +348,8 @@ export default class Login<Props> extends React.Component<any, any, any> {
 
 						<div className="registrationComplete">
 
-							<p>Your registration has been submitted.  An email has been sent to the email address you specified; follow the instructions to validate your account.</p>
+							<p>Your registration has been submitted.
+								An email has been sent to the email address you specified; follow the instructions to validate your account.</p>
 
 							<div className="buttons">
 								<button type="button" onClick={this.closeLoginBox} disabled={this.state.loading} className="largeButton">Close</button>
@@ -311,8 +359,8 @@ export default class Login<Props> extends React.Component<any, any, any> {
 
 						: "" }
 
-						{ this.state.loading ? 
-							<div className={"loader medium" + (this.state.loading ? "" : " disabled")}></div>
+						{ this.state.loading ?
+							<div className={"loader medium" + (this.state.loading ? "" : " disabled")} />
 						: "" }
 
 					</div>

@@ -2,9 +2,13 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter as Router, NavLink } from "react-router-dom";
 
-import { IGeoCountry, IGeoRegion, IGeoRegionList, IDerbyEvent, IDerbyIcon, IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType, IReduxActions, IReduxStore } from "interfaces";
+import {
+	IDerbyEvent, IDerbyIcon, IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType,
+	IGeoCountry, IGeoRegion, IGeoRegionList,
+	IReduxActions, IReduxStore,
+} from "interfaces";
 
-import axios from "axios";
+import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
 
 import * as moment from "moment";
 
@@ -15,54 +19,54 @@ export default class Events<Props> extends React.Component<any, any, any> {
 		super(props);
 
 		this.state = {
-			loading: true,
-			eventData: [] as IDerbyEvent[],
 			dataError: false,
+			eventData: [] as IDerbyEvent[],
 			isSearch: (this.props.match.params.startDate || window.location.search ? true : false),
 			limit: this.props.limit || 12,
+			loading: true,
 			searchDisplayDates: null,
-			searchDisplayLocations: null,
-			searchDisplayTracks: null,
 			searchDisplayDerbyTypes: null,
+			searchDisplayLocations: null,
 			searchDisplaySanctions: null,
+			searchDisplayTracks: null,
 		};
-
-		console.log(this.state);
 
 	}
 
 	componentWillMount() {
 
-		let queryString: string = `${window.location.search}${!window.location.search ? "?" : "&"}startDate=${this.props.match.params.startDate || moment().format("YYYY-MM-DD")}${this.props.match.params.endDate ? "&endDate=" + this.props.match.params.endDate : ""}`;
+		const queryString: string = `${window.location.search}${!window.location.search ? "?" : "&"}`
+			+ `startDate=${this.props.match.params.startDate || moment().format("YYYY-MM-DD")}`
+			+ `${this.props.match.params.endDate ? "&endDate=" + this.props.match.params.endDate : ""}`;
 
-		let dateDisplay: string = formatDateRange({
+		const dateDisplay: string = formatDateRange({
 			firstDay: moment(this.props.match.params.startDate) || moment(),
 			lastDay: moment(this.props.match.params.endDate) || null,
 		}, "long");
 
 		if (queryString) {
-			let qsParts = queryString.substr(1).split("&");
-			let countries: string[] = [];
-			let countryRegions: any = {};
+			const qsParts = queryString.substr(1).split("&");
+			const countries: string[] = [];
+			const countryRegions: any = {};
 			let regions: number[] = [];
 			let tracks: string[] = [];
 			let derbytypes: string[] = [];
 			let sanctions: string[] = [];
-			let serverData: any = {};
+			const serverData: any = {};
 
 			for (let q = 0; q < qsParts.length; q ++) {
-				let param = qsParts[q].split("=");
+				const param = qsParts[q].split("=");
 
-				switch(param[0]) {
+				switch (param[0]) {
 					case "locations":
-						let locations = param[1].split(";");
+						const locations = param[1].split(";");
 
 						for (let l = 0; l < locations.length; l ++) {
-							let loc = locations[l].split("-");
+							const loc = locations[l].split("-");
 							countries.push(loc[0]);
 
 							if (loc.length > 1) {
-								let regionsInfo = loc[1].split(",");
+								const regionsInfo = loc[1].split(",");
 								regions = regions.concat(regionsInfo.map((x: string) => {
 									return Number(x);
 								}));
@@ -87,56 +91,56 @@ export default class Events<Props> extends React.Component<any, any, any> {
 
 			}
 
-			let promises: Promise<void>[] = [];
+			const promises: Array<Promise<void>> = [];
 
-			if(countries.length) {
+			if (countries.length) {
 				promises.push(new Promise((resolve, reject) => {
 					axios.get(this.props.apiLocation + "geography/getCountriesByCodes/" + countries.join(","))
-					.then(result => {
+					.then((result: AxiosResponse) => {
 						serverData.countries = result.data.response;
 						resolve();
 					});
-				})); 
+				}));
 			}
 
-			if(regions.length) {
+			if (regions.length) {
 				promises.push(new Promise((resolve, reject) => {
 					axios.get(this.props.apiLocation + "geography/getRegionsByIds/" + regions.join(","))
-					.then(result => {
+					.then((result: AxiosResponse) => {
 						serverData.regions = result.data.response;
 						resolve();
 					});
-				})); 
+				}));
 			}
 
-			if(tracks.length) {
+			if (tracks.length) {
 				promises.push(new Promise((resolve, reject) => {
 					axios.get(this.props.apiLocation + "eventFeatures/getTracks")
-					.then(result => {
+					.then((result: AxiosResponse) => {
 						serverData.tracks = result.data.response;
 						resolve();
 					});
-				})); 
+				}));
 			}
 
-			if(derbytypes.length) {
+			if (derbytypes.length) {
 				promises.push(new Promise((resolve, reject) => {
 					axios.get(this.props.apiLocation + "eventFeatures/getDerbyTypes")
-					.then(result => {
+					.then((result: AxiosResponse) => {
 						serverData.derbytypes = result.data.response;
 						resolve();
 					});
-				})); 
+				}));
 			}
 
-			if(sanctions.length) {
+			if (sanctions.length) {
 				promises.push(new Promise((resolve, reject) => {
 					axios.get(this.props.apiLocation + "eventFeatures/getSanctionTypes")
-					.then(result => {
+					.then((result: AxiosResponse) => {
 						serverData.sanctions = result.data.response;
 						resolve();
 					});
-				})); 
+				}));
 			}
 
 			Promise.all(promises).then(() => {
@@ -146,15 +150,15 @@ export default class Events<Props> extends React.Component<any, any, any> {
 				let sanctionsText = "";
 
 				if (serverData.countries) {
-					let countriesList = [];
+					const countriesList = [];
 
 					for (let country = 0; country < countries.length; country ++) {
-						let thisCountry = serverData.countries.filter((x: IGeoCountry) => x.country_code == countries[country])[0].country_name;
+						let thisCountry = serverData.countries.filter((x: IGeoCountry) => x.country_code === countries[country])[0].country_name;
 
-						if (countryRegions[countries[country]]) {							
-							let theseRegions: IGeoRegion[] = [];
+						if (countryRegions[countries[country]]) {
+							const theseRegions: IGeoRegion[] = [];
 							for (let region = 0; region < countryRegions[countries[country]].length; region ++) {
-								theseRegions.push(serverData.regions.filter((x: IGeoRegion) => x.region_id == regions[region])[0].region_name);
+								theseRegions.push(serverData.regions.filter((x: IGeoRegion) => x.region_id === regions[region])[0].region_name);
 							}
 							thisCountry += " (" + theseRegions.sort().join(", ") + ")";
 						}
@@ -170,7 +174,7 @@ export default class Events<Props> extends React.Component<any, any, any> {
 					if (serverData.tracks.length === tracks.length) {
 						tracksText = "all";
 					} else {
-						let tracksList = [];
+						const tracksList = [];
 						for (let f = 0; f < tracks.length; f ++) {
 							tracksList.push(serverData.tracks.filter((x: IDerbyTrack) => x.track_id.toString() === tracks[f])[0].track_name);
 						}
@@ -182,9 +186,9 @@ export default class Events<Props> extends React.Component<any, any, any> {
 					if (serverData.derbytypes.length === derbytypes.length) {
 						derbytypesText = "all";
 					} else {
-						let derbytypesList = [];
+						const derbytypesList = [];
 						for (let f = 0; f < derbytypes.length; f ++) {
-							derbytypesList.push(serverData.derbytypes.filter((x: IDerbyType) => x.derbytype_id.toString() == derbytypes[f])[0].derbytype_name);
+							derbytypesList.push(serverData.derbytypes.filter((x: IDerbyType) => x.derbytype_id.toString() === derbytypes[f])[0].derbytype_name);
 						}
 						derbytypesText = derbytypesList.sort().join(", ");
 					}
@@ -194,9 +198,9 @@ export default class Events<Props> extends React.Component<any, any, any> {
 					if (serverData.sanctions.length === sanctions.length) {
 						sanctionsText = "all";
 					} else {
-						let sanctionsList = [];
+						const sanctionsList = [];
 						for (let f = 0; f < sanctions.length; f ++) {
-							sanctionsList.push(serverData.sanctions.filter((x: IDerbySanction) => x.sanction_id.toString() == sanctions[f])[0].sanction_abbreviation);
+							sanctionsList.push(serverData.sanctions.filter((x: IDerbySanction) => x.sanction_id.toString() === sanctions[f])[0].sanction_abbreviation);
 						}
 						sanctionsText = sanctionsList.sort().join(", ");
 					}
@@ -204,10 +208,10 @@ export default class Events<Props> extends React.Component<any, any, any> {
 
 				this.setState({
 					searchDisplayDates: dateDisplay || null,
-					searchDisplayLocations: locationText || null,
-					searchDisplayTracks: tracksText || null,
 					searchDisplayDerbyTypes: derbytypesText || null,
-					searchDisplaySanctions: sanctionsText || null
+					searchDisplayLocations: locationText || null,
+					searchDisplaySanctions: sanctionsText || null,
+					searchDisplayTracks: tracksText || null,
 				});
 
 			});
@@ -215,92 +219,81 @@ export default class Events<Props> extends React.Component<any, any, any> {
 
 
 		axios.get(this.props.apiLocation + "events/search/" + queryString)
-			.then(result => {
+			.then((result: AxiosResponse) => {
 
-				let eventData = [];
+				const eventData = [];
 
 				for (let e = 0; e < result.data.response.length; e ++) {
 
-					let eventResult = result.data.response[e];
+					const eventResult = result.data.response[e];
 
-					let icons:IDerbyIcons = {
-						tracks: [],
+					const icons: IDerbyIcons = {
 						derbytypes: [],
-						sanctions: []
+						sanctions: [],
+						tracks: [],
 					};
 					for (let t = 0; t < eventResult.tracks.length; t ++) {
 						icons.tracks.push({
+							filename: "track-" + eventResult.tracks[t].track_abbreviation,
 							title: eventResult.tracks[t].track_name,
-							filename: "track-" + eventResult.tracks[t].track_abbreviation
 						});
 					}
 					for (let dt = 0; dt < eventResult.derbytypes.length; dt ++) {
 						icons.derbytypes.push({
+							filename: "derbytype-" + eventResult.derbytypes[dt].derbytype_abbreviation,
 							title: eventResult.derbytypes[dt].derbytype_name,
-							filename: "derbytype-" + eventResult.derbytypes[dt].derbytype_abbreviation
 						});
 					}
 					for (let s = 0; s < eventResult.sanctions.length; s ++) {
 						icons.sanctions.push({
+							filename: "sanction-" + eventResult.sanctions[s].sanction_abbreviation,
 							title: eventResult.sanctions[s].sanction_name,
-							filename: "sanction-" + eventResult.sanctions[s].sanction_abbreviation
 						});
 					}
 
 					eventData.push({
-						id: eventResult.event_id,
-						name: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
-						host: eventResult.event_name ? eventResult.event_host : null,
-						event_description: eventResult.event_description,
-						event_link: eventResult.event_link,
-						venue_name: eventResult.venue_name,
 						address1: eventResult.venue_address1,
 						address2: eventResult.venue_address2,
-						location: `${eventResult.venue_city} ${eventResult.region_abbreviation ? ", " + eventResult.region_abbreviation : ""}, ${eventResult.country_code}`,
-						flag: eventResult.country_flag ? <span title={eventResult.country_name} className={`flag-icon flag-icon-${eventResult.country_flag}`}></span> : null,
-						venue_description: eventResult.venue_description,
-						venue_link: eventResult.venue_link,
-						multiDay: eventResult.days.length > 1,
-						days: null,
 						dates_venue: formatDateRange({
 								firstDay: moment.utc(eventResult.days[0].eventday_start_venue),
 								lastDay: moment.utc(eventResult.days[eventResult.days.length - 1].eventday_start_venue),
 							}, "long"),
-						icons: icons,
+						days: null,
+						event_description: eventResult.event_description,
+						event_link: eventResult.event_link,
+						flag: eventResult.country_flag ? <span title={eventResult.country_name} className={`flag-icon flag-icon-${eventResult.country_flag}`} /> : null,
+						host: eventResult.event_name ? eventResult.event_host : null,
+						icons,
+						id: eventResult.event_id,
+						location: `${eventResult.venue_city} ${eventResult.region_abbreviation ? ", " + eventResult.region_abbreviation : ""}, ${eventResult.country_code}`,
+						multiDay: eventResult.days.length > 1,
+						name: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
 						user: eventResult.user_name,
+						venue_description: eventResult.venue_description,
+						venue_link: eventResult.venue_link,
+						venue_name: eventResult.venue_name,
 					});
 				}
 
 				this.setState({
-					eventData: eventData,
-					loading: false
+					eventData,
+					loading: false,
 				});
 
-			}).catch(error => {
+			}).catch((error: AxiosError) => {
 				console.error(error);
 
 				this.setState({
 					dataError: true,
-					loading: false
+					loading: false,
 				});
 
-			}
-		);
+			});
 
-	}
-
-	shouldComponentUpdate(nextProps: Props, nextState: any) {
-		if (this.state.eventData !== nextState.eventData) {
-			return true;
-		}
-		if (this.state.dataError !== nextState.dataError) {
-			return true;
-		}
-		return false;
 	}
 
 	componentDidMount() {
-		window.scrollTo(0,0);
+		window.scrollTo(0, 0);
 		this.props.changePage("events");
 		this.props.saveSearch(window.location.pathname + window.location.search);
 		this.props.setMenuState(false);
@@ -313,6 +306,9 @@ export default class Events<Props> extends React.Component<any, any, any> {
 				{this.state.isSearch ?
 					<React.Fragment>
 						<h1>Search Results</h1>
+						{this.state.loading ?
+							""
+						:
 						<div className="searchDisplay">
 							<p><strong>Dates:</strong> {this.state.searchDisplayDates}{this.props.match.params.endDate ? "" : " – (all)"}</p>
 							<p><strong>Locations:</strong> {}{this.state.searchDisplayLocations ? this.state.searchDisplayLocations : "all"}</p>
@@ -320,12 +316,13 @@ export default class Events<Props> extends React.Component<any, any, any> {
 							<p><strong>Sanctions:</strong> {}{this.state.searchDisplaySanctions ? this.state.searchDisplaySanctions : "all"}</p>
 							<p><strong>Tracks:</strong> {}{this.state.searchDisplayTracks ? this.state.searchDisplayTracks : "all"}</p>
 						</div>
+						}
 					</React.Fragment>
-				: 
+				:
 					<h1>Upcoming Events</h1>
 				}
 				{this.state.loading ?
-					<div className="loader"></div>
+					<div className="loader" />
 				: ""
 				}
 				{this.state.dataError && !this.state.loading ?
@@ -345,7 +342,7 @@ export default class Events<Props> extends React.Component<any, any, any> {
 								<h2><NavLink to={"/events/details/" + event.id} title="Search Events">
 									{event.name}
 								</NavLink></h2>
-								{(event.host) ?	<h3>Hosted by {event.host}</h3> : "" }
+								{(event.host) ?	<h3>Hosted by {event.host}</h3> : ""}
 
 								<div className="eventIcons">
 									{(event.icons.tracks.length ?
@@ -380,4 +377,4 @@ export default class Events<Props> extends React.Component<any, any, any> {
 		);
 	}
 
-};
+}

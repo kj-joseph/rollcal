@@ -1,18 +1,18 @@
 import { IReduxActionType, IReduxStore } from "interfaces";
 
 const initialState: IReduxStore = {
-	page: "home",
-	lastSearch: "",
 	apiLocation: process.env.API_URL,
-	menuDrawerOpen: false,
-	loginBoxOpen: false,
+	lastSearch: "",
 	loggedIn: false,
+	loggedInUserAdmin: "",
 	loggedInUserId: "",
-	loggedInUserAdmin: ""
+	loginBoxOpen: false,
+	menuDrawerOpen: false,
+	page: "home",
 };
 
 const rootReducer = (state = initialState, action: IReduxActionType) => {
-	let newState = JSON.parse(JSON.stringify(state));
+	const newState = JSON.parse(JSON.stringify(state));
 	switch (action.type) {
 
 		case "CHANGE_PAGE":
