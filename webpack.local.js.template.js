@@ -1,3 +1,5 @@
+var WebpackShellPlugin = require("webpack-shell-plugin-next");
+
 const webpack = require("webpack");
 const merge = require("webpack-merge");
 const commonConfig = require("./webpack.common.js");
@@ -13,6 +15,11 @@ module.exports = merge(common, {
 	plugins: [
 		new webpack.DefinePlugin({
 			"process.env.ROLLCAL_API_PORT": JSON.stringify('55022')
+		}),
+		new WebpackShellPlugin({
+			onBuildEnd: {
+				scripts: ["nodemon build/rollcal-api-dev.js --watch build"]
+			}
 		})
 	]
 

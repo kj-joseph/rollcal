@@ -1,10 +1,11 @@
-const express = require("express");
-const router = express.Router();
+import { Request, Response, Router } from "express";
+const router = Router();
 
-router.get("/getAllCountries", (req, res, next) => {
-	let query = "select * from countries order by country_name";
+router.get("/getAllCountries", (req: Request, res: Response) => {
 
-		res.locals.connection.query(query, (error, results, fields) => {
+		res.locals.connection.query(
+			"select * from countries order by country_name",
+			(error: MysqlError, results: any) => {
 
 				res.locals.connection.end();
 
@@ -20,7 +21,7 @@ router.get("/getAllCountries", (req, res, next) => {
 		);
 });
 
-router.get("/getCountriesByCodes/:countryIds?", (req, res, next) => {
+router.get("/getCountriesByCodes/:countryIds?", (req: Request, res: Response) => {
 	let query = "select * from countries";
 
 	if (req.params.countryIds) {
@@ -32,7 +33,7 @@ router.get("/getCountriesByCodes/:countryIds?", (req, res, next) => {
 		query += ")";
 	}
 
-	res.locals.connection.query(query, (error, results, fields) => {
+	res.locals.connection.query(query, (error: MysqlError, results: any) => {
 
 				res.locals.connection.end();
 
@@ -50,10 +51,10 @@ router.get("/getCountriesByCodes/:countryIds?", (req, res, next) => {
 	);
 });
 
-router.get("/getRegionsByCountry/:countryId", (req, res, next) => {
+router.get("/getRegionsByCountry/:countryId", (req: Request, res: Response) => {
 	let query = "select * from regions where region_country = " + res.locals.connection.escape(req.params.countryId) + " order by region_name";
 
-	res.locals.connection.query(query, (error, results, fields) => {
+	res.locals.connection.query(query, (error: MysqlError, results: any) => {
 
 				res.locals.connection.end();
 
@@ -71,7 +72,7 @@ router.get("/getRegionsByCountry/:countryId", (req, res, next) => {
 	);
 });
 
-router.get("/getRegionsByIds/:regionIds?", (req, res, next) => {
+router.get("/getRegionsByIds/:regionIds?", (req: Request, res: Response) => {
 	let query = "select * from regions";
 
 	if (req.params.regionIds) {
@@ -83,7 +84,7 @@ router.get("/getRegionsByIds/:regionIds?", (req, res, next) => {
 		query += ")";
 	}
 
-	res.locals.connection.query(query, (error, results, fields) => {
+	res.locals.connection.query(query, (error: MysqlError, results: any) => {
 
 				res.locals.connection.end();
 
@@ -101,5 +102,4 @@ router.get("/getRegionsByIds/:regionIds?", (req, res, next) => {
 	);
 });
 
-
-module.exports = router;
+export default router;
