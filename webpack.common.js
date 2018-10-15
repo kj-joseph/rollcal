@@ -6,16 +6,34 @@ const src_dir = path.resolve(__dirname, "src");
 
 module.exports = () => {
 
-//console.log(process.env);
-
 	return {
 
-		entry: [src_dir + "/bin/www"],
+		entry: [src_dir + "/server.ts"],
+
+		resolve: {
+			modules: [
+				src_dir,
+				"node_modules",
+			],
+			extensions: [".ts", ".js", ".json"]
+		},
 
 		target: "node",
 
 		module: {
 			exprContextCritical: false,
+			rules: [
+			{
+				test: /\.jsx?/,
+				include: src_dir,
+				loader: "babel-loader",
+			},
+			{
+				test: /\.tsx?/,
+				include: src_dir,
+				loader: "babel-loader",
+			},
+			],
 		},
 
 		output: {
