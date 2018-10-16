@@ -1,7 +1,13 @@
 import { Request, Response, Router } from "express";
 import { FieldInfo, MysqlError } from "mysql";
 
+import exjwt from "express-jwt";
+import jperm from "express-jwt-permissions";
+import jwt from "jsonwebtoken";
+
 const router = Router();
+
+const jwtMN = exjwt({ secret: "rollinrollinrollin" });
 
 router.get("/getEventDetails/:eventId", (req: Request, res: Response) => {
 
@@ -114,7 +120,7 @@ router.get("/getEventDetails/:eventId", (req: Request, res: Response) => {
 });
 
 
-router.get("/search", (req: Request, res: Response) => {
+router.get("/search", jwtMN, (req: Request, res: Response) => {
 
 	const timezone = req.query.timezone || "UTC";
 

@@ -1,4 +1,6 @@
 import { Request, Response, Router } from "express";
+import { FieldInfo, MysqlError } from "mysql";
+
 const router = Router();
 
 router.get("/getAllCountries", (req: Request, res: Response) => {

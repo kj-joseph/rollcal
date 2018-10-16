@@ -1,6 +1,8 @@
 import { Request, Response, Router } from "express";
 import { FieldInfo, MysqlError } from "mysql";
 
+import jwt from "jsonwebtoken";
+
 import multer from "multer";
 const router = Router();
 const upload = multer();
@@ -23,54 +25,52 @@ const generateHash = (str: string) => {
 
 router.post("/login", upload.array(), (req: Request, res: Response) => {
 
-	res.locals.connection
-		.query(
-			`select user_id, user_isadmin, user_name from users where user_email ${res.locals.connection.escape(req.body.email)}`
-			+ ` and user_password=sha2(${res.locals.connection.escape(req.body.password)}, 256) and user_validated = 1`,
-		(error: MysqlError, results: any) => {
+	if (req.body.email && req.body.password) {
 
-			if (error) {
-				res.locals.connection.end();
-				console.error(error);
-				res.status(500).send();
+		res.locals.connection
+			.query(
+				`select user_id, user_isadmin, user_name from users where user_email = ${res.locals.connection.escape(req.body.email)}`
+				+ ` and user_password=sha2(${res.locals.connection.escape(req.body.password)}, 256) and user_validated = 1`,
+			(error: MysqlError, results: any) => {
 
-			} else if (results.length !== 1) {
-				res.locals.connection.end();
-				res.status(401).send();
+				if (error) {
+					res.locals.connection.end();
+					console.error(error);
+					res.status(500).send();
 
-			} else {
+				} else if (results.length !== 1) {
+					res.locals.connection.end();
+					res.status(401).json(
+						{
+							err: "Username or password is incorrect",
+							success: false,
+							token: null,
+						});
 
-				const now = new Date();
-				const sessionId = generateHash(results[0].user_name + results[0].user_id + now.getTime());
+				} else {
 
-				res.locals.connection.query(
-					`insert into user_sessions values (${res.locals.connection.escape(sessionId)}, now(), now(), `
-					+ `${res.locals.connection.escape(results[0].user_id)}, ${res.locals.connection.escape(results[0].user_isadmin)})`,
-					(insertError: MysqlError, insertResults: any) => {
+					const token = jwt.sign(
+						{ id: results[0].user_id,
+							username: results[0].user_name },
+							"rollinrollinrollin",
+							{ expiresIn: 15 * 60 * 1000 });
 
-						if (insertError) {
-							res.locals.connection.end();
-							console.error(error);
-							res.status(500).send();
-
-						} else {
-
-							res.locals.connection.end();
-							res.status(200).send(JSON.stringify({
-								response: {
-									isAdmin: results[0].user_isadmin,
-									sessionId,
-									userId: results[0].user_id,
-									userName: results[0].user_name,
-								}}));
-
-						}
-
+					res.status(200).json({
+						response: {
+							err: null,
+							success: true,
+							token,
+						},
 					});
 
-			}
+				}
 
-	});
+		});
+
+	} else {
+		res.locals.connection.end();
+		res.status(401).send();
+	}
 
 });
 
