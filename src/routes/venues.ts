@@ -15,9 +15,9 @@ router.get("/getAllVenues", (req: Request, res: Response) => {
 				res.status(500).send();
 
 			} else {
-				res.status(200).send(JSON.stringify({
+				res.status(200).json({
 					response: results,
-				}));
+				});
 			}
 
 		});
@@ -35,9 +35,9 @@ router.get("/getVenuesByUser/:userId", (req: Request, res: Response) => {
 				res.status(500).send();
 
 			} else {
-				res.status(200).send(JSON.stringify({
+				res.status(200).json({
 					response: results,
-				}));
+				});
 			}
 
 		});

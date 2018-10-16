@@ -1,7 +1,16 @@
 import { Request, Response, Router } from "express";
+import multer from "multer";
 import { FieldInfo, MysqlError } from "mysql";
 
-import multer from "multer";
+import { IRequestWithUser } from "interfaces";
+
+import jperm from "express-jwt-permissions";
+import jwt from "jsonwebtoken";
+
+const guard = jperm({
+	permissionsProperty: "permissions",
+});
+
 const router = Router();
 const upload = multer();
 
@@ -21,56 +30,79 @@ const generateHash = (str: string) => {
 	return Math.abs(hash);
 };
 
+router.post("/checkToken", guard.check("user"), upload.array(), (req: IRequestWithUser, res: Response) => {
+
+	if (Number(req.body.id) === req.user.id
+		&& req.body.permissions === req.user.permissions.sort((a: string, b: string) => a < b ? -1 : a > b ? 1 : 0).join(",")
+		&& req.body.username === req.user.username) {
+
+		res.status(200).json({
+			success: true,
+		});
+
+	} else {
+
+		res.status(401).json(
+			{
+				err: "User information invalid",
+				success: false,
+			});
+
+	}
+
+});
+
 router.post("/login", upload.array(), (req: Request, res: Response) => {
 
-	res.locals.connection
-		.query(
-			`select user_id, user_isadmin, user_name from users where user_email ${res.locals.connection.escape(req.body.email)}`
-			+ ` and user_password=sha2(${res.locals.connection.escape(req.body.password)}, 256) and user_validated = 1`,
-		(error: MysqlError, results: any) => {
+	if (req.body.email && req.body.password) {
 
-			if (error) {
-				res.locals.connection.end();
-				console.error(error);
-				res.status(500).send();
+		res.locals.connection
+			.query(
+				`select user_id, user_isadmin, user_name from users where user_email = ${res.locals.connection.escape(req.body.email)}`
+				+ ` and user_password=sha2(${res.locals.connection.escape(req.body.password)}, 256) and user_validated = 1`,
+			(error: MysqlError, results: any) => {
 
-			} else if (results.length !== 1) {
-				res.locals.connection.end();
-				res.status(401).send();
+				if (error) {
+					res.locals.connection.end();
+					console.error(error);
+					res.status(500).send();
 
-			} else {
+				} else if (results.length !== 1) {
+					res.locals.connection.end();
+					res.status(403).json(
+						{
+							err: "Username or password is incorrect",
+							success: false,
+							token: null,
+						});
 
-				const now = new Date();
-				const sessionId = generateHash(results[0].user_name + results[0].user_id + now.getTime());
+				} else {
 
-				res.locals.connection.query(
-					`insert into user_sessions values (${res.locals.connection.escape(sessionId)}, now(), now(), `
-					+ `${res.locals.connection.escape(results[0].user_id)}, ${res.locals.connection.escape(results[0].user_isadmin)})`,
-					(insertError: MysqlError, insertResults: any) => {
+					const token = jwt.sign({
+						id: results[0].user_id,
+						permissions: results[0].user_isadmin ? ["admin", "user"] : ["user"],
+						username: results[0].user_name,
+					},
+					process.env.ROLLCAL_API_SECRET,
+					{ expiresIn: 15 * 60 * 1000 });
 
-						if (insertError) {
-							res.locals.connection.end();
-							console.error(error);
-							res.status(500).send();
-
-						} else {
-
-							res.locals.connection.end();
-							res.status(200).send(JSON.stringify({
-								response: {
-									isAdmin: results[0].user_isadmin,
-									sessionId,
-									userId: results[0].user_id,
-									userName: results[0].user_name,
-								}}));
-
-						}
-
+					res.status(200).json({
+						response: {
+							id: results[0].user_id,
+							permissions: results[0].user_isadmin ? "admin,user" : "user",
+							token,
+							username: results[0].user_name,
+						},
 					});
 
-			}
+				}
 
-	});
+		});
+
+	} else {
+		res.locals.connection.end();
+		res.status(401).send();
+	}
 
 });
 
@@ -89,59 +121,6 @@ router.delete("/logout/:userId", (req: Request, res: Response) => {
 
 });
 
-router.post("/checkSession", upload.array(), (req: Request, res: Response) => {
-
-	if (!req.body.sessionId || !req.body.userId || !req.body.isAdmin) {
-		console.error();
-		res.status(500).send();
-
-	} else {
-		res.locals.connection.query("select sessionId from user_sessions"
-			+ ` where userId = ${res.locals.connection.escape(req.body.userId)}`
-			+ ` and sessionId = ${res.locals.connection.escape(req.body.sessionId)}`
-			+ ` and isAdmin = ${res.locals.connection.escape(req.body.isAdmin)}`
-			+ " and touched > date_sub(now(), interval 30 minute)",
-
-			(error: MysqlError, results: any) => {
-
-				if (error) {
-					console.error(error);
-					res.status(500).send();
-				} else {
-					if (results.length === 1) {
-
-						res.locals.connection.query(
-							`update user_sessions set touched = now() where sessionId = ${res.locals.connection.escape(req.body.sessionId)}`);
-
-						res.status(200).send(JSON.stringify({
-							response: true,
-						}));
-
-					} else {
-
-						res.locals.connection.query(
-							`delete from user_sessions where userId = ${res.locals.connection.escape(req.params.userId)}`,
-							(deleteError: MysqlError, deleteResults: any) => {
-								if (deleteError) {
-									res.status(500).send();
-								} else {
-									res.status(200).send(JSON.stringify({
-										response: false,
-									}));
-								}
-							});
-
-					}
-
-				}
-
-			});
-
-	}
-
-});
-
-
 router.post("/register/checkEmail", upload.array(), (req: Request, res: Response) => {
 
 	res.locals.connection.query(
@@ -153,16 +132,15 @@ router.post("/register/checkEmail", upload.array(), (req: Request, res: Response
 				res.status(500).send();
 
 			} else {
-				res.status(200).send(JSON.stringify({
+				res.status(200).json({
 					response: (!!results.length),
-				}));
+				});
 
 			}
 
 		});
 
 });
-
 
 router.post("/register", upload.array(), (req: Request, res: Response) => {
 
@@ -182,10 +160,10 @@ router.post("/register", upload.array(), (req: Request, res: Response) => {
 				res.status(500).send();
 
 			} else {
-				res.status(200).send(JSON.stringify({
+				res.status(200).json({
 					response: {
 						validationCode,
-					}}));
+					}});
 
 			}
 
@@ -193,8 +171,7 @@ router.post("/register", upload.array(), (req: Request, res: Response) => {
 
 });
 
-
-router.post("/validate", upload.array(), (req: Request, res: Response) => {
+router.post("/validateAccount", upload.array(), (req: Request, res: Response) => {
 
 	res.locals.connection.query("select user_id from users where"
 		+ ` user_name = ${res.locals.connection.escape(req.body.username)}`
@@ -221,9 +198,9 @@ router.post("/validate", upload.array(), (req: Request, res: Response) => {
 								res.status(500).send();
 
 							} else {
-								res.status(200).send(JSON.stringify({
+								res.status(200).json({
 									response: true,
-								}));
+								});
 							}
 
 						});
