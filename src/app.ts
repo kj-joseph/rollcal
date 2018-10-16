@@ -8,7 +8,6 @@ const path = require("path");
 
 import exjwt from "express-jwt";
 import jperm from "express-jwt-permissions";
-import jwt from "jsonwebtoken";
 
 import authRouter from "routes/auth";
 import eventFeaturesRouter from "routes/eventFeatures";
@@ -23,9 +22,9 @@ const app = express();
 app.use(cors());
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Content-type, Authorization");
-  next();
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Headers", "Content-type, Authorization");
+	next();
 });
 
 app.use(bodyParser.json());
@@ -48,21 +47,34 @@ app.use((req: Request, res: Response, next: any) => {
 	next();
 });
 
-const jwtMN = exjwt({ secret: "rollinrollinrollin" });
-app.use(jwtMN.unless({path: ["/auth/login"]}));
-
-app.use((err: ErrorEventHandler, req: Request, res: Response, next: any) => {
-    if (err.name === "UnauthorizedError") { // Send the error rather than to show it on the console
-        res.status(401).send(err);
-    } else {
-        next(err);
-    }
-});
+const jwtMN = exjwt({ secret: process.env.ROLLCAL_API_SECRET });
+app.use(jwtMN.unless({path: [
+	"/auth/login",
+	"/auth/validateAccount",
+	/^\/eventFeatures/,
+	/^\/events/,
+	/^\/geography/,
+	/^\/auth\/register/,
+	/^\/venues/,
+]}));
 
 app.use("/auth", authRouter);
 app.use("/eventFeatures", eventFeaturesRouter);
 app.use("/events", eventsRouter);
 app.use("/geography", geographyRouter);
 app.use("/venues", venuesRouter);
+
+app.use((err: ErrorEventHandler, req: Request, res: Response, next: any) => {
+	switch (err.name) {
+		case "UnauthorizedError":
+			res.status(401).send(err);
+			break;
+		case "permission_denied":
+			res.status(403).send(err);
+			break;
+		default:
+			next(err);
+	}
+});
 
 export default app;

@@ -1,13 +1,7 @@
 import { Request, Response, Router } from "express";
 import { FieldInfo, MysqlError } from "mysql";
 
-import exjwt from "express-jwt";
-import jperm from "express-jwt-permissions";
-import jwt from "jsonwebtoken";
-
 const router = Router();
-
-const jwtMN = exjwt({ secret: "rollinrollinrollin" });
 
 router.get("/getEventDetails/:eventId", (req: Request, res: Response) => {
 
@@ -16,7 +10,7 @@ router.get("/getEventDetails/:eventId", (req: Request, res: Response) => {
 	res.locals.connection.query("select e.*, c.*, vr.*, tz.*, u.user_id, u.user_name"
 		+ " from events e, countries c, users u, timezones tz,"
 		+ " (select * from venues left outer join regions on region_id = venue_region) as vr"
-		+ " where event_id = " + res.locals.connection.escape(req.params.eventId)
+		+ ` where event_id = ${res.locals.connection.escape(req.params.eventId)}`
 		+ " and event_approved = 1"
 		+ " and venue_id = event_venue and country_code = venue_country"
 		+ " and event_user = user_id and timezone_id = event_timezone",
@@ -29,20 +23,20 @@ router.get("/getEventDetails/:eventId", (req: Request, res: Response) => {
 
 			} else if (!results.length) {
 				res.locals.connection.end();
-				res.status(200).send(JSON.stringify({
+				res.status(200).json({
 					response: null,
-				}));
+				});
 
 			} else {
 
 				const eventResult = results[0];
 
-				const query = "select *, " +
-					" convert_tz(eventday_start, 'UTC', " + res.locals.connection.escape(eventResult.timezone_zone) + ") as eventday_start_venue," +
-					" convert_tz(eventday_end, 'UTC', " + res.locals.connection.escape(eventResult.timezone_zone) + ") as eventday_end_venue," +
-					" convert_tz(eventday_start, 'UTC', " + res.locals.connection.escape(timezone) + ") as eventday_start_user," +
-					" convert_tz(eventday_end, 'UTC', " + res.locals.connection.escape(timezone) + ") as eventday_end_user" +
-					" from eventdays where eventday_event = " + res.locals.connection.escape(req.params.eventId);
+				const query = "select *, "
+					+ ` convert_tz(eventday_start, 'UTC', ${res.locals.connection.escape(eventResult.timezone_zone)}) as eventday_start_venue,`
+					+ ` convert_tz(eventday_end, 'UTC', ${res.locals.connection.escape(eventResult.timezone_zone)}) as eventday_end_venue,`
+					+ ` convert_tz(eventday_start, 'UTC', ${res.locals.connection.escape(eventResult.timezone)}) as eventday_start_user,`
+					+ ` convert_tz(eventday_end, 'UTC', ${res.locals.connection.escape(eventResult.timezone)}) as eventday_end_user`
+					+ ` from eventdays where eventday_event = ${res.locals.connection.escape(req.params.eventId)}`;
 
 				res.locals.connection.query(query,
 					(daysError: MysqlError, daysResults: any) => {
@@ -57,7 +51,7 @@ router.get("/getEventDetails/:eventId", (req: Request, res: Response) => {
 							res.locals.connection.query("select s.sanction_name, s.sanction_abbreviation"
 								+ " from sanctions s, event_sanctions es"
 								+ " where s.sanction_id = es.sanction"
-								+ " and es.event = " + res.locals.connection.escape(req.params.eventId)
+								+ ` and es.event = ${res.locals.connection.escape(req.params.eventId)}`
 								+ " order by sanction_name",
 								(sanctionError: MysqlError, sanctionResults: any) => {
 									if (sanctionError) {
@@ -72,7 +66,7 @@ router.get("/getEventDetails/:eventId", (req: Request, res: Response) => {
 										res.locals.connection.query("select dt.derbytype_name, dt.derbytype_abbreviation"
 											+ " from derbytypes dt, event_derbytypes ed"
 											+ " where dt.derbytype_id = ed.derbytype"
-											+ " and ed.event = " + res.locals.connection.escape(req.params.eventId)
+											+ ` and ed.event = ${res.locals.connection.escape(req.params.eventId)}`
 											+ " order by derbytype_name",
 											(typesError: MysqlError, typesResults: any) => {
 												if (typesError) {
@@ -86,7 +80,7 @@ router.get("/getEventDetails/:eventId", (req: Request, res: Response) => {
 													res.locals.connection.query("select t.track_name, t.track_abbreviation"
 														+ " from tracks t, event_tracks et"
 														+ " where t.track_id = et.track"
-														+ " and et.event = " + res.locals.connection.escape(req.params.eventId)
+														+ ` and et.event = ${res.locals.connection.escape(req.params.eventId)}`
 														+ " order by track_name",
 														(tracksError: MysqlError, tracksResults: any) => {
 															if (tracksError) {
@@ -98,9 +92,9 @@ router.get("/getEventDetails/:eventId", (req: Request, res: Response) => {
 																eventResult.tracks = tracksResults;
 
 																res.locals.connection.end();
-																res.status(200).send(JSON.stringify({
+																res.status(200).json({
 																	response: [eventResult],
-																}));
+																});
 
 															}
 														});
@@ -120,7 +114,7 @@ router.get("/getEventDetails/:eventId", (req: Request, res: Response) => {
 });
 
 
-router.get("/search", jwtMN, (req: Request, res: Response) => {
+router.get("/search", (req: Request, res: Response) => {
 
 	const timezone = req.query.timezone || "UTC";
 
@@ -142,7 +136,7 @@ router.get("/search", jwtMN, (req: Request, res: Response) => {
 	}
 
 	if (req.query.endDate) {
-		query.where += ` and eventday_start >= convert_tz(${res.locals.connection.escape(req.query.endDate + "T23:59:59.999")},`
+		query.where += ` and eventday_start <= convert_tz(${res.locals.connection.escape(req.query.endDate + "T23:59:59.999")},`
 		+ `${res.locals.connection.escape(timezone)}, 'UTC')`;
 	}
 
@@ -212,9 +206,9 @@ router.get("/search", jwtMN, (req: Request, res: Response) => {
 			} else if (!eventResults.length) {
 				res.locals.connection.end();
 
-				res.status(200).send(JSON.stringify({
+				res.status(200).json({
 					response: [],
-				}));
+				});
 
 			} else {
 
@@ -295,9 +289,9 @@ router.get("/search", jwtMN, (req: Request, res: Response) => {
 				Promise.all(promises).then((results) => {
 
 					res.locals.connection.end();
-					res.status(200).send(JSON.stringify({
+					res.status(200).json({
 						response: results,
-					}));
+					});
 
 				}, (error) => {
 

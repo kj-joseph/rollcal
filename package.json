@@ -5,6 +5,7 @@
   "scripts": {
     "build:prod": "webpack --config webpack.prod.js --mode production",
     "build:dev": "webpack --config webpack.dev.js --mode development",
+    "lint": "tslint -p ./jsconfig.json",
     "start": "webpack --watch --config webpack.local.js --mode development"
   },
   "dependencies": {

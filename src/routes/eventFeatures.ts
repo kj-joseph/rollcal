@@ -15,9 +15,9 @@ router.get("/getDerbyTypes", (req: Request, res: Response) => {
 				res.status(500).send();
 
 			} else {
-				res.status(200).send(JSON.stringify({
+				res.status(200).json({
 					response: results,
-				}));
+				});
 			}
 		});
 });
@@ -34,9 +34,9 @@ router.get("/getSanctionTypes", (req: Request, res: Response) => {
 				res.status(500).send();
 
 			} else {
-				res.status(200).send(JSON.stringify({
+				res.status(200).json({
 					response: results,
-				}));
+				});
 			}
 
 		});
@@ -54,9 +54,9 @@ router.get("/getTracks", (req: Request, res: Response) => {
 				res.status(500).send();
 
 			} else {
-				res.status(200).send(JSON.stringify({
+				res.status(200).json({
 					response: results,
-				}));
+				});
 			}
 
 		});
