@@ -28,9 +28,9 @@ export default class EventIcons extends React.Component<{icons: IDerbyIcons, sho
 					</span>
 					: "" )}
 				{(this.props.icons.derbytypes.length ?
-					<span className="eventIconGroup eventIconIDerbytypes">
+					<span className="eventIconGroup eventIconDerbytypes">
 						{(this.props.showLabels) ?
-							<span className="label">IDerby Types</span>
+							<span className="label">Derby Type(s)</span>
 						:
 							""
 						}

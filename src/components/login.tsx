@@ -106,39 +106,39 @@ export default class Login<Props> extends React.Component<any, any, any> {
 		axios.post(this.props.apiLocation + "auth/login", {
 			email: this.state.loginEmail,
 			password: this.state.loginPassword,
+		}).then((result: AxiosResponse) => {
+			sessionStorage.setItem("rollCalUserId", result.data.response.id);
+			sessionStorage.setItem("rollCalUserName", result.data.response.username);
+			sessionStorage.setItem("rollCalUserPermissions", result.data.response.permissions);
+			sessionStorage.setItem("rollCalToken", result.data.response.token);
 
-			}).then((result: AxiosResponse) => {
-				sessionStorage.setItem("rollCalUserId", result.data.response.userId);
-				sessionStorage.setItem("rollCalUserName", result.data.response.userName);
-				sessionStorage.setItem("rollCalUserIsAdmin", result.data.response.isAdmin);
-				sessionStorage.setItem("rollCalUserSessionId", result.data.response.sessionId);
+			this.props.setLoginBoxState(false);
 
-				this.props.setLoginBoxState(false);
-
-				this.props.setIUserInfo({
-					loggedIn: true,
-					loggedInUserAdmin: result.data.response.isAdmin,
-					loggedInUserId: result.data.response.userId,
-				});
-
-				this.setState({
-					errorMessage: "",
-					loading: false,
-					loginEmail: "",
-					loginPassword: "",
-					registerEmail: "",
-					registerPassword: "",
-					registerPasswordConfirm: "",
-					registerUsername: "",
-					status: "login",
-				});
-
-			}).catch((error: AxiosError) => {
-				this.setState({
-					errorMessage: "Sorry, that login wasn't right.  Try again.",
-					loading: false,
-				});
+			this.props.setUserInfo({
+				loggedIn: true,
+				loggedInUserId: result.data.response.id,
+				loggedInUserName: result.data.response.username,
+				loggedInUserPermissions: result.data.response.permissions.split(","),
 			});
+
+			this.setState({
+				errorMessage: "",
+				loading: false,
+				loginEmail: "",
+				loginPassword: "",
+				registerEmail: "",
+				registerPassword: "",
+				registerPasswordConfirm: "",
+				registerUsername: "",
+				status: "login",
+			});
+
+		}).catch((error: AxiosError) => {
+			this.setState({
+				errorMessage: "Sorry, that login wasn't right.  Try again.",
+				loading: false,
+			});
+		});
 
 	}
 
@@ -148,8 +148,9 @@ export default class Login<Props> extends React.Component<any, any, any> {
 			loading: true,
 		});
 
-		axios.post(this.props.apiLocation + "auth/register/checkEmail", {email: this.state.registerEmail})
-			.then((result: AxiosResponse) => {
+		axios.post(this.props.apiLocation + "auth/register/checkEmail", {
+			email: this.state.registerEmail,
+		}).then((result: AxiosResponse) => {
 				if (result.data.response) {
 
 					this.setState({
@@ -167,16 +168,17 @@ export default class Login<Props> extends React.Component<any, any, any> {
 						}).then((registerResult: AxiosResponse) => {
 
 							axios.post("https://api.emailjs.com/api/v1.0/email/send", {
-								email: this.state.registerEmail,
-								emailEncoded: encodeURIComponent(this.state.registerEmail.replace(/\./g, "%2E")),
 								service_id: "server",
 								template_id: "account_validation",
 								template_params: {
+									email: this.state.registerEmail,
+									emailEncoded: encodeURIComponent(this.state.registerEmail.replace(/\./g, "%2E")),
+									username: this.state.registerUsername,
+									usernameEncoded: encodeURIComponent(this.state.registerUsername.replace(/\./g, "%2E")),
+									validationCode: registerResult.data.response.validationCode,
+								},
 								user_id: "user_hX0Eb4e3DRLA6dAAUMHKu",
-								username: this.state.registerUsername,
-								usernameEncoded: encodeURIComponent(this.state.registerUsername.replace(/\./g, "%2E")),
-								validationCode: result.data.response.validationCode,
-							}})
+							})
 							.then((response: any) => {
 
 								this.setState({

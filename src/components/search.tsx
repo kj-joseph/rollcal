@@ -591,8 +591,8 @@ export default class Search<Props> extends React.Component<any, any, any> {
 										</span>
 										: "" )}
 									{(this.state.eventFeatures.derbytypes.length ?
-										<span className="eventIconGroup eventIconIDerbytypes">
-											<span className="label">Filter IDerby Types</span>
+										<span className="eventIconGroup eventIconDerbytypes">
+											<span className="label">Filter Derby Types</span>
 											{this.state.eventFeatures.derbytypes.map((icon: IDerbyType) => (
 												<FeatureIcon
 													imageClass={this.state.selectedEventFeatures.indexOf("derbytype-" + icon.derbytype_id) > -1 ? "selected" : ""}

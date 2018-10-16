@@ -20,7 +20,7 @@ export const setLoginBoxState = (loginBoxState: boolean): IReduxActionType => ({
 	type: "SET_LOGIN_BOX_STATE",
 });
 
-export const setIUserInfo = (userInfo: IUserInfo): IReduxActionType => ({
+export const setUserInfo = (userInfo: IUserInfo): IReduxActionType => ({
 	payload: userInfo,
 	type: "SET_USER_INFO",
 });
