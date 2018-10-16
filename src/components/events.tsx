@@ -1,17 +1,16 @@
 import React from "react";
-import ReactDOM from "react-dom";
 import { BrowserRouter as Router, NavLink } from "react-router-dom";
 
 import {
 	IDerbyEvent, IDerbyIcon, IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType,
 	IGeoCountry, IGeoRegion, IGeoRegionList,
-	IReduxActions, IReduxStore,
 } from "interfaces";
 
 import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
 
-import * as moment from "moment";
+import moment from "moment";
 
+import EventIconImage from "components/eventIconImage";
 import { formatDateRange } from "lib/dateTime";
 
 export default class Events<Props> extends React.Component<any, any, any> {
@@ -348,21 +347,21 @@ export default class Events<Props> extends React.Component<any, any, any> {
 									{(event.icons.tracks.length ?
 										<span className="eventIconGroup eventIconTracks">
 											{event.icons.tracks.map((icon: IDerbyIcon) => (
-											<img src={`/images/${icon.filename}.svg`} title={icon.title} alt={icon.title} key={icon.filename} />
+												<EventIconImage icon={icon} key={icon.filename} />
 											))}
 										</span>
 										: "" )}
 									{(event.icons.derbytypes.length ?
 										<span className="eventIconGroup eventIconDerbytypes">
 											{event.icons.derbytypes.map((icon: IDerbyIcon) => (
-											<img src={`/images/${icon.filename}.svg`} title={icon.title} alt={icon.title} key={icon.filename} />
+												<EventIconImage icon={icon} key={icon.filename} />
 											))}
 										</span>
 										: "" )}
 									{(event.icons.sanctions.length ?
 										<span className="eventIconGroup eventIconSanctions">
 											{event.icons.sanctions.map((icon: IDerbyIcon) => (
-											<img src={`/images/${icon.filename}.svg`} title={icon.title} alt={icon.title} key={icon.filename} />
+												<EventIconImage icon={icon} key={icon.filename} />
 											))}
 										</span>
 										: "" )}

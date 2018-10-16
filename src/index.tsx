@@ -1,12 +1,13 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
+import React from "react";
+import { render } from "react-dom";
 import { BrowserRouter as Router, NavLink, Route, Switch, withRouter } from "react-router-dom";
+import ReactSVG from "react-svg";
 
-import { IReduxActions, IReduxActionType, IUserInfo } from "interfaces";
+import { IReduxActionType, IUserInfo } from "interfaces";
 
 import { connect, Provider } from "react-redux";
 import { Dispatch } from "redux";
-import * as reduxActions from "redux/actions";
+import reduxActions from "redux/actions";
 import store from "redux/store";
 
 import "flag-icon-css/sass/flag-icon.scss";
@@ -16,11 +17,13 @@ import "styles/main.scss";
 import ".htaccess";
 require.context("images/favicon", true);
 
-import HeaderLogo from "images/header-logo.svg";
 require.context("images/derbytypes", true);
 require.context("images/sanctions", true);
 require.context("images/tracks", true);
+
 import "images/header-logo.png"; // for email header
+import HeaderLogo from "images/header-logo.svg";
+
 
 import MenuDrawer from "images/menu/drawer.svg";
 
@@ -53,16 +56,22 @@ class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
 				<div id="pageWrapper" className={typeof(process.env.ENV) !== "undefined" ? `env-${process.env.ENV}` : ""}>
 					<LoginBox />
 					<div id="siteHeader">
-						<div id="siteLogo">
-							<img src={HeaderLogo} />
-						</div>
+						<ReactSVG
+							id="siteLogo"
+							src={HeaderLogo}
+						/>
 						<div id="siteMenuHeader">
 							<SiteMenuComponent />
 						</div>
 					</div>
 					<div id="siteMenuDrawer" className={this.props.menuDrawerOpen ? " drawerOpen" : "drawerClosed"}>
-						<div className="openDrawerIcon" title="Open site menu" onClick={this.setMenuState}>
-							<img src={MenuDrawer} alt="" />
+						<div className="openDrawerIcon" >
+							<ReactSVG
+								className="openDrawerIcon"
+								onClick={this.setMenuState}
+								src={MenuDrawer}
+								title="Open site menu"
+							/>
 						</div>
 						<SiteMenuComponent />
 					</div>
@@ -102,7 +111,7 @@ const mapStateToProps = (reduxState: {[key: string]: any}) => {
 	};
 };
 
-const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>): IReduxActions => {
+const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>) => {
 	return {
 		changePage: (page: string) => dispatch(reduxActions.changePage(page)),
 		saveSearch: (search: string) => dispatch(reduxActions.saveSearch(search)),
@@ -122,7 +131,7 @@ const SiteMenuComponent = connect(mapStateToProps, mapDispatchToProps)(SiteMenu)
 const SiteRouter = connect(mapStateToProps, mapDispatchToProps)(ConnectedSiteRouter);
 const ValidatePage = connect(mapStateToProps, mapDispatchToProps)(Validate);
 
-ReactDOM.render(
+render(
 	<Provider store={store}>
 		<SiteRouter />
 	</Provider>,

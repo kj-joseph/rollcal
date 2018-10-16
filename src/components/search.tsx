@@ -1,5 +1,4 @@
 import React from "react";
-import ReactDOM from "react-dom";
 import { BrowserRouter as Router, NavLink } from "react-router-dom";
 
 import { IDerbyDates, IDerbyFeatures, IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IGeoRegion, IGeoRegionList } from "interfaces";
@@ -9,7 +8,7 @@ import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } fr
 import { DayPickerRangeController } from "react-dates";
 import "react-dates/initialize";
 
-import * as moment from "moment";
+import moment from "moment";
 
 import Select from "react-select";
 

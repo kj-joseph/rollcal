@@ -2,7 +2,9 @@ $breakpoints: (
   "xsmall": 470px,
   "small": 768px,
   "medium": 992px,
-  "large": 1200px
+  "large": 1200px,
+  "huge": 1600px,
+  "mega": 2000px
 );
 
 @mixin respond-to($breakpoint) {

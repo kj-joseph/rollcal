@@ -1,26 +1,30 @@
 import { IReduxActionType, IUserInfo } from "interfaces";
 
-export const changePage = (page: string): IReduxActionType => ({
-	payload: page,
-	type: "CHANGE_PAGE",
-});
+export default {
 
-export const saveSearch = (search: string): IReduxActionType => ({
-	payload: search,
-	type: "SAVE_SEARCH",
-});
+	changePage: (page: string): IReduxActionType => ({
+		payload: page,
+		type: "CHANGE_PAGE",
+	}),
 
-export const setMenuState = (menuState: boolean): IReduxActionType => ({
-	payload: menuState,
-	type: "SET_MENU_STATE",
-});
+	saveSearch: (search: string): IReduxActionType => ({
+		payload: search,
+		type: "SAVE_SEARCH",
+	}),
 
-export const setLoginBoxState = (loginBoxState: boolean): IReduxActionType => ({
-	payload: loginBoxState,
-	type: "SET_LOGIN_BOX_STATE",
-});
+	setMenuState: (menuState: boolean): IReduxActionType => ({
+		payload: menuState,
+		type: "SET_MENU_STATE",
+	}),
 
-export const setUserInfo = (userInfo: IUserInfo): IReduxActionType => ({
-	payload: userInfo,
-	type: "SET_USER_INFO",
-});
+	setLoginBoxState: (loginBoxState: boolean): IReduxActionType => ({
+		payload: loginBoxState,
+		type: "SET_LOGIN_BOX_STATE",
+	}),
+
+	setUserInfo: (userInfo: IUserInfo): IReduxActionType => ({
+		payload: userInfo,
+		type: "SET_USER_INFO",
+	}),
+
+};

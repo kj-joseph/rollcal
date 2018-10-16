@@ -1,12 +1,11 @@
 import React from "react";
-import ReactDOM from "react-dom";
 import { BrowserRouter as Router, NavLink } from "react-router-dom";
 
 import { IDBDerbyEvent, IDerbyEvent, IDerbyEventDayFormatted, IDerbyIcon, IDerbyIcons } from "interfaces";
 
 import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
 
-import * as moment from "moment";
+import moment from "moment";
 
 import { formatDateRange } from "lib/dateTime";
 
@@ -143,7 +142,11 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 									<p className="eventDate"><strong>{this.state.eventData[0].dates_venue}</strong></p>
 
 									{(this.state.eventData[0].event_link) ?
-										<p className="eventLink"><a href={this.state.eventData[0].event_link} target="_blank">{this.state.eventData[0].name} website</a></p>
+										<p className="eventLink">
+											<a href={this.state.eventData[0].event_link} target="_blank" rel="noopener noreferrer">
+												{this.state.eventData[0].name} website
+											</a>
+										</p>
 										: ""
 									}
 								</div>
@@ -165,7 +168,11 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 										{this.state.eventData[0].location} {this.state.eventData[0].flag}
 									</address>
 									{(this.state.eventData[0].venue_link) ?
-										<p className="venueLink"><a href={this.state.eventData[0].venue_link} target="_blank">{this.state.eventData[0].venue_name} website</a></p>
+										<p className="venueLink">
+											<a href={this.state.eventData[0].venue_link} target="_blank" rel="noopener noreferrer">
+												{this.state.eventData[0].venue_name} website
+											</a>
+										</p>
 										: ""
 									}
 

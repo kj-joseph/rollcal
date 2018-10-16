@@ -1,9 +1,15 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import ReactSVG from "react-svg";
 
 export default class FeatureIcon<Props> extends React.Component<any, any, any> {
 
-	constructor(props: Props) {
+	constructor(props: {
+		abbreviation: string,
+		alt: string,
+		className: string,
+		featureType: string,
+		title: string;
+	}) {
 		super(props);
 
 		this.toggleIcon = this.toggleIcon.bind(this);
@@ -19,11 +25,9 @@ export default class FeatureIcon<Props> extends React.Component<any, any, any> {
 
 		return(
 
-			<img
-				className={this.props.imageClass}
+			<ReactSVG
+				className={`featureIcon ${this.props.imageClass}` }
 				src={`/images/${this.props.featureType}-${this.props.abbreviation}.svg`}
-				title={this.props.title}
-				alt={this.props.name}
 				onClick={this.toggleIcon}
 			/>
 

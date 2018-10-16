@@ -1,9 +1,9 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import ReactSVG from "react-svg";
 
 import { IDerbyIcon } from "interfaces";
 
-export class EventIconImage<Props> extends React.Component<any, any, any> {
+export default class EventIconImage<Props> extends React.Component<any, any, any> {
 
 	constructor(props: {icon: IDerbyIcon}) {
 		super(props);
@@ -12,7 +12,13 @@ export class EventIconImage<Props> extends React.Component<any, any, any> {
 	render() {
 
 		return (
-			<img src={`/images/${this.props.icon.filename}.svg`} title={this.props.icon.title} alt={this.props.icon.title} />
+
+			<ReactSVG
+				className="icon"
+				src={`/images/${this.props.icon.filename}.svg`}
+				title={this.props.icon.title}
+			/>
+
 		);
 
 	}

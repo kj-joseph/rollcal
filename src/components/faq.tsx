@@ -1,5 +1,4 @@
 import React from "react";
-import ReactDOM from "react-dom";
 
 export default class Faq<Props> extends React.Component<any, any, any> {
 
@@ -10,6 +9,7 @@ export default class Faq<Props> extends React.Component<any, any, any> {
 	componentDidMount() {
 		window.scrollTo(0, 0);
 		this.props.changePage("faq");
+		this.props.setMenuState(false);
 	}
 
 	render() {

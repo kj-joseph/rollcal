@@ -1,9 +1,4 @@
-import * as moment from "moment";
-
-export interface IReduxActionType {
-	type: string;
-	payload: any;
-}
+import moment from "moment";
 
 export interface IDBDerbyEvent {
 	country_code: string;
@@ -147,12 +142,9 @@ export interface IGeoRegionList {
 	[key: string]: IGeoRegion[];
 }
 
-export interface IReduxActions {
-	[key: string]: any;
-}
-
-export interface IReduxStore {
-	[key: string]: any;
+export interface IReduxActionType {
+	type: string;
+	payload: any;
 }
 
 export interface IUserInfo {
