@@ -107,7 +107,6 @@ export default class Login<Props> extends React.Component<any, any, any> {
 			email: this.state.loginEmail,
 			password: this.state.loginPassword,
 		}).then((result: AxiosResponse) => {
-			console.log(result.data.response);
 			sessionStorage.setItem("rollCalUserId", result.data.response.id);
 			sessionStorage.setItem("rollCalUserName", result.data.response.username);
 			sessionStorage.setItem("rollCalUserPermissions", result.data.response.permissions);
