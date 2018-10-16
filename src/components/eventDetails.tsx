@@ -196,32 +196,10 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 								<p className="eventUser">Event entered by {this.state.eventData[0].user}</p>
 							</div>
 
-							<div className="eventIcons">
-								{(this.state.eventData[0].icons.tracks.length ?
-									<span className="eventIconGroup eventIconTracks">
-										<span className="label">Track(s)</span>
-										{this.state.eventData[0].icons.tracks.map((icon: IDerbyIcon) => (
-											<img src={`/images/${icon.filename}.svg`} title={icon.title} alt={icon.title} key={icon.filename} />
-										))}
-									</span>
-									: "" )}
-								{(this.state.eventData[0].icons.derbytypes.length ?
-									<span className="eventIconGroup eventIconIDerbytypes">
-										<span className="label">IDerby Types</span>
-										{this.state.eventData[0].icons.derbytypes.map((icon: IDerbyIcon) => (
-											<img src={`/images/${icon.filename}.svg`} title={icon.title} alt={icon.title} key={icon.filename} />
-										))}
-									</span>
-									: "" )}
-								{(this.state.eventData[0].icons.sanctions.length ?
-									<span className="eventIconGroup eventIconSanctions">
-										<span className="label">Sanctions</span>
-										{this.state.eventData[0].icons.sanctions.map((icon: IDerbyIcon) => (
-											<img src={`/images/${icon.filename}.svg`} title={icon.title} alt={icon.title} key={icon.filename} />
-										))}
-									</span>
-									: "" )}
-							</div>
+							<EventIcons
+								icons={this.state.eventData[0].icons}
+								showLabels={true}
+							/>
 
 						</div>
 					: ""

@@ -22,47 +22,60 @@ export default class SiteMenu<Props> extends React.Component<any, any, any> {
 
 		if (sessionStorage.rollCalUserId
 			&& sessionStorage.rollCalUserName
-			&& sessionStorage.rollCalUserIsAdmin
-			&& sessionStorage.rollCalUserSessionId) {
+			&& sessionStorage.rollCalUserPermissions
+			&& sessionStorage.rollCalToken) {
 
-			axios.post(this.props.apiLocation + "auth/checkSession", {
-				isAdmin: sessionStorage.rollCalUserIsAdmin,
-				sessionId: sessionStorage.rollCalUserSessionId,
-				userId: sessionStorage.rollCalUserId,
+			axios.post(this.props.apiLocation + "auth/checkToken",
+				{
+					id: sessionStorage.rollCalUserId,
+					permissions: sessionStorage.rollCalUserPermissions,
+					username: sessionStorage.rollCalUserName,
+				},
+				{
+					headers: {
+						Authorization: `Bearer ${sessionStorage.rollCalToken}`,
+					},
 			}).then((results: AxiosResponse) => {
-				if (results.data.response) {
-					this.props.setIUserInfo({
-						loggedIn: true,
-						loggedInUserAdmin: sessionStorage.rollCalUserIsAdmin,
-						loggedInUserId: sessionStorage.rollCalUserId,
-					});
+				this.props.setUserInfo({
+					loggedIn: true,
+					loggedInUserId: sessionStorage.rollCalUserId,
+					loggedInUserName: sessionStorage.rollCalUserName,
+					loggedInUserPermissions: sessionStorage.rollCalUserPermissions.split(","),
+				});
 
+			}).catch((error: AxiosError) => {
+
+				if (sessionStorage.rollCalUserId) {
+					this.logout(null, sessionStorage.rollCalUserId);
 				} else {
 					this.logout();
 				}
+
 			});
 
 		}
 
 	}
 
-	logout(event?: React.MouseEvent<HTMLAnchorElement>): void {
+	logout(event?: React.MouseEvent<HTMLAnchorElement>, id?: number): void {
 
 		if (event) {
 			event.preventDefault();
 		}
 
-		axios.delete(this.props.apiLocation + "auth/logout/" + sessionStorage.rollCalUserId);
+		if (id) {
+			axios.delete(this.props.apiLocation + "auth/logout/" + id);
+		}
 
 		sessionStorage.removeItem("rollCalUserId");
 		sessionStorage.removeItem("rollCalUserName");
-		sessionStorage.removeItem("rollCalUserIsAdmin");
-		sessionStorage.removeItem("rollCalUserSessionId");
+		sessionStorage.removeItem("rollCalUserPermissions");
+		sessionStorage.removeItem("rollCalToken");
 
-		this.props.setIUserInfo({
+		this.props.setUserInfo({
 			loggedIn: false,
-			loggedInUserAdmin: "",
 			loggedInUserId: "",
+			loggedInUserPermissions: "",
 		});
 	}
 

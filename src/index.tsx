@@ -68,14 +68,13 @@ class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
 					</div>
 
 					<div id="content">
-						{this.props.menuDrawerOpen}
 						<Switch>
 							<Route exact={true} path="/" component={RedirectHome} />
+							<Route path="/validate/:validationCode" component={ValidatePage} />
 							<Route path="/events/details/:eventId?" component={EventDetailsPage} />
 							<Route path="/events/search" component={SearchPage} />
 							<Route path="/events/:startDate?/:endDate?" component={EventsPage} />
 							<Route path="/faq" component={FaqPage} />
-							<Route path="/validate/:validationCode" component={ValidatePage} />
 							<Route component={NotFoundPage} />
 						</Switch>
 					</div>
@@ -107,9 +106,9 @@ const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>): IReduxActions
 	return {
 		changePage: (page: string) => dispatch(reduxActions.changePage(page)),
 		saveSearch: (search: string) => dispatch(reduxActions.saveSearch(search)),
-		setIUserInfo: (userState: IUserInfo) => dispatch(reduxActions.setIUserInfo(userState)),
 		setLoginBoxState: (loginBoxState: boolean) => dispatch(reduxActions.setLoginBoxState(loginBoxState)),
 		setMenuState: (menuState: boolean) => dispatch(reduxActions.setMenuState(menuState)),
+		setUserInfo: (userState: IUserInfo) => dispatch(reduxActions.setUserInfo(userState)),
 	};
 };
 

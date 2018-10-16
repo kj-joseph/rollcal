@@ -312,7 +312,7 @@ export default class Events<Props> extends React.Component<any, any, any> {
 						<div className="searchDisplay">
 							<p><strong>Dates:</strong> {this.state.searchDisplayDates}{this.props.match.params.endDate ? "" : " – (all)"}</p>
 							<p><strong>Locations:</strong> {}{this.state.searchDisplayLocations ? this.state.searchDisplayLocations : "all"}</p>
-							<p><strong>IDerby types:</strong> {}{this.state.searchDisplayDerbyTypes ? this.state.searchDisplayDerbyTypes : "all"}</p>
+							<p><strong>Derby Type(s):</strong> {}{this.state.searchDisplayDerbyTypes ? this.state.searchDisplayDerbyTypes : "all"}</p>
 							<p><strong>Sanctions:</strong> {}{this.state.searchDisplaySanctions ? this.state.searchDisplaySanctions : "all"}</p>
 							<p><strong>Tracks:</strong> {}{this.state.searchDisplayTracks ? this.state.searchDisplayTracks : "all"}</p>
 						</div>
@@ -353,7 +353,7 @@ export default class Events<Props> extends React.Component<any, any, any> {
 										</span>
 										: "" )}
 									{(event.icons.derbytypes.length ?
-										<span className="eventIconGroup eventIconIDerbytypes">
+										<span className="eventIconGroup eventIconDerbytypes">
 											{event.icons.derbytypes.map((icon: IDerbyIcon) => (
 											<img src={`/images/${icon.filename}.svg`} title={icon.title} alt={icon.title} key={icon.filename} />
 											))}
