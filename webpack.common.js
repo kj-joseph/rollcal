@@ -47,7 +47,8 @@ module.exports = () => {
 				'ROLLCAL_DB_HOST',
 				'ROLLCAL_DB_USER',
 				'ROLLCAL_DB_PASSWORD',
-				'ROLLCAL_DB_DATABASE'
+				'ROLLCAL_DB_DATABASE',
+				'ROLLCAL_API_SECRET',
 			])
 		]
 
