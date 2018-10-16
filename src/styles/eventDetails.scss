@@ -95,7 +95,11 @@
 			}
 		}
 
-		img {
+		.icon, .icon div {
+			display: contents;
+		}
+
+		svg {
 			height: 60px;
 		}
 	}
@@ -117,7 +121,7 @@
 			text-align: center;
 			margin-top: 2.2em;
 
-			img {
+			svg {
 				height: 75px;
 				margin: 0 5px;
 			}
@@ -132,10 +136,9 @@
 
 	.eventDetails {
 
-		.eventIcons img {
+		.eventIcons svg {
 			height: 90px;
 		}
 	}
 
 }
-

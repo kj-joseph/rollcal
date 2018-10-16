@@ -1,5 +1,4 @@
 import React from "react";
-import ReactDOM from "react-dom";
 
 export default class RemoveCountryButton<Props> extends React.Component<any, any, any> {
 

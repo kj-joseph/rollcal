@@ -1,6 +1,6 @@
-import { IReduxActionType, IReduxStore } from "interfaces";
+import { IReduxActionType } from "interfaces";
 
-const initialState: IReduxStore = {
+const initialState = {
 	apiLocation: process.env.API_URL,
 	lastSearch: "",
 	loggedIn: false,

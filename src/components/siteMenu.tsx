@@ -1,5 +1,4 @@
 import React from "react";
-import ReactDOM from "react-dom";
 import { NavLink } from "react-router-dom";
 
 import MenuContact from "images/menu/contact.svg";
@@ -91,22 +90,28 @@ export default class SiteMenu<Props> extends React.Component<any, any, any> {
 			<div className="siteMenu">
 				<ul>
 					<li>
+						<NavLink exact={true} to="/events" title="Upcoming Events">
+							Events
+						</NavLink>
+					</li>
+					<li>
 						<NavLink to="/events/search" title="Search Events">
-							<img src={MenuSearch} alt="" />
+							Search
 						</NavLink>
 					</li>
 					<li>
 						<NavLink exact={true} to="/faq" title="Frequently Asked Questions">
-							<img src={MenuFaq} alt="" />
+							FAQ
 						</NavLink>
 					</li>
 					<li>
-						<NavLink exact={true} to="/contact" title="Contact">
-							<img src={MenuContact} alt="" />
+						<NavLink exact={true} to="/contact" title="Contact Roll-Cal">
+							Contact
 						</NavLink>
 					</li>
+					{ 0 ? <React.Fragment>
 					{ this.props.loggedIn ?
-					<React.Fragment>
+		<React.Fragment>
 						<li>
 							<a href="" onClick={this.logout} title="Log out">
 								<img src={MenuLogout} alt="" />
@@ -132,6 +137,7 @@ export default class SiteMenu<Props> extends React.Component<any, any, any> {
 						</li>
 					</React.Fragment>
 					}
+		</React.Fragment> : "" }
 				</ul>
 			</div>
 		);

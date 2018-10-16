@@ -70,9 +70,9 @@
 				}
 
 
-				.CalendarDay__blocked_out_of_range, 
-				.CalendarDay__blocked_out_of_range:focus, 
-				.CalendarDay__blocked_out_of_range:active, 
+				.CalendarDay__blocked_out_of_range,
+				.CalendarDay__blocked_out_of_range:focus,
+				.CalendarDay__blocked_out_of_range:active,
 				.CalendarDay__blocked_out_of_range:hover {
 					color: $gray;
 					background: none;
@@ -113,7 +113,7 @@
 						}
 					}
 
-				}				
+				}
 			}
 		}
 
@@ -135,16 +135,21 @@
 
 		}
 
-		img {
+		.featureIcon, .featureIcon div {
+			display: contents;
+		}
+
+		svg {
 			opacity: .4;
 			height: 60px;
 			margin-right: 10px;
 			cursor: pointer;
-
-			&.selected {
-				opacity: 1;
-			}
 		}
+
+		.featureIcon.selected svg {
+			opacity: 1;
+		}
+
 	}
 
 }
@@ -160,7 +165,7 @@
 
 		.searchFeatures {
 
-			img {
+			svg {
 				height: 75px;
 				margin: 0 5px;
 			}
@@ -180,7 +185,7 @@
 
 		.searchFeatures {
 
-			img {
+			svg {
 				height: 90px;
 			}
 		}

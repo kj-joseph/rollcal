@@ -1,5 +1,4 @@
 import React from "react";
-import ReactDOM from "react-dom";
 
 export default class Error404<Props> extends React.Component<any, any, any> {
 
@@ -26,4 +25,3 @@ export default class Error404<Props> extends React.Component<any, any, any> {
 	}
 
 }
-

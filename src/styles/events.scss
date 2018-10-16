@@ -52,7 +52,11 @@ ul.eventList {
 				}
 			}
 
-			img {
+			.icon, .icon div {
+				display: contents;
+			}
+			
+			svg {
 				height: 35px;
 			}
 		}
