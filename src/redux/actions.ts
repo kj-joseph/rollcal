@@ -1,10 +1,30 @@
-import { IReduxActionType, IUserInfo } from "interfaces";
+import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IReduxActionType, IUserInfo } from "interfaces";
 
 export default {
 
 	changePage: (page: string): IReduxActionType => ({
 		payload: page,
 		type: "CHANGE_PAGE",
+	}),
+
+	saveDataDerbyTypes: (data: IDerbyType[]): IReduxActionType => ({
+		payload: data,
+		type: "SAVE_DATA_DERBYTYPES",
+	}),
+
+	saveDataGeography: (data: IGeoCountry[]): IReduxActionType => ({
+		payload: data,
+		type: "SAVE_DATA_GEOGRAPHY",
+	}),
+
+	saveDataSanctions: (data: IDerbySanction[]): IReduxActionType => ({
+		payload: data,
+		type: "SAVE_DATA_SANCTIONS",
+	}),
+
+	saveDataTracks: (data: IDerbyType[]): IReduxActionType => ({
+		payload: data,
+		type: "SAVE_DATA_TRACKS",
 	}),
 
 	saveSearch: (search: string): IReduxActionType => ({

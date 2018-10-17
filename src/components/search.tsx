@@ -1,7 +1,7 @@
 import React from "react";
-import { BrowserRouter as Router, NavLink } from "react-router-dom";
 
 import { IDerbyDates, IDerbyFeatures, IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IGeoRegion, IGeoRegionList } from "interfaces";
+import { DataIO } from "lib/dataIO";
 
 import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
 
@@ -593,13 +593,24 @@ export default class Search<Props> extends React.Component<any, any, any> {
 				});
 		}));
 
-		promises.push(new Promise((resolve, reject) => {
-			axios.get(this.props.apiLocation + "eventFeatures/getDerbyTypes")
-				.then((result: AxiosResponse) => {
-					eventTypes = result.data.response;
-					resolve();
-				});
-		}));
+		// if (this.props.dataDerbyTypes.length) {
+
+		// 	eventTypes = this.props.dataDerbyTypes;
+
+		// } else {
+
+		// 	promises.push(new Promise((resolve, reject) => {
+		// 		axios.get(this.props.apiLocation + "eventFeatures/getDerbyTypes")
+		// 			.then((result: AxiosResponse) => {
+		// 				eventTypes = result.data.response;
+		// 				this.props.saveDataDerbyTypes(result.data.response);
+		// 				resolve();
+		// 			});
+		// 	}));
+
+		// }
+
+		promises.push(DataIO.getDerbyTypes());
 
 		promises.push(new Promise((resolve, reject) => {
 			axios.get(this.props.apiLocation + "eventFeatures/getSanctionTypes")
