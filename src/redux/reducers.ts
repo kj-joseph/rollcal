@@ -1,9 +1,12 @@
-import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IReduxActionType } from "interfaces";
+import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IGeoData, IGeoRegionList, IReduxActionType } from "interfaces";
 
 const initialState = {
 	apiLocation: process.env.API_URL,
 	dataDerbyTypes: [] as IDerbyType[],
-	dataGeography: [] as IGeoCountry[],
+	dataGeography: {
+		countries: [] as IGeoCountry[],
+		regions: {} as IGeoRegionList,
+	},
 	dataSanctions: [] as IDerbySanction[],
 	dataTracks: [] as IDerbyTrack[],
 	lastSearch: "",
@@ -17,6 +20,7 @@ const initialState = {
 };
 
 const rootReducer = (state = initialState, action: IReduxActionType) => {
+
 	const newState = JSON.parse(JSON.stringify(state));
 	switch (action.type) {
 

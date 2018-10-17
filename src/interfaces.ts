@@ -128,7 +128,11 @@ export interface IGeoCountry {
 	country_flag: string;
 	country_region_type?: string;
 	disabled?: boolean;
-	regions?: IGeoRegionList;
+}
+
+export interface IGeoData {
+	countries: IGeoCountry[];
+	regions: IGeoRegionList;
 }
 
 export interface IGeoRegion {
