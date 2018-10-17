@@ -20,9 +20,10 @@ export default class Events<Props> extends React.Component<any, any, any> {
 		this.state = {
 			dataError: false,
 			eventData: [] as IDerbyEvent[],
-			isSearch: (this.props.match.params.startDate || window.location.search ? true : false),
+			isSearch: (this.props.match.params.startDate || window.location.search),
 			limit: this.props.limit || 12,
 			loading: true,
+			queryString: "INITIAL",
 			searchDisplayDates: null,
 			searchDisplayDerbyTypes: null,
 			searchDisplayLocations: null,
@@ -30,9 +31,111 @@ export default class Events<Props> extends React.Component<any, any, any> {
 			searchDisplayTracks: null,
 		};
 
+		this.loadData = this.loadData.bind(this);
+
 	}
 
-	componentWillMount() {
+	componentDidMount() {
+		window.scrollTo(0, 0);
+		this.props.changePage("events");
+		this.props.saveSearch(window.location.pathname + window.location.search);
+		this.props.setMenuState(false);
+
+		// this.loadData();
+	}
+
+	componentDidUpdate() {
+
+		if (window.location.search !== this.state.queryString) {
+
+			this.setState({
+				isSearch: (this.props.match.params.startDate || window.location.search),
+				queryString: window.location.search,
+			});
+			this.loadData();
+
+		}
+	}
+
+	render() {
+
+		return (
+			<React.Fragment>
+				{this.state.isSearch ?
+					<React.Fragment>
+						<h1>Search Results</h1>
+						{this.state.loading ?
+							""
+						:
+						<div className="searchDisplay">
+							<p><strong>Dates:</strong> {this.state.searchDisplayDates}{this.props.match.params.endDate ? "" : " – (all)"}</p>
+							<p><strong>Locations:</strong> {}{this.state.searchDisplayLocations ? this.state.searchDisplayLocations : "all"}</p>
+							<p><strong>Derby Type(s):</strong> {}{this.state.searchDisplayDerbyTypes ? this.state.searchDisplayDerbyTypes : "all"}</p>
+							<p><strong>Sanctions:</strong> {}{this.state.searchDisplaySanctions ? this.state.searchDisplaySanctions : "all"}</p>
+							<p><strong>Tracks:</strong> {}{this.state.searchDisplayTracks ? this.state.searchDisplayTracks : "all"}</p>
+						</div>
+						}
+					</React.Fragment>
+				:
+					<h1>Upcoming Events</h1>
+				}
+				{this.state.loading ?
+					<div className="loader" />
+				: ""
+				}
+				{this.state.dataError && !this.state.loading ?
+					<p>Sorry, there was an error searching.  Please try again.</p>
+				: ""
+				}
+				{!this.state.dataError && this.state.eventData.length === 0 && !this.state.loading ?
+					<p>Sorry, there are no events that match your search.  Please try again.</p>
+				: ""
+				}
+				{!this.state.dataError &&  this.state.eventData.length > 0 && !this.state.loading ?
+					<ul className="eventList">
+						{this.state.eventData.map((event: IDerbyEvent) => (
+							<li key={event.id}>
+								<p className="eventDate"><strong>{event.dates_venue}</strong></p>
+								<p className="eventLocation">{event.location} {event.flag}</p>
+								<h2><NavLink to={"/events/details/" + event.id} title="Search Events">
+									{event.name}
+								</NavLink></h2>
+								{(event.host) ?	<h3>Hosted by {event.host}</h3> : ""}
+
+								<div className="eventIcons">
+									{(event.icons.tracks.length ?
+										<span className="eventIconGroup eventIconTracks">
+											{event.icons.tracks.map((icon: IDerbyIcon) => (
+												<EventIconImage icon={icon} key={icon.filename} />
+											))}
+										</span>
+										: "" )}
+									{(event.icons.derbytypes.length ?
+										<span className="eventIconGroup eventIconDerbytypes">
+											{event.icons.derbytypes.map((icon: IDerbyIcon) => (
+												<EventIconImage icon={icon} key={icon.filename} />
+											))}
+										</span>
+										: "" )}
+									{(event.icons.sanctions.length ?
+										<span className="eventIconGroup eventIconSanctions">
+											{event.icons.sanctions.map((icon: IDerbyIcon) => (
+												<EventIconImage icon={icon} key={icon.filename} />
+											))}
+										</span>
+										: "" )}
+								</div>
+
+							</li>
+						))}
+					</ul>
+				: ""
+				}
+			</React.Fragment>
+		);
+	}
+
+	loadData() {
 
 		const queryString: string = `${window.location.search}${!window.location.search ? "?" : "&"}`
 			+ `startDate=${this.props.match.params.startDate || moment().format("YYYY-MM-DD")}`
@@ -289,91 +392,6 @@ export default class Events<Props> extends React.Component<any, any, any> {
 
 			});
 
-	}
-
-	componentDidMount() {
-		window.scrollTo(0, 0);
-		this.props.changePage("events");
-		this.props.saveSearch(window.location.pathname + window.location.search);
-		this.props.setMenuState(false);
-	}
-
-	render() {
-
-		return (
-			<React.Fragment>
-				{this.state.isSearch ?
-					<React.Fragment>
-						<h1>Search Results</h1>
-						{this.state.loading ?
-							""
-						:
-						<div className="searchDisplay">
-							<p><strong>Dates:</strong> {this.state.searchDisplayDates}{this.props.match.params.endDate ? "" : " – (all)"}</p>
-							<p><strong>Locations:</strong> {}{this.state.searchDisplayLocations ? this.state.searchDisplayLocations : "all"}</p>
-							<p><strong>Derby Type(s):</strong> {}{this.state.searchDisplayDerbyTypes ? this.state.searchDisplayDerbyTypes : "all"}</p>
-							<p><strong>Sanctions:</strong> {}{this.state.searchDisplaySanctions ? this.state.searchDisplaySanctions : "all"}</p>
-							<p><strong>Tracks:</strong> {}{this.state.searchDisplayTracks ? this.state.searchDisplayTracks : "all"}</p>
-						</div>
-						}
-					</React.Fragment>
-				:
-					<h1>Upcoming Events</h1>
-				}
-				{this.state.loading ?
-					<div className="loader" />
-				: ""
-				}
-				{this.state.dataError && !this.state.loading ?
-					<p>Sorry, there was an error searching.  Please try again.</p>
-				: ""
-				}
-				{!this.state.dataError && this.state.eventData.length === 0 && !this.state.loading ?
-					<p>Sorry, there are no events that match your search.  Please try again.</p>
-				: ""
-				}
-				{!this.state.dataError &&  this.state.eventData.length > 0 && !this.state.loading ?
-					<ul className="eventList">
-						{this.state.eventData.map((event: IDerbyEvent) => (
-							<li key={event.id}>
-								<p className="eventDate"><strong>{event.dates_venue}</strong></p>
-								<p className="eventLocation">{event.location} {event.flag}</p>
-								<h2><NavLink to={"/events/details/" + event.id} title="Search Events">
-									{event.name}
-								</NavLink></h2>
-								{(event.host) ?	<h3>Hosted by {event.host}</h3> : ""}
-
-								<div className="eventIcons">
-									{(event.icons.tracks.length ?
-										<span className="eventIconGroup eventIconTracks">
-											{event.icons.tracks.map((icon: IDerbyIcon) => (
-												<EventIconImage icon={icon} key={icon.filename} />
-											))}
-										</span>
-										: "" )}
-									{(event.icons.derbytypes.length ?
-										<span className="eventIconGroup eventIconDerbytypes">
-											{event.icons.derbytypes.map((icon: IDerbyIcon) => (
-												<EventIconImage icon={icon} key={icon.filename} />
-											))}
-										</span>
-										: "" )}
-									{(event.icons.sanctions.length ?
-										<span className="eventIconGroup eventIconSanctions">
-											{event.icons.sanctions.map((icon: IDerbyIcon) => (
-												<EventIconImage icon={icon} key={icon.filename} />
-											))}
-										</span>
-										: "" )}
-								</div>
-
-							</li>
-						))}
-					</ul>
-				: ""
-				}
-			</React.Fragment>
-		);
 	}
 
 }

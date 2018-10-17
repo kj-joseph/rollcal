@@ -17,9 +17,17 @@ export default class Validate<Props> extends React.Component<any, any, any> {
 			validationCode: validationParts[0],
 		};
 
+		this.loadData = this.loadData.bind(this);
+
 	}
 
-	componentWillMount() {
+	componentDidMount() {
+
+		this.loadData();
+
+	}
+
+	loadData() {
 
 		axios.post(this.props.apiLocation + "auth/validateAccount", {
 			email: this.state.email,
