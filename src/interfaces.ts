@@ -130,6 +130,11 @@ export interface IGeoCountry {
 	disabled?: boolean;
 }
 
+export interface IGeoData {
+	countries: IGeoCountry[];
+	regions: IGeoRegionList;
+}
+
 export interface IGeoRegion {
 	disabled?: boolean;
 	region_id: number;

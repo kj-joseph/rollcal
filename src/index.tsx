@@ -1,9 +1,9 @@
 import React from "react";
 import { render } from "react-dom";
-import { BrowserRouter as Router, NavLink, Route, Switch, withRouter } from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch, withRouter } from "react-router-dom";
 import ReactSVG from "react-svg";
 
-import { IReduxActionType, IUserInfo } from "interfaces";
+import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IReduxActionType, IUserInfo } from "interfaces";
 
 import { connect, Provider } from "react-redux";
 import { Dispatch } from "redux";
@@ -23,7 +23,6 @@ require.context("images/tracks", true);
 
 import "images/header-logo.png"; // for email header
 import HeaderLogo from "images/header-logo.svg";
-
 
 import MenuDrawer from "images/menu/drawer.svg";
 
@@ -101,19 +100,16 @@ const RedirectHome = withRouter(({ history }) => {
 });
 
 const mapStateToProps = (reduxState: {[key: string]: any}) => {
-	return {
-		apiLocation: reduxState.apiLocation,
-		lastSearch: reduxState.lastSearch,
-		loggedIn: reduxState.loggedIn,
-		loginBoxOpen: reduxState.loginBoxOpen,
-		menuDrawerOpen: reduxState.menuDrawerOpen,
-		page: reduxState.page,
-	};
+	return reduxState;
 };
 
 const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>) => {
 	return {
 		changePage: (page: string) => dispatch(reduxActions.changePage(page)),
+		saveDataDerbyTypes: (data: IDerbyType[]) => dispatch(reduxActions.saveDataDerbyTypes(data)),
+		saveDataGeography: (data: IGeoCountry[]) => dispatch(reduxActions.saveDataGeography(data)),
+		saveDataSanctions: (data: IDerbySanction[]) => dispatch(reduxActions.saveDataSanctions(data)),
+		saveDataTracks: (data: IDerbyType[]) => dispatch(reduxActions.saveDataTracks(data)),
 		saveSearch: (search: string) => dispatch(reduxActions.saveSearch(search)),
 		setLoginBoxState: (loginBoxState: boolean) => dispatch(reduxActions.setLoginBoxState(loginBoxState)),
 		setMenuState: (menuState: boolean) => dispatch(reduxActions.setMenuState(menuState)),

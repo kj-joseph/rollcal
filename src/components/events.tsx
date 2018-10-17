@@ -1,10 +1,11 @@
 import React from "react";
-import { BrowserRouter as Router, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 import {
 	IDerbyEvent, IDerbyIcon, IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType,
 	IGeoCountry, IGeoRegion, IGeoRegionList,
 } from "interfaces";
+import * as DataIO from "lib/dataIO";
 
 import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
 
@@ -215,35 +216,26 @@ export default class Events<Props> extends React.Component<any, any, any> {
 				}));
 			}
 
-			if (tracks.length) {
-				promises.push(new Promise((resolve, reject) => {
-					axios.get(this.props.apiLocation + "eventFeatures/getTracks")
-					.then((result: AxiosResponse) => {
-						serverData.tracks = result.data.response;
-						resolve();
-					});
-				}));
-			}
+			promises.push(DataIO.getDerbySanctions(this.props)
+					.then((dataResponse: IDerbySanction[]) => {
+						serverData.sanctions = dataResponse;
+					}).catch((err: ErrorEventHandler) => {
+						console.error(err);
+					}));
 
-			if (derbytypes.length) {
-				promises.push(new Promise((resolve, reject) => {
-					axios.get(this.props.apiLocation + "eventFeatures/getDerbyTypes")
-					.then((result: AxiosResponse) => {
-						serverData.derbytypes = result.data.response;
-						resolve();
-					});
-				}));
-			}
+			promises.push(DataIO.getDerbyTracks(this.props)
+					.then((dataResponse: IDerbyTrack[]) => {
+						serverData.tracks = dataResponse;
+					}).catch((err: ErrorEventHandler) => {
+						console.error(err);
+					}));
 
-			if (sanctions.length) {
-				promises.push(new Promise((resolve, reject) => {
-					axios.get(this.props.apiLocation + "eventFeatures/getSanctionTypes")
-					.then((result: AxiosResponse) => {
-						serverData.sanctions = result.data.response;
-						resolve();
-					});
-				}));
-			}
+			promises.push(DataIO.getDerbyTypes(this.props)
+					.then((dataResponse: IDerbyType[]) => {
+						serverData.derbytypes = dataResponse;
+					}).catch((err: ErrorEventHandler) => {
+						console.error(err);
+					}));
 
 			Promise.all(promises).then(() => {
 				let locationText = "";

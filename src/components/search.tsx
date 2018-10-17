@@ -1,9 +1,9 @@
 import React from "react";
-import { BrowserRouter as Router, NavLink } from "react-router-dom";
 
-import { IDerbyDates, IDerbyFeatures, IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IGeoRegion, IGeoRegionList } from "interfaces";
-
-import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
+import { IDerbyDates, IDerbyFeatures, IDerbySanction, IDerbyTrack, IDerbyType,
+	IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList,
+} from "interfaces";
+import * as DataIO from "lib/dataIO";
 
 import { DayPickerRangeController } from "react-dates";
 import "react-dates/initialize";
@@ -551,63 +551,36 @@ export default class Search<Props> extends React.Component<any, any, any> {
 		let eventTracks: IDerbyTrack[] = [];
 		let eventTypes: IDerbyType[] = [];
 		const promises: Array<Promise<any>> = [];
-		const regionLists: IGeoRegionList = {};
+		let regionLists: IGeoRegionList = {};
 
+		promises.push(DataIO.getGeography(this.props)
+				.then((dataResponse: IGeoData) => {
+					countryList = dataResponse.countries;
+					regionLists = dataResponse.regions;
+				}).catch((err: ErrorEventHandler) => {
+					console.error(err);
+				}));
 
-		promises.push(new Promise((resolve, reject) => {
-			axios.get(this.props.apiLocation + "geography/getAllCountries")
-				.then((result: AxiosResponse) => {
-					countryList = result.data.response;
+		promises.push(DataIO.getDerbySanctions(this.props)
+				.then((dataResponse: IDerbySanction[]) => {
+					eventSanctions = dataResponse;
+				}).catch((err: ErrorEventHandler) => {
+					console.error(err);
+				}));
 
-					const regionPromises: Array<Promise<void>> = [];
-					for (let c = 0; c < countryList.length; c ++) {
-						if (countryList[c].country_region_type) {
-							regionPromises.push(new Promise((resolveRegions, rejectRegions) => {
-								axios.get(this.props.apiLocation + "geography/getRegionsByCountry/" + countryList[c].country_code)
-									.then((resultRegions: AxiosResponse) => {
-										if (resultRegions.data.response.length) {
-											regionLists[countryList[c].country_code] = resultRegions.data.response;
-										}
-										resolveRegions();
-									});
-							}));
-						}
-					}
+		promises.push(DataIO.getDerbyTracks(this.props)
+				.then((dataResponse: IDerbyTrack[]) => {
+					eventTracks = dataResponse;
+				}).catch((err: ErrorEventHandler) => {
+					console.error(err);
+				}));
 
-					if (regionPromises.length) {
-						Promise.all(regionPromises).then(() => {
-							resolve();
-						});
-					} else {
-						resolve();
-					}
-
-				});
-		}));
-
-		promises.push(new Promise((resolve, reject) => {
-			axios.get(this.props.apiLocation + "eventFeatures/getTracks")
-				.then((result: AxiosResponse) => {
-					eventTracks = result.data.response;
-					resolve();
-				});
-		}));
-
-		promises.push(new Promise((resolve, reject) => {
-			axios.get(this.props.apiLocation + "eventFeatures/getDerbyTypes")
-				.then((result: AxiosResponse) => {
-					eventTypes = result.data.response;
-					resolve();
-				});
-		}));
-
-		promises.push(new Promise((resolve, reject) => {
-			axios.get(this.props.apiLocation + "eventFeatures/getSanctionTypes")
-				.then((result: AxiosResponse) => {
-					eventSanctions = result.data.response;
-					resolve();
-				});
-		}));
+		promises.push(DataIO.getDerbyTypes(this.props)
+				.then((dataResponse: IDerbyType[]) => {
+					eventTypes = dataResponse;
+				}).catch((err: ErrorEventHandler) => {
+					console.error(err);
+				}));
 
 		Promise.all(promises).then(() => {
 
