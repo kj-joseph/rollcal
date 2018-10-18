@@ -24,7 +24,7 @@ export default class Events<Props> extends React.Component<any, any, any> {
 			isSearch: (this.props.match.params.startDate || window.location.pathname !== "/"),
 			limit: this.props.limit || 12,
 			loading: true,
-			path: "INITIAL",
+			path: null as string,
 			searchDisplayDates: null,
 			searchDisplayDerbyTypes: null,
 			searchDisplayLocations: null,
@@ -134,6 +134,11 @@ export default class Events<Props> extends React.Component<any, any, any> {
 	}
 
 	loadData() {
+
+		this.setState({
+			eventData: [],
+			loading: true,
+		});
 
 		const queryStringParts: string[] = [];
 		const saveSearchParts: string[] = [];

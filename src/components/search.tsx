@@ -33,7 +33,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 			eventFeatures: {} as IDerbyFeatures,
 			focusedInput: "startDate",
 			loading: true,
-			path: "INITIAL",
+			path: null as string,
 			regionLists: {} as IGeoRegionList,
 			regionSelectValue: {} as IGeoRegion[],
 			selectedCountries: [] as IGeoCountry[],
