@@ -350,8 +350,6 @@ export default class Events<Props> extends React.Component<any, any, any> {
 
 			Promise.all(promises).then(() => {
 
-				console.log(queryStringParts, saveSearchParts);
-
 				this.props.saveLastSearch(
 					(this.props.match.params.startDate ? `/${this.props.match.params.startDate}` : "")
 					+ (this.props.match.params.endDate ? `/${this.props.match.params.endDate}` : "")

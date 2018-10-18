@@ -26,7 +26,7 @@ export default class FeatureIcon<Props> extends React.Component<any, any, any> {
 		return(
 
 			<ReactSVG
-				className={`featureIcon ${this.props.imageClass}` }
+				className={`featureIcon ${this.props.imageClass}`}
 				src={`/images/${this.props.featureType}-${this.props.abbreviation}.svg`}
 				onClick={this.toggleIcon}
 			/>
