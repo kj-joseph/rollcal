@@ -355,7 +355,7 @@ export default class Events<Props> extends React.Component<any, any, any> {
 					+ (this.props.match.params.endDate ? `/${this.props.match.params.endDate}` : "")
 					+ (saveSearchParts ? `/${saveSearchParts.join("/")}` : ""));
 
-				axios.get(`${this.props.apiLocation}events/search/${queryStringDates}${queryStringParts ? `&${queryStringParts.join("&")}` : ""}`)
+				axios.get(`${this.props.apiLocation}events/search/${queryStringDates}${queryStringParts.length ? `&${queryStringParts.join("&")}` : ""}`)
 					.then((result: AxiosResponse) => {
 
 						const eventData = [];
