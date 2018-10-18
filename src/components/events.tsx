@@ -69,7 +69,7 @@ export default class Events<Props> extends React.Component<any, any, any> {
 							<p><strong>Dates:</strong> {this.state.searchDisplayDates}{this.props.match.params.endDate ? "" : " – (all)"}</p>
 							<p><strong>Locations:</strong> {}{this.state.searchDisplayLocations ? this.state.searchDisplayLocations : "all"}</p>
 							<p><strong>Derby Type(s):</strong> {}{this.state.searchDisplayDerbyTypes ? this.state.searchDisplayDerbyTypes : "all"}</p>
-							<p><strong>Sanctions:</strong> {}{this.state.searchDisplaySanctions ? this.state.searchDisplaySanctions : "all"}</p>
+							<p><strong>Sanctions:</strong> {}{this.state.searchDisplaySanctions ? this.state.searchDisplaySanctions : "all (or unsanctioned)"}</p>
 							<p><strong>Tracks:</strong> {}{this.state.searchDisplayTracks ? this.state.searchDisplayTracks : "all"}</p>
 						</div>
 						}
@@ -171,37 +171,58 @@ export default class Events<Props> extends React.Component<any, any, any> {
 
 				switch (label) {
 					case "locations":
+						let hasValidLocation = false;
 
 						promises.push(getGeography(this.props)
 							.then((dataResponse: IGeoData) => {
 
 								const geoDisplay: string[] = [];
+								const validLocations: string[] = [];
 
 								for (const loc of values.split(",")) {
 									const [country, regions] = loc.split("-");
 
-									// if (!dataResponse.countries.filter((c: IGeoCountry) => c.country_code === country).length) {
-									// 	continue;
-									// }
+									if (!dataResponse.countries.filter((c: IGeoCountry) => c.country_code === country).length) {
+										continue;
+									} else if (regions && (!dataResponse.regions[country] || !dataResponse.regions[country].length)) {
+										continue;
+									} else {
+										hasValidLocation = true;
+									}
 
 									geoDisplay.push(
 										dataResponse.countries
-										.filter((c: IGeoCountry) => c.country_code === country )[0].country_name
-										+ (regions ? " (" +
+											.filter((c: IGeoCountry) => c.country_code === country )[0].country_name
+										+ (regions && dataResponse.regions[country] ? " (" +
 											dataResponse.regions[country]
 												.filter((r: IGeoRegion) => regions.split("+").indexOf(r.region_id.toString()) > -1 )
 												.map((r: IGeoRegion) => r.region_name )
 												.sort()
 												.join(", ")
-										+ ")" : "" ));
+											+ ")" : "" ));
+
+									validLocations.push(
+										country
+										+ (regions && dataResponse.regions[country] ? "-" +
+											dataResponse.regions[country]
+												.filter((r: IGeoRegion) => regions.split("+").indexOf(r.region_id.toString()) > -1 )
+												.map((r: IGeoRegion) => r.region_id )
+												.sort()
+												.join("+")
+											: "" ));
 
 								}
 
 								this.setState({
-									searchDisplayLocations: geoDisplay.sort().join(", ")});
+									searchDisplayLocations: geoDisplay.sort().join(", ")
+										.replace(/[a-zA-Z]+ \(\)(?:, )?/g, "")});
 
-								queryStringParts.push(`${label}=${values}`);
-								saveSearchParts.push(part);
+								if (hasValidLocation) {
+									queryStringParts.push(`locations=${validLocations.join(",")
+										.replace(/[A-Z]{3}-,/g, "").replace(/,[A-Z]{3}-$/g, "")}`);
+									saveSearchParts.push(`locations(${validLocations.join(",")
+										.replace(/[A-Z]{3}-,/g, "").replace(/,[A-Z]{3}-$/g, "")})`);
+								}
 
 							}).catch((err: ErrorEventHandler) => {
 								console.error(err);
@@ -218,23 +239,26 @@ export default class Events<Props> extends React.Component<any, any, any> {
 										.filter((dt: IDerbyType) => values.split(",").indexOf(dt.derbytype_id.toString()) > -1 );
 
 									this.setState({
-										searchDisplayDerbyTypes: (validTypes.length === dataResponse.length ? "all" :
+										searchDisplayDerbyTypes: (validTypes.length === dataResponse.length ? null :
 											validTypes
 												.map((dt: IDerbyType) => dt.derbytype_name )
 												.sort()
 												.join(", "))});
 
-									queryStringParts.push("derbytypes="
-										+ validTypes
-											.map((dt: IDerbyType) => dt.derbytype_id )
-											.sort()
-											.join(","));
+									if (validTypes.length) {
 
-									saveSearchParts.push("derbytypes("
-										+ validTypes
-											.map((dt: IDerbyType) => dt.derbytype_id )
-											.sort()
-											.join(",") + ")");
+										queryStringParts.push("derbytypes="
+											+ validTypes
+												.map((dt: IDerbyType) => dt.derbytype_id )
+												.sort()
+												.join(","));
+
+										saveSearchParts.push("derbytypes("
+											+ validTypes
+												.map((dt: IDerbyType) => dt.derbytype_id )
+												.sort()
+												.join(",") + ")");
+									}
 
 								}).catch((err: ErrorEventHandler) => {
 									console.error(err);
@@ -257,17 +281,20 @@ export default class Events<Props> extends React.Component<any, any, any> {
 												.sort()
 												.join(", "))});
 
-									queryStringParts.push("sanctions="
-										+ validSanctions
-											.map((s: IDerbySanction) => s.sanction_id )
-											.sort()
-											.join(","));
+									if (validSanctions.length) {
 
-									saveSearchParts.push("sanctions("
-										+ validSanctions
-											.map((s: IDerbySanction) => s.sanction_id )
-											.sort()
-											.join(",") + ")");
+										queryStringParts.push("sanctions="
+											+ validSanctions
+												.map((s: IDerbySanction) => s.sanction_id )
+												.sort()
+												.join(","));
+
+										saveSearchParts.push("sanctions("
+											+ validSanctions
+												.map((s: IDerbySanction) => s.sanction_id )
+												.sort()
+												.join(",") + ")");
+									}
 
 								}).catch((err: ErrorEventHandler) => {
 									console.error(err);
@@ -284,23 +311,27 @@ export default class Events<Props> extends React.Component<any, any, any> {
 										.filter((t: IDerbyTrack) => values.split(",").indexOf(t.track_id.toString()) > -1 );
 
 									this.setState({
-										searchDisplayTracks: (validTracks.length === dataResponse.length ? "all" :
+										searchDisplayTracks: (validTracks.length === dataResponse.length ? null :
 											validTracks
 												.map((t: IDerbyTrack) => t.track_name )
 												.sort()
 												.join(", "))});
 
-									queryStringParts.push("tracks="
-										+ validTracks
-											.map((t: IDerbyTrack) => t.track_id )
-											.sort()
-											.join(","));
+									if (validTracks.length) {
 
-									saveSearchParts.push("tracks("
-										+ validTracks
-											.map((t: IDerbyTrack) => t.track_id )
-											.sort()
-											.join(",") + ")");
+										queryStringParts.push("tracks="
+											+ validTracks
+												.map((t: IDerbyTrack) => t.track_id )
+												.sort()
+												.join(","));
+
+										saveSearchParts.push("tracks("
+											+ validTracks
+												.map((t: IDerbyTrack) => t.track_id )
+												.sort()
+												.join(",") + ")");
+
+									}
 
 								}).catch((err: ErrorEventHandler) => {
 									console.error(err);
@@ -312,7 +343,12 @@ export default class Events<Props> extends React.Component<any, any, any> {
 
 			}
 
-			promises.push(
+			Promise.all(promises).then(() => {
+
+				this.props.saveLastSearch(
+					(this.props.match.params.startDate ? `/${this.props.match.params.startDate}` : "")
+					+ (this.props.match.params.endDate ? `/${this.props.match.params.endDate}` : "")
+					+ (saveSearchParts ? `/${saveSearchParts.join("/")}` : ""));
 
 				axios.get(`${this.props.apiLocation}events/search/${queryStringDates}${queryStringParts ? `&${queryStringParts.join("&")}` : ""}`)
 					.then((result: AxiosResponse) => {
@@ -373,6 +409,8 @@ export default class Events<Props> extends React.Component<any, any, any> {
 
 						this.setState({
 							eventData,
+							loading: false,
+							searchDisplayDates: dateDisplay || null,
 						});
 
 					}).catch((error: AxiosError) => {
@@ -382,18 +420,8 @@ export default class Events<Props> extends React.Component<any, any, any> {
 							dataError: true,
 						});
 
-					}));
+					});
 
-			Promise.all(promises).then(() => {
-
-				this.props.saveLastSearch(
-					(this.props.match.params.startDate ? `/${this.props.match.params.startDate}` : "")
-					+ (this.props.match.params.endDate ? `/${this.props.match.params.endDate}` : "")
-					+ (saveSearchParts ? `/${saveSearchParts.join("/")}` : ""));
-
-				this.setState({
-					loading: false,
-					searchDisplayDates: dateDisplay || null });
 			});
 		}
 
