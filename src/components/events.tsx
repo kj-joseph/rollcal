@@ -222,11 +222,11 @@ export default class Events<Props> extends React.Component<any, any, any> {
 									searchDisplayLocations: geoDisplay.sort().join(", ")
 										.replace(/[a-zA-Z]+ \(\)(?:, )?/g, "")});
 
-								if (hasValidLocation) {
-									queryStringParts.push(`locations=${validLocations.join(",")
-										.replace(/[A-Z]{3}-,/g, "").replace(/,[A-Z]{3}-$/g, "")}`);
-									saveSearchParts.push(`locations(${validLocations.join(",")
-										.replace(/[A-Z]{3}-,/g, "").replace(/,[A-Z]{3}-$/g, "")})`);
+								const locationString = `${validLocations.join(",").replace(/[A-Z]{3}-,/g, "").replace(/,?[A-Z]{3}-$/g, "")}`;
+
+								if (locationString) {
+									queryStringParts.push(`locations=${locationString}`);
+									saveSearchParts.push(`locations(${locationString})`);
 								}
 
 							}).catch((err: ErrorEventHandler) => {
@@ -349,6 +349,8 @@ export default class Events<Props> extends React.Component<any, any, any> {
 			}
 
 			Promise.all(promises).then(() => {
+
+				console.log(queryStringParts, saveSearchParts);
 
 				this.props.saveLastSearch(
 					(this.props.match.params.startDate ? `/${this.props.match.params.startDate}` : "")
