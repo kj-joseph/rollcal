@@ -49,7 +49,7 @@ const rootReducer = (state = initialState, action: IReduxActionType) => {
 			return newState;
 			break;
 
-		case "SAVE_SEARCH":
+		case "SAVE_LAST_SEARCH":
 			newState.lastSearch = action.payload;
 			return newState;
 			break;

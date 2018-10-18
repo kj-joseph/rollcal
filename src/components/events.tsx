@@ -3,9 +3,9 @@ import { NavLink } from "react-router-dom";
 
 import {
 	IDerbyEvent, IDerbyIcon, IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType,
-	IGeoCountry, IGeoRegion, IGeoRegionList,
+	IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList,
 } from "interfaces";
-import * as DataIO from "lib/dataIO";
+import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography } from "lib/dataIO";
 
 import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
 
@@ -21,10 +21,10 @@ export default class Events<Props> extends React.Component<any, any, any> {
 		this.state = {
 			dataError: false,
 			eventData: [] as IDerbyEvent[],
-			isSearch: (this.props.match.params.startDate || window.location.search),
+			isSearch: (this.props.match.params.startDate || window.location.pathname !== "/"),
 			limit: this.props.limit || 12,
 			loading: true,
-			queryString: "INITIAL",
+			path: null as string,
 			searchDisplayDates: null,
 			searchDisplayDerbyTypes: null,
 			searchDisplayLocations: null,
@@ -39,19 +39,16 @@ export default class Events<Props> extends React.Component<any, any, any> {
 	componentDidMount() {
 		window.scrollTo(0, 0);
 		this.props.changePage("events");
-		this.props.saveSearch(window.location.pathname + window.location.search);
 		this.props.setMenuState(false);
-
-		// this.loadData();
 	}
 
 	componentDidUpdate() {
 
-		if (window.location.search !== this.state.queryString) {
+		if (window.location.pathname !== this.state.path) {
 
 			this.setState({
-				isSearch: (this.props.match.params.startDate || window.location.search),
-				queryString: window.location.search,
+				isSearch: (this.props.match.params.startDate || window.location.pathname !== "/"),
+				path: window.location.pathname,
 			});
 			this.loadData();
 
@@ -72,7 +69,7 @@ export default class Events<Props> extends React.Component<any, any, any> {
 							<p><strong>Dates:</strong> {this.state.searchDisplayDates}{this.props.match.params.endDate ? "" : " – (all)"}</p>
 							<p><strong>Locations:</strong> {}{this.state.searchDisplayLocations ? this.state.searchDisplayLocations : "all"}</p>
 							<p><strong>Derby Type(s):</strong> {}{this.state.searchDisplayDerbyTypes ? this.state.searchDisplayDerbyTypes : "all"}</p>
-							<p><strong>Sanctions:</strong> {}{this.state.searchDisplaySanctions ? this.state.searchDisplaySanctions : "all"}</p>
+							<p><strong>Sanctions:</strong> {}{this.state.searchDisplaySanctions ? this.state.searchDisplaySanctions : "all (or unsanctioned)"}</p>
 							<p><strong>Tracks:</strong> {}{this.state.searchDisplayTracks ? this.state.searchDisplayTracks : "all"}</p>
 						</div>
 						}
@@ -98,7 +95,7 @@ export default class Events<Props> extends React.Component<any, any, any> {
 							<li key={event.id}>
 								<p className="eventDate"><strong>{event.dates_venue}</strong></p>
 								<p className="eventLocation">{event.location} {event.flag}</p>
-								<h2><NavLink to={"/events/details/" + event.id} title="Search Events">
+								<h2><NavLink to={"/event/" + event.id} title="Search Events">
 									{event.name}
 								</NavLink></h2>
 								{(event.host) ?	<h3>Hosted by {event.host}</h3> : ""}
@@ -138,251 +135,300 @@ export default class Events<Props> extends React.Component<any, any, any> {
 
 	loadData() {
 
-		const queryString: string = `${window.location.search}${!window.location.search ? "?" : "&"}`
+		this.setState({
+			eventData: [],
+			loading: true,
+		});
+
+		const queryStringParts: string[] = [];
+		const saveSearchParts: string[] = [];
+
+		const queryStringDates: string = `${window.location.search}${!window.location.search ? "?" : "&"}`
 			+ `startDate=${this.props.match.params.startDate || moment().format("YYYY-MM-DD")}`
 			+ `${this.props.match.params.endDate ? "&endDate=" + this.props.match.params.endDate : ""}`;
 
 		const dateDisplay: string = formatDateRange({
 			firstDay: moment(this.props.match.params.startDate) || moment(),
-			lastDay: moment(this.props.match.params.endDate) || null,
+			lastDay: this.props.match.params.endDate ? moment(this.props.match.params.endDate) : null,
 		}, "long");
 
-		if (queryString) {
-			const qsParts = queryString.substr(1).split("&");
-			const countries: string[] = [];
-			const countryRegions: any = {};
-			let regions: number[] = [];
-			let tracks: string[] = [];
-			let derbytypes: string[] = [];
-			let sanctions: string[] = [];
-			const serverData: any = {};
+		if (queryStringDates) {
+			const promises: Array<Promise<void>> = [];
+			const searchParts: string[] = this.props.match.params.param1 ?
+				this.props.match.params.param1.split("/") : [];
+			const usedParts: string[] = [];
 
-			for (let q = 0; q < qsParts.length; q ++) {
-				const param = qsParts[q].split("=");
+			for (const part of searchParts) {
 
-				switch (param[0]) {
+				if (!part
+					|| !part.match(/(?:locations|derbytypes|sanctions|tracks)\([^\)]+\)/) ) {
+					continue;
+				}
+
+
+				const [, label, values] = part.match(/([a-z]+)\((.*)\)/);
+
+				if (usedParts.indexOf(label) > -1) {
+					continue;
+				} else {
+					usedParts.push(label);
+				}
+
+				switch (label) {
 					case "locations":
-						const locations = param[1].split(";");
+						let hasValidLocation = false;
 
-						for (let l = 0; l < locations.length; l ++) {
-							const loc = locations[l].split("-");
-							countries.push(loc[0]);
+						promises.push(getGeography(this.props)
+							.then((dataResponse: IGeoData) => {
 
-							if (loc.length > 1) {
-								const regionsInfo = loc[1].split(",");
-								regions = regions.concat(regionsInfo.map((x: string) => {
-									return Number(x);
+								const geoDisplay: string[] = [];
+								const validLocations: string[] = [];
+
+								for (const loc of values.split(",")) {
+									const [country, regions] = loc.split("-");
+
+									if (!dataResponse.countries.filter((c: IGeoCountry) => c.country_code === country).length) {
+										continue;
+									} else if (regions && (!dataResponse.regions[country] || !dataResponse.regions[country].length)) {
+										continue;
+									} else {
+										hasValidLocation = true;
+									}
+
+									geoDisplay.push(
+										dataResponse.countries
+											.filter((c: IGeoCountry) => c.country_code === country )[0].country_name
+										+ (regions && dataResponse.regions[country] ? " (" +
+											dataResponse.regions[country]
+												.filter((r: IGeoRegion) => regions.split("+").indexOf(r.region_id.toString()) > -1 )
+												.map((r: IGeoRegion) => r.region_name )
+												.sort()
+												.join(", ")
+											+ ")" : "" ));
+
+									validLocations.push(
+										country
+										+ (regions && dataResponse.regions[country] ? "-" +
+											dataResponse.regions[country]
+												.filter((r: IGeoRegion) => regions.split("+").indexOf(r.region_id.toString()) > -1 )
+												.map((r: IGeoRegion) => r.region_id )
+												.sort()
+												.join("+")
+											: "" ));
+
+								}
+
+								this.setState({
+									searchDisplayLocations: geoDisplay.sort().join(", ")
+										.replace(/[a-zA-Z]+ \(\)(?:, )?/g, "")});
+
+								if (hasValidLocation) {
+									queryStringParts.push(`locations=${validLocations.join(",")
+										.replace(/[A-Z]{3}-,/g, "").replace(/,[A-Z]{3}-$/g, "")}`);
+									saveSearchParts.push(`locations(${validLocations.join(",")
+										.replace(/[A-Z]{3}-,/g, "").replace(/,[A-Z]{3}-$/g, "")})`);
+								}
+
+							}).catch((err: ErrorEventHandler) => {
+								console.error(err);
+							}));
+
+						break;
+
+					case "derbytypes":
+
+						promises.push(getDerbyTypes(this.props)
+								.then((dataResponse: IDerbyType[]) => {
+
+									const validTypes = dataResponse
+										.filter((dt: IDerbyType) => values.split(",").indexOf(dt.derbytype_id.toString()) > -1 );
+
+									this.setState({
+										searchDisplayDerbyTypes: (validTypes.length === dataResponse.length ? null :
+											validTypes
+												.map((dt: IDerbyType) => dt.derbytype_name )
+												.sort()
+												.join(", "))});
+
+									if (validTypes.length) {
+
+										queryStringParts.push("derbytypes="
+											+ validTypes
+												.map((dt: IDerbyType) => dt.derbytype_id )
+												.sort()
+												.join(","));
+
+										saveSearchParts.push("derbytypes("
+											+ validTypes
+												.map((dt: IDerbyType) => dt.derbytype_id )
+												.sort()
+												.join(",") + ")");
+									}
+
+								}).catch((err: ErrorEventHandler) => {
+									console.error(err);
 								}));
-								countryRegions[loc[0]] = regionsInfo;
-							}
-						}
+
+						break;
+
+					case "sanctions":
+
+						promises.push(getDerbySanctions(this.props)
+								.then((dataResponse: IDerbySanction[]) => {
+
+									const validSanctions = dataResponse
+										.filter((s: IDerbySanction) => values.split(",").indexOf(s.sanction_id.toString()) > -1 );
+
+									this.setState({
+										searchDisplaySanctions: (validSanctions.length === dataResponse.length ? "all" :
+											validSanctions
+												.map((s: IDerbySanction) => s.sanction_abbreviation )
+												.sort()
+												.join(", "))});
+
+									if (validSanctions.length) {
+
+										queryStringParts.push("sanctions="
+											+ validSanctions
+												.map((s: IDerbySanction) => s.sanction_id )
+												.sort()
+												.join(","));
+
+										saveSearchParts.push("sanctions("
+											+ validSanctions
+												.map((s: IDerbySanction) => s.sanction_id )
+												.sort()
+												.join(",") + ")");
+									}
+
+								}).catch((err: ErrorEventHandler) => {
+									console.error(err);
+								}));
 
 						break;
 
 					case "tracks":
-						tracks = param[1].split(",");
+
+						promises.push(getDerbyTracks(this.props)
+								.then((dataResponse: IDerbyTrack[]) => {
+
+									const validTracks = dataResponse
+										.filter((t: IDerbyTrack) => values.split(",").indexOf(t.track_id.toString()) > -1 );
+
+									this.setState({
+										searchDisplayTracks: (validTracks.length === dataResponse.length ? null :
+											validTracks
+												.map((t: IDerbyTrack) => t.track_name )
+												.sort()
+												.join(", "))});
+
+									if (validTracks.length) {
+
+										queryStringParts.push("tracks="
+											+ validTracks
+												.map((t: IDerbyTrack) => t.track_id )
+												.sort()
+												.join(","));
+
+										saveSearchParts.push("tracks("
+											+ validTracks
+												.map((t: IDerbyTrack) => t.track_id )
+												.sort()
+												.join(",") + ")");
+
+									}
+
+								}).catch((err: ErrorEventHandler) => {
+									console.error(err);
+								}));
+
 						break;
 
-					case "derbytypes":
-						derbytypes = param[1].split(",");
-						break;
-
-					case "sanctions":
-						sanctions = param[1].split(",");
-						break;
 				}
 
 			}
-
-			const promises: Array<Promise<void>> = [];
-
-			if (countries.length) {
-				promises.push(new Promise((resolve, reject) => {
-					axios.get(this.props.apiLocation + "geography/getCountriesByCodes/" + countries.join(","))
-					.then((result: AxiosResponse) => {
-						serverData.countries = result.data.response;
-						resolve();
-					});
-				}));
-			}
-
-			if (regions.length) {
-				promises.push(new Promise((resolve, reject) => {
-					axios.get(this.props.apiLocation + "geography/getRegionsByIds/" + regions.join(","))
-					.then((result: AxiosResponse) => {
-						serverData.regions = result.data.response;
-						resolve();
-					});
-				}));
-			}
-
-			promises.push(DataIO.getDerbySanctions(this.props)
-					.then((dataResponse: IDerbySanction[]) => {
-						serverData.sanctions = dataResponse;
-					}).catch((err: ErrorEventHandler) => {
-						console.error(err);
-					}));
-
-			promises.push(DataIO.getDerbyTracks(this.props)
-					.then((dataResponse: IDerbyTrack[]) => {
-						serverData.tracks = dataResponse;
-					}).catch((err: ErrorEventHandler) => {
-						console.error(err);
-					}));
-
-			promises.push(DataIO.getDerbyTypes(this.props)
-					.then((dataResponse: IDerbyType[]) => {
-						serverData.derbytypes = dataResponse;
-					}).catch((err: ErrorEventHandler) => {
-						console.error(err);
-					}));
 
 			Promise.all(promises).then(() => {
-				let locationText = "";
-				let tracksText = "";
-				let derbytypesText = "";
-				let sanctionsText = "";
 
-				if (serverData.countries) {
-					const countriesList = [];
+				this.props.saveLastSearch(
+					(this.props.match.params.startDate ? `/${this.props.match.params.startDate}` : "")
+					+ (this.props.match.params.endDate ? `/${this.props.match.params.endDate}` : "")
+					+ (saveSearchParts ? `/${saveSearchParts.join("/")}` : ""));
 
-					for (let country = 0; country < countries.length; country ++) {
-						let thisCountry = serverData.countries.filter((x: IGeoCountry) => x.country_code === countries[country])[0].country_name;
+				axios.get(`${this.props.apiLocation}events/search/${queryStringDates}${queryStringParts ? `&${queryStringParts.join("&")}` : ""}`)
+					.then((result: AxiosResponse) => {
 
-						if (countryRegions[countries[country]]) {
-							const theseRegions: IGeoRegion[] = [];
-							for (let region = 0; region < countryRegions[countries[country]].length; region ++) {
-								theseRegions.push(serverData.regions.filter((x: IGeoRegion) => x.region_id === regions[region])[0].region_name);
+						const eventData = [];
+
+						for (let e = 0; e < result.data.response.length; e ++) {
+
+							const eventResult = result.data.response[e];
+
+							const icons: IDerbyIcons = {
+								derbytypes: [],
+								sanctions: [],
+								tracks: [],
+							};
+							for (let t = 0; t < eventResult.tracks.length; t ++) {
+								icons.tracks.push({
+									filename: "track-" + eventResult.tracks[t].track_abbreviation,
+									title: eventResult.tracks[t].track_name,
+								});
 							}
-							thisCountry += " (" + theseRegions.sort().join(", ") + ")";
+							for (let dt = 0; dt < eventResult.derbytypes.length; dt ++) {
+								icons.derbytypes.push({
+									filename: "derbytype-" + eventResult.derbytypes[dt].derbytype_abbreviation,
+									title: eventResult.derbytypes[dt].derbytype_name,
+								});
+							}
+							for (let s = 0; s < eventResult.sanctions.length; s ++) {
+								icons.sanctions.push({
+									filename: "sanction-" + eventResult.sanctions[s].sanction_abbreviation,
+									title: eventResult.sanctions[s].sanction_name,
+								});
+							}
+
+							eventData.push({
+								address1: eventResult.venue_address1,
+								address2: eventResult.venue_address2,
+								dates_venue: formatDateRange({
+										firstDay: moment.utc(eventResult.days[0].eventday_start_venue),
+										lastDay: moment.utc(eventResult.days[eventResult.days.length - 1].eventday_start_venue),
+									}, "long"),
+								days: null,
+								event_description: eventResult.event_description,
+								event_link: eventResult.event_link,
+								flag: eventResult.country_flag ? <span title={eventResult.country_name} className={`flag-icon flag-icon-${eventResult.country_flag}`} /> : null,
+								host: eventResult.event_name ? eventResult.event_host : null,
+								icons,
+								id: eventResult.event_id,
+								location: `${eventResult.venue_city} ${eventResult.region_abbreviation ? ", " + eventResult.region_abbreviation : ""}, ${eventResult.country_code}`,
+								multiDay: eventResult.days.length > 1,
+								name: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
+								user: eventResult.user_name,
+								venue_description: eventResult.venue_description,
+								venue_link: eventResult.venue_link,
+								venue_name: eventResult.venue_name,
+							});
 						}
 
-						countriesList.push(thisCountry);
-					}
+						this.setState({
+							eventData,
+							loading: false,
+							searchDisplayDates: dateDisplay || null,
+						});
 
-					locationText = countriesList.sort().join(", ");
+					}).catch((error: AxiosError) => {
+						console.error(error);
 
-				}
+						this.setState({
+							dataError: true,
+						});
 
-				if (serverData.tracks) {
-					if (serverData.tracks.length === tracks.length) {
-						tracksText = "all";
-					} else {
-						const tracksList = [];
-						for (let f = 0; f < tracks.length; f ++) {
-							tracksList.push(serverData.tracks.filter((x: IDerbyTrack) => x.track_id.toString() === tracks[f])[0].track_name);
-						}
-						tracksText = tracksList.sort().join(", ");
-					}
-				}
-
-				if (serverData.derbytypes) {
-					if (serverData.derbytypes.length === derbytypes.length) {
-						derbytypesText = "all";
-					} else {
-						const derbytypesList = [];
-						for (let f = 0; f < derbytypes.length; f ++) {
-							derbytypesList.push(serverData.derbytypes.filter((x: IDerbyType) => x.derbytype_id.toString() === derbytypes[f])[0].derbytype_name);
-						}
-						derbytypesText = derbytypesList.sort().join(", ");
-					}
-				}
-
-				if (serverData.sanctions) {
-					if (serverData.sanctions.length === sanctions.length) {
-						sanctionsText = "all";
-					} else {
-						const sanctionsList = [];
-						for (let f = 0; f < sanctions.length; f ++) {
-							sanctionsList.push(serverData.sanctions.filter((x: IDerbySanction) => x.sanction_id.toString() === sanctions[f])[0].sanction_abbreviation);
-						}
-						sanctionsText = sanctionsList.sort().join(", ");
-					}
-				}
-
-				this.setState({
-					searchDisplayDates: dateDisplay || null,
-					searchDisplayDerbyTypes: derbytypesText || null,
-					searchDisplayLocations: locationText || null,
-					searchDisplaySanctions: sanctionsText || null,
-					searchDisplayTracks: tracksText || null,
-				});
+					});
 
 			});
 		}
-
-
-		axios.get(this.props.apiLocation + "events/search/" + queryString)
-			.then((result: AxiosResponse) => {
-
-				const eventData = [];
-
-				for (let e = 0; e < result.data.response.length; e ++) {
-
-					const eventResult = result.data.response[e];
-
-					const icons: IDerbyIcons = {
-						derbytypes: [],
-						sanctions: [],
-						tracks: [],
-					};
-					for (let t = 0; t < eventResult.tracks.length; t ++) {
-						icons.tracks.push({
-							filename: "track-" + eventResult.tracks[t].track_abbreviation,
-							title: eventResult.tracks[t].track_name,
-						});
-					}
-					for (let dt = 0; dt < eventResult.derbytypes.length; dt ++) {
-						icons.derbytypes.push({
-							filename: "derbytype-" + eventResult.derbytypes[dt].derbytype_abbreviation,
-							title: eventResult.derbytypes[dt].derbytype_name,
-						});
-					}
-					for (let s = 0; s < eventResult.sanctions.length; s ++) {
-						icons.sanctions.push({
-							filename: "sanction-" + eventResult.sanctions[s].sanction_abbreviation,
-							title: eventResult.sanctions[s].sanction_name,
-						});
-					}
-
-					eventData.push({
-						address1: eventResult.venue_address1,
-						address2: eventResult.venue_address2,
-						dates_venue: formatDateRange({
-								firstDay: moment.utc(eventResult.days[0].eventday_start_venue),
-								lastDay: moment.utc(eventResult.days[eventResult.days.length - 1].eventday_start_venue),
-							}, "long"),
-						days: null,
-						event_description: eventResult.event_description,
-						event_link: eventResult.event_link,
-						flag: eventResult.country_flag ? <span title={eventResult.country_name} className={`flag-icon flag-icon-${eventResult.country_flag}`} /> : null,
-						host: eventResult.event_name ? eventResult.event_host : null,
-						icons,
-						id: eventResult.event_id,
-						location: `${eventResult.venue_city} ${eventResult.region_abbreviation ? ", " + eventResult.region_abbreviation : ""}, ${eventResult.country_code}`,
-						multiDay: eventResult.days.length > 1,
-						name: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
-						user: eventResult.user_name,
-						venue_description: eventResult.venue_description,
-						venue_link: eventResult.venue_link,
-						venue_name: eventResult.venue_name,
-					});
-				}
-
-				this.setState({
-					eventData,
-					loading: false,
-				});
-
-			}).catch((error: AxiosError) => {
-				console.error(error);
-
-				this.setState({
-					dataError: true,
-					loading: false,
-				});
-
-			});
 
 	}
 

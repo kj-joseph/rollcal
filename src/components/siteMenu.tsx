@@ -84,28 +84,34 @@ export default class SiteMenu<Props> extends React.Component<any, any, any> {
 		this.props.setMenuState(false);
 	}
 
+	isEventsLinkActive(path: any, match: any, location: any) {
+
+		return match && !match.pathname.match(/\/(?:search|faq|contact)/);
+	}
+
 	render() {
 
 		return (
 			<div className="siteMenu">
 				<ul>
 					<li>
-						<NavLink exact={true} to="/events" title="Upcoming Events">
+						<NavLink to="/" title="Upcoming Events" activeClassName="active"
+						isActive={this.isEventsLinkActive.bind(this)}>
 							Events
 						</NavLink>
 					</li>
 					<li>
-						<NavLink to="/events/search" title="Search Events">
+						<NavLink to="/search" title="Search Events" activeClassName="active">
 							Search
 						</NavLink>
 					</li>
 					<li>
-						<NavLink exact={true} to="/faq" title="Frequently Asked Questions">
+						<NavLink to="/faq" title="Frequently Asked Questions" activeClassName="active">
 							FAQ
 						</NavLink>
 					</li>
 					<li>
-						<NavLink exact={true} to="/contact" title="Contact Roll-Cal">
+						<NavLink to="/contact" title="Contact Roll-Cal" activeClassName="active">
 							Contact
 						</NavLink>
 					</li>

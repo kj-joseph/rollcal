@@ -27,9 +27,9 @@ export default {
 		type: "SAVE_DATA_TRACKS",
 	}),
 
-	saveSearch: (search: string): IReduxActionType => ({
+	saveLastSearch: (search: string): IReduxActionType => ({
 		payload: search,
-		type: "SAVE_SEARCH",
+		type: "SAVE_LAST_SEARCH",
 	}),
 
 	setMenuState: (menuState: boolean): IReduxActionType => ({

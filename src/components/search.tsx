@@ -3,7 +3,7 @@ import React from "react";
 import { IDerbyDates, IDerbyFeatures, IDerbySanction, IDerbyTrack, IDerbyType,
 	IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList,
 } from "interfaces";
-import * as DataIO from "lib/dataIO";
+import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography } from "lib/dataIO";
 
 import { DayPickerRangeController } from "react-dates";
 import "react-dates/initialize";
@@ -30,18 +30,16 @@ export default class Search<Props> extends React.Component<any, any, any> {
 				firstDay: moment(),
 			}),
 			endDate: null as moment.Moment,
-			endDateString: null as string,
 			eventFeatures: {} as IDerbyFeatures,
 			focusedInput: "startDate",
 			loading: true,
-			queryString: "INITIAL",
+			path: null as string,
 			regionLists: {} as IGeoRegionList,
 			regionSelectValue: {} as IGeoRegion[],
 			selectedCountries: [] as IGeoCountry[],
 			selectedEventFeatures: [] as string[],
 			selectedRegions: {} as IGeoRegionList,
 			startDate: null as moment.Moment,
-			startDateString: null as string,
 		};
 
 		this.addLocation = this.addLocation.bind(this);
@@ -50,6 +48,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 		this.changeCountrySelect = this.changeCountrySelect.bind(this);
 		this.changeRegionSelect = this.changeRegionSelect.bind(this);
 		this.clearDates = this.clearDates.bind(this);
+		this.determineStartMonth = this.determineStartMonth.bind(this);
 		this.getCountryOptionLabel = this.getCountryOptionLabel.bind(this);
 		this.getRegionOptionLabel = this.getRegionOptionLabel.bind(this);
 		this.handleFocusChange = this.handleFocusChange.bind(this);
@@ -78,11 +77,13 @@ export default class Search<Props> extends React.Component<any, any, any> {
 				firstDay: moment(),
 			}),
 			endDate: null,
-			endDateString: null,
 			focusedInput: "startDate",
 			startDate: null,
-			startDateString: null,
 		});
+	}
+
+	determineStartMonth() {
+		return this.state.startDate;
 	}
 
 	onDatesChange(dates: {startDate: moment.Moment, endDate: moment.Moment}) {
@@ -93,9 +94,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 		this.setState({
 			dateRangeDisplay: formatDateRange(dateObject),
 			endDate: dates.endDate,
-			endDateString: dates.endDate ? dates.endDate.format("YYYY-MM-DD") : null,
 			startDate: dates.startDate,
-			startDateString: dates.startDate ? dates.startDate.format("YYYY-MM-DD") : null,
 		});
 	}
 
@@ -112,6 +111,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 	}
 
 	addLocation(country: IGeoCountry, region?: IGeoRegion) {
+
 		let countries = this.state.selectedCountries;
 		const countryList = this.state.countryList;
 		const newState = {} as any;
@@ -249,10 +249,10 @@ export default class Search<Props> extends React.Component<any, any, any> {
 
 	componentDidUpdate() {
 
-		if (window.location.search !== this.state.queryString) {
+		if (window.location.pathname !== this.state.path) {
 
 			this.setState({
-				queryString: window.location.search,
+				path: window.location.pathname,
 			});
 			this.loadData();
 
@@ -291,6 +291,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 										hideKeyboardShortcutsPanel={true}
 										numberOfMonths={1}
 										enableOutsideDays={false}
+										// initialVisibleMonth={this.determineStartMonth}
 										isOutsideRange={this.isBeforeToday}
 										keepOpenOnDateSelect={true}
 										minimumNights={0}
@@ -494,12 +495,9 @@ export default class Search<Props> extends React.Component<any, any, any> {
 	}
 
 	submitSearch() {
-		let searchURL = "/events";
-		let queryString = "";
+		let searchURL = "";
+		const queryParts = [];
 		const eventFeatures: {
-			derbytypes: string[],
-			sanctions: string[],
-			tracks: string[],
 			[key: string]: any,
 		} = {
 			derbytypes: [],
@@ -507,39 +505,36 @@ export default class Search<Props> extends React.Component<any, any, any> {
 			tracks: [],
 		};
 
-		if (this.state.startDateString) {
-			searchURL += `/${this.state.startDateString}`;
+		if (this.state.startDate) {
+			searchURL += `/${this.state.startDate.format("YYYY-MM-DD")}`;
 		}
-		if (this.state.endDateString) {
-			searchURL += `/${this.state.endDateString}`;
+		if (this.state.endDate) {
+			searchURL += `/${this.state.endDate.format("YYYY-MM-DD")}`;
 		}
 
 		if (this.state.selectedCountries.length) {
-			let locationString = "";
 
-			for (let country = 0; country < this.state.selectedCountries.length; country ++) {
-				locationString += `${(country > 0 ? ";" : "")}${this.state.selectedCountries[country].country_code}`;
+			queryParts.push("locations(" + this.state.selectedCountries.map((c: IGeoCountry) =>
+				c.country_code
+				+ (this.state.selectedRegions[c.country_code] ?
+					"-" + this.state.selectedRegions[c.country_code]
+							.map((reg: IGeoRegion) => (reg.region_id)).join("+")
+					: "")).join(",") + ")");
 
-				if (this.state.selectedRegions[this.state.selectedCountries[country].country_code]) {
-					locationString += `-${this.state.selectedRegions[this.state.selectedCountries[country].country_code].map((reg: IGeoRegion) => (reg.region_id)).join(",")}`;
-				}
-
-			}
-
-			queryString += `${(queryString ? "&" : "?")}locations=${locationString}`;
 		}
 
 		for (let feature = 0; feature < this.state.selectedEventFeatures.length; feature ++) {
-			const pieces: string[] = this.state.selectedEventFeatures[feature].split("-");
-			eventFeatures[`${pieces[0]}s`].push(pieces[1]);
+			const [label, value] = this.state.selectedEventFeatures[feature].split("-");
+			eventFeatures[`${label}s`].push(value);
 		}
 		for (const feature in eventFeatures) {
 			if (eventFeatures[feature].length) {
-				queryString += `${(queryString ? "&" : "?")}${feature}=${eventFeatures[feature].join(",")}`;
+				queryParts.push(`${feature}(${eventFeatures[feature].join(",")})`);
 			}
 		}
 
-		this.props.history.push(searchURL + queryString);
+		this.props.history.push(searchURL +
+			(queryParts.length ? `/${queryParts.join("/")}` : ""));
 
 	}
 
@@ -553,34 +548,34 @@ export default class Search<Props> extends React.Component<any, any, any> {
 		const promises: Array<Promise<any>> = [];
 		let regionLists: IGeoRegionList = {};
 
-		promises.push(DataIO.getGeography(this.props)
-				.then((dataResponse: IGeoData) => {
-					countryList = dataResponse.countries;
-					regionLists = dataResponse.regions;
-				}).catch((err: ErrorEventHandler) => {
-					console.error(err);
-				}));
+		promises.push(getGeography(this.props)
+			.then((dataResponse: IGeoData) => {
+				countryList = dataResponse.countries;
+				regionLists = dataResponse.regions;
+			}).catch((err: ErrorEventHandler) => {
+				console.error(err);
+			}));
 
-		promises.push(DataIO.getDerbySanctions(this.props)
-				.then((dataResponse: IDerbySanction[]) => {
-					eventSanctions = dataResponse;
-				}).catch((err: ErrorEventHandler) => {
-					console.error(err);
-				}));
+		promises.push(getDerbySanctions(this.props)
+			.then((dataResponse: IDerbySanction[]) => {
+				eventSanctions = dataResponse;
+			}).catch((err: ErrorEventHandler) => {
+				console.error(err);
+			}));
 
-		promises.push(DataIO.getDerbyTracks(this.props)
-				.then((dataResponse: IDerbyTrack[]) => {
-					eventTracks = dataResponse;
-				}).catch((err: ErrorEventHandler) => {
-					console.error(err);
-				}));
+		promises.push(getDerbyTracks(this.props)
+			.then((dataResponse: IDerbyTrack[]) => {
+				eventTracks = dataResponse;
+			}).catch((err: ErrorEventHandler) => {
+				console.error(err);
+			}));
 
-		promises.push(DataIO.getDerbyTypes(this.props)
-				.then((dataResponse: IDerbyType[]) => {
-					eventTypes = dataResponse;
-				}).catch((err: ErrorEventHandler) => {
-					console.error(err);
-				}));
+		promises.push(getDerbyTypes(this.props)
+			.then((dataResponse: IDerbyType[]) => {
+				eventTypes = dataResponse;
+			}).catch((err: ErrorEventHandler) => {
+				console.error(err);
+			}));
 
 		Promise.all(promises).then(() => {
 
@@ -598,62 +593,64 @@ export default class Search<Props> extends React.Component<any, any, any> {
 			let startState: {
 				dateRangeDisplay: string,
 				endDate: moment.Moment,
-				endDateString: string,
 				startDate: moment.Moment,
-				startDateString: string,
 				selectedEventFeatures: string[],
 			};
 			startState = {} as typeof startState;
 
 			if (this.props.lastSearch) {
 
-				const searchParts = this.props.lastSearch.match(/^\/events(?:\/?)([0-9]{4}-[0-9]{2}-[0-9]{2})?(?:\/)?([0-9]{4}-[0-9]{2}-[0-9]{2})?\??(.*)$/i);
+				const searchParts = this.props.lastSearch.match(/\/((?:\/?[0-9]{4}-[0-9]{2}-[0-9]{2}){0,2})\/?(.*)$/);
 
 				if (searchParts[1]) {
-					startState.startDateString = searchParts[1];
-					startState.startDate = moment(searchParts[1].substr(0, 4) + "-" + searchParts[1].substr(5, 2)  + "-" +  searchParts[1].substr(8, 2));
-
-					if (searchParts[2]) {
-						startState.endDateString = searchParts[2];
-						startState.endDate = moment(searchParts[2].substr(0, 4) + "-" + searchParts[2].substr(5, 2)  + "-" +  searchParts[2].substr(8, 2));
-					}
+					const [startDate, endDate] = searchParts[1].split("/");
 
 					startState.dateRangeDisplay = formatDateRange({
-						firstDay: moment(searchParts[1]) || null,
-						lastDay: moment(searchParts[2]) || null,
+						firstDay: moment(startDate) || null,
+						lastDay: moment(endDate) || null,
 					});
+
+					if (startDate) {
+						startState.startDate = moment(startDate);
+					}
+
+					if (endDate) {
+						startState.endDate = moment(endDate);
+					}
 
 				}
 
-				if (searchParts[3]) {
-					const qsParts = searchParts[3].split("&");
+				if (searchParts[2]) {
 					const features = [];
 
-					for (let q = 0; q < qsParts.length; q ++) {
-						const param = qsParts[q].split("=");
+					for (const searchPart of searchParts[2].split("/")) {
+						const [, label, value] = searchPart.match(/([a-z]+)\((.*)\)/);
 
-						switch (param[0]) {
+						switch (label) {
 							case "locations":
-								const locations = param[1].split(";");
 
-								for (let l = 0; l < locations.length; l ++) {
-									const loc = locations[l].split("-");
-									const country: IGeoCountry = countryList.filter((c) => c.country_code === loc[0])[0];
+								for (const countryItem of value.split(",")) {
+									const [country, regions] = countryItem.split("-");
 
-									if (loc.length > 1) {
-										const regions = loc[1].split(",");
+									if (regions) {
 
-										for (let reg = 0; reg < regions.length; reg ++) {
+										for (const region of regions.split("+")) {
 
-											if (regionLists[loc[0]]) {
-												this.addLocation(country,
-													regionLists[loc[0]].filter((r: IGeoRegion) => r.region_id === Number(regions[reg]))[0]);
-											}
+											this.addLocation(
+												countryList.filter((c: IGeoCountry) => c.country_code === country)[0],
+												regionLists[country].filter((r: IGeoRegion) => r.region_id === Number(region))[0]);
+
 										}
 
+										// test
+
 									} else {
-										this.addLocation(country);
+
+										this.addLocation(
+											countryList.filter((c: IGeoCountry) => c.country_code === country)[0]);
+
 									}
+
 								}
 
 								break;
@@ -662,9 +659,8 @@ export default class Search<Props> extends React.Component<any, any, any> {
 							case "derbytypes":
 							case "sanctions":
 
-								const values = param[1].split(",");
-								for (let v = 0; v < values.length; v ++) {
-									features.push(`${param[0].slice(0, -1)}-${values[v]}`);
+								for (const item of value.split(",")) {
+									features.push(`${label.slice(0, -1)}-${item.trim()}`);
 								}
 								break;
 						}

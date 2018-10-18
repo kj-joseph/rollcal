@@ -10,41 +10,37 @@ import { Dispatch } from "redux";
 import reduxActions from "redux/actions";
 import store from "redux/store";
 
+// load css for modules
 import "flag-icon-css/sass/flag-icon.scss";
 import "react-dates/lib/css/_datepicker.css";
+
+// load site css
 import "styles/main.scss";
 
 import ".htaccess";
 require.context("images/favicon", true);
 
+// load feature images
 require.context("images/derbytypes", true);
 require.context("images/sanctions", true);
 require.context("images/tracks", true);
 
-import "images/header-logo.png"; // for email header
+// load header images; png is for emails
+import "images/header-logo.png";
 import HeaderLogo from "images/header-logo.svg";
 
+// load image for mobile menu
 import MenuDrawer from "images/menu/drawer.svg";
-
-import Error404 from "components/404";
-import EventDetails from "components/eventDetails";
-import Events from "components/events";
-import Faq from "components/faq";
-import Search from "components/search";
-import SiteMenu from "components/siteMenu";
-import Validate from "components/validate";
-
-import Login from "components/login";
 
 class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
 
 	constructor(props: Props) {
 		super(props);
 
-		this.setMenuState = this.setMenuState.bind(this);
+		this.toggleMenuDrawer = this.toggleMenuDrawer.bind(this);
 	}
 
-	setMenuState() {
+	toggleMenuDrawer() {
 		this.props.setMenuState(!this.props.menuDrawerOpen);
 	}
 
@@ -67,7 +63,7 @@ class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
 						<div className="openDrawerIcon" >
 							<ReactSVG
 								className="openDrawerIcon"
-								onClick={this.setMenuState}
+								onClick={this.toggleMenuDrawer}
 								src={MenuDrawer}
 								title="Open site menu"
 							/>
@@ -77,12 +73,67 @@ class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
 
 					<div id="content">
 						<Switch>
-							<Route exact={true} path="/" component={RedirectHome} />
-							<Route path="/validate/:validationCode" component={ValidatePage} />
-							<Route path="/events/details/:eventId?" component={EventDetailsPage} />
-							<Route path="/events/search" component={SearchPage} />
-							<Route path="/events/:startDate?/:endDate?" component={EventsPage} />
-							<Route path="/faq" component={FaqPage} />
+							<Route path="/validate/:validationCode" component={ValidatePage} exact={true} />
+							<Route path="/event/:eventId?" component={EventDetailsPage} exact={true} />
+							<Route path="/search" component={SearchPage} exact={true} />
+							<Route path="/faq" component={FaqPage} exact={true} />
+							<Route
+								path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:endDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(locations.*)"
+								component={EventsPage}
+							/>
+							<Route
+								path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:endDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(derbytypes.*)"
+								component={EventsPage}
+							/>
+							<Route
+								path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:endDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(sanctions.*)"
+								component={EventsPage}
+							/>
+							<Route
+								path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:endDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(tracks.*)"
+								component={EventsPage}
+							/>
+							<Route
+								path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:endDate([0-9]{4}-[0-9]{2}-[0-9]{2})/"
+								component={EventsPage}
+							/>
+							<Route
+								path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(locations.*)"
+								component={EventsPage}
+							/>
+							<Route
+								path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(derbytypes.*)"
+								component={EventsPage}
+							/>
+							<Route
+								path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(sanctions.*)"
+								component={EventsPage}
+							/>
+							<Route
+								path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(tracks.*)"
+								component={EventsPage}
+							/>
+							<Route
+								path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/"
+								component={EventsPage}
+							/>
+							<Route
+								path="/:param1(locations.*)"
+								component={EventsPage}
+							/>
+							<Route
+								path="/:param1(derbytypes.*)"
+								component={EventsPage}
+							/>
+							<Route
+								path="/:param1(sanctions.*)"
+								component={EventsPage}
+							/>
+							<Route
+								path="/:param1(tracks.*)"
+								component={EventsPage}
+							/>
+							<Route path="/" component={EventsPage} exact={true} />
 							<Route component={NotFoundPage} />
 						</Switch>
 					</div>
@@ -110,12 +161,22 @@ const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>) => {
 		saveDataGeography: (data: IGeoCountry[]) => dispatch(reduxActions.saveDataGeography(data)),
 		saveDataSanctions: (data: IDerbySanction[]) => dispatch(reduxActions.saveDataSanctions(data)),
 		saveDataTracks: (data: IDerbyType[]) => dispatch(reduxActions.saveDataTracks(data)),
-		saveSearch: (search: string) => dispatch(reduxActions.saveSearch(search)),
+		saveLastSearch: (search: string) => dispatch(reduxActions.saveLastSearch(search)),
 		setLoginBoxState: (loginBoxState: boolean) => dispatch(reduxActions.setLoginBoxState(loginBoxState)),
 		setMenuState: (menuState: boolean) => dispatch(reduxActions.setMenuState(menuState)),
 		setUserInfo: (userState: IUserInfo) => dispatch(reduxActions.setUserInfo(userState)),
 	};
 };
+
+import Error404 from "components/404";
+import EventDetails from "components/eventDetails";
+import Events from "components/events";
+import Faq from "components/faq";
+import Search from "components/search";
+import SiteMenu from "components/siteMenu";
+import Validate from "components/validate";
+
+import Login from "components/login";
 
 const EventDetailsPage = connect(mapStateToProps, mapDispatchToProps)(EventDetails);
 const EventsPage = connect(mapStateToProps, mapDispatchToProps)(Events);
