@@ -31,7 +31,7 @@
         "jsx-curly-spacing": [true, "never"],
         "jsx-equals-spacing": [true, "never"],
         "jsx-key": true,
-        "jsx-no-bind": true,
+        "jsx-no-bind": false,
         "jsx-no-lambda": true,
         "jsx-no-multiline-js": false,
         "jsx-no-string-ref": true,

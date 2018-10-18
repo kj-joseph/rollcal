@@ -95,8 +95,7 @@ export default class SiteMenu<Props> extends React.Component<any, any, any> {
 			<div className="siteMenu">
 				<ul>
 					<li>
-						<NavLink to="/" title="Upcoming Events" activeClassName="active"
-						isActive={this.isEventsLinkActive.bind(this)}>
+						<NavLink to="/" title="Upcoming Events" activeClassName="active" isActive={this.isEventsLinkActive.bind(this)}>
 							Events
 						</NavLink>
 					</li>
