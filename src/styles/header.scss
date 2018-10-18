@@ -202,11 +202,17 @@ $menuDrawerHeight: 450px;
 				line-height: $headerHeightDesktop;
 				vertical-align: middle;
 				display: inline;
-				margin: 0 .8em;
+				margin: 0 .6em;
 
 				a {
+					padding: 2px .2em;
 					text-decoration: none;
 				}
+
+				a.active {
+					border-bottom: 4px solid $pink;
+				}
+
 
 			}
 		}
