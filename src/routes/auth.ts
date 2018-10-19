@@ -33,7 +33,7 @@ const generateHash = (str: string) => {
 router.post("/checkToken", guard.check("user"), upload.array(), (req: IRequestWithUser, res: Response) => {
 
 	if (Number(req.body.id) === req.user.id
-		&& req.body.permissions === req.user.permissions.sort((a: string, b: string) => a < b ? -1 : a > b ? 1 : 0).join(",")
+		&& req.body.permissions.split(",").sort().join(",") === req.user.permissions.sort().join(",")
 		&& req.body.username === req.user.username) {
 
 		res.status(200).json({
@@ -58,7 +58,7 @@ router.post("/login", upload.array(), (req: Request, res: Response) => {
 
 		res.locals.connection
 			.query(
-				`select user_id, user_isadmin, user_name from users where user_email = ${res.locals.connection.escape(req.body.email)}`
+				`select user_id, user_perms, user_name from users where user_email = ${res.locals.connection.escape(req.body.email)}`
 				+ ` and user_password=sha2(${res.locals.connection.escape(req.body.password)}, 256) and user_validated = 1`,
 			(error: MysqlError, results: any) => {
 
@@ -80,7 +80,7 @@ router.post("/login", upload.array(), (req: Request, res: Response) => {
 
 					const token = jwt.sign({
 						id: results[0].user_id,
-						permissions: results[0].user_isadmin ? ["admin", "user"] : ["user"],
+						permissions: results[0].user_perms.split(",").sort().join(","),
 						username: results[0].user_name,
 					},
 					process.env.ROLLCAL_API_SECRET,
@@ -89,7 +89,7 @@ router.post("/login", upload.array(), (req: Request, res: Response) => {
 					res.status(200).json({
 						response: {
 							id: results[0].user_id,
-							permissions: results[0].user_isadmin ? "admin,user" : "user",
+							permissions: results[0].user_perms.split(",").sort().join(","),
 							token,
 							username: results[0].user_name,
 						},
