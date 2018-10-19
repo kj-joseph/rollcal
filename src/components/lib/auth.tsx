@@ -62,8 +62,8 @@ export const logout = (appState: any, event?: React.MouseEvent<HTMLAnchorElement
 
 	appState.setUserInfo({
 		loggedIn: false,
-		loggedInUserId: "",
-		loggedInUserPermissions: "",
+		loggedInUserId: null,
+		loggedInUserPermissions: null,
 	});
 
 	if (window.location.pathname.match(/^\/dashboard/)) {
