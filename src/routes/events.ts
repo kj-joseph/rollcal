@@ -148,7 +148,7 @@ router.get("/search", (req: Request, res: Response) => {
 			query.where += (c > 0 ? " or " : "");
 			if (locations[c].match("-")) {
 				const loc = locations[c].split("-");
-				const reg = loc[1].split("+");
+				const reg = loc[1].split(" ");
 				query.where += "(v.venue_country = " + res.locals.connection.escape(loc[0]) + " and v.venue_region in (";
 				for (let r = 0; r < reg.length; r ++) {
 					query.where += (r > 0 ? "," : "") + res.locals.connection.escape(reg[r]);
