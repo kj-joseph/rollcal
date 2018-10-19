@@ -13,7 +13,7 @@ const initialState = {
 	loggedIn: false,
 	loggedInUserId: "",
 	loggedInUserName: "",
-	loggedInUserPermissions: "",
+	loggedInUserPermissions: null as string[],
 	loginModalOpen: false,
 	menuDrawerOpen: false,
 	page: "home",
