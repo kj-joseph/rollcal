@@ -80,7 +80,7 @@ router.post("/login", upload.array(), (req: Request, res: Response) => {
 
 					const token = jwt.sign({
 						id: results[0].user_id,
-						permissions: results[0].user_perms.split(",").sort().join(","),
+						permissions: results[0].user_perms.split(",").sort(),
 						username: results[0].user_name,
 					},
 					process.env.ROLLCAL_API_SECRET,
