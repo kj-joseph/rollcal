@@ -1,15 +1,18 @@
 @import "../../node_modules/css-reset-and-normalize-sass/scss/reset-and-normalize";
 @import "breakpoints";
 
-@import "fonts";
 @import "colors";
-@import "text";
+@import "modal";
+@import "fonts";
 @import "form";
 @import "loader";
+@import "text";
 
 @import "header";
-@import "events";
+@import "login";
+
 @import "eventDetails";
+@import "events";
 @import "search";
 
 html {
@@ -47,5 +50,12 @@ html {
 			}
 		}
 
+		&.noscroll {
+			width: calc(100% - 100px);
+			height: calc(100%);
+			overflow: hidden;
+		}
+
 	}
+
 }

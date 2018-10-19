@@ -1,4 +1,4 @@
-import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IReduxActionType, IUserInfo } from "interfaces";
+import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IReduxActionType, IUserInfo } from "components/interfaces";
 
 export default {
 
@@ -32,14 +32,14 @@ export default {
 		type: "SAVE_LAST_SEARCH",
 	}),
 
-	setMenuState: (menuState: boolean): IReduxActionType => ({
+	setMobileMenuState: (menuState: boolean): IReduxActionType => ({
 		payload: menuState,
-		type: "SET_MENU_STATE",
+		type: "SET_MOBILE_MENU_STATE",
 	}),
 
-	setLoginBoxState: (loginBoxState: boolean): IReduxActionType => ({
-		payload: loginBoxState,
-		type: "SET_LOGIN_BOX_STATE",
+	setLoginModalState: (loginModalState: boolean): IReduxActionType => ({
+		payload: loginModalState,
+		type: "SET_LOGIN_MODAL_STATE",
 	}),
 
 	setUserInfo: (userInfo: IUserInfo): IReduxActionType => ({

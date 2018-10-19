@@ -89,3 +89,27 @@ ul.eventList {
 	}
 
 }
+
+@include respond-to("huge") {
+
+	ul.eventList {
+
+		li {
+			width: calc(22% - 34px);
+		}
+
+	}
+
+}
+
+@include respond-to("mega") {
+
+	ul.eventList {
+
+		li {
+			width: calc(18% - 34px);
+		}
+
+	}
+
+}

@@ -1,4 +1,4 @@
-import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IGeoData, IGeoRegionList, IReduxActionType } from "interfaces";
+import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IGeoData, IGeoRegionList, IReduxActionType } from "components/interfaces";
 
 const initialState = {
 	apiLocation: process.env.API_URL,
@@ -14,7 +14,7 @@ const initialState = {
 	loggedInUserId: "",
 	loggedInUserName: "",
 	loggedInUserPermissions: "",
-	loginBoxOpen: false,
+	loginModalOpen: false,
 	menuDrawerOpen: false,
 	page: "home",
 };
@@ -54,13 +54,19 @@ const rootReducer = (state = initialState, action: IReduxActionType) => {
 			return newState;
 			break;
 
-		case "SET_MENU_STATE":
-			newState.menuDrawerOpen = action.payload;
+		case "SET_LOGIN_MODAL_STATE":
+			newState.loginModalOpen = action.payload;
+
+			if (newState.loginModalOpen) {
+				document.getElementsByTagName("html")[0].classList.add("noscroll");
+			} else {
+				document.getElementsByTagName("html")[0].classList.remove("noscroll");
+			}
 			return newState;
 			break;
 
-		case "SET_LOGIN_BOX_STATE":
-			newState.loginBoxOpen = action.payload;
+		case "SET_MOBILE_MENU_STATE":
+			newState.menuDrawerOpen = action.payload;
 			return newState;
 			break;
 

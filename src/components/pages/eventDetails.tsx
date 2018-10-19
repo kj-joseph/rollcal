@@ -1,14 +1,14 @@
 import React from "react";
 
-import { IDBDerbyEvent, IDerbyEvent, IDerbyEventDayFormatted, IDerbyIcon, IDerbyIcons } from "interfaces";
+import { IDBDerbyEvent, IDerbyEvent, IDerbyEventDayFormatted, IDerbyIcon, IDerbyIcons } from "components/interfaces";
 
 import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
 
 import moment from "moment";
 
-import { formatDateRange } from "lib/dateTime";
+import { formatDateRange } from "components/lib/dateTime";
 
-import EventIcons from "components/eventIcons";
+import EventIcons from "components/partials/eventIcons";
 
 export default class EventDetails<Props> extends React.Component<any, any, any> {
 
@@ -39,7 +39,7 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 	componentDidMount() {
 		window.scrollTo(0, 0);
 		this.props.changePage("eventDetails");
-		this.props.setMenuState(false);
+		this.props.setMobileMenuState(false);
 	}
 
 	render() {

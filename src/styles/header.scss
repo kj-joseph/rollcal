@@ -2,80 +2,6 @@ $headerHeightDesktop: 80px;
 $headerHeightMobile: 65px;
 $menuDrawerHeight: 450px;
 
-#loginBox {
-	position: absolute;
-	right: 0;
-	top: 0;
-	z-index: 600;
-	width: calc(100% - 60px);
-	height: calc(100% - 60px);
-	padding: 20px;
-	background: white;
-	border: 10px solid $pink;
-
-	.loginClose {
-		position: absolute;
-		top: 20px;
-		right: 20px;
-		color: $white;
-		font-weight: bold;
-		line-height: 1.2em;
-		padding: 2px 5px;
-		background: $blue;
-
-		&:hover,
-		&:active,
-		&:focus {
-			cursor: pointer;
-			background: $pink;
-		}
-	}
-
-	#loginForm,
-	#registerForm {
-
-		h2 {
-			margin-bottom: .5em;
-		}
-
-		label {
-			display: block;
-			font-size: .9em;
-			margin-bottom: .2em;
-		}
-
-		input {
-			display: block;
-			margin-bottom: .8em;
-		}
-
-		.buttons {
-			margin-top: 1.5em;
-
-			button:first-child {
-				margin-right: 10px;
-			}
-		}
-
-		.errorMessage {
-			margin-top: .8em;
-			color: $pink;
-		}
-
-		&.disabled {
-			opacity: .3;
-		}
-
-	}
-
-	.loader {
-		position: absolute;
-		top: calc(50% - 60px);
-		left: calc(50% - 40px);
-	}
-
-}
-
 #siteHeader {
 	display: flex;
     justify-content: space-between;
@@ -98,6 +24,28 @@ $menuDrawerHeight: 450px;
 
 	.siteMenu {
 		display: none;
+	}
+
+	#loginMenuIconMobile {
+
+		margin: 13px 10px 0 0;
+
+		a {
+			padding: 4px 5px;
+			text-decoration: none;
+
+			div {
+
+				display: inline;
+
+			}
+
+			svg {
+				vertical-align: middle;
+				height: 40px;
+			}
+		}
+
 	}
 
 }
@@ -155,6 +103,10 @@ $menuDrawerHeight: 450px;
 				vertical-align: middle;
 				margin: 0 0 1em 0;
 
+				&.desktopOnly {
+					display: none;
+				}
+
 				a {
 					text-decoration: none;
 				}
@@ -172,11 +124,6 @@ $menuDrawerHeight: 450px;
 }
 
 @include respond-to("small") {
-
-	#loginBox {
-		right: 50px;
-		top: $headerHeightDesktop;
-	}
 
 	#siteMenuDrawer {
 		display: none;
@@ -202,15 +149,42 @@ $menuDrawerHeight: 450px;
 				line-height: $headerHeightDesktop;
 				vertical-align: middle;
 				display: inline;
-				margin: 0 .6em;
+				margin: 0 10px;
+
+				&.desktopOnly {
+					display: inline;
+				}
 
 				a {
-					padding: 2px .2em;
+					padding: 4px 5px;
 					text-decoration: none;
+
+					div {
+
+						display: inline;
+
+					}
+
+					svg {
+						vertical-align: middle;
+						height: 40px;
+					}
+
+
+					&:hover {
+						svg {
+							fill: $pink;
+						}
+					}
+
 				}
 
 				a.active {
 					border-bottom: 4px solid $pink;
+				}
+
+				a.activeIcon svg {
+					fill: $pink;
 				}
 
 
@@ -219,24 +193,8 @@ $menuDrawerHeight: 450px;
 
 	}
 
-}
-
-@include respond-to("medium") {
-
-	#loginBox {
-		top: 100px;
-	}
-
-	#siteHeader {
-		left: 50px;
-		width: calc(100% - 100px);
-		height: $headerHeightDesktop;
-		border-bottom-width: 20px;
-
-		.siteMenu {
-
-		}
-
+	#loginMenuIconMobile {
+		display: none;
 	}
 
 }

@@ -1,0 +1,53 @@
+#Login {
+	position: relative;
+
+	.loginClose {
+		position: absolute;
+		top: 0;
+		right: 0;
+		color: $white;
+		font-weight: bold;
+		line-height: 1.2em;
+		padding: 2px 5px;
+		background: $blue;
+
+		&:hover {
+			cursor: pointer;
+			background: $pink;
+		}
+	}
+
+	#loginForm,
+	#registerForm {
+
+		h2 {
+			margin-bottom: 1.2em;
+		}
+
+		.formButtons {
+			margin-bottom: 1em;
+		}
+
+	}
+
+	.loader {
+		position: absolute;
+		top: calc(50% - 60px);
+		left: calc(50% - 40px);
+	}
+
+}
+
+@include respond-to("small") {
+
+	#Login {
+		width: 500px;
+		height: auto;
+	}
+
+	#loginForm,
+	#registerForm {
+
+	}
+
+}
