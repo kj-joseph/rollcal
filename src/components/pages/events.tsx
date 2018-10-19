@@ -4,15 +4,15 @@ import { NavLink } from "react-router-dom";
 import {
 	IDerbyEvent, IDerbyIcon, IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType,
 	IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList,
-} from "interfaces";
-import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography } from "lib/dataIO";
+} from "components/interfaces";
+import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography } from "components/lib/data";
 
 import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
 
 import moment from "moment";
 
-import EventIconImage from "components/eventIconImage";
-import { formatDateRange } from "lib/dateTime";
+import EventIconImage from "components/partials/eventIconImage";
+import { formatDateRange } from "components/lib/dateTime";
 
 export default class Events<Props> extends React.Component<any, any, any> {
 	constructor(props: Props) {
@@ -39,7 +39,7 @@ export default class Events<Props> extends React.Component<any, any, any> {
 	componentDidMount() {
 		window.scrollTo(0, 0);
 		this.props.changePage("events");
-		this.props.setMenuState(false);
+		this.props.setMobileMenuState(false);
 	}
 
 	componentDidUpdate() {

@@ -2,7 +2,7 @@ import React from "react";
 
 import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
 
-import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IGeoData, IGeoRegionList, IUserInfo } from "interfaces";
+import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IGeoData, IGeoRegionList, IUserInfo } from "components/interfaces";
 
 export const getDerbySanctions = (appState: any): Promise<IDerbySanction[]> => {
 

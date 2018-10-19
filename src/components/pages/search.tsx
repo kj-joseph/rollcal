@@ -1,9 +1,9 @@
 import React from "react";
 
+import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography } from "components/lib/data";
 import { IDerbyDates, IDerbyFeatures, IDerbySanction, IDerbyTrack, IDerbyType,
 	IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList,
-} from "interfaces";
-import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography } from "lib/dataIO";
+} from "components/interfaces";
 
 import { DayPickerRangeController } from "react-dates";
 import "react-dates/initialize";
@@ -12,11 +12,11 @@ import moment from "moment";
 
 import Select from "react-select";
 
-import FeatureIcon from "components/featureIcon";
-import RemoveCountryButton from "components/removeCountryButton";
-import RemoveRegionButton from "components/removeRegionButton";
+import FeatureIcon from "components/partials/featureIcon";
+import RemoveCountryButton from "components/partials/removeCountryButton";
+import RemoveRegionButton from "components/partials/removeRegionButton";
 
-import { formatDateRange } from "lib/dateTime";
+import { formatDateRange } from "components/lib/dateTime";
 
 export default class Search<Props> extends React.Component<any, any, any> {
 
@@ -25,7 +25,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 
 		this.state = {
 			countryList: [] as IGeoCountry[],
-			countrySelectValue: {} as IGeoCountry,
+			countrySelectValue: null as IGeoCountry,
 			dateRangeDisplay: formatDateRange({
 				firstDay: moment(),
 			}),
@@ -35,7 +35,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 			loading: true,
 			path: null as string,
 			regionLists: {} as IGeoRegionList,
-			regionSelectValue: {} as IGeoRegion[],
+			regionSelectValue: null as IGeoRegion[],
 			selectedCountries: [] as IGeoCountry[],
 			selectedEventFeatures: [] as string[],
 			selectedRegions: {} as IGeoRegionList,
@@ -101,6 +101,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 	changeCountrySelect(country: IGeoCountry) {
 		this.setState({
 			countrySelectValue: Object.assign({disabled: true}, country),
+			regionSelectValue: null,
 		});
 	}
 
@@ -244,7 +245,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 	componentDidMount() {
 		window.scrollTo(0, 0);
 		this.props.changePage("search");
-		this.props.setMenuState(false);
+		this.props.setMobileMenuState(false);
 	}
 
 	componentDidUpdate() {
@@ -321,19 +322,20 @@ export default class Search<Props> extends React.Component<any, any, any> {
 										<div className="locationButton">
 											<button
 												className="smallButton"
-												disabled={!this.state.countrySelectValue || this.state.selectedRegions[this.state.countrySelectValue.country_code]}
+												disabled={!this.state.countrySelectValue
+													|| this.state.selectedRegions[this.state.countrySelectValue.country_code]}
 												onClick={this.addLocationCountry}
 											>
-												Add Country to Location List
+												Add {this.state.countrySelectValue ? this.state.countrySelectValue.country_name : ""} to Location List
 											</button>
 										</div>
 									: ""
 									}
 
-									{true || (this.state.countrySelectValue && this.state.regionLists[this.state.countrySelectValue.country_code]) ?
+									{(this.state.countrySelectValue && this.state.regionLists[this.state.countrySelectValue.country_code]) ?
 
 										<React.Fragment>
-											<p className="selectChoiceText">or select region (if applicable):</p>
+											<p className="selectChoiceText">or select a {this.state.countrySelectValue.country_region_type}:</p>
 											<Select
 												className="Select searchSelectRegions"
 												classNamePrefix="Select"
@@ -357,7 +359,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 													disabled={!this.state.regionSelectValue}
 													onClick={this.addLocationRegion}
 												>
-													Add Region to Location List
+													Add {this.state.regionSelectValue ? this.state.regionSelectValue.region_name : ""} to Location List
 												</button>
 											</div>
 										: ""

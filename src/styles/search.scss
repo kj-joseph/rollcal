@@ -49,16 +49,14 @@
 					color: $blue;
 					border: none;
 
-					&:hover,&:active,&:focus {
+					&:hover {
 						background: $pink;
 						color: $white;
 					}
 				}
 
 				.CalendarDay__selected,
-				.CalendarDay__selected:active,
-				.CalendarDay__selected:hover,
-				.CalendarDay__selected:focus {
+				.CalendarDay__selected:hover {
 					color: $white;
 					background: $blue;
 				}
@@ -71,8 +69,6 @@
 
 
 				.CalendarDay__blocked_out_of_range,
-				.CalendarDay__blocked_out_of_range:focus,
-				.CalendarDay__blocked_out_of_range:active,
 				.CalendarDay__blocked_out_of_range:hover {
 					color: $gray;
 					background: none;
@@ -98,6 +94,10 @@
 
 			.locationButton {
 				margin: .2em 0 .8em;
+
+				button:disabled {
+					opacity: 0;
+				}
 			}
 
 			ul.selectedLocations {
