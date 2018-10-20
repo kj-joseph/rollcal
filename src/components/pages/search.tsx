@@ -1,9 +1,9 @@
 import React from "react";
 
-import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography } from "components/lib/data";
 import { IDerbyDates, IDerbyFeatures, IDerbySanction, IDerbyTrack, IDerbyType,
 	IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList,
 } from "components/interfaces";
+import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography } from "components/lib/data";
 
 import { DayPickerRangeController } from "react-dates";
 import "react-dates/initialize";

@@ -7,6 +7,11 @@ export default {
 		type: "CHANGE_PAGE",
 	}),
 
+	clearUserInfo: (): IReduxActionType => ({
+		payload: null,
+		type: "CLEAR_USER_INFO",
+	}),
+
 	saveDataDerbyTypes: (data: IDerbyType[]): IReduxActionType => ({
 		payload: data,
 		type: "SAVE_DATA_DERBYTYPES",
@@ -32,14 +37,19 @@ export default {
 		type: "SAVE_LAST_SEARCH",
 	}),
 
-	setMobileMenuState: (menuState: boolean): IReduxActionType => ({
-		payload: menuState,
-		type: "SET_MOBILE_MENU_STATE",
+	setAccountModalState: (accountModalState: boolean): IReduxActionType => ({
+		payload: accountModalState,
+		type: "SET_ACCOUNT_MODAL_STATE",
 	}),
 
 	setLoginModalState: (loginModalState: boolean): IReduxActionType => ({
 		payload: loginModalState,
 		type: "SET_LOGIN_MODAL_STATE",
+	}),
+
+	setMobileMenuState: (menuState: boolean): IReduxActionType => ({
+		payload: menuState,
+		type: "SET_MOBILE_MENU_STATE",
 	}),
 
 	setUserInfo: (userInfo: IUserInfo): IReduxActionType => ({
