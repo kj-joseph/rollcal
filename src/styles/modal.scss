@@ -19,17 +19,22 @@
 
 			.modalClose {
 				position: absolute;
-				top: 0;
-				right: 0;
-				color: $white;
-				font-weight: bold;
-				line-height: 1.2em;
+				top: -17px;
+				right: -20px;
 				padding: 2px 5px;
-				background: $blue;
+
+				svg {
+					fill: $blue;
+					width: 30px;
+					height: 30px;
+				}
 
 				&:hover {
 					cursor: pointer;
-					background: $pink;
+
+					svg {
+						fill: $pink;
+					}
 				}
 			}
 
