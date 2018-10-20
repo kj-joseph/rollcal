@@ -1,3 +1,50 @@
+form h2 {
+	margin-bottom: .5em;
+
+	.modalOverlay & {
+		margin-bottom: 1.2em;
+	}
+}
+
+.inputGroup {
+	margin-bottom: 1.5em;
+}
+
+label {
+	display: block;
+	font-size: .95em;
+	color: $blue;
+	margin-bottom: .4em;
+}
+
+input {
+	display: block;
+	width: calc(100% - 12px);
+	margin-bottom: .8em;
+	border: 1px solid $blue;
+	padding: 5px;
+}
+
+.buttonRow {
+	margin: 1.5em 0 1em;
+
+	button {
+		margin: 0 .5em;
+	}
+
+	button:first-child {
+		margin-left: 0;
+	}
+
+	button:last-child {
+		margin-right: 0;
+	}
+
+	form & {
+		text-align: right;
+	}
+}
+
 .smallButton {
 	font-size: 1.2rem;
 	line-height: 1.3rem;
@@ -44,39 +91,6 @@
 	background: $pink;
 }
 
-
-.inputGroup {
-	margin-bottom: 1.5em;
-}
-
-label {
-	display: block;
-	font-size: .95em;
-	color: $blue;
-	margin-bottom: .4em;
-}
-
-input {
-	display: block;
-	width: calc(100% - 12px);
-	margin-bottom: .8em;
-	border: 1px solid $blue;
-	padding: 5px;
-}
-
-.formButtons {
-	text-align: right;
-	margin-top: 1.5em;
-
-	button:first-child {
-		margin-left: 0;
-	}
-
-	button:last-child {
-		margin-right: 0;
-	}
-}
-
 .formError {
 	margin-top: .8em;
 	color: $pink;
@@ -87,8 +101,13 @@ form.disabled {
 }
 
 .formFooter {
-	text-align: right;
+
+	.right {
+		text-align: right;
+	}
+
 }
+
 
 
 

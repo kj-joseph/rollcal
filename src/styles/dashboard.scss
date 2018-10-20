@@ -1,0 +1,39 @@
+.dashboard {
+
+	> .buttonRow {
+		margin-bottom: 1em;
+	}
+}
+
+.dashboardForms {
+
+	> * {
+		padding: 20px;
+		border: 1px solid $blue;
+	}
+
+}
+
+@include respond-to("small") {
+
+	.dashboard {
+		position: relative;
+
+		h1 {
+			margin-bottom: .7em;
+		}
+
+		> .buttonRow {
+			float: right;
+			margin: -3.8em 0 20px 30px;
+		}
+
+	}
+
+	.userEventList {
+
+		clear: both;
+
+	}
+
+}

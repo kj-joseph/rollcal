@@ -20,13 +20,14 @@ export const checkLoginStatus = (appState: any): Promise<boolean> => {
 					Authorization: `Bearer ${sessionStorage.rollCalToken}`,
 				},
 
-		}).then((results: AxiosResponse) => {
+		}).then((result: AxiosResponse) => {
 
 			appState.setUserInfo({
 				loggedIn: true,
-				loggedInUserId: sessionStorage.rollCalUserId,
-				loggedInUserName: sessionStorage.rollCalUserName,
-				loggedInUserPermissions: sessionStorage.rollCalUserPermissions.split(","),
+				userEmail: result.data.email,
+				userId: result.data.id,
+				userName: result.data.username,
+				userPermissions: result.data.permissions.split(","),
 			});
 
 			return true;
@@ -49,7 +50,7 @@ export const checkLoginStatus = (appState: any): Promise<boolean> => {
 
 };
 
-export const logout = (appState: any, event?: React.MouseEvent<HTMLAnchorElement>): void => {
+export const logout = (appState: any, event?: React.MouseEvent<any>): void => {
 
 	if (event) {
 		event.preventDefault();
@@ -60,11 +61,7 @@ export const logout = (appState: any, event?: React.MouseEvent<HTMLAnchorElement
 	sessionStorage.removeItem("rollCalUserPermissions");
 	sessionStorage.removeItem("rollCalToken");
 
-	appState.setUserInfo({
-		loggedIn: false,
-		loggedInUserId: null,
-		loggedInUserPermissions: null,
-	});
+	appState.clearUserInfo();
 
 	if (window.location.pathname.match(/^\/dashboard/)) {
 

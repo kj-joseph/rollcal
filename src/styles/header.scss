@@ -44,6 +44,11 @@ $menuDrawerHeight: 450px;
 				vertical-align: middle;
 				height: 40px;
 			}
+
+					&.activeIcon svg {
+						fill: $pink;
+					}
+
 		}
 
 	}
@@ -109,6 +114,7 @@ $menuDrawerHeight: 450px;
 
 				a {
 					text-decoration: none;
+
 				}
 
 			}
@@ -170,6 +176,9 @@ $menuDrawerHeight: 450px;
 						height: 40px;
 					}
 
+					&.activeIcon svg {
+						fill: $pink;
+					}
 
 					&:hover {
 						svg {
@@ -182,11 +191,6 @@ $menuDrawerHeight: 450px;
 				a.active {
 					border-bottom: 4px solid $pink;
 				}
-
-				a.activeIcon svg {
-					fill: $pink;
-				}
-
 
 			}
 		}

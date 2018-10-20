@@ -11,8 +11,8 @@ import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } fr
 
 import moment from "moment";
 
-import EventIconImage from "components/partials/eventIconImage";
 import { formatDateRange } from "components/lib/dateTime";
+import EventIconImage from "components/partials/eventIconImage";
 
 export default class Events<Props> extends React.Component<any, any, any> {
 	constructor(props: Props) {

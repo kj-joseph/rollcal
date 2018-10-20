@@ -11,6 +11,7 @@ const initialState = {
 	dataTracks: [] as IDerbyTrack[],
 	lastSearch: "",
 	loggedIn: false,
+	loggedInUserEmail: "",
 	loggedInUserId: "",
 	loggedInUserName: "",
 	loggedInUserPermissions: null as string[],
@@ -22,10 +23,20 @@ const initialState = {
 const rootReducer = (state = initialState, action: IReduxActionType) => {
 
 	const newState = JSON.parse(JSON.stringify(state));
+
 	switch (action.type) {
 
 		case "CHANGE_PAGE":
 			newState.page = action.payload;
+			return newState;
+			break;
+
+		case "CLEAR_USER_INFO":
+			newState.loggedIn = false;
+			newState.loggedInUserEmail = "",
+			newState.loggedInUserId = "";
+			newState.loggedInUserName = "";
+			newState.loggedInUserPermissions = null;
 			return newState;
 			break;
 
@@ -54,6 +65,17 @@ const rootReducer = (state = initialState, action: IReduxActionType) => {
 			return newState;
 			break;
 
+		case "SET_ACCOUNT_MODAL_STATE":
+			newState.accountModalOpen = action.payload;
+
+			if (newState.accountModalOpen) {
+				document.getElementsByTagName("html")[0].classList.add("noscroll");
+			} else {
+				document.getElementsByTagName("html")[0].classList.remove("noscroll");
+			}
+			return newState;
+			break;
+
 		case "SET_LOGIN_MODAL_STATE":
 			newState.loginModalOpen = action.payload;
 
@@ -72,8 +94,11 @@ const rootReducer = (state = initialState, action: IReduxActionType) => {
 
 		case "SET_USER_INFO":
 			newState.loggedIn = action.payload.loggedIn;
+			newState.loggedInUserEmail = action.payload.userEmail;
 			newState.loggedInUserId = action.payload.userId;
-			newState.loggedInUserAdmin = action.payload.userAdmin;
+			newState.loggedInUserName = action.payload.userName;
+			newState.loggedInUserPermissions = action.payload.userPermissions;
+
 			return newState;
 			break;
 

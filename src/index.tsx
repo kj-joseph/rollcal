@@ -159,7 +159,8 @@ class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
 						</Switch>
 					</div>
 
-					<LoginMenu />
+					<LoginModal />
+					<AccountModal />
 
 				</div>
 
@@ -176,11 +177,13 @@ const mapStateToProps = (reduxState: {[key: string]: any}) => {
 const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>) => {
 	return {
 		changePage: (page: string) => dispatch(reduxActions.changePage(page)),
+		clearUserInfo: () => dispatch(reduxActions.clearUserInfo()),
 		saveDataDerbyTypes: (data: IDerbyType[]) => dispatch(reduxActions.saveDataDerbyTypes(data)),
 		saveDataGeography: (data: IGeoCountry[]) => dispatch(reduxActions.saveDataGeography(data)),
 		saveDataSanctions: (data: IDerbySanction[]) => dispatch(reduxActions.saveDataSanctions(data)),
 		saveDataTracks: (data: IDerbyType[]) => dispatch(reduxActions.saveDataTracks(data)),
 		saveLastSearch: (search: string) => dispatch(reduxActions.saveLastSearch(search)),
+		setAccountModalState: (accountModalState: boolean) => dispatch(reduxActions.setAccountModalState(accountModalState)),
 		setLoginModalState: (loginModalState: boolean) => dispatch(reduxActions.setLoginModalState(loginModalState)),
 		setMobileMenuState: (menuState: boolean) => dispatch(reduxActions.setMobileMenuState(menuState)),
 		setUserInfo: (userState: IUserInfo) => dispatch(reduxActions.setUserInfo(userState)),
@@ -193,6 +196,7 @@ import Events from "components/pages/events";
 import Faq from "components/pages/faq";
 import Search from "components/pages/search";
 import Validate from "components/pages/validate";
+import Account from "components/partials/account";
 import Login from "components/partials/login";
 import SiteMenu from "components/partials/siteMenu";
 import Error404 from "components/status/404";
@@ -205,7 +209,8 @@ const NotFoundPage = connect(mapStateToProps, mapDispatchToProps)(Error404);
 const SearchPage = connect(mapStateToProps, mapDispatchToProps)(Search);
 const SiteMenuComponent = connect(mapStateToProps, mapDispatchToProps)(SiteMenu);
 const SiteRouter = connect(mapStateToProps, mapDispatchToProps)(ConnectedSiteRouter);
-const LoginMenu = connect(mapStateToProps, mapDispatchToProps)(Login);
+const AccountModal = connect(mapStateToProps, mapDispatchToProps)(Account);
+const LoginModal = connect(mapStateToProps, mapDispatchToProps)(Login);
 const ValidatePage = connect(mapStateToProps, mapDispatchToProps)(Validate);
 
 render(
