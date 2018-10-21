@@ -1,12 +1,13 @@
 @import "../../node_modules/css-reset-and-normalize-sass/scss/reset-and-normalize";
 @import "breakpoints";
-
 @import "colors";
-@import "modal";
 @import "fonts";
+@import "text";
+
+@import "boxList";
 @import "form";
 @import "loader";
-@import "text";
+@import "modal";
 
 @import "account";
 @import "header";

@@ -3,13 +3,38 @@
 	> .buttonRow {
 		margin-bottom: 1em;
 	}
+
+	h2 {
+
+		div {
+			display: inline;
+		}
+
+		svg {
+			fill: $blue;
+			height: .9em;
+			vertical-align: middle;
+			margin: 0 0 .45em .5em;
+
+			&:hover {
+				fill: $pink;
+				cursor: pointer;
+			}
+		}
+
+	}
+
 }
 
-.dashboardForms {
+.userEventList,
+.userVenueList {
+	margin-bottom: 2.5em;
 
-	> * {
-		padding: 20px;
-		border: 1px solid $blue;
+	ul.eventList li,
+	ul.venueList li {
+
+		padding: 10px;
+
 	}
 
 }
@@ -30,9 +55,16 @@
 
 	}
 
-	.userEventList {
+	.userEventList,
+	.userVenueList {
 
 		clear: both;
+
+		ul.eventList li,
+		ul.venueList li {
+			width: calc(30% - 34px);
+			margin: 20px 20px 0 0;
+		}
 
 	}
 

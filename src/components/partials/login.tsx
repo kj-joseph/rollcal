@@ -6,6 +6,9 @@ Modal.setAppElement("#root");
 
 import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
 
+import CloseIcon from "images/times-circle.svg";
+import ReactSVG from "react-svg";
+
 import * as auth from "components/lib/auth";
 
 class Login<Props> extends React.Component<any, any, any> {
@@ -63,7 +66,13 @@ class Login<Props> extends React.Component<any, any, any> {
 			>
 
 				<div id="LoginModal">
-					<span className="modalClose" title="close" onClick={this.closeLoginModal}>X</span>
+
+					<ReactSVG
+						className="modalClose"
+						title="close"
+						src={CloseIcon}
+						onClick={this.closeLoginModal}
+					/>
 
 					{this.state.modalStatus === "login" ?
 

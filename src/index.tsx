@@ -95,6 +95,7 @@ class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
 						<Switch>
 							<Route path="/validate/:validationCode" component={ValidatePage} exact={true} />
 							<Route path="/event/:eventId?" component={EventDetailsPage} exact={true} />
+							<Route path="/dashboard/event/:param1?/:param2?" component={EventFormPage} exact={true} />
 							<Route path="/dashboard" component={DashboardPage} exact={true} />
 							<Route path="/search" component={SearchPage} exact={true} />
 							<Route path="/faq" component={FaqPage} exact={true} />
@@ -176,7 +177,6 @@ const mapStateToProps = (reduxState: {[key: string]: any}) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>) => {
 	return {
-		changePage: (page: string) => dispatch(reduxActions.changePage(page)),
 		clearUserInfo: () => dispatch(reduxActions.clearUserInfo()),
 		saveDataDerbyTypes: (data: IDerbyType[]) => dispatch(reduxActions.saveDataDerbyTypes(data)),
 		saveDataGeography: (data: IGeoCountry[]) => dispatch(reduxActions.saveDataGeography(data)),
@@ -192,6 +192,7 @@ const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>) => {
 
 import Dashboard from "components/pages/dashboard";
 import EventDetails from "components/pages/eventDetails";
+import EventForm from "components/pages/eventForm";
 import Events from "components/pages/events";
 import Faq from "components/pages/faq";
 import Search from "components/pages/search";
@@ -203,6 +204,7 @@ import Error404 from "components/status/404";
 
 const DashboardPage = connect(mapStateToProps, mapDispatchToProps)(Dashboard);
 const EventDetailsPage = connect(mapStateToProps, mapDispatchToProps)(EventDetails);
+const EventFormPage = connect(mapStateToProps, mapDispatchToProps)(EventForm);
 const EventsPage = connect(mapStateToProps, mapDispatchToProps)(Events);
 const FaqPage = connect(mapStateToProps, mapDispatchToProps)(Faq);
 const NotFoundPage = connect(mapStateToProps, mapDispatchToProps)(Error404);

@@ -4,6 +4,9 @@ import { withRouter } from "react-router";
 import Modal from "react-modal";
 Modal.setAppElement("#root");
 
+import CloseIcon from "images/times-circle.svg";
+import ReactSVG from "react-svg";
+
 import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
 
 import * as auth from "components/lib/auth";
@@ -78,7 +81,12 @@ class Account<Props> extends React.Component<any, any, any> {
 
 				<div id="AccountModal">
 
-					<span className="modalClose" title="close" onClick={this.closeAccountModal}>X</span>
+					<ReactSVG
+						className="modalClose"
+						title="close"
+						src={CloseIcon}
+						onClick={this.closeAccountModal}
+					/>
 
 					{this.state.modalStatus === "form" ?
 
