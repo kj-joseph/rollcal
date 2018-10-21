@@ -25,7 +25,14 @@ router.get("/getAllVenues", (req: Request, res: Response) => {
 
 router.get("/getVenuesByUser/:userId", (req: Request, res: Response) => {
 
-	res.locals.connection.query("select * from venues where venue_user = " + res.locals.connection.escape(req.params.userId) + " order by venue_name",
+	res.locals.connection.query([
+		`select v.*, r.region_name, r.region_abbreviation, c.country_name, c.country_code`,
+		`from venues v, regions r, countries c`,
+		`where v.venue_region = r.region_id`,
+		`and v.venue_country = c.country_code`,
+		`and venue_user = ${res.locals.connection.escape(req.params.userId)}`,
+		`order by venue_name`,
+		].join(" "),
 		(error: MysqlError, results: any) => {
 
 			res.locals.connection.end();

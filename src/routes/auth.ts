@@ -92,7 +92,7 @@ router.post("/login", upload.array(), (req: Request, res: Response) => {
 						username: results[0].user_name,
 					},
 					process.env.ROLLCAL_API_SECRET,
-					{ expiresIn: 15 * 60 * 1000 });
+					{ expiresIn: "15m" });
 
 					res.status(200).json({
 						response: {
