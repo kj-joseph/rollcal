@@ -84,7 +84,6 @@ class Account<Props> extends React.Component<any, any, any> {
 					<ReactSVG
 						className="modalClose"
 						title="close"
-						id="siteLogo"
 						src={CloseIcon}
 						onClick={this.closeAccountModal}
 					/>

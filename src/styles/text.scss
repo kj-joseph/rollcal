@@ -7,14 +7,14 @@ body {
 	color: $black;
 	font-family: $source-sans;
 
-	a, a:visited {
-		color: $blue;
-	}
+}
 
-	a:hover {
-		color: $pink;
-	}
+a, a:visited {
+	color: $blue;
+}
 
+a:hover {
+	color: $pink;
 }
 
 .flag-icon {

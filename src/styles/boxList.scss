@@ -1,0 +1,100 @@
+ul.boxList {
+
+	display: flex;
+	flex-flow: row wrap;
+	margin-bottom: 20px;
+
+	li {
+		position: relative;
+		width: calc(100% - 20px);
+		margin: 20px 0 0;
+		padding: 10px 10px 65px;
+		border: 2px solid $blue;
+
+		.listDate {
+			margin-bottom: 0;
+		}
+
+		.listLocation {
+			margin-bottom: .5em;
+		}
+
+		.listIcons {
+
+			position: absolute;
+			bottom: 10px;
+			left: 10px;
+
+			.listIconGroup {
+				margin-right: 20px;
+
+				&:last-child {
+					margin-right: 0;
+				}
+			}
+
+			.icon, .icon div {
+				display: inline;
+			}
+
+			svg {
+				height: 35px;
+			}
+		}
+
+	}
+
+	&.noIcons li {
+		padding-bottom: 10px;
+	}
+
+}
+
+@include respond-to("small") {
+
+	ul.boxList {
+
+		li {
+			width: calc(45% - 34px);
+			margin: 20px 20px 0 0;
+		}
+
+	}
+
+}
+
+@include respond-to("large") {
+
+	ul.boxList {
+
+		li {
+			width: calc(30% - 34px);
+		}
+
+	}
+
+}
+
+@include respond-to("huge") {
+
+	ul.boxList {
+
+		li {
+			width: calc(22% - 34px);
+		}
+
+	}
+
+}
+
+@include respond-to("mega") {
+
+	ul.boxList {
+
+		li {
+			width: calc(18% - 34px);
+		}
+
+	}
+
+}

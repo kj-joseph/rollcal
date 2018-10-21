@@ -89,33 +89,33 @@ export default class Events<Props> extends React.Component<any, any, any> {
 				: ""
 				}
 				{!this.state.dataError &&  this.state.eventData.length > 0 && !this.state.loading ?
-					<ul className="eventList">
+					<ul className="eventList boxList">
 						{this.state.eventData.map((event: IDerbyEvent) => (
 							<li key={event.id}>
-								<p className="eventDate"><strong>{event.dates_venue}</strong></p>
-								<p className="eventLocation">{event.location} {event.flag}</p>
-								<h2><NavLink to={"/event/" + event.id} title="Search Events">
+								<p className="listDate"><strong>{event.dates_venue}</strong></p>
+								<p className="listLocation">{event.location} {event.flag}</p>
+								<h2><NavLink to={`/event/${event.id}`} title="Search Events">
 									{event.name}
 								</NavLink></h2>
 								{(event.host) ?	<h3>Hosted by {event.host}</h3> : ""}
 
-								<div className="eventIcons">
+								<div className="listIcons">
 									{(event.icons.tracks.length ?
-										<span className="eventIconGroup eventIconTracks">
+										<span className="listIconGroup eventIconTracks">
 											{event.icons.tracks.map((icon: IDerbyIcon) => (
 												<EventIconImage icon={icon} key={icon.filename} />
 											))}
 										</span>
 										: "" )}
 									{(event.icons.derbytypes.length ?
-										<span className="eventIconGroup eventIconDerbytypes">
+										<span className="listIconGroup eventIconDerbytypes">
 											{event.icons.derbytypes.map((icon: IDerbyIcon) => (
 												<EventIconImage icon={icon} key={icon.filename} />
 											))}
 										</span>
 										: "" )}
 									{(event.icons.sanctions.length ?
-										<span className="eventIconGroup eventIconSanctions">
+										<span className="listIconGroup eventIconSanctions">
 											{event.icons.sanctions.map((icon: IDerbyIcon) => (
 												<EventIconImage icon={icon} key={icon.filename} />
 											))}

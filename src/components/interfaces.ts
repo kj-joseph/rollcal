@@ -122,6 +122,21 @@ export interface IDerbyType {
 	derbytype_name: string;
 }
 
+export interface IDerbyVenue {
+	address1: string;
+	address2: string;
+	city: string;
+	country: string;
+	description?: string;
+	id: number;
+	link?: string;
+	location?: string
+	name: string;
+	postcode: string;
+	region: string;
+	user: number;
+}
+
 export interface IGeoCountry {
 	country_code: string;
 	country_name: string;
