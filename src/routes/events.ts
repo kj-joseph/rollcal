@@ -130,6 +130,10 @@ router.get("/search", (req: Request, res: Response) => {
 			+ " and event_user = user_id and timezone_id = event_timezone",
 	};
 
+	if (req.query.user) {
+		query.where += ` and event_user = ${res.locals.connection.escape(req.query.user)}`;
+	}
+
 	if (req.query.startDate) {
 		query.where += ` and eventday_start >= convert_tz(${res.locals.connection.escape(req.query.startDate + "T00:00:00.000")},`
 		+ `${res.locals.connection.escape(timezone)}, 'UTC')`;
