@@ -26,11 +26,6 @@ const rootReducer = (state = initialState, action: IReduxActionType) => {
 
 	switch (action.type) {
 
-		case "CHANGE_PAGE":
-			newState.page = action.payload;
-			return newState;
-			break;
-
 		case "CLEAR_USER_INFO":
 			newState.loggedIn = false;
 			newState.loggedInUserEmail = "",

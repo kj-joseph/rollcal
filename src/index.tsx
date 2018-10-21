@@ -176,7 +176,6 @@ const mapStateToProps = (reduxState: {[key: string]: any}) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>) => {
 	return {
-		changePage: (page: string) => dispatch(reduxActions.changePage(page)),
 		clearUserInfo: () => dispatch(reduxActions.clearUserInfo()),
 		saveDataDerbyTypes: (data: IDerbyType[]) => dispatch(reduxActions.saveDataDerbyTypes(data)),
 		saveDataGeography: (data: IGeoCountry[]) => dispatch(reduxActions.saveDataGeography(data)),

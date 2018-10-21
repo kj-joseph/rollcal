@@ -2,11 +2,6 @@ import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IReduxActionType,
 
 export default {
 
-	changePage: (page: string): IReduxActionType => ({
-		payload: page,
-		type: "CHANGE_PAGE",
-	}),
-
 	clearUserInfo: (): IReduxActionType => ({
 		payload: null,
 		type: "CLEAR_USER_INFO",
