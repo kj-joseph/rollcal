@@ -30,7 +30,7 @@ export default class Validate<Props> extends React.Component<any, any, any> {
 
 	loadData() {
 
-		axios.post(this.props.apiLocation + "user/account/valdate", {
+		axios.post(this.props.apiLocation + "user/account/validate", {
 			email: this.state.email,
 			username: this.state.username,
 			validationCode: this.state.validationCode,
