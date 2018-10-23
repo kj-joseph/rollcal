@@ -33,9 +33,9 @@ router.get("/getEventDetails/:eventId", (req: Request, res: Response) => {
 
 				const query = "select *, "
 					+ ` convert_tz(eventday_start, 'UTC', ${res.locals.connection.escape(eventResult.timezone_zone)}) as eventday_start_venue,`
-					+ ` convert_tz(eventday_end, 'UTC', ${res.locals.connection.escape(eventResult.timezone_zone)}) as eventday_end_venue,`
 					+ ` convert_tz(eventday_start, 'UTC', ${res.locals.connection.escape(eventResult.timezone)}) as eventday_start_user,`
-					+ ` convert_tz(eventday_end, 'UTC', ${res.locals.connection.escape(eventResult.timezone)}) as eventday_end_user`
+					+ ` convert_tz(eventday_doors, 'UTC', ${res.locals.connection.escape(eventResult.timezone_zone)}) as eventday_doors_venue,`
+					+ ` convert_tz(eventday_doors, 'UTC', ${res.locals.connection.escape(eventResult.timezone)}) as eventday_doors_user`
 					+ ` from eventdays where eventday_event = ${res.locals.connection.escape(req.params.eventId)}`;
 
 				res.locals.connection.query(query,
@@ -225,9 +225,9 @@ router.get("/search", (req: Request, res: Response) => {
 
 							res.locals.connection.query("select *, "
 								+ " convert_tz(eventday_start, 'UTC'," + res.locals.connection.escape(eventResults[i].timezone_zone) + ") as eventday_start_venue,"
-								+ " convert_tz(eventday_end, 'UTC', " + res.locals.connection.escape(eventResults[i].timezone_zone) + ") as eventday_end_venue,"
 								+ " convert_tz(eventday_start, 'UTC', " + res.locals.connection.escape(timezone) + ") as eventday_start_user,"
-								+ " convert_tz(eventday_end, 'UTC', " + res.locals.connection.escape(timezone) + ") as eventday_end_user"
+								+ " convert_tz(eventday_doors, 'UTC', " + res.locals.connection.escape(eventResults[i].timezone_zone) + ") as eventday_doors_venue,"
+								+ " convert_tz(eventday_doors, 'UTC', " + res.locals.connection.escape(timezone) + ") as eventday_doors_user"
 								+ " from eventdays where eventday_event = " + res.locals.connection.escape(eventResults[i].event_id),
 								(error: MysqlError, results: any) => {
 									if (error) {
