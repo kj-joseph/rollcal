@@ -2,16 +2,10 @@ import { Request, Response, Router } from "express";
 import multer from "multer";
 import { FieldInfo, MysqlError } from "mysql";
 
-import { IRequestWithUser } from "interfaces";
+import { checkSession } from "checkSession";
+import { IRequestWithSession } from "interfaces";
 
 import * as email from "lib/email";
-
-import jperm from "express-jwt-permissions";
-import jwt from "jsonwebtoken";
-
-const guard = jperm({
-	permissionsProperty: "permissions",
-});
 
 const router = Router();
 const upload = multer();
@@ -32,40 +26,26 @@ const generateHash = (str: string) => {
 	return Math.abs(hash);
 };
 
-router.post("/checkToken", guard.check("user"), upload.array(), (req: IRequestWithUser, res: Response) => {
 
-	if (Number(req.body.id) === req.user.id
-		&& req.body.permissions.split(",").sort().join(",") === req.user.permissions.sort().join(",")
-		&& req.body.username === req.user.username) {
 
-		res.status(200).json({
-			email: req.user.email,
-			id: req.user.id,
-			permissions: req.user.permissions.sort().join(","),
-			success: true,
-			username: req.user.username,
-		});
+router.post("/getSession", upload.array(), checkSession("user"), (req: IRequestWithSession, res: Response) => {
 
-	} else {
-
-		res.status(401).json(
-			{
-				err: "User information invalid",
-				success: false,
-			});
-
-	}
+	res.status(200).json({
+		email: req.session.user.email,
+		id: req.session.user.id,
+		roles: req.session.user.roles,
+		username: req.session.user.username,
+	});
 
 });
 
-
-router.post("/login", upload.array(), (req: Request, res: Response) => {
+router.post("/login", upload.array(), (req: IRequestWithSession, res: Response) => {
 
 	if (req.body.email && req.body.password) {
 
 		res.locals.connection
 			.query(
-				`select user_id, user_email, user_perms, user_name from users where user_email = ${res.locals.connection.escape(req.body.email)}`
+				`select user_id, user_email, user_roles, user_name from users where user_email = ${res.locals.connection.escape(req.body.email)}`
 				+ ` and user_password = sha2(${res.locals.connection.escape(req.body.password)}, 256) and user_validated = 1`,
 			(error: MysqlError, results: any) => {
 
@@ -78,28 +58,25 @@ router.post("/login", upload.array(), (req: Request, res: Response) => {
 					res.locals.connection.end();
 					res.status(403).json(
 						{
-							err: "Username or password is incorrect",
+							error: "Username or password is incorrect",
 							success: false,
 							token: null,
 						});
 
 				} else {
 
-					const token = jwt.sign({
+					req.session.user = {
 						email: results[0].user_email,
 						id: results[0].user_id,
-						permissions: results[0].user_perms.split(",").sort(),
+						roles: results[0].user_roles.split(","),
 						username: results[0].user_name,
-					},
-					process.env.ROLLCAL_API_SECRET,
-					{ expiresIn: "15m" });
+					};
 
 					res.status(200).json({
 						response: {
 							email: results[0].user_email,
 							id: results[0].user_id,
-							permissions: results[0].user_perms.split(",").sort().join(","),
-							token,
+							roles: results[0].user_roles.split(","),
 							username: results[0].user_name,
 						},
 					});
@@ -115,18 +92,13 @@ router.post("/login", upload.array(), (req: Request, res: Response) => {
 
 });
 
-router.delete("/logout/:userId", (req: Request, res: Response) => {
+router.get("/logout", (req: IRequestWithSession, res: Response) => {
 
-	res.locals.connection.query(
-		`delete from user_sessions where userId = ${res.locals.connection.escape(req.params.userId)}`,
-		(error: MysqlError, results: any) => {
-			if (error) {
-				console.error(error);
-				res.status(500).send();
-			} else {
-				res.status(200).send();
-			}
-		});
+	req.session.destroy(() => {
+		res.cookie("rollCalAuthCookie", "", {
+			path: "/",
+		}).status(200).send();
+	});
 
 });
 
@@ -191,7 +163,7 @@ router.post("/register/checkEmail", upload.array(), (req: Request, res: Response
 
 });
 
-router.put("/updateUserAccount", guard.check("user"), upload.array(), (req: IRequestWithUser, res: Response) => {
+router.put("/account/udpate", checkSession("user"), upload.array(), (req: IRequestWithSession, res: Response) => {
 
 	const changes = [] as string[];
 	let error = false;
@@ -202,7 +174,7 @@ router.put("/updateUserAccount", guard.check("user"), upload.array(), (req: IReq
 		changes.push(`user_name = ${res.locals.connection.escape(req.body.username)}`);
 	}
 
-	if (req.body.email && req.body.email !== req.user.email) {
+	if (req.body.email && req.body.email !== req.session.user.email) {
 		if (!req.body.currentPassword) {
 			error = true;
 		} else {
@@ -224,7 +196,7 @@ router.put("/updateUserAccount", guard.check("user"), upload.array(), (req: IReq
 		}
 	}
 
-	if (!error && changes.length && Number(req.body.id) === req.user.id) {
+	if (!error && changes.length && Number(req.body.id) === req.session.user.id) {
 
 		res.locals.connection.query([
 				"update users set",
@@ -245,7 +217,7 @@ router.put("/updateUserAccount", guard.check("user"), upload.array(), (req: IReq
 
 					if (validationCode) {
 
-						email.sendEmailChangeEmail(req.body.email, req.body.username || req.user.username, validationCode)
+						email.sendEmailChangeEmail(req.body.email, req.body.username || req.session.user.username, validationCode)
 							.then(() => {
 
 								res.status(200).json({
@@ -262,22 +234,19 @@ router.put("/updateUserAccount", guard.check("user"), upload.array(), (req: IReq
 
 					} else {
 
-						const token = jwt.sign({
-							email: req.body.email || req.user.email,
+						req.session.user = {
+							email: req.body.email || req.session.user.email,
 							id: req.body.id,
-							permissions: req.user.permissions.sort(),
-							username: req.body.username || req.user.username,
-						},
-						process.env.ROLLCAL_API_SECRET,
-						{ expiresIn: 15 * 60 * 1000 });
+							roles: req.session.user.roles,
+							username: req.body.username || req.session.user.username,
+						};
 
 						res.status(200).json({
 							response: {
-								email: req.body.email || req.user.email,
+								email: req.body.email || req.session.user.email,
 								id: req.body.id,
-								permissions: req.user.permissions.sort().join(","),
-								token,
-								username: req.body.username || req.user.username,
+								roles: req.session.user.roles,
+								username: req.body.username || req.session.user.username,
 							},
 						});
 
@@ -294,7 +263,7 @@ router.put("/updateUserAccount", guard.check("user"), upload.array(), (req: IReq
 	}
 });
 
-router.post("/validateAccount", upload.array(), (req: Request, res: Response) => {
+router.post("/account/validate", upload.array(), (req: Request, res: Response) => {
 
 	res.locals.connection.query([
 		"select user_id from users where",
