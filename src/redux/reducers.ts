@@ -17,6 +17,7 @@ const initialState = {
 	loggedInUserRoles: null as string[],
 	loginModalOpen: false,
 	page: "home",
+	sessionInitialized: false,
 };
 
 const rootReducer = (state = initialState, action: IReduxActionType) => {
@@ -78,6 +79,11 @@ const rootReducer = (state = initialState, action: IReduxActionType) => {
 			} else {
 				document.getElementsByTagName("html")[0].classList.remove("noscroll");
 			}
+			return newState;
+			break;
+
+		case "SET_SESSION_STATE":
+			newState.sessionInitialized = action.payload;
 			return newState;
 			break;
 

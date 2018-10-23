@@ -23,6 +23,7 @@ export default class Validate<Props> extends React.Component<any, any, any> {
 
 	componentDidMount() {
 
+		this.props.setSessionState(this.props.sessionInitialized);
 		this.loadData();
 
 	}

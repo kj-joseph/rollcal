@@ -66,9 +66,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 	componentDidMount() {
 
 		window.scrollTo(0, 0);
-		this.setState({
-			path: null as string,
-		});
+		this.props.setSessionState(this.props.sessionInitialized);
 
 	}
 

@@ -3,12 +3,12 @@ import { NavLink } from "react-router-dom";
 
 import ReactSVG from "react-svg";
 
-import ContactIcon from "images/menu/at.svg";
+import ContactIcon from "images/menu/at-sign.svg";
 import EventsIcon from "images/menu/calendar-alt.svg";
 import FaqIcon from "images/menu/question.svg";
-import LoginIconOutline from "images/menu/user-circle.svg";
-import LoginIconSolid from "images/menu/user-circle-solid.svg";
 import SearchIcon from "images/menu/search.svg";
+import LoginIconSolid from "images/menu/user-circle-solid.svg";
+import LoginIconOutline from "images/menu/user-circle.svg";
 
 import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
 
@@ -16,20 +16,6 @@ export default class SiteMenu<Props> extends React.Component<any, any, any> {
 
 	constructor(props: Props) {
 		super(props);
-
-		this.state = {
-			errorMessage: "",
-			formValid: false,
-			loading: false,
-			loginEmail: "",
-			loginOpen: false,
-			loginPassword: "",
-			registerEmail: "",
-			registerPassword: "",
-			registerPasswordConfirm: "",
-			registerUsername: "",
-			status: "login",
-		};
 
 		this.openLoginModal = this.openLoginModal.bind(this);
 
