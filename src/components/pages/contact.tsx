@@ -1,6 +1,6 @@
 import React from "react";
 
-export default class Faq<Props> extends React.Component<any, any, any> {
+export default class Contact<Props> extends React.Component<any, any, any> {
 
 	constructor(props: Props) {
 		super(props);
@@ -18,7 +18,7 @@ export default class Faq<Props> extends React.Component<any, any, any> {
 		return (
 
 			<div>
-				<h1>Frequently Asked Stuff</h1>
+				<h1>Contact Us</h1>
 			</div>
 		);
 

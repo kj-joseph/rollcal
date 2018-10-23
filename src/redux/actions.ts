@@ -42,6 +42,11 @@ export default {
 		type: "SET_LOGIN_MODAL_STATE",
 	}),
 
+	setSessionState: (sessionInitialized: boolean): IReduxActionType => ({
+		payload: sessionInitialized,
+		type: "SET_SESSION_STATE",
+	}),
+
 	setUserInfo: (userInfo: IUserInfo): IReduxActionType => ({
 		payload: userInfo,
 		type: "SET_USER_INFO",

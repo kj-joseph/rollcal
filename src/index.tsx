@@ -39,16 +39,17 @@ class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
 		super(props);
 
 		this.state = {
-			path: "",
 			sessionChecked: false,
 		};
 
 		this.openLoginModal = this.openLoginModal.bind(this);
 
+	}
+
+	componentDidMount() {
+
 		auth.checkLoginStatus(this.props).then(() => {
-			this.setState({
-				sessionChecked: true,
-			});
+			this.props.setSessionState(true);
 		});
 
 	}
@@ -92,7 +93,7 @@ class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
 					</div>
 
 					<div id="content">
-						{ this.state.sessionChecked ?
+						{ this.props.sessionInitialized ?
 							<Switch>
 								<Route path="/validate/:validationCode" component={ValidatePage} exact={true} />
 								<Route path="/event/:eventId?" component={EventDetailsPage} exact={true} />
@@ -100,6 +101,7 @@ class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
 								<Route path="/dashboard" component={DashboardPage} exact={true} />
 								<Route path="/search" component={SearchPage} exact={true} />
 								<Route path="/faq" component={FaqPage} exact={true} />
+								<Route path="/contact" component={ContactPage} exact={true} />
 								<Route
 									path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:endDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(locations.*)"
 									component={EventsPage}
@@ -193,10 +195,12 @@ const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>) => {
 		saveLastSearch: (search: string) => dispatch(reduxActions.saveLastSearch(search)),
 		setAccountModalState: (accountModalState: boolean) => dispatch(reduxActions.setAccountModalState(accountModalState)),
 		setLoginModalState: (loginModalState: boolean) => dispatch(reduxActions.setLoginModalState(loginModalState)),
+		setSessionState: (sessionInitialized: boolean) => dispatch(reduxActions.setSessionState(sessionInitialized)),
 		setUserInfo: (userState: IUserInfo) => dispatch(reduxActions.setUserInfo(userState)),
 	};
 };
 
+import Contact from "components/pages/contact";
 import Dashboard from "components/pages/dashboard";
 import EventDetails from "components/pages/eventDetails";
 import EventForm from "components/pages/eventForm";
@@ -209,6 +213,7 @@ import Login from "components/partials/login";
 import SiteMenu from "components/partials/siteMenu";
 import Error404 from "components/status/404";
 
+const ContactPage = connect(mapStateToProps, mapDispatchToProps)(Contact);
 const DashboardPage = connect(mapStateToProps, mapDispatchToProps)(Dashboard);
 const EventDetailsPage = connect(mapStateToProps, mapDispatchToProps)(EventDetails);
 const EventFormPage = connect(mapStateToProps, mapDispatchToProps)(EventForm);
