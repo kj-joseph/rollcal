@@ -67,11 +67,11 @@ export interface IDerbyEvent {
 
 export interface IDerbyEventDay {
 	eventday_description?: string;
-	eventday_end: string;
-	eventday_end_user: string;
-	eventday_end_venue: string;
 	eventday_event: number;
 	eventday_games?: number;
+	eventday_doors: string;
+	eventday_doors_user: string;
+	eventday_doors_venue: string;
 	eventday_id: number;
 	eventday_start: string;
 	eventday_start_user: string;
@@ -80,6 +80,7 @@ export interface IDerbyEventDay {
 
 export interface IDerbyEventDayFormatted {
 	date: string;
+	doorsTime?: string;
 	startTime: string;
 	description?: string;
 }
