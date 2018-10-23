@@ -310,7 +310,6 @@ class Account<Props> extends React.Component<any, any, any> {
 					});
 
 					this.closeAccountModal();
-					this.props.setMobileMenuState(false);
 				}
 
 			}).catch((error: AxiosError) => {
