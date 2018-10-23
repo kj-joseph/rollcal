@@ -63,187 +63,13 @@ export default class Search<Props> extends React.Component<any, any, any> {
 
 	}
 
-	isBeforeToday(date: moment.Moment) {
-
-		const todaysDate = moment({hour: 0, minute: 0, seconds: 0, milliseconds: 0});
-		const day = date.hours(0).minute(0).seconds(0);
-
-		return day < todaysDate;
-	}
-
-	clearDates() {
-		this.setState({
-			dateRangeDisplay: formatDateRange({
-				firstDay: moment(),
-			}),
-			endDate: null,
-			focusedInput: "startDate",
-			startDate: null,
-		});
-	}
-
-	determineStartMonth() {
-		return this.state.startDate;
-	}
-
-	onDatesChange(dates: {startDate: moment.Moment, endDate: moment.Moment}) {
-		const dateObject: IDerbyDates = {
-			firstDay: dates.startDate ? dates.startDate : moment(),
-			lastDay: dates.endDate ? dates.endDate : null,
-		};
-		this.setState({
-			dateRangeDisplay: formatDateRange(dateObject),
-			endDate: dates.endDate,
-			startDate: dates.startDate,
-		});
-	}
-
-	changeCountrySelect(country: IGeoCountry) {
-		this.setState({
-			countrySelectValue: Object.assign({disabled: true}, country),
-			regionSelectValue: null,
-		});
-	}
-
-	changeRegionSelect(region: IGeoRegion) {
-		this.setState({
-			regionSelectValue: region,
-		});
-	}
-
-	addLocation(country: IGeoCountry, region?: IGeoRegion) {
-
-		let countries = this.state.selectedCountries;
-		const countryList = this.state.countryList;
-		const newState = {} as any;
-		const regionLists = this.state.regionLists;
-		const regions: IGeoRegionList = this.state.selectedRegions;
-
-		const addCountry = (c: IGeoCountry) => {
-			countries = countries.concat([c]);
-			if (!regions[c.country_code]) {
-				countryList[countryList.findIndex((x: IGeoCountry) => x.country_code === c.country_code)].disabled = true;
-			}
-		};
-
-		const addRegion = (c: IGeoCountry, r: IGeoRegion) => {
-			if (!regions[r.region_country]) {
-				regions[r.region_country] = [];
-				addCountry(c);
-			}
-			regions[r.region_country].push(r);
-			regionLists[r.region_country][regionLists[r.region_country].findIndex((x: IGeoRegion) => x.region_id === r.region_id)].disabled = true;
-		};
-
-		if (region) {
-			addRegion(country, region);
-		} else {
-			addCountry(country);
-		}
-
-		newState.selectedRegions = regions;
-		newState.selectedCountries = countries;
-		newState.countryList = countryList;
-		newState.regionLists = regionLists;
-
-		if (region) {
-			newState.regionSelectValue = {} as IGeoRegion;
-		} else {
-			newState.countrySelectValue = {} as IGeoCountry;
-		}
-
-		this.setState(newState);
-
-	}
-
-	addLocationCountry() {
-		this.addLocation(this.state.countrySelectValue);
-	}
-
-	addLocationRegion() {
-		this.addLocation(this.state.countrySelectValue, this.state.regionSelectValue);
-	}
-
-	removeLocation(countryCode: string, regionId?: number) {
-		const countryList = this.state.countryList;
-		const regionLists = this.state.regionLists;
-		const regions = this.state.selectedRegions;
-		let countries = this.state.selectedCountries;
-
-		const removeCountry = (country: string) => {
-			countries = countries.filter((c: IGeoCountry) => c.country_code !== country);
-			if (regions[country]) {
-				delete regions[country];
-			}
-			countryList[countryList.findIndex((x: IGeoCountry) => x.country_code === country)].disabled = false;
-		};
-
-		const removeRegion = (c: string, r: number) => {
-			if (regions[c]) {
-				regionLists[c][regionLists[c].findIndex((x: IGeoRegion) => x.region_id === r)].disabled = false;
-				regions[c] = regions[c].filter((region: IGeoRegion) => region.region_id !== r);
-				if (!regions[c].length) {
-					delete regions[c];
-					removeCountry(c);
-				}
-			}
-		};
-
-		if (regionId) {
-			removeRegion(countryCode, regionId);
-		} else {
-			removeCountry(countryCode);
-		}
-
-		this.setState({
-			countryList,
-			regionLists,
-			selectedCountries: countries,
-			selectedRegions: regions,
-		});
-
-		this.forceUpdate();
-	}
-
-	toggleFeatureIcon(icon: string) {
-
-		const selectedEventFeatures = this.state.selectedEventFeatures;
-		const iconIndex = selectedEventFeatures.indexOf(icon);
-
-		if (iconIndex === -1) {
-			selectedEventFeatures.push(icon);
-		} else {
-			selectedEventFeatures.splice(iconIndex, 1);
-		}
-
-		this.setState({
-			selectedEventFeatures,
-		});
-
-	}
-
-	handleFocusChange(focusedInput: string) {
-		this.setState({ focusedInput });
-	}
-
-	isCountryOptionDisabled(option: IGeoCountry) {
-		return option.disabled;
-	}
-
-	isRegionOptionDisabled(option: IGeoRegion) {
-		return option.disabled;
-	}
-
-	getCountryOptionLabel(option: IGeoCountry) {
-		return option.country_name;
-	}
-
-	getRegionOptionLabel(option: IGeoRegion) {
-		return option.region_name;
-	}
-
 	componentDidMount() {
+
 		window.scrollTo(0, 0);
+		this.setState({
+			path: null as string,
+		});
+
 	}
 
 	componentDidUpdate() {
@@ -492,6 +318,185 @@ export default class Search<Props> extends React.Component<any, any, any> {
 			</React.Fragment>
 		);
 
+	}
+
+	isBeforeToday(date: moment.Moment) {
+
+		const todaysDate = moment({hour: 0, minute: 0, seconds: 0, milliseconds: 0});
+		const day = date.hours(0).minute(0).seconds(0);
+
+		return day < todaysDate;
+	}
+
+	clearDates() {
+		this.setState({
+			dateRangeDisplay: formatDateRange({
+				firstDay: moment(),
+			}),
+			endDate: null,
+			focusedInput: "startDate",
+			startDate: null,
+		});
+	}
+
+	determineStartMonth() {
+		return this.state.startDate;
+	}
+
+	onDatesChange(dates: {startDate: moment.Moment, endDate: moment.Moment}) {
+		const dateObject: IDerbyDates = {
+			firstDay: dates.startDate ? dates.startDate : moment(),
+			lastDay: dates.endDate ? dates.endDate : null,
+		};
+		this.setState({
+			dateRangeDisplay: formatDateRange(dateObject),
+			endDate: dates.endDate,
+			startDate: dates.startDate,
+		});
+	}
+
+	changeCountrySelect(country: IGeoCountry) {
+		this.setState({
+			countrySelectValue: Object.assign({disabled: true}, country),
+			regionSelectValue: null,
+		});
+	}
+
+	changeRegionSelect(region: IGeoRegion) {
+		this.setState({
+			regionSelectValue: region,
+		});
+	}
+
+	addLocation(country: IGeoCountry, region?: IGeoRegion) {
+
+		let countries = this.state.selectedCountries;
+		const countryList = this.state.countryList;
+		const newState = {} as any;
+		const regionLists = this.state.regionLists;
+		const regions: IGeoRegionList = this.state.selectedRegions;
+
+		const addCountry = (c: IGeoCountry) => {
+			countries = countries.concat([c]);
+			if (!regions[c.country_code]) {
+				countryList[countryList.findIndex((x: IGeoCountry) => x.country_code === c.country_code)].disabled = true;
+			}
+		};
+
+		const addRegion = (c: IGeoCountry, r: IGeoRegion) => {
+			if (!regions[r.region_country]) {
+				regions[r.region_country] = [];
+				addCountry(c);
+			}
+			regions[r.region_country].push(r);
+			regionLists[r.region_country][regionLists[r.region_country].findIndex((x: IGeoRegion) => x.region_id === r.region_id)].disabled = true;
+		};
+
+		if (region) {
+			addRegion(country, region);
+		} else {
+			addCountry(country);
+		}
+
+		newState.selectedRegions = regions;
+		newState.selectedCountries = countries;
+		newState.countryList = countryList;
+		newState.regionLists = regionLists;
+
+		if (region) {
+			newState.regionSelectValue = {} as IGeoRegion;
+		} else {
+			newState.countrySelectValue = {} as IGeoCountry;
+		}
+
+		this.setState(newState);
+
+	}
+
+	addLocationCountry() {
+		this.addLocation(this.state.countrySelectValue);
+	}
+
+	addLocationRegion() {
+		this.addLocation(this.state.countrySelectValue, this.state.regionSelectValue);
+	}
+
+	removeLocation(countryCode: string, regionId?: number) {
+		const countryList = this.state.countryList;
+		const regionLists = this.state.regionLists;
+		const regions = this.state.selectedRegions;
+		let countries = this.state.selectedCountries;
+
+		const removeCountry = (country: string) => {
+			countries = countries.filter((c: IGeoCountry) => c.country_code !== country);
+			if (regions[country]) {
+				delete regions[country];
+			}
+			countryList[countryList.findIndex((x: IGeoCountry) => x.country_code === country)].disabled = false;
+		};
+
+		const removeRegion = (c: string, r: number) => {
+			if (regions[c]) {
+				regionLists[c][regionLists[c].findIndex((x: IGeoRegion) => x.region_id === r)].disabled = false;
+				regions[c] = regions[c].filter((region: IGeoRegion) => region.region_id !== r);
+				if (!regions[c].length) {
+					delete regions[c];
+					removeCountry(c);
+				}
+			}
+		};
+
+		if (regionId) {
+			removeRegion(countryCode, regionId);
+		} else {
+			removeCountry(countryCode);
+		}
+
+		this.setState({
+			countryList,
+			regionLists,
+			selectedCountries: countries,
+			selectedRegions: regions,
+		});
+
+		this.forceUpdate();
+	}
+
+	toggleFeatureIcon(icon: string) {
+
+		const selectedEventFeatures = this.state.selectedEventFeatures;
+		const iconIndex = selectedEventFeatures.indexOf(icon);
+
+		if (iconIndex === -1) {
+			selectedEventFeatures.push(icon);
+		} else {
+			selectedEventFeatures.splice(iconIndex, 1);
+		}
+
+		this.setState({
+			selectedEventFeatures,
+		});
+
+	}
+
+	handleFocusChange(focusedInput: string) {
+		this.setState({ focusedInput });
+	}
+
+	isCountryOptionDisabled(option: IGeoCountry) {
+		return option.disabled;
+	}
+
+	isRegionOptionDisabled(option: IGeoRegion) {
+		return option.disabled;
+	}
+
+	getCountryOptionLabel(option: IGeoCountry) {
+		return option.country_name;
+	}
+
+	getRegionOptionLabel(option: IGeoRegion) {
+		return option.region_name;
 	}
 
 	submitSearch() {
