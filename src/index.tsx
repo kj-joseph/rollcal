@@ -91,8 +91,8 @@ class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
 								<SiteMenuComponent />
 							</div>
 
-							<div id="content">
-								{ this.state.sessionChecked ?
+							{ this.state.sessionChecked || 1 ?
+								<div id="content">
 									<Switch>
 										<Route path="/validate/:validationCode" component={ValidatePage} exact={true} />
 										<Route path="/event/:eventId?" component={EventDetailsPage} exact={true} />
@@ -159,12 +159,12 @@ class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
 										<Route path="/" component={EventsPage} exact={true} />
 										<Route component={NotFoundPage} />
 									</Switch>
-								:
+								</div>
+							:
 
-									<div className="loader" />
+								<div className="loader" />
 
-								}
-							</div>
+							}
 
 							<LoginModal />
 							<AccountModal />

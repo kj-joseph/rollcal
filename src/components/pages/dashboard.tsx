@@ -200,7 +200,7 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 							}, "short"),
 						host: event.event_name ? event.event_host : null,
 						id: event.event_id,
-						location: `${event.venue_city} ${event.region_abbreviation ? ", " + event.region_abbreviation : ""}, ${event.country_code}`,
+						location: `${event.venue_city}${event.region_abbreviation ? ", " + event.region_abbreviation : ""}, ${event.country_code}`,
 						name: event.event_name ? event.event_name : event.event_host,
 					});
 				}
@@ -228,7 +228,7 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 
 					venueData.push({
 						id: venue.venue_id,
-						location: `${venue.venue_city} ${venue.region_abbreviation ? ", " + venue.region_abbreviation : ""}, ${venue.country_code}`,
+						location: `${venue.venue_city}${venue.region_abbreviation ? ", " + venue.region_abbreviation : ""}, ${venue.country_code}`,
 						name: venue.venue_name,
 						region: venue.venue_region,
 					});
