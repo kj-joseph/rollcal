@@ -154,7 +154,7 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 
 	loadData() {
 
-		axios.get(`${this.props.apiLocation}events/getEventDetails/${this.props.match.params.eventId}`)
+		axios.get(`${this.props.apiLocation}events/getEventDetails/${this.props.match.params.eventId}`, { withCredentials: true })
 			.then((result: AxiosResponse) => {
 
 				const eventResult: IDBDerbyEvent = result.data.response[0];

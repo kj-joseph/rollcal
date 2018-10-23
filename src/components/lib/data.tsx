@@ -14,7 +14,7 @@ export const getDerbySanctions = (appState: any): Promise<IDerbySanction[]> => {
 
 		} else {
 
-			axios.get(appState.apiLocation + "eventFeatures/getSanctionTypes")
+			axios.get(appState.apiLocation + "eventFeatures/getSanctionTypes", { withCredentials: true })
 				.then((result: AxiosResponse) => {
 					appState.saveDataSanctions(result.data.response as IDerbySanction[]);
 					resolve(result.data.response);
@@ -36,7 +36,7 @@ export const getDerbyTracks = (appState: any): Promise<IDerbyTrack[]> => {
 
 		} else {
 
-			axios.get(appState.apiLocation + "eventFeatures/getTracks")
+			axios.get(appState.apiLocation + "eventFeatures/getTracks", { withCredentials: true })
 				.then((result: AxiosResponse) => {
 					appState.saveDataTracks(result.data.response as IDerbyTrack[]);
 					resolve(result.data.response);
@@ -58,7 +58,7 @@ export const getDerbyTypes = (appState: any): Promise<IDerbyType[]> => {
 
 		} else {
 
-			axios.get(appState.apiLocation + "eventFeatures/getDerbyTypes")
+			axios.get(appState.apiLocation + "eventFeatures/getDerbyTypes", { withCredentials: true })
 				.then((result: AxiosResponse) => {
 					appState.saveDataDerbyTypes(result.data.response as IDerbyType[]);
 					resolve(result.data.response);
@@ -83,7 +83,7 @@ export const getGeography = (appState: any): Promise<IGeoData> => {
 
 		} else {
 
-			axios.get(appState.apiLocation + "geography/getAllCountries")
+			axios.get(appState.apiLocation + "geography/getAllCountries", { withCredentials: true })
 				.then((result: AxiosResponse) => {
 
 					const countries: IGeoCountry[] = result.data.response;
@@ -93,7 +93,8 @@ export const getGeography = (appState: any): Promise<IGeoData> => {
 					for (let country = 0; country < countries.length; country ++) {
 						if (countries[country].country_region_type) {
 							regionPromises.push(new Promise((resolveRegions, rejectRegions) => {
-								axios.get(appState.apiLocation + "geography/getRegionsByCountry/" + countries[country].country_code)
+								axios.get(appState.apiLocation + "geography/getRegionsByCountry/" + countries[country].country_code,
+									{ withCredentials: true })
 									.then((resultRegions: AxiosResponse) => {
 										if (resultRegions.data.response.length) {
 											regions[countries[country].country_code] = resultRegions.data.response;
@@ -137,4 +138,3 @@ export const getGeography = (appState: any): Promise<IGeoData> => {
 
 	});
 };
-

@@ -44,6 +44,10 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 
 	componentDidUpdate() {
 
+		if (!this.props.loggedIn) {
+			this.props.history.push("/");
+		}
+
 		if (window.location.pathname !== this.state.path
 			|| this.props.loggedInUserId !== this.state.userId ) {
 
@@ -183,7 +187,7 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 		});
 
 		axios.get(`${this.props.apiLocation}events/search?user=${this.props.loggedInUserId}`
-			+ `&startDate=${moment().format("YYYY-MM-DD")}`)
+			+ `&startDate=${moment().format("YYYY-MM-DD")}`, { withCredentials: true })
 			.then((result: AxiosResponse) => {
 
 				const eventData = [];
@@ -216,7 +220,7 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 
 			});
 
-		axios.get(`${this.props.apiLocation}venues/getVenuesByUser/${this.props.loggedInUserId}`)
+		axios.get(`${this.props.apiLocation}venues/getVenuesByUser/${this.props.loggedInUserId}`, { withCredentials: true })
 			.then((result: AxiosResponse) => {
 
 				const venueData = [];

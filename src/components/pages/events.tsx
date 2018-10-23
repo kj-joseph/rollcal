@@ -352,9 +352,10 @@ export default class Events<Props> extends React.Component<any, any, any> {
 				this.props.saveLastSearch(
 					(this.props.match.params.startDate ? `/${this.props.match.params.startDate}` : "")
 					+ (this.props.match.params.endDate ? `/${this.props.match.params.endDate}` : "")
-					+ (saveSearchParts ? `/${saveSearchParts.join("/")}` : ""));
+					+ (saveSearchParts.length ? `/${saveSearchParts.join("/")}` : ""));
 
-				axios.get(`${this.props.apiLocation}events/search/${queryStringDates}${queryStringParts.length ? `&${queryStringParts.join("&")}` : ""}`)
+				axios.get(`${this.props.apiLocation}events/search/${queryStringDates}${queryStringParts.length ? `&${queryStringParts.join("&")}` : ""}`,
+					{ withCredentials: true })
 					.then((result: AxiosResponse) => {
 
 						const eventData = [];

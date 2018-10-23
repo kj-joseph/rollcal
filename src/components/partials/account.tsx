@@ -277,7 +277,7 @@ class Account<Props> extends React.Component<any, any, any> {
 				processing: true,
 			});
 
-			axios.put(this.props.apiLocation + "auth/updateUserAccount", {
+			axios.put(this.props.apiLocation + "user/account/update", {
 				currentPassword: this.state.accountCurrentPassword,
 				email: this.state.accountEmail !== this.state.initialAccountEmail
 					&& !!this.state.accountCurrentPassword
@@ -289,12 +289,8 @@ class Account<Props> extends React.Component<any, any, any> {
 				username: this.state.accountUsername !== this.state.initialAccountUsername
 					? this.state.accountUsername : "",
 				},
-				{
-					headers: {
-						Authorization: `Bearer ${sessionStorage.rollCalToken}`,
-					},
-
-			}).then((result: AxiosResponse) => {
+				{ withCredentials: true })
+			.then((result: AxiosResponse) => {
 
 				if (result.data.response.validationCode) {
 
@@ -305,17 +301,12 @@ class Account<Props> extends React.Component<any, any, any> {
 
 					this.clearState();
 
-					sessionStorage.setItem("rollCalUserId", result.data.response.id);
-					sessionStorage.setItem("rollCalUserName", result.data.response.username);
-					sessionStorage.setItem("rollCalUserPermissions", result.data.response.permissions);
-					sessionStorage.setItem("rollCalToken", result.data.response.token);
-
 					this.props.setUserInfo({
 						loggedIn: true,
 						userEmail: result.data.response.email,
 						userId: result.data.response.id,
 						userName: result.data.response.username,
-						userPermissions: result.data.response.permissions.split(","),
+						userRoles: result.data.response.roles,
 					});
 
 					this.closeAccountModal();

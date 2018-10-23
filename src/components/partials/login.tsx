@@ -9,7 +9,7 @@ import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } fr
 import CloseIcon from "images/times-circle.svg";
 import ReactSVG from "react-svg";
 
-import * as auth from "components/lib/auth";
+// import * as auth from "components/lib/auth";
 
 class Login<Props> extends React.Component<any, any, any> {
 
@@ -44,11 +44,11 @@ class Login<Props> extends React.Component<any, any, any> {
 
 		if (window.location.pathname !== this.state.path) {
 
-			auth.checkLoginStatus(this.props);
-
 			this.setState({
 				path: window.location.pathname,
 			});
+
+			// auth.checkLoginStatus(this.props);
 
 		}
 	}
@@ -269,22 +269,18 @@ class Login<Props> extends React.Component<any, any, any> {
 			loading: true,
 		});
 
-		axios.post(this.props.apiLocation + "auth/login", {
+		axios.post(this.props.apiLocation + "user/login", {
 			email: this.state.loginEmail,
 			password: this.state.loginPassword,
-		}).then((result: AxiosResponse) => {
-
-			sessionStorage.setItem("rollCalUserId", result.data.response.id);
-			sessionStorage.setItem("rollCalUserName", result.data.response.username);
-			sessionStorage.setItem("rollCalUserPermissions", result.data.response.permissions);
-			sessionStorage.setItem("rollCalToken", result.data.response.token);
+		}, { withCredentials: true })
+		.then((result: AxiosResponse) => {
 
 			this.props.setUserInfo({
 				loggedIn: true,
-				loggedInUserEmail: result.data.response.email,
-				loggedInUserId: result.data.response.id,
-				loggedInUserName: result.data.response.username,
-				loggedInUserPermissions: result.data.response.permissions.split(","),
+				userEmail: result.data.response.email,
+				userId: result.data.response.id,
+				userName: result.data.response.username,
+				userRoles: result.data.response.roles,
 			});
 
 			this.changeStatusClearState("login");
@@ -308,9 +304,10 @@ class Login<Props> extends React.Component<any, any, any> {
 			loading: true,
 		});
 
-		axios.post(this.props.apiLocation + "auth/register/checkEmail", {
+		axios.post(this.props.apiLocation + "user/register/checkEmail", {
 			email: this.state.registerEmail,
-		}).then((result: AxiosResponse) => {
+		}, { withCredentials: true })
+			.then((result: AxiosResponse) => {
 				if (result.data.response) {
 
 					this.setState({
@@ -320,12 +317,12 @@ class Login<Props> extends React.Component<any, any, any> {
 
 				} else {
 
-					axios.post(this.props.apiLocation + "auth/register", {
+					axios.post(this.props.apiLocation + "user/register", {
 						email: this.state.registerEmail,
 						password: this.state.registerPassword,
 						username: this.state.registerUsername,
-
-						}).then((registerResult: AxiosResponse) => {
+						}, { withCredentials: true })
+						.then((registerResult: AxiosResponse) => {
 
 							this.changeStatusClearState("regComplete");
 
