@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 import { IDBDerbyEvent, IDerbyEvent, IDerbyEventDayFormatted, IDerbyIcon, IDerbyIcons } from "components/interfaces";
 
@@ -49,9 +50,19 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 			<div>
 				{this.props.match.params.eventId && !this.state.dataError ?
 				<div>
-					<p className="backToSearch" onClick={this.props.history.goBack}>
-						&laquo; Back to search results
-					</p>
+					{this.props.lastSearch ?
+						<p className="backToSearch">
+							<Link to={`${this.props.lastSearch}`}>
+								&laquo; Back to search results
+							</Link>
+						</p>
+					:
+						<p className="backToSearch">
+							<Link to={"/"}>
+								&laquo; Back to event list
+							</Link>
+						</p>
+					}
 					{this.state.loading ?
 						<div className="loader" />
 					: ""
@@ -118,7 +129,9 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 										<dl>
 										{this.state.eventData[0].days.map((day: IDerbyEventDayFormatted) => (
 											<React.Fragment key={day.date}>
-												<dt><strong>{day.date}:</strong>{day.startTime}</dt>
+												<dt><strong>{day.date}:</strong>{day.startTime}
+													{day.doorsTime ? ` (Doors: ${day.doorsTime})` : "" }
+												</dt>
 												<dd>{day.description}</dd>
 											</React.Fragment>
 										))}
@@ -126,7 +139,11 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 									</div>
 									:
 									<div className="eventTime">
-										<p><strong>Start time:</strong> {this.state.eventData[0].days[0].startTime}</p>
+										<p>
+											<strong>Start time:</strong> {this.state.eventData[0].days[0].startTime}
+											{this.state.eventData[0].days[0].doorsTime
+												? ` (Doors: ${this.state.eventData[0].days[0].doorsTime})` : "" }
+										</p>
 									</div>
 								}
 
@@ -166,6 +183,10 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 					const day: IDerbyEventDayFormatted = {
 						date: moment.utc(eventResult.days[d].eventday_start_venue).format("MMM D"),
 						description: eventResult.days[d].eventday_description,
+						doorsTime: eventResult.days[d].eventday_doors_venue
+							&& eventResult.days[d].eventday_doors_venue < eventResult.days[d].eventday_start_venue
+							? moment.utc(eventResult.days[d].eventday_doors_venue).format("h:mm a")
+							: "",
 						startTime: moment.utc(eventResult.days[d].eventday_start_venue).format("h:mm a"),
 					};
 					eventDays.push(day);
