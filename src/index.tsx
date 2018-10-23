@@ -69,107 +69,107 @@ class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
 
 			<BrowserRouter>
 
-						<div id="pageWrapper" className={typeof(process.env.ENV) !== "undefined" ? `env-${process.env.ENV}` : ""}>
-							<div id="siteHeader">
-								<ReactSVG id="siteLogo" src={HeaderLogo} />
-								<div id="siteMenuHeader">
-									<SiteMenuComponent />
-								</div>
-								<div id="loginUserIconMobile">
-								{this.props.loggedIn ?
-									<NavLink to="/dashboard" title="Dashboard" activeClassName="activeIcon">
-										<ReactSVG src={LoginIconSolid} />
-									</NavLink>
-								:
-									<a href="" onClick={this.openLoginModal} title="Login / Register">
-										<ReactSVG src={LoginIconOutline} />
-									</a>
-								}
-								</div>
-							</div>
-							<div id="siteMenuMobile">
-								<SiteMenuComponent />
-							</div>
-
-							{ this.state.sessionChecked || 1 ?
-								<div id="content">
-									<Switch>
-										<Route path="/validate/:validationCode" component={ValidatePage} exact={true} />
-										<Route path="/event/:eventId?" component={EventDetailsPage} exact={true} />
-										<Route path="/dashboard/event/:param1?/:param2?" component={EventFormPage} exact={true} />
-										<Route path="/dashboard" component={DashboardPage} exact={true} />
-										<Route path="/search" component={SearchPage} exact={true} />
-										<Route path="/faq" component={FaqPage} exact={true} />
-										<Route
-											path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:endDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(locations.*)"
-											component={EventsPage}
-										/>
-										<Route
-											path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:endDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(derbytypes.*)"
-											component={EventsPage}
-										/>
-										<Route
-											path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:endDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(sanctions.*)"
-											component={EventsPage}
-										/>
-										<Route
-											path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:endDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(tracks.*)"
-											component={EventsPage}
-										/>
-										<Route
-											path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:endDate([0-9]{4}-[0-9]{2}-[0-9]{2})/"
-											component={EventsPage}
-										/>
-										<Route
-											path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(locations.*)"
-											component={EventsPage}
-										/>
-										<Route
-											path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(derbytypes.*)"
-											component={EventsPage}
-										/>
-										<Route
-											path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(sanctions.*)"
-											component={EventsPage}
-										/>
-										<Route
-											path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(tracks.*)"
-											component={EventsPage}
-										/>
-										<Route
-											path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/"
-											component={EventsPage}
-										/>
-										<Route
-											path="/:param1(locations.*)"
-											component={EventsPage}
-										/>
-										<Route
-											path="/:param1(derbytypes.*)"
-											component={EventsPage}
-										/>
-										<Route
-											path="/:param1(sanctions.*)"
-											component={EventsPage}
-										/>
-										<Route
-											path="/:param1(tracks.*)"
-											component={EventsPage}
-										/>
-										<Route path="/" component={EventsPage} exact={true} />
-										<Route component={NotFoundPage} />
-									</Switch>
-								</div>
-							:
-
-								<div className="loader" />
-
-							}
-
-							<LoginModal />
-							<AccountModal />
-
+				<div id="pageWrapper" className={typeof(process.env.ENV) !== "undefined" ? `env-${process.env.ENV}` : ""}>
+					<div id="siteHeader">
+						<ReactSVG id="siteLogo" src={HeaderLogo} />
+						<div id="siteMenuHeader">
+							<SiteMenuComponent />
 						</div>
+						<div id="loginUserIconMobile">
+						{this.props.loggedIn ?
+							<NavLink to="/dashboard" title="Dashboard" activeClassName="activeIcon">
+								<ReactSVG src={LoginIconSolid} />
+							</NavLink>
+						:
+							<a href="" onClick={this.openLoginModal} title="Login / Register">
+								<ReactSVG src={LoginIconOutline} />
+							</a>
+						}
+						</div>
+					</div>
+					<div id="siteMenuMobile">
+						<SiteMenuComponent />
+					</div>
+
+					<div id="content">
+						{ this.state.sessionChecked ?
+							<Switch>
+								<Route path="/validate/:validationCode" component={ValidatePage} exact={true} />
+								<Route path="/event/:eventId?" component={EventDetailsPage} exact={true} />
+								<Route path="/dashboard/event/:param1?/:param2?" component={EventFormPage} exact={true} />
+								<Route path="/dashboard" component={DashboardPage} exact={true} />
+								<Route path="/search" component={SearchPage} exact={true} />
+								<Route path="/faq" component={FaqPage} exact={true} />
+								<Route
+									path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:endDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(locations.*)"
+									component={EventsPage}
+								/>
+								<Route
+									path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:endDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(derbytypes.*)"
+									component={EventsPage}
+								/>
+								<Route
+									path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:endDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(sanctions.*)"
+									component={EventsPage}
+								/>
+								<Route
+									path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:endDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(tracks.*)"
+									component={EventsPage}
+								/>
+								<Route
+									path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:endDate([0-9]{4}-[0-9]{2}-[0-9]{2})/"
+									component={EventsPage}
+								/>
+								<Route
+									path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(locations.*)"
+									component={EventsPage}
+								/>
+								<Route
+									path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(derbytypes.*)"
+									component={EventsPage}
+								/>
+								<Route
+									path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(sanctions.*)"
+									component={EventsPage}
+								/>
+								<Route
+									path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(tracks.*)"
+									component={EventsPage}
+								/>
+								<Route
+									path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/"
+									component={EventsPage}
+								/>
+								<Route
+									path="/:param1(locations.*)"
+									component={EventsPage}
+								/>
+								<Route
+									path="/:param1(derbytypes.*)"
+									component={EventsPage}
+								/>
+								<Route
+									path="/:param1(sanctions.*)"
+									component={EventsPage}
+								/>
+								<Route
+									path="/:param1(tracks.*)"
+									component={EventsPage}
+								/>
+								<Route path="/" component={EventsPage} exact={true} />
+								<Route component={NotFoundPage} />
+							</Switch>
+						:
+
+							<div className="loader" />
+
+						}
+					</div>
+
+					<LoginModal />
+					<AccountModal />
+
+				</div>
 
 
 			 </BrowserRouter>
