@@ -163,7 +163,7 @@ router.post("/register/checkEmail", upload.array(), (req: Request, res: Response
 
 });
 
-router.put("/account/udpate", checkSession("user"), upload.array(), (req: IRequestWithSession, res: Response) => {
+router.put("/account/update", checkSession("user"), upload.array(), (req: IRequestWithSession, res: Response) => {
 
 	const changes = [] as string[];
 	let error = false;
