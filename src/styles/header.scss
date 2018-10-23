@@ -1,6 +1,5 @@
 $headerHeightDesktop: 80px;
 $headerHeightMobile: 65px;
-$menuDrawerHeight: 450px;
 
 #siteHeader {
 	display: flex;
@@ -13,6 +12,7 @@ $menuDrawerHeight: 450px;
 	height: $headerHeightMobile;
 	color: $black;
 	background: $white;
+	border-bottom: 5px solid $pink;
 
 	#siteLogo {
 		margin: 10px 5px 10px 10px;
@@ -26,7 +26,7 @@ $menuDrawerHeight: 450px;
 		display: none;
 	}
 
-	#loginMenuIconMobile {
+	#loginUserIconMobile {
 
 		margin: 13px 10px 0 0;
 
@@ -55,58 +55,49 @@ $menuDrawerHeight: 450px;
 
 }
 
-#siteMenuDrawer {
+#siteMenuMobile {
 	position: fixed;
-	bottom: -$headerHeightMobile;
+	bottom: 0;
 	left: 0;
 	z-index: 450;
 	width: 100%;
-	height: 450px;
+	height: 60px;
+	padding-top: 2px;
 	background: $white;
-	border-bottom: 20px solid $pink;
-
-	.openDrawerIcon {
-		position: absolute;
-		left: 0;
-		width: 100%;
-		bottom: -10px;
-		z-index: 475;
-
-		svg {
-			display: block;
-			width: 30px;
-			height: 20px;
-			margin: 0 auto;
-
-		}
-
-		&:hover {
-			cursor: pointer;
-		}
-	}
-
-	&.drawerOpen {
-		top: $headerHeightMobile;
-		transition: all .5s ease-out;
-	}
-
-	&.drawerClosed {
-		top: calc(-#{$menuDrawerHeight} + #{$headerHeightMobile});
-		transition: all .4s ease-in;
-	}
 
 	.siteMenu {
-		padding: 20px 0 20px;
-		margin: 10px;
+		padding-top: 3px;
+		border-top: 5px solid $pink;
 
 		ul {
+			display: flex;
+			flex-basis: 0;
+
 
 			li {
-				font-size: 2.8rem;
+				flex-grow: 1;
+				font-size: 1rem;
 				font-weight: bold;
 				text-align: center;
 				vertical-align: middle;
-				margin: 0 0 1em 0;
+				display: inline;
+				margin: 0 10px;
+
+				.mobileNavIcon {
+
+					div {
+						display: inline;
+
+						svg {
+							font-weight: normal;
+							fill: $blue;
+							height: 25px;
+							margin: 5px 0;
+						}
+
+					}
+
+				}
 
 				&.desktopOnly {
 					display: none;
@@ -115,6 +106,14 @@ $menuDrawerHeight: 450px;
 				a {
 					text-decoration: none;
 
+					&:hover svg,
+					&.active svg {
+						fill: $pink;
+					}
+
+					&.active {
+						color: $pink;
+					}
 				}
 
 			}
@@ -131,7 +130,7 @@ $menuDrawerHeight: 450px;
 
 @include respond-to("small") {
 
-	#siteMenuDrawer {
+	#siteMenuMobile {
 		display: none;
 	}
 
@@ -159,6 +158,10 @@ $menuDrawerHeight: 450px;
 
 				&.desktopOnly {
 					display: inline;
+				}
+
+				.mobileNavIcon {
+					display: none;
 				}
 
 				a {
@@ -197,7 +200,7 @@ $menuDrawerHeight: 450px;
 
 	}
 
-	#loginMenuIconMobile {
+	#loginUserIconMobile {
 		display: none;
 	}
 

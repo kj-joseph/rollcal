@@ -28,10 +28,13 @@ html {
 		background: $white;
 
 		#content {
-			padding-top: 85px;
+			padding: 70px 0;
 		}
 	}
 
+	&.noscroll {
+		overflow: hidden;
+	}
 }
 
 @include respond-to("xsmall") {
@@ -49,13 +52,12 @@ html {
 			border-bottom: 50px solid $blue;
 
 			#content {
-				padding-top: 90px;
+				padding: 90px 0 0;
 			}
 		}
 
 		&.noscroll {
 			width: calc(100% - 100px);
-			height: 100%;
 			overflow: hidden;
 		}
 

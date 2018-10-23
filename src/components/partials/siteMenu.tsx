@@ -1,9 +1,14 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 
-import LoginIconSolid from "images/menu/user-circle-solid.svg";
-import LoginIconOutline from "images/menu/user-circle.svg";
 import ReactSVG from "react-svg";
+
+import ContactIcon from "images/menu/at.svg";
+import EventsIcon from "images/menu/calendar-alt.svg";
+import FaqIcon from "images/menu/question.svg";
+import LoginIconOutline from "images/menu/user-circle.svg";
+import LoginIconSolid from "images/menu/user-circle-solid.svg";
+import SearchIcon from "images/menu/search.svg";
 
 import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
 
@@ -55,22 +60,42 @@ export default class SiteMenu<Props> extends React.Component<any, any, any> {
 					<ul>
 						<li>
 							<NavLink to="/" title="Upcoming Events" activeClassName="active" isActive={this.isEventsCurrentPage.bind(this)}>
-								Events
+								<ReactSVG
+									className="mobileNavIcon"
+									title="Events"
+									src={EventsIcon}
+								/>
+								<span className="navLabel">Events</span>
 							</NavLink>
 						</li>
 						<li>
 							<NavLink to="/search" title="Search Events" activeClassName="active">
-								Search
+								<ReactSVG
+									className="mobileNavIcon"
+									title="Search"
+									src={SearchIcon}
+								/>
+								<span className="navLabel">Search</span>
 							</NavLink>
 						</li>
 						<li>
 							<NavLink to="/faq" title="Frequently Asked Questions" activeClassName="active">
-								FAQ
+								<ReactSVG
+									className="mobileNavIcon"
+									title="FAQ"
+									src={FaqIcon}
+								/>
+								<span className="navLabel">FAQ</span>
 							</NavLink>
 						</li>
 						<li>
 							<NavLink to="/contact" title="Contact Roll-Cal" activeClassName="active">
-								Contact
+								<ReactSVG
+									className="mobileNavIcon"
+									title="Contact"
+									src={ContactIcon}
+								/>
+								<span className="navLabel">Contact</span>
 							</NavLink>
 						</li>
 						<li className="desktopOnly">

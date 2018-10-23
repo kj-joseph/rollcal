@@ -16,7 +16,6 @@ const initialState = {
 	loggedInUserName: "",
 	loggedInUserRoles: null as string[],
 	loginModalOpen: false,
-	menuDrawerOpen: false,
 	page: "home",
 };
 
@@ -79,11 +78,6 @@ const rootReducer = (state = initialState, action: IReduxActionType) => {
 			} else {
 				document.getElementsByTagName("html")[0].classList.remove("noscroll");
 			}
-			return newState;
-			break;
-
-		case "SET_MOBILE_MENU_STATE":
-			newState.menuDrawerOpen = action.payload;
 			return newState;
 			break;
 

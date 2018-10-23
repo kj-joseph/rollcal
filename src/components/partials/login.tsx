@@ -286,7 +286,6 @@ class Login<Props> extends React.Component<any, any, any> {
 			this.changeStatusClearState("login");
 
 			this.props.setLoginModalState(false);
-			this.props.setMobileMenuState(false);
 
 		}).catch((error: AxiosError) => {
 			console.error(error);

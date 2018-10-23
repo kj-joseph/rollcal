@@ -38,7 +38,6 @@ export default class Events<Props> extends React.Component<any, any, any> {
 
 	componentDidMount() {
 		window.scrollTo(0, 0);
-		this.props.setMobileMenuState(false);
 	}
 
 	componentDidUpdate() {
@@ -402,7 +401,7 @@ export default class Events<Props> extends React.Component<any, any, any> {
 								host: eventResult.event_name ? eventResult.event_host : null,
 								icons,
 								id: eventResult.event_id,
-								location: `${eventResult.venue_city} ${eventResult.region_abbreviation ? ", " + eventResult.region_abbreviation : ""}, ${eventResult.country_code}`,
+								location: `${eventResult.venue_city}${eventResult.region_abbreviation ? ", " + eventResult.region_abbreviation : ""}, ${eventResult.country_code}`,
 								multiDay: eventResult.days.length > 1,
 								name: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
 								user: eventResult.user_name,

@@ -42,11 +42,6 @@ export default {
 		type: "SET_LOGIN_MODAL_STATE",
 	}),
 
-	setMobileMenuState: (menuState: boolean): IReduxActionType => ({
-		payload: menuState,
-		type: "SET_MOBILE_MENU_STATE",
-	}),
-
 	setUserInfo: (userInfo: IUserInfo): IReduxActionType => ({
 		payload: userInfo,
 		type: "SET_USER_INFO",
