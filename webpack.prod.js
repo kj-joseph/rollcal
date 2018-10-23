@@ -13,7 +13,8 @@ module.exports = merge(common, {
 
 	plugins: [
 		new webpack.DefinePlugin({
-			"API_PORT": JSON.stringify('55002')
+			"API_PORT": JSON.stringify("55002"),
+			"process.env.ROLLCAL_ALLOW_ORIGIN": JSON.stringify("https://www.roll-cal.com")
 		}),
 	],
 

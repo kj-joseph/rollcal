@@ -1,4 +1,6 @@
 import express, { Request, Response, Router } from "express";
+import mysqlSession from "express-mysql-session";
+const session = require("express-session");
 
 import bodyParser from "body-parser";
 import cors from "cors";
@@ -6,24 +8,27 @@ import cors from "cors";
 const logger = require("morgan");
 const path = require("path");
 
-import exjwt from "express-jwt";
-import jperm from "express-jwt-permissions";
-
-import authRouter from "routes/auth";
 import eventFeaturesRouter from "routes/eventFeatures";
 import eventsRouter from "routes/events";
 import geographyRouter from "routes/geography";
+import userRouter from "routes/user";
 import venuesRouter from "routes/venues";
 
 import { createPool } from "mysql";
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+	credentials: true,
+	origin: true,
+}));
 
-app.use((req, res, next) => {
-	res.header("Access-Control-Allow-Origin", "*");
-	res.header("Access-Control-Allow-Headers", "Content-type, Authorization");
+app.disable("x-powered-by");
+
+app.use((req: Request, res: Response, next: any) => {
+	res.header("Access-Control-Allow-Credentials", "true");
+	res.header("Access-Control-Allow-Origin", process.env.ROLLCAL_ALLOW_ORIGIN);
+	res.header("Access-Control-Allow-Headers", "Content-Type");
 	next();
 });
 
@@ -35,46 +40,42 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use(logger("dev"));
 
+const dbPool = createPool({
+	connectionLimit: 50,
+	database: process.env.ROLLCAL_DB_DATABASE,
+	host: process.env.ROLLCAL_DB_HOST,
+	password: process.env.ROLLCAL_DB_PASSWORD,
+	timezone: "utc",
+	user: process.env.ROLLCAL_DB_USER,
+});
+
 app.use((req: Request, res: Response, next: any) => {
 	res.locals.connection = createPool({
-		connectionLimit: 50,
-		database: process.env.ROLLCAL_DB_DATABASE,
-		host: process.env.ROLLCAL_DB_HOST,
-		password: process.env.ROLLCAL_DB_PASSWORD,
-		timezone: "utc",
-		user: process.env.ROLLCAL_DB_USER,
-	});
+	connectionLimit: 50,
+	database: process.env.ROLLCAL_DB_DATABASE,
+	host: process.env.ROLLCAL_DB_HOST,
+	password: process.env.ROLLCAL_DB_PASSWORD,
+	timezone: "utc",
+	user: process.env.ROLLCAL_DB_USER,
+});
 	next();
 });
 
-const jwtMN = exjwt({ secret: process.env.ROLLCAL_API_SECRET });
-app.use(jwtMN.unless({path: [
-	"/auth/login",
-	"/auth/validateAccount",
-	/^\/eventFeatures/,
-	/^\/events/,
-	/^\/geography/,
-	/^\/auth\/register/,
-	/^\/venues/,
-]}));
+const mysqlStore = mysqlSession(session);
+const sessionStore = new mysqlStore({}, dbPool);
 
-app.use("/auth", authRouter);
+app.use(session({
+	key: "rollCalAuthCookie",
+	resave: false,
+	saveUninitialized: true,
+	secret: process.env.ROLLCAL_API_SECRET,
+	store: sessionStore,
+}));
+
 app.use("/eventFeatures", eventFeaturesRouter);
 app.use("/events", eventsRouter);
 app.use("/geography", geographyRouter);
+app.use("/user", userRouter);
 app.use("/venues", venuesRouter);
-
-app.use((err: ErrorEventHandler, req: Request, res: Response, next: any) => {
-	switch (err.name) {
-		case "UnauthorizedError":
-			res.status(401).send(err);
-			break;
-		case "permission_denied":
-			res.status(403).send(err);
-			break;
-		default:
-			next(err);
-	}
-});
 
 export default app;
