@@ -130,7 +130,7 @@ export interface IDerbyVenue {
 	description?: string;
 	id: number;
 	link?: string;
-	location?: string
+	location?: string;
 	name: string;
 	postcode: string;
 	region: string;

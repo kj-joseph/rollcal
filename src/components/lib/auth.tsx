@@ -2,71 +2,48 @@ import React from "react";
 
 import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
 
-export const checkLoginStatus = (appState: any): Promise<boolean> => {
+export const checkLoginStatus = (appState: any): Promise<void> => {
 
-	if (sessionStorage.rollCalUserId
-		&& sessionStorage.rollCalUserName
-		&& sessionStorage.rollCalUserPermissions
-		&& sessionStorage.rollCalToken) {
-
-		return axios.post(appState.apiLocation + "auth/checkToken",
-			{
-				id: sessionStorage.rollCalUserId,
-				permissions: sessionStorage.rollCalUserPermissions,
-				username: sessionStorage.rollCalUserName,
-			},
-			{
-				headers: {
-					Authorization: `Bearer ${sessionStorage.rollCalToken}`,
-				},
-
-		}).then((result: AxiosResponse) => {
+	return axios.post(appState.apiLocation + "user/getSession", {}, { withCredentials: true })
+		.then((result: AxiosResponse) => {
 
 			appState.setUserInfo({
 				loggedIn: true,
 				userEmail: result.data.email,
 				userId: result.data.id,
 				userName: result.data.username,
-				userPermissions: result.data.permissions.split(","),
+				userRoles: result.data.roles,
 			});
-
-			return true;
 
 		}).catch((error: AxiosError) => {
 
-			logout(appState);
-
-			return false;
+			// Not logged in and that's ok.
 
 		});
 
-	} else {
-
-			logout(appState);
-
-			return new Promise(() => false);
-
-	}
-
 };
 
-export const logout = (appState: any, event?: React.MouseEvent<any>): void => {
+export const logout = (appState: any, event?: React.MouseEvent<any>): Promise<void> => {
 
 	if (event) {
 		event.preventDefault();
 	}
 
-	sessionStorage.removeItem("rollCalUserId");
-	sessionStorage.removeItem("rollCalUserName");
-	sessionStorage.removeItem("rollCalUserPermissions");
-	sessionStorage.removeItem("rollCalToken");
+	return axios.get(appState.apiLocation + "user/logout", { withCredentials: true })
+		.then((result: AxiosResponse) => {
 
-	appState.clearUserInfo();
+			appState.clearUserInfo();
 
-	if (window.location.pathname.match(/^\/dashboard/)) {
+			if (window.location.pathname.match(/^\/dashboard/)) {
 
-		appState.history.push("/");
+				appState.history.push("/");
 
-	}
+			}
+
+		}).catch((error: AxiosError) => {
+
+			console.error(error);
+
+		});
 
 };

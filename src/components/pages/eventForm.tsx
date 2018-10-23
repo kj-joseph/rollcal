@@ -96,7 +96,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 			loading: true,
 		});
 
-		axios.get(`${this.props.apiLocation}events/search/`)
+		axios.get(`${this.props.apiLocation}events/search/`, { withCredentials: true })
 			.then((result: AxiosResponse) => {
 
 				const eventData = [];

@@ -14,7 +14,7 @@ const initialState = {
 	loggedInUserEmail: "",
 	loggedInUserId: "",
 	loggedInUserName: "",
-	loggedInUserPermissions: null as string[],
+	loggedInUserRoles: null as string[],
 	loginModalOpen: false,
 	menuDrawerOpen: false,
 	page: "home",
@@ -31,7 +31,7 @@ const rootReducer = (state = initialState, action: IReduxActionType) => {
 			newState.loggedInUserEmail = "",
 			newState.loggedInUserId = "";
 			newState.loggedInUserName = "";
-			newState.loggedInUserPermissions = null;
+			newState.loggedInUserRoles = null;
 			return newState;
 			break;
 
@@ -92,7 +92,7 @@ const rootReducer = (state = initialState, action: IReduxActionType) => {
 			newState.loggedInUserEmail = action.payload.userEmail;
 			newState.loggedInUserId = action.payload.userId;
 			newState.loggedInUserName = action.payload.userName;
-			newState.loggedInUserPermissions = action.payload.userPermissions;
+			newState.loggedInUserRoles = action.payload.userRoles;
 
 			return newState;
 			break;
