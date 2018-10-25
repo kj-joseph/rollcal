@@ -38,10 +38,6 @@ class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
 	constructor(props: Props) {
 		super(props);
 
-		this.state = {
-			sessionChecked: false,
-		};
-
 		this.openLoginModal = this.openLoginModal.bind(this);
 
 	}
@@ -97,8 +93,8 @@ class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
 							<Switch>
 								<Route path="/validate/:validationCode" component={ValidatePage} exact={true} />
 								<Route path="/event/:eventId?" component={EventDetailsPage} exact={true} />
-								<Route path="/dashboard/event/:param1?/:param2?" component={EventFormPage} exact={true} />
-								<Route path="/dashboard" component={DashboardPage} exact={true} />
+								<Route path="/dashboard/event/:func(add|edit)/:id(\d+)?" component={EventFormPage} exact={true} />
+								<Route path="/dashboard/:func(events|venues|changes|users)?" component={DashboardPage} exact={true} />
 								<Route path="/search" component={SearchPage} exact={true} />
 								<Route path="/faq" component={FaqPage} exact={true} />
 								<Route path="/contact" component={ContactPage} exact={true} />
