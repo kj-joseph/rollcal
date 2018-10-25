@@ -24,8 +24,11 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 		this.state = {
 			eventData: [],
 			loading: false,
-			pageFunction: this.props.match.params.param1 === "add" ? "Add New Event" :
-				this.props.match.params.param1.match(/[0-9]+/) && this.props.match.params.param2 === "edit" ? "Edit Event" : "Error",
+			pageFunction: this.props.match.params.function === "add" ? "Add New Event" :
+				this.props.match.params.function === "edit"
+					&& this.props.match.params.id
+					&& this.props.match.params.id.match(/[0-9]+/)
+					? "Edit Event" : "Error",
 			path: "",
 		};
 

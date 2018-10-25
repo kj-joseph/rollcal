@@ -87,11 +87,17 @@ export default class SiteMenu<Props> extends React.Component<any, any, any> {
 						<li className="desktopOnly">
 							{this.props.loggedIn ?
 								<NavLink to="/dashboard" title="Dashboard" activeClassName="activeIcon">
-									<ReactSVG src={LoginIconSolid} />
+									<ReactSVG
+										className={this.props.sessionInitialized ? "" : "hidden"}
+										src={LoginIconSolid}
+									/>
 								</NavLink>
 							:
 								<a href="" onClick={this.openLoginModal} title="Login / Register">
-									<ReactSVG src={LoginIconOutline} />
+									<ReactSVG
+										className={this.props.sessionInitialized ? "" : "hidden"}
+										src={LoginIconOutline}
+									/>
 								</a>
 							}
 						</li>

@@ -36,13 +36,18 @@ $headerHeightMobile: 65px;
 
 			div {
 
-				display: inline;
+				display: inline-block;
 
 			}
 
 			svg {
 				vertical-align: middle;
-				height: 40px;
+				width: 40px;
+
+				.hidden & {
+					opacity: 0;
+				}
+
 			}
 
 					&.activeIcon svg {
@@ -138,7 +143,7 @@ $headerHeightMobile: 65px;
 		left: 50px;
 		width: calc(100% - 100px);
 		height: $headerHeightDesktop;
-		border-bottom: 20px solid $pink;
+		border-bottom: 10px solid $pink;
 
 		#siteLogo svg {
 			height: 60px;
@@ -153,11 +158,12 @@ $headerHeightMobile: 65px;
 				font-weight: bold;
 				line-height: $headerHeightDesktop;
 				vertical-align: middle;
-				display: inline;
+				display: inline-block;
 				margin: 0 10px;
 
 				&.desktopOnly {
-					display: inline;
+					display: inline-block;
+					width: 50px;
 				}
 
 				.mobileNavIcon {
@@ -172,11 +178,16 @@ $headerHeightMobile: 65px;
 
 						display: inline;
 
+						&.hidden {
+							opacity: 0;
+						}
+
 					}
 
 					svg {
 						vertical-align: middle;
-						height: 40px;
+						width: 40px;
+
 					}
 
 					&.activeIcon svg {
