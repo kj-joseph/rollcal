@@ -49,13 +49,9 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 
 		if (!this.props.loggedIn) {
 			this.props.history.push("/");
-		}
-
-		if (!this.props.match.params.func) {
+		} else if (!this.props.match.params.func) {
 			this.props.history.push("/dashboard/events");
-		}
-
-		if (window.location.pathname !== this.state.path
+		} else if (window.location.pathname !== this.state.path
 			|| this.props.loggedInUserId !== this.state.userId ) {
 
 			this.setState({
