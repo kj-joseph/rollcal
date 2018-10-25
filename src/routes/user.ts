@@ -26,8 +26,6 @@ const generateHash = (str: string) => {
 	return Math.abs(hash);
 };
 
-
-
 router.post("/getSession", upload.array(), checkSession("user"), (req: IRequestWithSession, res: Response) => {
 
 	res.status(200).json({

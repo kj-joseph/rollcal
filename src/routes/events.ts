@@ -13,7 +13,7 @@ router.get("/getEventDetails/:eventId", (req: Request, res: Response) => {
 		+ ` where event_id = ${res.locals.connection.escape(req.params.eventId)}`
 		+ " and event_approved = 1"
 		+ " and venue_id = event_venue and country_code = venue_country"
-		+ " and event_user = user_id and timezone_id = event_timezone",
+		+ " and event_user = user_id and timezone_id = venue_timezone",
 
 		(error: MysqlError, results: any) => {
 			if (error) {
@@ -127,7 +127,7 @@ router.get("/search", (req: Request, res: Response) => {
 		select: "select distinct e.*, c.*, vr.*, tz.timezone_zone, u.user_id, u.user_name",
 		where: " where event_approved = 1"
 			+ " and vr.venue_id = event_venue and country_code = vr.venue_country"
-			+ " and event_user = user_id and timezone_id = event_timezone",
+			+ " and event_user = user_id and timezone_id = venue_timezone",
 	};
 
 	if (req.query.user) {
