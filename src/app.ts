@@ -11,7 +11,6 @@ const path = require("path");
 import eventFeaturesRouter from "routes/eventFeatures";
 import eventsRouter from "routes/events";
 import geographyRouter from "routes/geography";
-import updateEventsRouter from "routes/updateEvents";
 import userRouter from "routes/user";
 import venuesRouter from "routes/venues";
 
@@ -75,7 +74,6 @@ app.use(session({
 
 app.use("/eventFeatures", eventFeaturesRouter);
 app.use("/events", eventsRouter);
-app.use("/events/update", updateEventsRouter);
 app.use("/geography", geographyRouter);
 app.use("/user", userRouter);
 app.use("/venues", venuesRouter);
