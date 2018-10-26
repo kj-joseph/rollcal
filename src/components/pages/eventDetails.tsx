@@ -1,7 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { IDBDerbyEvent, IDerbyEvent, IDerbyEventDayFormatted, IDerbyIcons } from "components/interfaces";
+import { IDBDerbyEvent, IDerbyEvent, IDerbyEventDayFormatted, IDerbyIcons,
+	IDerbySanction, IDerbyTrack, IDerbyType } from "components/interfaces";
+import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "components/lib/data";
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 
@@ -197,51 +199,83 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 					sanctions: [],
 					tracks: [],
 				};
+				const promises: Array<Promise<void>> = [];
 
-				for (let t = 0; t < eventResult.tracks.length; t ++) {
-					icons.tracks.push({
-						filename: `track-${eventResult.tracks[t].track_abbreviation}`,
-						title: eventResult.tracks[t].track_name,
-					});
-				}
-				for (let dt = 0; dt < eventResult.derbytypes.length; dt ++) {
-					icons.derbytypes.push({
-						filename: `derbytype-${eventResult.derbytypes[dt].derbytype_abbreviation}`,
-						title: eventResult.derbytypes[dt].derbytype_name,
-					});
-				}
-				for (let s = 0; s < eventResult.sanctions.length; s ++) {
-					icons.sanctions.push({
-						filename: `sanction-${eventResult.sanctions[s].sanction_abbreviation}`,
-						title: eventResult.sanctions[s].sanction_name,
-					});
+				if (eventResult.derbytypes) {
+
+					promises.push(getDerbyTypes(this.props)
+						.then((dataResponse: IDerbyType[]) => {
+							icons.derbytypes =
+								dataResponse.filter((dt: IDerbyType) =>
+									eventResult.derbytypes.split(",").indexOf(dt.derbytype_id.toString()) > -1 )
+										.map((dt: IDerbyType) => ({
+											filename: `derbytype-${dt.derbytype_abbreviation}`,
+											title: dt.derbytype_name,
+										}));
+						}));
+
 				}
 
-				this.setState({
-					eventData: [{
-						address1: eventResult.venue_address1,
-						address2: eventResult.venue_address2,
-						dates_venue: formatDateRange({
-								firstDay: moment.utc(eventResult.days[0].eventday_start_venue),
-								lastDay: moment.utc(eventResult.days[eventResult.days.length - 1].eventday_start_venue),
-							}, "long"),
-						days: eventDays,
-						event_description: eventResult.event_description,
-						event_link: eventResult.event_link,
-						flag: eventResult.country_flag ? <span title={eventResult.country_name} className={`flag-icon flag-icon-${eventResult.country_flag}`} /> : null,
-						host: eventResult.event_name ? eventResult.event_host : null,
-						icons,
-						id: eventResult.event_id,
-						location: `${eventResult.venue_city} ${eventResult.region_abbreviation ? ", " + eventResult.region_abbreviation : ""}, ${eventResult.country_code}`,
-						multiDay: eventResult.days.length > 1,
-						name: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
-						user: eventResult.user_name,
-						venue_description: eventResult.venue_description,
-						venue_link: eventResult.venue_link,
-						venue_name: eventResult.venue_name,
-					}],
-					loading: false,
+				if (eventResult.sanctions) {
+
+					promises.push(getDerbySanctions(this.props)
+						.then((dataResponse: IDerbySanction[]) => {
+							icons.sanctions =
+								dataResponse.filter((s: IDerbySanction) =>
+									eventResult.sanctions.split(",").indexOf(s.sanction_id.toString()) > -1 )
+										.map((s: IDerbySanction) => ({
+											filename: `sanction-${s.sanction_abbreviation}`,
+											title: `${s.sanction_name} (${s.sanction_abbreviation})`,
+										}));
+						}));
+
+				}
+
+				if (eventResult.tracks) {
+
+					promises.push(getDerbyTracks(this.props)
+						.then((dataResponse: IDerbyTrack[]) => {
+							icons.tracks =
+								dataResponse.filter((t: IDerbyTrack) =>
+									eventResult.tracks.split(",").indexOf(t.track_id.toString()) > -1 )
+										.map((t: IDerbyTrack) => ({
+											filename: `track-${t.track_abbreviation}`,
+											title: t.track_name,
+										}));
+						}));
+
+				}
+
+				Promise.all(promises).then(() => {
+
+					this.setState({
+						eventData: [{
+							address1: eventResult.venue_address1,
+							address2: eventResult.venue_address2,
+							dates_venue: formatDateRange({
+									firstDay: moment.utc(eventResult.days[0].eventday_start_venue),
+									lastDay: moment.utc(eventResult.days[eventResult.days.length - 1].eventday_start_venue),
+								}, "long"),
+							days: eventDays,
+							event_description: eventResult.event_description,
+							event_link: eventResult.event_link,
+							flag: eventResult.country_flag ? <span title={eventResult.country_name} className={`flag-icon flag-icon-${eventResult.country_flag}`} /> : null,
+							host: eventResult.event_name ? eventResult.event_host : null,
+							icons,
+							id: eventResult.event_id,
+							location: `${eventResult.venue_city}${eventResult.region_abbreviation ? ", " + eventResult.region_abbreviation : ""}, ${eventResult.country_name}`,
+							multiDay: eventResult.days.length > 1,
+							name: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
+							user: eventResult.user_name,
+							venue_description: eventResult.venue_description,
+							venue_link: eventResult.venue_link,
+							venue_name: eventResult.venue_name,
+						}],
+						loading: false,
+					});
+
 				});
+
 			}).catch((error: AxiosError) => {
 				console.error(error);
 

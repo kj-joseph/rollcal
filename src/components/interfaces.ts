@@ -6,7 +6,7 @@ export interface IDBDerbyEvent {
 	country_name: string;
 	country_region_type: string;
 	days: IDerbyEventDay[];
-	derbytypes: IDerbyType[];
+	derbytypes: string;
 	event_approved: number;
 	event_description?: string;
 	event_eventtype: number;
@@ -21,10 +21,10 @@ export interface IDBDerbyEvent {
 	region_country: string;
 	region_id: number;
 	region_name: string;
-	sanctions: IDerbySanction[];
+	sanctions: string;
 	timezone_id: number;
 	timezone_name: string;
-	tracks: IDerbyTrack[];
+	tracks: string;
 	user_id: number;
 	user_name: string;
 	venue_address1: string;
@@ -70,11 +70,11 @@ export interface IDerbyEventDay {
 	eventday_event: number;
 	eventday_games?: number;
 	eventday_doors: string;
-	eventday_doors_user: string;
+	eventday_doors_user?: string;
 	eventday_doors_venue: string;
 	eventday_id: number;
 	eventday_start: string;
-	eventday_start_user: string;
+	eventday_start_user?: string;
 	eventday_start_venue: string;
 }
 
