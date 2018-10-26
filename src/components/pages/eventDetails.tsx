@@ -1,9 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { IDBDerbyEvent, IDerbyEvent, IDerbyEventDayFormatted, IDerbyIcon, IDerbyIcons } from "components/interfaces";
+import { IDBDerbyEvent, IDerbyEvent, IDerbyEventDayFormatted, IDerbyIcons } from "components/interfaces";
 
-import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 
 import moment from "moment";
 
@@ -242,7 +242,7 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 					}],
 					loading: false,
 				});
-			}).catch((error) => {
+			}).catch((error: AxiosError) => {
 				console.error(error);
 
 				this.setState({

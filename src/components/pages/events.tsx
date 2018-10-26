@@ -3,11 +3,11 @@ import { NavLink } from "react-router-dom";
 
 import {
 	IDerbyEvent, IDerbyIcon, IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType,
-	IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList,
+	IGeoCountry, IGeoData, IGeoRegion,
 } from "components/interfaces";
 import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography } from "components/lib/data";
 
-import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 
 import moment from "moment";
 
@@ -177,7 +177,6 @@ export default class Events<Props> extends React.Component<any, any, any> {
 
 				switch (label) {
 					case "locations":
-						let hasValidLocation = false;
 
 						promises.push(getGeography(this.props)
 							.then((dataResponse: IGeoData) => {
@@ -192,8 +191,6 @@ export default class Events<Props> extends React.Component<any, any, any> {
 										continue;
 									} else if (regions && (!dataResponse.regions[country] || !dataResponse.regions[country].length)) {
 										continue;
-									} else {
-										hasValidLocation = true;
 									}
 
 									geoDisplay.push(
@@ -239,109 +236,109 @@ export default class Events<Props> extends React.Component<any, any, any> {
 					case "derbytypes":
 
 						promises.push(getDerbyTypes(this.props)
-								.then((dataResponse: IDerbyType[]) => {
+							.then((dataResponse: IDerbyType[]) => {
 
-									const validTypes = dataResponse
-										.filter((dt: IDerbyType) => values.split(",").indexOf(dt.derbytype_id.toString()) > -1 );
+								const validTypes = dataResponse
+									.filter((dt: IDerbyType) => values.split(",").indexOf(dt.derbytype_id.toString()) > -1 );
 
-									this.setState({
-										searchDisplayDerbyTypes: (validTypes.length === dataResponse.length ? null :
-											validTypes
-												.map((dt: IDerbyType) => dt.derbytype_name )
-												.sort()
-												.join(", "))});
+								this.setState({
+									searchDisplayDerbyTypes: (validTypes.length === dataResponse.length ? null :
+										validTypes
+											.map((dt: IDerbyType) => dt.derbytype_name )
+											.sort()
+											.join(", "))});
 
-									if (validTypes.length) {
+								if (validTypes.length) {
 
-										queryStringParts.push("derbytypes="
-											+ validTypes
-												.map((dt: IDerbyType) => dt.derbytype_id )
-												.sort()
-												.join(","));
+									queryStringParts.push("derbytypes="
+										+ validTypes
+											.map((dt: IDerbyType) => dt.derbytype_id )
+											.sort()
+											.join(","));
 
-										saveSearchParts.push("derbytypes("
-											+ validTypes
-												.map((dt: IDerbyType) => dt.derbytype_id )
-												.sort()
-												.join(",") + ")");
-									}
+									saveSearchParts.push("derbytypes("
+										+ validTypes
+											.map((dt: IDerbyType) => dt.derbytype_id )
+											.sort()
+											.join(",") + ")");
+								}
 
-								}).catch((err: ErrorEventHandler) => {
-									console.error(err);
-								}));
+							}).catch((err: ErrorEventHandler) => {
+								console.error(err);
+							}));
 
 						break;
 
 					case "sanctions":
 
 						promises.push(getDerbySanctions(this.props)
-								.then((dataResponse: IDerbySanction[]) => {
+							.then((dataResponse: IDerbySanction[]) => {
 
-									const validSanctions = dataResponse
-										.filter((s: IDerbySanction) => values.split(",").indexOf(s.sanction_id.toString()) > -1 );
+								const validSanctions = dataResponse
+									.filter((s: IDerbySanction) => values.split(",").indexOf(s.sanction_id.toString()) > -1 );
 
-									this.setState({
-										searchDisplaySanctions: (validSanctions.length === dataResponse.length ? "all" :
-											validSanctions
-												.map((s: IDerbySanction) => s.sanction_abbreviation )
-												.sort()
-												.join(", "))});
+								this.setState({
+									searchDisplaySanctions: (validSanctions.length === dataResponse.length ? "all" :
+										validSanctions
+											.map((s: IDerbySanction) => s.sanction_abbreviation )
+											.sort()
+											.join(", "))});
 
-									if (validSanctions.length) {
+								if (validSanctions.length) {
 
-										queryStringParts.push("sanctions="
-											+ validSanctions
-												.map((s: IDerbySanction) => s.sanction_id )
-												.sort()
-												.join(","));
+									queryStringParts.push("sanctions="
+										+ validSanctions
+											.map((s: IDerbySanction) => s.sanction_id )
+											.sort()
+											.join(","));
 
-										saveSearchParts.push("sanctions("
-											+ validSanctions
-												.map((s: IDerbySanction) => s.sanction_id )
-												.sort()
-												.join(",") + ")");
-									}
+									saveSearchParts.push("sanctions("
+										+ validSanctions
+											.map((s: IDerbySanction) => s.sanction_id )
+											.sort()
+											.join(",") + ")");
+								}
 
-								}).catch((err: ErrorEventHandler) => {
-									console.error(err);
-								}));
+							}).catch((err: ErrorEventHandler) => {
+								console.error(err);
+							}));
 
 						break;
 
 					case "tracks":
 
 						promises.push(getDerbyTracks(this.props)
-								.then((dataResponse: IDerbyTrack[]) => {
+							.then((dataResponse: IDerbyTrack[]) => {
 
-									const validTracks = dataResponse
-										.filter((t: IDerbyTrack) => values.split(",").indexOf(t.track_id.toString()) > -1 );
+								const validTracks = dataResponse
+									.filter((t: IDerbyTrack) => values.split(",").indexOf(t.track_id.toString()) > -1 );
 
-									this.setState({
-										searchDisplayTracks: (validTracks.length === dataResponse.length ? null :
-											validTracks
-												.map((t: IDerbyTrack) => t.track_name )
-												.sort()
-												.join(", "))});
+								this.setState({
+									searchDisplayTracks: (validTracks.length === dataResponse.length ? null :
+										validTracks
+											.map((t: IDerbyTrack) => t.track_name )
+											.sort()
+											.join(", "))});
 
-									if (validTracks.length) {
+								if (validTracks.length) {
 
-										queryStringParts.push("tracks="
-											+ validTracks
-												.map((t: IDerbyTrack) => t.track_id )
-												.sort()
-												.join(","));
+									queryStringParts.push("tracks="
+										+ validTracks
+											.map((t: IDerbyTrack) => t.track_id )
+											.sort()
+											.join(","));
 
-										saveSearchParts.push("tracks("
-											+ validTracks
-												.map((t: IDerbyTrack) => t.track_id )
-												.sort()
-												.join(",") + ")");
+									saveSearchParts.push("tracks("
+										+ validTracks
+											.map((t: IDerbyTrack) => t.track_id )
+											.sort()
+											.join(",") + ")");
 
-									}
+								}
 
-								}).catch((err: ErrorEventHandler) => {
-									console.error(err);
-								}));
+							}).catch((err: ErrorEventHandler) => {
+								console.error(err);
+							}));
 
 						break;
 

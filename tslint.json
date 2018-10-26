@@ -5,6 +5,17 @@
     ],
     "rules": {
         "indent": "tabs",
+        "jsx-alignment": true,
+        "jsx-boolean-value": true,
+        "jsx-curly-spacing": [true, "never"],
+        "jsx-equals-spacing": [true, "never"],
+        "jsx-key": true,
+        "jsx-no-bind": false,
+        "jsx-no-lambda": true,
+        "jsx-no-multiline-js": false,
+        "jsx-no-string-ref": true,
+        "jsx-self-close": true,
+        "jsx-wrap-multiline": true,
         "max-line-length": {
             "options": [160]
         },
@@ -25,18 +36,8 @@
                 "trace"
             ]
         },
-        "prefer-for-of": false,
-        "jsx-alignment": true,
-        "jsx-boolean-value": true,
-        "jsx-curly-spacing": [true, "never"],
-        "jsx-equals-spacing": [true, "never"],
-        "jsx-key": true,
-        "jsx-no-bind": false,
-        "jsx-no-lambda": true,
-        "jsx-no-multiline-js": false,
-        "jsx-no-string-ref": true,
-        "jsx-self-close": true,
-        "jsx-wrap-multiline": true
+        "no-unused-variable": true,
+        "prefer-for-of": false
     },
     "jsRules": {
         "max-line-length": {

@@ -4,7 +4,7 @@ import { withRouter } from "react-router";
 import Modal from "react-modal";
 Modal.setAppElement("#root");
 
-import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 
 import CloseIcon from "images/times-circle.svg";
 import ReactSVG from "react-svg";

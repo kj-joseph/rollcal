@@ -22,7 +22,7 @@ export default {
 		type: "SAVE_DATA_SANCTIONS",
 	}),
 
-	saveDataTracks: (data: IDerbyType[]): IReduxActionType => ({
+	saveDataTracks: (data: IDerbyTrack[]): IReduxActionType => ({
 		payload: data,
 		type: "SAVE_DATA_TRACKS",
 	}),

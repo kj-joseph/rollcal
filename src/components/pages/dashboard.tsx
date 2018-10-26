@@ -6,7 +6,7 @@ Modal.setAppElement("#root");
 
 import { IDerbyEvent, IDerbyVenue } from "components/interfaces";
 
-import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 
 import moment from "moment";
 

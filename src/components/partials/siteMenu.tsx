@@ -10,8 +10,6 @@ import SearchIcon from "images/menu/search.svg";
 import LoginIconSolid from "images/menu/user-circle-solid.svg";
 import LoginIconOutline from "images/menu/user-circle.svg";
 
-import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
-
 export default class SiteMenu<Props> extends React.Component<any, any, any> {
 
 	constructor(props: Props) {

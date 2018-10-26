@@ -3,13 +3,7 @@ import ReactSVG from "react-svg";
 
 export default class FeatureIcon<Props> extends React.Component<any, any, any> {
 
-	constructor(props: {
-		abbreviation: string,
-		alt: string,
-		className: string,
-		featureType: string,
-		title: string;
-	}) {
+	constructor(props: Props) {
 		super(props);
 
 		this.toggleIcon = this.toggleIcon.bind(this);

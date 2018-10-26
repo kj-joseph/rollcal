@@ -1,4 +1,4 @@
-import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IGeoData, IGeoRegionList, IReduxActionType } from "components/interfaces";
+import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IGeoRegionList, IReduxActionType } from "components/interfaces";
 
 const initialState = {
 	apiLocation: process.env.API_URL,
