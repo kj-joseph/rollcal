@@ -54,6 +54,7 @@ app.use((req: Request, res: Response, next: any) => {
 	connectionLimit: 50,
 	database: process.env.ROLLCAL_DB_DATABASE,
 	host: process.env.ROLLCAL_DB_HOST,
+	multipleStatements: true,
 	password: process.env.ROLLCAL_DB_PASSWORD,
 	timezone: "utc",
 	user: process.env.ROLLCAL_DB_USER,
