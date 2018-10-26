@@ -7,21 +7,18 @@ router.get("/getEventDetails/:eventId", (req: Request, res: Response) => {
 
 	const timezone = req.query.timezone || "UTC";
 
-	res.locals.connection.query("select e.*, c.*, vr.*, tz.*, u.user_id, u.user_name"
-		+ " from events e, countries c, users u, timezones tz,"
-		+ " (select * from venues left outer join regions on region_id = venue_region) as vr"
-		+ ` where event_id = ${res.locals.connection.escape(req.params.eventId)}`
-		+ " and event_approved = 1"
-		+ " and venue_id = event_venue and country_code = venue_country"
-		+ " and event_user = user_id and timezone_id = venue_timezone",
+	res.locals.connection
+		.query(`call getEventDetails(${res.locals.connection.escape(req.params.eventId)});
+			call getEventDays(${res.locals.connection.escape(req.params.eventId)})`,
 
 		(error: MysqlError, results: any) => {
+
 			if (error) {
 				res.locals.connection.end();
 				console.error(error);
 				res.status(500).send();
 
-			} else if (!results.length) {
+			} else if (!results[0].length) {
 				res.locals.connection.end();
 				res.status(200).json({
 					response: null,
@@ -29,84 +26,14 @@ router.get("/getEventDetails/:eventId", (req: Request, res: Response) => {
 
 			} else {
 
-				const eventResult = results[0];
+				const eventResult = results[0].map((row: {}) => ({...row}))[0];
 
-				const query = "select *, "
-					+ ` convert_tz(eventday_start, 'UTC', ${res.locals.connection.escape(eventResult.timezone_zone)}) as eventday_start_venue,`
-					+ ` convert_tz(eventday_start, 'UTC', ${res.locals.connection.escape(eventResult.timezone)}) as eventday_start_user,`
-					+ ` convert_tz(eventday_doors, 'UTC', ${res.locals.connection.escape(eventResult.timezone_zone)}) as eventday_doors_venue,`
-					+ ` convert_tz(eventday_doors, 'UTC', ${res.locals.connection.escape(eventResult.timezone)}) as eventday_doors_user`
-					+ ` from eventdays where eventday_event = ${res.locals.connection.escape(req.params.eventId)}`;
+				eventResult.days = results[2].map((row: {}) => ({...row}));
 
-				res.locals.connection.query(query,
-					(daysError: MysqlError, daysResults: any) => {
-						if (daysError) {
-							console.error(daysError);
-							res.status(500).send();
-
-						} else {
-
-							eventResult.days = daysResults;
-
-							res.locals.connection.query("select s.sanction_name, s.sanction_abbreviation"
-								+ " from sanctions s, event_sanctions es"
-								+ " where s.sanction_id = es.sanction"
-								+ ` and es.event = ${res.locals.connection.escape(req.params.eventId)}`
-								+ " order by sanction_name",
-								(sanctionError: MysqlError, sanctionResults: any) => {
-									if (sanctionError) {
-										res.locals.connection.end();
-										console.error(sanctionError);
-										res.status(500).send();
-
-									} else {
-
-										eventResult.sanctions = sanctionResults;
-
-										res.locals.connection.query("select dt.derbytype_name, dt.derbytype_abbreviation"
-											+ " from derbytypes dt, event_derbytypes ed"
-											+ " where dt.derbytype_id = ed.derbytype"
-											+ ` and ed.event = ${res.locals.connection.escape(req.params.eventId)}`
-											+ " order by derbytype_name",
-											(typesError: MysqlError, typesResults: any) => {
-												if (typesError) {
-													console.error(typesError);
-													res.status(500).send();
-
-												} else {
-
-													eventResult.derbytypes = typesResults;
-
-													res.locals.connection.query("select t.track_name, t.track_abbreviation"
-														+ " from tracks t, event_tracks et"
-														+ " where t.track_id = et.track"
-														+ ` and et.event = ${res.locals.connection.escape(req.params.eventId)}`
-														+ " order by track_name",
-														(tracksError: MysqlError, tracksResults: any) => {
-															if (tracksError) {
-																console.error(tracksError);
-																res.status(500).send();
-
-															} else {
-
-																eventResult.tracks = tracksResults;
-
-																res.locals.connection.end();
-																res.status(200).json({
-																	response: [eventResult],
-																});
-
-															}
-														});
-
-												}
-											});
-
-									}
-								});
-
-						}
-					});
+				res.locals.connection.end();
+				res.status(200).json({
+					response: [eventResult],
+				});
 
 			}
 		});
