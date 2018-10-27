@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
 import multer from "multer";
-import { FieldInfo, MysqlError } from "mysql";
+import { MysqlError } from "mysql";
 
 import { checkSession } from "checkSession";
 import { IRequestWithSession } from "interfaces";

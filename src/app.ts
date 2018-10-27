@@ -1,4 +1,4 @@
-import express, { Request, Response, Router } from "express";
+import express, { Request, Response } from "express";
 import mysqlSession from "express-mysql-session";
 const session = require("express-session");
 

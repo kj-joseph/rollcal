@@ -1,5 +1,5 @@
 import { Request, Response, Router } from "express";
-import { FieldInfo, MysqlError } from "mysql";
+import { MysqlError } from "mysql";
 
 const router = Router();
 
