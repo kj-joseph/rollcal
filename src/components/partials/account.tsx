@@ -7,7 +7,7 @@ Modal.setAppElement("#root");
 import CloseIcon from "images/times-circle.svg";
 import ReactSVG from "react-svg";
 
-import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 
 import * as auth from "components/lib/auth";
 

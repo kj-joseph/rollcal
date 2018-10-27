@@ -25,7 +25,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 
 		this.state = {
 			countryList: [] as IGeoCountry[],
-			countrySelectValue: null as IGeoCountry,
+			countrySelectValue: {} as IGeoCountry,
 			dateRangeDisplay: formatDateRange({
 				firstDay: moment(),
 			}),

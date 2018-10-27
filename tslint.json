@@ -36,7 +36,6 @@
                 "trace"
             ]
         },
-        "no-unused-variable": true,
         "prefer-for-of": false
     },
     "jsRules": {

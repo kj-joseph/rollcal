@@ -3,12 +3,12 @@ import React from "react";
 import Modal from "react-modal";
 Modal.setAppElement("#root");
 
-import {
+/*import {
 	IDerbyEvent, IDerbyIcon, IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType,
 	IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList,
 } from "components/interfaces";
-
-import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
+*/
+import axios, { AxiosError, AxiosResponse } from "axios";
 
 import moment from "moment";
 
