@@ -42,10 +42,8 @@ router.post("/login", upload.array(), (req: IRequestWithSession, res: Response) 
 	if (req.body.email && req.body.password) {
 
 		res.locals.connection
-			.query(`select user_id, user_email, user_roles, user_name from users
-				where user_email = ${res.locals.connection.escape(req.body.email)}
-				and user_password = sha2(${res.locals.connection.escape(req.body.password)}, 256)
-				and user_status = ${res.locals.connection.escape("active")}`,
+			.query(`call login(${res.locals.connection.escape(req.body.email)},
+				${res.locals.connection.escape(req.body.password)})`,
 			(error: MysqlError, results: any) => {
 
 				if (error) {
@@ -53,7 +51,7 @@ router.post("/login", upload.array(), (req: IRequestWithSession, res: Response) 
 					console.error(error);
 					res.status(500).send();
 
-				} else if (results.length !== 1) {
+				} else if (results[0].length !== 1) {
 					res.locals.connection.end();
 					res.status(403).json(
 						{
@@ -64,19 +62,21 @@ router.post("/login", upload.array(), (req: IRequestWithSession, res: Response) 
 
 				} else {
 
+					const loginResult = results[0].map((row: {}) => ({...row}))[0];
+
 					req.session.user = {
-						email: results[0].user_email,
-						id: results[0].user_id,
-						roles: results[0].user_roles.split(","),
-						username: results[0].user_name,
+						email: loginResult.user_email,
+						id: loginResult.user_id,
+						roles: loginResult.user_roles.split(","),
+						username: loginResult.user_name,
 					};
 
 					res.status(200).json({
 						response: {
-							email: results[0].user_email,
-							id: results[0].user_id,
-							roles: results[0].user_roles.split(","),
-							username: results[0].user_name,
+							email: loginResult.user_email,
+							id: loginResult.user_id,
+							roles: loginResult.user_roles.split(","),
+							username: loginResult.user_name,
 						},
 					});
 
@@ -106,10 +106,10 @@ router.post("/register", upload.array(), (req: Request, res: Response) => {
 	const validationCode = generateHash(req.body.username + req.body.email + new Date()).toString();
 
 	res.locals.connection
-		.query(`insert into users (user_name, user_email, user_password, user_validation_code)
-			values (${res.locals.connection.escape(req.body.username)},
+		.query(`call registerUser
+			(${res.locals.connection.escape(req.body.username)},
 			${res.locals.connection.escape(req.body.email)},
-			sha2(${res.locals.connection.escape(req.body.password)}, 256),
+			${res.locals.connection.escape(req.body.password)},
 			${res.locals.connection.escape(validationCode)})`,
 
 		(error: MysqlError, results: any) => {
