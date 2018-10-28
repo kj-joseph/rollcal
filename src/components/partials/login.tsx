@@ -303,9 +303,8 @@ class Login<Props> extends React.Component<any, any, any> {
 			loading: true,
 		});
 
-		axios.post(this.props.apiLocation + "user/register/checkEmail", {
-			email: this.state.registerEmail,
-		}, { withCredentials: true })
+		axios.get(`${this.props.apiLocation}user/register/checkEmail?email=${this.state.registerEmail}`,
+			{ withCredentials: true })
 			.then((result: AxiosResponse) => {
 				if (result.data.response) {
 
