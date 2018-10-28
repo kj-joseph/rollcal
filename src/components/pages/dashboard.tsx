@@ -235,8 +235,8 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 
 							eventData.push({
 								dates_venue: formatDateRange({
-										firstDay: moment.utc(event.days[0].eventday_start_venue),
-										lastDay: moment.utc(event.days[event.days.length - 1].eventday_start_venue),
+										firstDay: moment.utc(event.event_first_day),
+										lastDay: moment.utc(event.event_last_day),
 									}, "short"),
 								host: event.event_name ? event.event_host : null,
 								id: event.event_id,
