@@ -141,10 +141,10 @@ router.post("/register", upload.array(), (req: Request, res: Response) => {
 
 });
 
-router.post("/register/checkEmail", upload.array(), (req: Request, res: Response) => {
+router.get("/register/checkEmail", upload.array(), (req: Request, res: Response) => {
 
 	res.locals.connection
-		.query(`select user_email from users where user_email = ${res.locals.connection.escape(req.body.email)}`,
+		.query(`call checkEmail(${res.locals.connection.escape(req.query.email)})`,
 		(error: MysqlError, results: any) => {
 
 			if (error) {
@@ -152,8 +152,9 @@ router.post("/register/checkEmail", upload.array(), (req: Request, res: Response
 				res.status(500).send();
 
 			} else {
+
 				res.status(200).json({
-					response: (!!results.length),
+					response: (!!results[0].map((row: {}) => ({...row}))[0].count),
 				});
 
 			}
