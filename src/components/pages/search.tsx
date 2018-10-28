@@ -2,7 +2,7 @@ import React from "react";
 
 import { IDerbyDates, IDerbyFeatures, IDerbySanction, IDerbyTrack, IDerbyType,
 	IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList,
-} from "components/interfaces";
+	} from "components/interfaces";
 import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography } from "components/lib/data";
 
 import { DayPickerRangeController } from "react-dates";
