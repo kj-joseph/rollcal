@@ -1,55 +1,32 @@
-import axios, { AxiosError, AxiosResponse } from "axios";
+import * as nodemailer from "nodemailer";
 
-export const sendValidationEmail = (email: string, username: string, validationCode: string): Promise<boolean> => {
+const emailTransport = nodemailer.createTransport({
+	newline: "unix",
+	sendmail: true,
+});
 
-	return axios.post("https://api.emailjs.com/api/v1.0/email/send", {
-		service_id: "server",
-		template_id: "account_validation",
-		template_params: {
-			email,
-			emailEncoded: encodeURIComponent(email.replace(/\./g, "%2E")),
-			username,
-			usernameEncoded: encodeURIComponent(username.replace(/\./g, "%2E")),
- 			validationCode,
-		},
-		user_id: "user_hX0Eb4e3DRLA6dAAUMHKu",
+export const sendValidationEmail = (email: string, username: string, validationCode: string) => {
 
-	}).then((response: AxiosResponse) => {
+	const validationUrl = `http://www.roll-cal.com/validate/${validationCode}`
+	+ `||${encodeURIComponent(email.replace(/\./g, "%2E"))}`
+	+ `||${encodeURIComponent(username.replace(/\./g, "%2E"))}`;
 
-		return true;
-
-	}).catch((error: AxiosError) => {
-
-		console.error(error);
-		return false;
-
+	return emailTransport.sendMail({
+		from: "Roll-Cal.com <noreply@roll-cal.com>",
+		html: `
+		<p><img src="https://www.roll-cal.com/images/header-logo.png" alt="Roll-Cal.com" width="305" height="100" /></p>
+		<p>Hey there, ${username}!</p>
+		<p>Thanks for signing up to add events on Roll-Cal.com!  Your help creating a resource for the roller derby community is greatly appreciated.</p>
+		<p>If you meant to sign up, click the link below to validate your email:</p>
+		<p>http://www.roll-cal.com/validate/${validationUrl}</p>
+		`,
+		subject: "Validate your Roll-Cal account",
+		to: `${username} <${email}>`,
 	});
 
 };
 
-export const sendEmailChangeEmail = (email: string, username: string, validationCode: string): Promise<boolean> => {
+export const sendEmailChangeEmail = () => {};
 
-	return axios.post("https://api.emailjs.com/api/v1.0/email/send", {
-		service_id: "server",
-		template_id: "email_change",
-		template_params: {
-			email,
-			emailEncoded: encodeURIComponent(email.replace(/\./g, "%2E")),
-			username,
-			usernameEncoded: encodeURIComponent(username.replace(/\./g, "%2E")),
- 			validationCode,
-		},
-		user_id: "user_hX0Eb4e3DRLA6dAAUMHKu",
 
-	}).then((response: AxiosResponse) => {
 
-		return true;
-
-	}).catch((error: AxiosError) => {
-
-		console.error(error);
-		return false;
-
-	});
-
-};
