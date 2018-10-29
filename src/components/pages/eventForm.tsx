@@ -106,9 +106,9 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 
 				const eventData = [];
 
-				for (let e = 0; e < result.data.response.length; e ++) {
+				for (let e = 0; e < result.data.length; e ++) {
 
-					const eventResult = result.data.response[e];
+					const eventResult = result.data[e];
 
 					eventData.push({
 						dates_venue: formatDateRange({

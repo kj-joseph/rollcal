@@ -292,7 +292,7 @@ class Account<Props> extends React.Component<any, any, any> {
 				{ withCredentials: true })
 			.then((result: AxiosResponse) => {
 
-				if (result.data.response.validationCode) {
+				if (result.data.validationCode) {
 
 					this.logout();
 					this.closeAccountModal();
@@ -303,10 +303,10 @@ class Account<Props> extends React.Component<any, any, any> {
 
 					this.props.setUserInfo({
 						loggedIn: true,
-						userEmail: result.data.response.email,
-						userId: result.data.response.id,
-						userName: result.data.response.username,
-						userRoles: result.data.response.roles,
+						userEmail: result.data.email,
+						userId: result.data.id,
+						userName: result.data.username,
+						userRoles: result.data.roles,
 					});
 
 					this.closeAccountModal();

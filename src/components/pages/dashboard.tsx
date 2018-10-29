@@ -231,7 +231,7 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 
 						const eventData = [];
 
-						for (const event of result.data.response) {
+						for (const event of result.data) {
 
 							eventData.push({
 								dates_venue: formatDateRange({
@@ -268,7 +268,7 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 
 						const venueData = [];
 
-						for (const venue of result.data.response) {
+						for (const venue of result.data) {
 
 							venueData.push({
 								id: venue.venue_id,
