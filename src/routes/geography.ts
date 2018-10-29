@@ -5,8 +5,8 @@ const router = Router();
 
 router.get("/getAllCountries", (req: Request, res: Response) => {
 
-	res.locals.connection.query(
-		"select * from countries order by country_name",
+	res.locals.connection
+		.query("call getAllCountries()",
 		(error: MysqlError, results: any) => {
 
 			res.locals.connection.end();
@@ -15,17 +15,15 @@ router.get("/getAllCountries", (req: Request, res: Response) => {
 				console.error(error);
 				res.status(500).send();
 			} else {
-				res.status(200).json({
-					response: results,
-				});
+				res.status(200).json(results[0].map((row: {}) => ({...row})));
 			}
 		});
 });
 
 router.get("/getRegionsByCountry/:countryId", (req: Request, res: Response) => {
-	const query = `select * from regions where region_country = ${res.locals.connection.escape(req.params.countryId)} order by region_name`;
 
-	res.locals.connection.query(query,
+	res.locals.connection
+		.query(`call getRegionsByCountry(${res.locals.connection.escape(req.params.countryId)})`,
 		(error: MysqlError, results: any) => {
 
 			res.locals.connection.end();
@@ -35,9 +33,7 @@ router.get("/getRegionsByCountry/:countryId", (req: Request, res: Response) => {
 				res.status(500).send();
 
 			} else {
-				res.status(200).json({
-					response: results,
-				});
+				res.status(200).json(results[0].map((row: {}) => ({...row})));
 			}
 
 		});

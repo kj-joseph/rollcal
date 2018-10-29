@@ -16,22 +16,16 @@ router.get("/getEventDetails/:eventId", (req: Request, res: Response) => {
 				console.error(error);
 				res.status(500).send();
 
-			} else if (!results[0].length) {
-				res.locals.connection.end();
-				res.status(200).json({
-					response: null,
-				});
-
 			} else {
 
 				const eventResult = results[0].map((row: {}) => ({...row}))[0];
 
-				eventResult.days = results[2].map((row: {}) => ({...row}));
+				if (eventResult) {
+					eventResult.days = results[2].map((row: {}) => ({...row}));
+				}
 
 				res.locals.connection.end();
-				res.status(200).json({
-					response: [eventResult],
-				});
+				res.status(200).json(eventResult);
 
 			}
 		});
@@ -58,22 +52,12 @@ router.get("/search", (req: Request, res: Response) => {
 				console.error(eventError);
 				res.status(500).send();
 
-			} else if (!eventResults[0].length) {
-
-				res.locals.connection.end();
-
-				res.status(200).json({
-					response: [],
-				});
-
 			} else {
 
 				const result = eventResults[0].map((row: {}) => ({...row}));
 
 				res.locals.connection.end();
-				res.status(200).json({
-					response: result,
-				});
+				res.status(200).json(result);
 
 			}
 

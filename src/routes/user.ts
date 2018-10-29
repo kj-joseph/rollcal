@@ -72,12 +72,10 @@ router.post("/login", upload.array(), (req: IRequestWithSession, res: Response) 
 					};
 
 					res.status(200).json({
-						response: {
-							email: loginResult.user_email,
-							id: loginResult.user_id,
-							roles: loginResult.user_roles.split(","),
-							username: loginResult.user_name,
-						},
+						email: loginResult.user_email,
+						id: loginResult.user_id,
+						roles: loginResult.user_roles.split(","),
+						username: loginResult.user_name,
 					});
 
 				}
@@ -123,10 +121,7 @@ router.post("/register", upload.array(), (req: Request, res: Response) => {
 				email.sendValidationEmail(req.body.email, req.body.username, validationCode)
 					.then(() => {
 
-						res.status(200).json({
-							response: {
-								validationCode,
-							}});
+						res.status(200).send();
 
 					}).catch(() => {
 
@@ -153,9 +148,7 @@ router.get("/register/checkEmail", upload.array(), (req: Request, res: Response)
 
 			} else {
 
-				res.status(200).json({
-					response: (!!results[0].map((row: {}) => ({...row}))[0].count),
-				});
+				res.status(200).json(!!results[0].map((row: {}) => ({...row}))[0].count);
 
 			}
 
@@ -222,9 +215,8 @@ router.put("/account/update", checkSession("user"), upload.array(), (req: IReque
 							.then(() => {
 
 								res.status(200).json({
-									response: {
-										validationCode,
-									}});
+									validationCode,
+								});
 
 							}).catch(() => {
 
@@ -243,12 +235,10 @@ router.put("/account/update", checkSession("user"), upload.array(), (req: IReque
 						};
 
 						res.status(200).json({
-							response: {
-								email: req.body.email || req.session.user.email,
-								id: req.body.id,
-								roles: req.session.user.roles,
-								username: req.body.username || req.session.user.username,
-							},
+							email: req.body.email || req.session.user.email,
+							id: req.body.id,
+							roles: req.session.user.roles,
+							username: req.body.username || req.session.user.username,
 						});
 
 					}
@@ -269,9 +259,7 @@ router.post("/account/validate", upload.array(), (req: Request, res: Response) =
 	res.locals.connection
 		.query(`call validateUser(${res.locals.connection.escape(req.body.email)},
 			${res.locals.connection.escape(req.body.username)},
-			${res.locals.connection.escape(req.body.validationCode)},
-			@validated);
-			select @validated as validated;`,
+			${res.locals.connection.escape(req.body.validationCode)})`,
 
 		(error: MysqlError, results: any) => {
 
@@ -281,9 +269,7 @@ router.post("/account/validate", upload.array(), (req: Request, res: Response) =
 
 			} else {
 
-				const validated = results[1].map((row: {}) => ({...row}))[0].validated;
-
-				if (validated === 1) {
+				if (results[0].map((row: {}) => ({...row}))[0].validated) {
 
 					res.status(200).json({
 						validated: true,
