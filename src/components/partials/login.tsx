@@ -4,7 +4,7 @@ import { withRouter } from "react-router";
 import Modal from "react-modal";
 Modal.setAppElement("#root");
 
-import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 
 import CloseIcon from "images/times-circle.svg";
 import ReactSVG from "react-svg";
@@ -277,10 +277,10 @@ class Login<Props> extends React.Component<any, any, any> {
 
 			this.props.setUserInfo({
 				loggedIn: true,
-				userEmail: result.data.response.email,
-				userId: result.data.response.id,
-				userName: result.data.response.username,
-				userRoles: result.data.response.roles,
+				userEmail: result.data.email,
+				userId: result.data.id,
+				userName: result.data.username,
+				userRoles: result.data.roles,
 			});
 
 			this.changeStatusClearState("login");
@@ -303,11 +303,10 @@ class Login<Props> extends React.Component<any, any, any> {
 			loading: true,
 		});
 
-		axios.post(this.props.apiLocation + "user/register/checkEmail", {
-			email: this.state.registerEmail,
-		}, { withCredentials: true })
+		axios.get(`${this.props.apiLocation}user/register/checkEmail?email=${this.state.registerEmail}`,
+			{ withCredentials: true })
 			.then((result: AxiosResponse) => {
-				if (result.data.response) {
+				if (result.data) {
 
 					this.setState({
 						errorMessage: "Someone's already signed up with that email address.  Try another one.",

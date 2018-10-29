@@ -1,6 +1,6 @@
 import React from "react";
 
-import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 
 export const checkLoginStatus = (appState: any): Promise<void> => {
 

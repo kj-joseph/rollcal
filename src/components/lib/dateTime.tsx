@@ -1,5 +1,3 @@
-import moment from "moment";
-
 import { IDerbyDates } from "components/interfaces";
 
 export const formatDateRange = (dates: IDerbyDates, monthFormat: string = "short") => {

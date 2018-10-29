@@ -3,11 +3,11 @@ import { NavLink } from "react-router-dom";
 
 import {
 	IDerbyEvent, IDerbyIcon, IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType,
-	IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList,
+	IGeoCountry, IGeoData, IGeoRegion,
 } from "components/interfaces";
 import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography } from "components/lib/data";
 
-import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 
 import moment from "moment";
 
@@ -96,7 +96,7 @@ export default class Events<Props> extends React.Component<any, any, any> {
 							<li key={event.id}>
 								<p className="listDate"><strong>{event.dates_venue}</strong></p>
 								<p className="listLocation">{event.location} {event.flag}</p>
-								<h2><NavLink to={`/event/${event.id}`} title="Search Events">
+								<h2><NavLink to={`/event/${event.id}`} title="Event Details">
 									{event.name}
 								</NavLink></h2>
 								{(event.host) ?	<h3>Hosted by {event.host}</h3> : ""}
@@ -177,7 +177,6 @@ export default class Events<Props> extends React.Component<any, any, any> {
 
 				switch (label) {
 					case "locations":
-						let hasValidLocation = false;
 
 						promises.push(getGeography(this.props)
 							.then((dataResponse: IGeoData) => {
@@ -192,8 +191,6 @@ export default class Events<Props> extends React.Component<any, any, any> {
 										continue;
 									} else if (regions && (!dataResponse.regions[country] || !dataResponse.regions[country].length)) {
 										continue;
-									} else {
-										hasValidLocation = true;
 									}
 
 									geoDisplay.push(
@@ -239,109 +236,109 @@ export default class Events<Props> extends React.Component<any, any, any> {
 					case "derbytypes":
 
 						promises.push(getDerbyTypes(this.props)
-								.then((dataResponse: IDerbyType[]) => {
+							.then((dataResponse: IDerbyType[]) => {
 
-									const validTypes = dataResponse
-										.filter((dt: IDerbyType) => values.split(",").indexOf(dt.derbytype_id.toString()) > -1 );
+								const validTypes = dataResponse
+									.filter((dt: IDerbyType) => values.split(",").indexOf(dt.derbytype_id.toString()) > -1 );
 
-									this.setState({
-										searchDisplayDerbyTypes: (validTypes.length === dataResponse.length ? null :
-											validTypes
-												.map((dt: IDerbyType) => dt.derbytype_name )
-												.sort()
-												.join(", "))});
+								this.setState({
+									searchDisplayDerbyTypes: (validTypes.length === dataResponse.length ? null :
+										validTypes
+											.map((dt: IDerbyType) => dt.derbytype_name )
+											.sort()
+											.join(", "))});
 
-									if (validTypes.length) {
+								if (validTypes.length) {
 
-										queryStringParts.push("derbytypes="
-											+ validTypes
-												.map((dt: IDerbyType) => dt.derbytype_id )
-												.sort()
-												.join(","));
+									queryStringParts.push("derbytypes="
+										+ validTypes
+											.map((dt: IDerbyType) => dt.derbytype_id )
+											.sort()
+											.join(","));
 
-										saveSearchParts.push("derbytypes("
-											+ validTypes
-												.map((dt: IDerbyType) => dt.derbytype_id )
-												.sort()
-												.join(",") + ")");
-									}
+									saveSearchParts.push("derbytypes("
+										+ validTypes
+											.map((dt: IDerbyType) => dt.derbytype_id )
+											.sort()
+											.join(",") + ")");
+								}
 
-								}).catch((err: ErrorEventHandler) => {
-									console.error(err);
-								}));
+							}).catch((err: ErrorEventHandler) => {
+								console.error(err);
+							}));
 
 						break;
 
 					case "sanctions":
 
 						promises.push(getDerbySanctions(this.props)
-								.then((dataResponse: IDerbySanction[]) => {
+							.then((dataResponse: IDerbySanction[]) => {
 
-									const validSanctions = dataResponse
-										.filter((s: IDerbySanction) => values.split(",").indexOf(s.sanction_id.toString()) > -1 );
+								const validSanctions = dataResponse
+									.filter((s: IDerbySanction) => values.split(",").indexOf(s.sanction_id.toString()) > -1 );
 
-									this.setState({
-										searchDisplaySanctions: (validSanctions.length === dataResponse.length ? "all" :
-											validSanctions
-												.map((s: IDerbySanction) => s.sanction_abbreviation )
-												.sort()
-												.join(", "))});
+								this.setState({
+									searchDisplaySanctions: (validSanctions.length === dataResponse.length ? "all" :
+										validSanctions
+											.map((s: IDerbySanction) => s.sanction_abbreviation )
+											.sort()
+											.join(", "))});
 
-									if (validSanctions.length) {
+								if (validSanctions.length) {
 
-										queryStringParts.push("sanctions="
-											+ validSanctions
-												.map((s: IDerbySanction) => s.sanction_id )
-												.sort()
-												.join(","));
+									queryStringParts.push("sanctions="
+										+ validSanctions
+											.map((s: IDerbySanction) => s.sanction_id )
+											.sort()
+											.join(","));
 
-										saveSearchParts.push("sanctions("
-											+ validSanctions
-												.map((s: IDerbySanction) => s.sanction_id )
-												.sort()
-												.join(",") + ")");
-									}
+									saveSearchParts.push("sanctions("
+										+ validSanctions
+											.map((s: IDerbySanction) => s.sanction_id )
+											.sort()
+											.join(",") + ")");
+								}
 
-								}).catch((err: ErrorEventHandler) => {
-									console.error(err);
-								}));
+							}).catch((err: ErrorEventHandler) => {
+								console.error(err);
+							}));
 
 						break;
 
 					case "tracks":
 
 						promises.push(getDerbyTracks(this.props)
-								.then((dataResponse: IDerbyTrack[]) => {
+							.then((dataResponse: IDerbyTrack[]) => {
 
-									const validTracks = dataResponse
-										.filter((t: IDerbyTrack) => values.split(",").indexOf(t.track_id.toString()) > -1 );
+								const validTracks = dataResponse
+									.filter((t: IDerbyTrack) => values.split(",").indexOf(t.track_id.toString()) > -1 );
 
-									this.setState({
-										searchDisplayTracks: (validTracks.length === dataResponse.length ? null :
-											validTracks
-												.map((t: IDerbyTrack) => t.track_name )
-												.sort()
-												.join(", "))});
+								this.setState({
+									searchDisplayTracks: (validTracks.length === dataResponse.length ? null :
+										validTracks
+											.map((t: IDerbyTrack) => t.track_name )
+											.sort()
+											.join(", "))});
 
-									if (validTracks.length) {
+								if (validTracks.length) {
 
-										queryStringParts.push("tracks="
-											+ validTracks
-												.map((t: IDerbyTrack) => t.track_id )
-												.sort()
-												.join(","));
+									queryStringParts.push("tracks="
+										+ validTracks
+											.map((t: IDerbyTrack) => t.track_id )
+											.sort()
+											.join(","));
 
-										saveSearchParts.push("tracks("
-											+ validTracks
-												.map((t: IDerbyTrack) => t.track_id )
-												.sort()
-												.join(",") + ")");
+									saveSearchParts.push("tracks("
+										+ validTracks
+											.map((t: IDerbyTrack) => t.track_id )
+											.sort()
+											.join(",") + ")");
 
-									}
+								}
 
-								}).catch((err: ErrorEventHandler) => {
-									console.error(err);
-								}));
+							}).catch((err: ErrorEventHandler) => {
+								console.error(err);
+							}));
 
 						break;
 
@@ -360,64 +357,93 @@ export default class Events<Props> extends React.Component<any, any, any> {
 					{ withCredentials: true })
 					.then((result: AxiosResponse) => {
 
-						const eventData = [];
+						const eventData: IDerbyEvent[] = [];
+						const eventPromises: Array<Promise<any>> = [];
 
-						for (let e = 0; e < result.data.response.length; e ++) {
+						eventPromises.push(getDerbySanctions(this.props));
+						eventPromises.push(getDerbyTracks(this.props));
+						eventPromises.push(getDerbyTypes(this.props));
 
-							const eventResult = result.data.response[e];
+						Promise.all(eventPromises).then(() => {
 
-							const icons: IDerbyIcons = {
-								derbytypes: [],
-								sanctions: [],
-								tracks: [],
-							};
-							for (let t = 0; t < eventResult.tracks.length; t ++) {
-								icons.tracks.push({
-									filename: "track-" + eventResult.tracks[t].track_abbreviation,
-									title: eventResult.tracks[t].track_name,
+							for (let e = 0; e < result.data.length; e ++) {
+
+								const eventResult = result.data[e];
+
+								const icons: IDerbyIcons = {
+									derbytypes: [],
+									sanctions: [],
+									tracks: [],
+								};
+
+								if (eventResult.derbytypes) {
+
+									icons.derbytypes =
+										this.props.dataDerbyTypes.filter((dt: IDerbyType) =>
+											eventResult.derbytypes.split(",").indexOf(dt.derbytype_id.toString()) > -1 )
+												.map((dt: IDerbyType) => ({
+													filename: `derbytype-${dt.derbytype_abbreviation}`,
+													title: dt.derbytype_name,
+												}));
+
+								}
+
+								if (eventResult.sanctions) {
+
+									icons.sanctions =
+										this.props.dataSanctions.filter((s: IDerbySanction) =>
+											eventResult.sanctions.split(",").indexOf(s.sanction_id.toString()) > -1 )
+												.map((s: IDerbySanction) => ({
+													filename: `sanction-${s.sanction_abbreviation}`,
+													title: `${s.sanction_name} (${s.sanction_abbreviation})`,
+												}));
+
+								}
+
+								if (eventResult.tracks) {
+
+									icons.tracks =
+										this.props.dataTracks.filter((t: IDerbyTrack) =>
+											eventResult.tracks.split(",").indexOf(t.track_id.toString()) > -1 )
+												.map((t: IDerbyTrack) => ({
+													filename: `track-${t.track_abbreviation}`,
+													title: t.track_name,
+												}));
+
+								}
+
+								eventData.push({
+									address1: eventResult.venue_address1,
+									address2: eventResult.venue_address2,
+									dates_venue: formatDateRange({
+											firstDay: moment.utc(eventResult.event_first_day),
+											lastDay: moment.utc(eventResult.event_last_day),
+										}, "long"),
+									days: null,
+									event_description: eventResult.event_description,
+									event_link: eventResult.event_link,
+									flag: eventResult.country_flag ? <span title={eventResult.country_name} className={`flag-icon flag-icon-${eventResult.country_flag}`} /> : null,
+									host: eventResult.event_name ? eventResult.event_host : null,
+									icons,
+									id: eventResult.event_id,
+									location: `${eventResult.venue_city}${eventResult.region_abbreviation ? ", " + eventResult.region_abbreviation : ""}, ${eventResult.country_code}`,
+									multiDay: eventResult.event_first_day.substring(0, 10) !== eventResult.event_last_day.substring(0, 10),
+									name: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
+									user: eventResult.user_name,
+									venue_description: eventResult.venue_description,
+									venue_link: eventResult.venue_link,
+									venue_name: eventResult.venue_name,
 								});
-							}
-							for (let dt = 0; dt < eventResult.derbytypes.length; dt ++) {
-								icons.derbytypes.push({
-									filename: "derbytype-" + eventResult.derbytypes[dt].derbytype_abbreviation,
-									title: eventResult.derbytypes[dt].derbytype_name,
+
+								this.setState({
+									eventData,
+									loading: false,
+									searchDisplayDates: dateDisplay || null,
 								});
-							}
-							for (let s = 0; s < eventResult.sanctions.length; s ++) {
-								icons.sanctions.push({
-									filename: "sanction-" + eventResult.sanctions[s].sanction_abbreviation,
-									title: eventResult.sanctions[s].sanction_name,
-								});
+
+
 							}
 
-							eventData.push({
-								address1: eventResult.venue_address1,
-								address2: eventResult.venue_address2,
-								dates_venue: formatDateRange({
-										firstDay: moment.utc(eventResult.days[0].eventday_start_venue),
-										lastDay: moment.utc(eventResult.days[eventResult.days.length - 1].eventday_start_venue),
-									}, "long"),
-								days: null,
-								event_description: eventResult.event_description,
-								event_link: eventResult.event_link,
-								flag: eventResult.country_flag ? <span title={eventResult.country_name} className={`flag-icon flag-icon-${eventResult.country_flag}`} /> : null,
-								host: eventResult.event_name ? eventResult.event_host : null,
-								icons,
-								id: eventResult.event_id,
-								location: `${eventResult.venue_city}${eventResult.region_abbreviation ? ", " + eventResult.region_abbreviation : ""}, ${eventResult.country_code}`,
-								multiDay: eventResult.days.length > 1,
-								name: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
-								user: eventResult.user_name,
-								venue_description: eventResult.venue_description,
-								venue_link: eventResult.venue_link,
-								venue_name: eventResult.venue_name,
-							});
-						}
-
-						this.setState({
-							eventData,
-							loading: false,
-							searchDisplayDates: dateDisplay || null,
 						});
 
 					}).catch((error: AxiosError) => {

@@ -3,12 +3,12 @@ import React from "react";
 import Modal from "react-modal";
 Modal.setAppElement("#root");
 
-import {
+/*import {
 	IDerbyEvent, IDerbyIcon, IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType,
 	IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList,
 } from "components/interfaces";
-
-import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
+*/
+import axios, { AxiosError, AxiosResponse } from "axios";
 
 import moment from "moment";
 
@@ -106,9 +106,9 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 
 				const eventData = [];
 
-				for (let e = 0; e < result.data.response.length; e ++) {
+				for (let e = 0; e < result.data.length; e ++) {
 
-					const eventResult = result.data.response[e];
+					const eventResult = result.data[e];
 
 					eventData.push({
 						dates_venue: formatDateRange({

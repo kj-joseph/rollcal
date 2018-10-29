@@ -2,7 +2,7 @@ import React from "react";
 
 import { IDerbyDates, IDerbyFeatures, IDerbySanction, IDerbyTrack, IDerbyType,
 	IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList,
-} from "components/interfaces";
+	} from "components/interfaces";
 import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography } from "components/lib/data";
 
 import { DayPickerRangeController } from "react-dates";
@@ -25,7 +25,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 
 		this.state = {
 			countryList: [] as IGeoCountry[],
-			countrySelectValue: null as IGeoCountry,
+			countrySelectValue: {} as IGeoCountry,
 			dateRangeDisplay: formatDateRange({
 				firstDay: moment(),
 			}),
@@ -544,7 +544,6 @@ export default class Search<Props> extends React.Component<any, any, any> {
 	loadData() {
 
 		let countryList: IGeoCountry[] = [];
-		const eventFeatures: IDerbyFeatures = {} as IDerbyFeatures;
 		let eventSanctions: IDerbySanction[] = [];
 		let eventTracks: IDerbyTrack[] = [];
 		let eventTypes: IDerbyType[] = [];

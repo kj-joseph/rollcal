@@ -6,7 +6,7 @@ Modal.setAppElement("#root");
 
 import { IDerbyEvent, IDerbyVenue } from "components/interfaces";
 
-import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 
 import moment from "moment";
 
@@ -231,12 +231,12 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 
 						const eventData = [];
 
-						for (const event of result.data.response) {
+						for (const event of result.data) {
 
 							eventData.push({
 								dates_venue: formatDateRange({
-										firstDay: moment.utc(event.days[0].eventday_start_venue),
-										lastDay: moment.utc(event.days[event.days.length - 1].eventday_start_venue),
+										firstDay: moment.utc(event.event_first_day),
+										lastDay: moment.utc(event.event_last_day),
 									}, "short"),
 								host: event.event_name ? event.event_host : null,
 								id: event.event_id,
@@ -268,7 +268,7 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 
 						const venueData = [];
 
-						for (const venue of result.data.response) {
+						for (const venue of result.data) {
 
 							venueData.push({
 								id: venue.venue_id,
