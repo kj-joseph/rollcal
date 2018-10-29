@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
 import multer from "multer";
-import { FieldInfo, MysqlError } from "mysql";
+import { MysqlError } from "mysql";
 
 import { checkSession } from "checkSession";
 import { IRequestWithSession } from "interfaces";
@@ -42,9 +42,8 @@ router.post("/login", upload.array(), (req: IRequestWithSession, res: Response) 
 	if (req.body.email && req.body.password) {
 
 		res.locals.connection
-			.query(
-				`select user_id, user_email, user_roles, user_name from users where user_email = ${res.locals.connection.escape(req.body.email)}`
-				+ ` and user_password = sha2(${res.locals.connection.escape(req.body.password)}, 256) and user_validated = 1`,
+			.query(`call login(${res.locals.connection.escape(req.body.email)},
+				${res.locals.connection.escape(req.body.password)})`,
 			(error: MysqlError, results: any) => {
 
 				if (error) {
@@ -52,7 +51,7 @@ router.post("/login", upload.array(), (req: IRequestWithSession, res: Response) 
 					console.error(error);
 					res.status(500).send();
 
-				} else if (results.length !== 1) {
+				} else if (results[0].length !== 1) {
 					res.locals.connection.end();
 					res.status(403).json(
 						{
@@ -63,20 +62,20 @@ router.post("/login", upload.array(), (req: IRequestWithSession, res: Response) 
 
 				} else {
 
+					const loginResult = results[0].map((row: {}) => ({...row}))[0];
+
 					req.session.user = {
-						email: results[0].user_email,
-						id: results[0].user_id,
-						roles: results[0].user_roles.split(","),
-						username: results[0].user_name,
+						email: loginResult.user_email,
+						id: loginResult.user_id,
+						roles: loginResult.user_roles.split(","),
+						username: loginResult.user_name,
 					};
 
 					res.status(200).json({
-						response: {
-							email: results[0].user_email,
-							id: results[0].user_id,
-							roles: results[0].user_roles.split(","),
-							username: results[0].user_name,
-						},
+						email: loginResult.user_email,
+						id: loginResult.user_id,
+						roles: loginResult.user_roles.split(","),
+						username: loginResult.user_name,
 					});
 
 				}
@@ -104,12 +103,12 @@ router.post("/register", upload.array(), (req: Request, res: Response) => {
 
 	const validationCode = generateHash(req.body.username + req.body.email + new Date()).toString();
 
-	res.locals.connection.query(
-		"insert into users (user_name, user_email, user_password, user_validation_code) values ("
-		+ res.locals.connection.escape(req.body.username)
-		+ `, ${res.locals.connection.escape(req.body.email)}`
-		+ `, sha2(${res.locals.connection.escape(req.body.password)}, 256)`
-		+ `, ${res.locals.connection.escape(validationCode)})`,
+	res.locals.connection
+		.query(`call registerUser
+			(${res.locals.connection.escape(req.body.username)},
+			${res.locals.connection.escape(req.body.email)},
+			${res.locals.connection.escape(req.body.password)},
+			${res.locals.connection.escape(validationCode)})`,
 
 		(error: MysqlError, results: any) => {
 
@@ -122,10 +121,7 @@ router.post("/register", upload.array(), (req: Request, res: Response) => {
 				email.sendValidationEmail(req.body.email, req.body.username, validationCode)
 					.then(() => {
 
-						res.status(200).json({
-							response: {
-								validationCode,
-							}});
+						res.status(200).send();
 
 					}).catch(() => {
 
@@ -140,10 +136,10 @@ router.post("/register", upload.array(), (req: Request, res: Response) => {
 
 });
 
-router.post("/register/checkEmail", upload.array(), (req: Request, res: Response) => {
+router.get("/register/checkEmail", upload.array(), (req: Request, res: Response) => {
 
-	res.locals.connection.query(
-		`select user_email from users where user_email = ${res.locals.connection.escape(req.body.email)}`,
+	res.locals.connection
+		.query(`call checkEmail(${res.locals.connection.escape(req.query.email)})`,
 		(error: MysqlError, results: any) => {
 
 			if (error) {
@@ -151,9 +147,8 @@ router.post("/register/checkEmail", upload.array(), (req: Request, res: Response
 				res.status(500).send();
 
 			} else {
-				res.status(200).json({
-					response: (!!results.length),
-				});
+
+				res.status(200).json(!!results[0].map((row: {}) => ({...row}))[0].count);
 
 			}
 
@@ -179,7 +174,7 @@ router.put("/account/update", checkSession("user"), upload.array(), (req: IReque
 			validationCode = generateHash(req.body.username + req.body.email + new Date()).toString();
 			needAuth = true;
 			changes.push(`user_email = ${res.locals.connection.escape(req.body.email)}`);
-			changes.push("user_validated = 0");
+			changes.push(`user_stauts = ${res.locals.connection.escape("unvalidated")}`);
 			changes.push(`user_validation_code = ${validationCode}`);
 		}
 	}
@@ -196,12 +191,13 @@ router.put("/account/update", checkSession("user"), upload.array(), (req: IReque
 
 	if (!error && changes.length && Number(req.body.id) === req.session.user.id) {
 
-		res.locals.connection.query([
-				"update users set",
-				changes.join(", "),
-				`where user_id = ${res.locals.connection.escape(req.body.id)}`,
-				needAuth ? `and user_password = sha2(${res.locals.connection.escape(req.body.currentPassword)}, 256) and user_validated = 1` : "",
-				].join(" "),
+		res.locals.connection
+			.query(`update users set ${changes.join(", ")}
+				where user_id = ${res.locals.connection.escape(req.body.id)}
+				${ needAuth ?
+					`and user_password = sha2(${res.locals.connection.escape(req.body.currentPassword)}, 256)
+						and user_status = ${res.locals.connection.escape("active")}`
+					: "" }`,
 
 			(saveError: MysqlError, results: any) => {
 
@@ -219,9 +215,8 @@ router.put("/account/update", checkSession("user"), upload.array(), (req: IReque
 							.then(() => {
 
 								res.status(200).json({
-									response: {
-										validationCode,
-									}});
+									validationCode,
+								});
 
 							}).catch(() => {
 
@@ -240,12 +235,10 @@ router.put("/account/update", checkSession("user"), upload.array(), (req: IReque
 						};
 
 						res.status(200).json({
-							response: {
-								email: req.body.email || req.session.user.email,
-								id: req.body.id,
-								roles: req.session.user.roles,
-								username: req.body.username || req.session.user.username,
-							},
+							email: req.body.email || req.session.user.email,
+							id: req.body.id,
+							roles: req.session.user.roles,
+							username: req.body.username || req.session.user.username,
 						});
 
 					}
@@ -263,12 +256,10 @@ router.put("/account/update", checkSession("user"), upload.array(), (req: IReque
 
 router.post("/account/validate", upload.array(), (req: Request, res: Response) => {
 
-	res.locals.connection.query([
-		"select user_id from users where",
-		`user_name = ${res.locals.connection.escape(req.body.username)}`,
-		`and user_email = ${res.locals.connection.escape(req.body.email)}`,
-		`and user_validation_code = ${res.locals.connection.escape(req.body.validationCode)}`,
-	].join(" "),
+	res.locals.connection
+		.query(`call validateUser(${res.locals.connection.escape(req.body.email)},
+			${res.locals.connection.escape(req.body.username)},
+			${res.locals.connection.escape(req.body.validationCode)})`,
 
 		(error: MysqlError, results: any) => {
 
@@ -278,27 +269,16 @@ router.post("/account/validate", upload.array(), (req: Request, res: Response) =
 
 			} else {
 
-				if (results.length === 1) {
+				if (results[0].map((row: {}) => ({...row}))[0].validated) {
 
-					res.locals.connection.query(
-						`update users set user_validation_code = NULL, user_validated = 1 where user_id = ${res.locals.connection.escape(results[0].user_id)}`,
-
-						(updateError: MysqlError, updateResults: any) => {
-
-							if (updateError) {
-								console.error(updateError);
-								res.status(500).send();
-
-							} else {
-								res.status(200).json({
-									response: true,
-								});
-							}
-
-						});
+					res.status(200).json({
+						validated: true,
+					});
 
 				} else {
-					res.status(401).send();
+
+					res.status(403).send();
+
 				}
 
 			}

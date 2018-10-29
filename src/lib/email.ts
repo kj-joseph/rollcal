@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosPromise, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 
 export const sendValidationEmail = (email: string, username: string, validationCode: string): Promise<boolean> => {
 
@@ -14,11 +14,11 @@ export const sendValidationEmail = (email: string, username: string, validationC
 		},
 		user_id: "user_hX0Eb4e3DRLA6dAAUMHKu",
 
-	}).then((response: any) => {
+	}).then((response: AxiosResponse) => {
 
 		return true;
 
-	}).catch((error: any) => {
+	}).catch((error: AxiosError) => {
 
 		console.error(error);
 		return false;
@@ -41,11 +41,11 @@ export const sendEmailChangeEmail = (email: string, username: string, validation
 		},
 		user_id: "user_hX0Eb4e3DRLA6dAAUMHKu",
 
-	}).then((response: any) => {
+	}).then((response: AxiosResponse) => {
 
 		return true;
 
-	}).catch((error: any) => {
+	}).catch((error: AxiosError) => {
 
 		console.error(error);
 		return false;
