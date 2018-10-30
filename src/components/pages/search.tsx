@@ -248,7 +248,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 							</div>
 
 							{this.state.eventFeatures.tracks ?
-								<div className="derbyFeatures">
+								<div className="searchFeatures">
 									{(this.state.eventFeatures.tracks.length ?
 										<span className="eventIconGroup eventIconTracks">
 											<span className="label">Filter Tracks</span>

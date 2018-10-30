@@ -17,17 +17,12 @@ label {
 	margin-bottom: .4em;
 }
 
-input, textarea {
+input {
 	display: block;
 	width: calc(100% - 12px);
 	margin-bottom: .8em;
 	border: 1px solid $blue;
 	padding: 5px;
-}
-
-textarea {
-	height: 7em;
-	resize: vertical;
 }
 
 .buttonRow {
@@ -172,46 +167,3 @@ form.disabled {
 
 }
 
-h3.formSectionHeader {
-	position: relative;
-	font-size: 1.8rem;
-	cursor: pointer;
-	margin-bottom: 1.5em;
-
-	&.closed::before {
-		display: inline-block;
-		content: "+";
-		width: 1em;
-		color: #ffffff;
-		text-align: center;
-		margin-right: .5em;
-		font-weight: bold;
-		background: #031d40;
-	}
-
-	&.open::before {
-		display: inline-block;
-		content: "-";
-		width: 1em;
-		color: #ffffff;
-		text-align: center;
-		margin-right: .5em;
-		font-weight: bold;
-		background: #031d40;
-	}
-
-	&.ok::after {
-		content: "\2713";
-		color: $pink;
-		margin-left: .5em;
-	}
-
-}
-
-.formSection {
-
-	&.closed {
-		display: none;
-	}
-
-}

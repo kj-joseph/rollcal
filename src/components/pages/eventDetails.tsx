@@ -7,8 +7,9 @@ import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "components/lib
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 
-import { formatDateRange } from "components/lib/dateTime";
 import moment from "moment";
+
+import { formatDateRange } from "components/lib/dateTime";
 
 import EventIcons from "components/partials/eventIcons";
 

@@ -49,7 +49,7 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 
 		if (!this.props.loggedIn) {
 			this.props.history.push("/");
-		} else if (!this.props.match.params.operation) {
+		} else if (!this.props.match.params.func) {
 			this.props.history.push("/dashboard/events");
 		} else if (window.location.pathname !== this.state.path
 			|| this.props.loggedInUserId !== this.state.userId ) {
@@ -61,7 +61,7 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 			});
 
 			if (this.props.loggedInUserId) {
-				this.loadData(this.props.match.params.operation);
+				this.loadData(this.props.match.params.func);
 			}
 
 		}
@@ -84,7 +84,7 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 						type="button"
 						onClick={this.activateTab}
 						data-tab="events"
-						className={`largeButton${this.props.match.params.operation === "events" ? " active" : ""}`}
+						className={`largeButton${this.props.match.params.func === "events" ? " active" : ""}`}
 					>
 						Events
 					</button>
@@ -92,14 +92,14 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 						type="button"
 						onClick={this.activateTab}
 						data-tab="venues"
-						className={`largeButton${this.props.match.params.operation === "venues" ? " active" : ""}`}
+						className={`largeButton${this.props.match.params.func === "venues" ? " active" : ""}`}
 					>
 						Venues
 					</button>
 
 				</div>
 
-				{this.props.match.params.operation === "events" ?
+				{this.props.match.params.func === "events" ?
 
 					<div className="userEventList">
 
@@ -143,7 +143,7 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 
 					</div>
 
-				: this.props.match.params.operation === "venues" ?
+				: this.props.match.params.func === "venues" ?
 
 					<div className="userVenueList">
 

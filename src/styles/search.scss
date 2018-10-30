@@ -119,41 +119,40 @@
 
 	}
 
-}
+	.searchFeatures {
+		margin-bottom: 2em;
 
-.derbyFeatures {
-	margin-bottom: 2em;
-
-	.eventIconGroup {
-		display: block;
-		margin-bottom: 1em;
-
-		.label {
+		.eventIconGroup {
 			display: block;
-			color: $blue;
-			font-weight: bold;
-			margin-bottom: .5em;
+			margin-bottom: 1em;
+
+			.label {
+				display: block;
+				color: $blue;
+				font-weight: bold;
+				margin-bottom: .5em;
+			}
+
+		}
+
+		.featureIcon, .featureIcon div {
+			display: inline;
+		}
+
+		svg {
+			opacity: .4;
+			height: 60px;
+			margin-right: 10px;
+			cursor: pointer;
+		}
+
+		.featureIcon.selected svg {
+			opacity: 1;
 		}
 
 	}
 
-	.featureIcon, .featureIcon div {
-		display: inline;
-	}
-
-	svg {
-		opacity: .4;
-		height: 60px;
-		margin-right: 10px;
-		cursor: pointer;
-	}
-
-	.featureIcon.selected svg {
-		opacity: 1;
-	}
-
 }
-
 
 .searchButtons {
 
@@ -162,20 +161,33 @@
 
 @include respond-to("xsmall") {
 
-	.derbyFeatures {
-		svg {
-			height: 75px;
-			margin: 0 5px;
+	.searchForm {
+
+		.searchFeatures {
+
+			svg {
+				height: 75px;
+				margin: 0 5px;
+			}
+
 		}
+
 	}
 
 }
 
 @include respond-to("small") {
 
-	.derbyFeatures {
-		svg {
-			height: 90px;
+	.searchForm {
+
+		.searchDatesLocations {
+		}
+
+		.searchFeatures {
+
+			svg {
+				height: 90px;
+			}
 		}
 	}
 
@@ -192,11 +204,10 @@
 			margin-right: 40px;
 		}
 
-	}
+		.searchFeatures {
+			margin-top: .3em;
+			width: calc(50%);
+		}
 
-	.derbyFeatures {
-		margin-top: .3em;
-		width: calc(50%);
 	}
-
 }
