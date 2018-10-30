@@ -35,7 +35,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 			loading: true,
 			path: null as string,
 			regionLists: {} as IGeoRegionList,
-			regionSelectValue: null as IGeoRegion[],
+			regionSelectValue: {} as IGeoRegion,
 			selectedCountries: [] as IGeoCountry[],
 			selectedEventFeatures: [] as string[],
 			selectedRegions: {} as IGeoRegionList,
@@ -114,7 +114,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 										hideKeyboardShortcutsPanel={true}
 										numberOfMonths={1}
 										enableOutsideDays={false}
-										// initialVisibleMonth={this.determineStartMonth}
+										initialVisibleMonth={this.determineStartMonth}
 										isOutsideRange={this.isBeforeToday}
 										keepOpenOnDateSelect={true}
 										minimumNights={0}
@@ -145,6 +145,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 											<button
 												className="smallButton"
 												disabled={!this.state.countrySelectValue
+													|| !this.state.countrySelectValue.country_name
 													|| this.state.selectedRegions[this.state.countrySelectValue.country_code]}
 												onClick={this.addLocationCountry}
 											>
@@ -178,7 +179,8 @@ export default class Search<Props> extends React.Component<any, any, any> {
 											<div className="locationButton">
 												<button
 													className="smallButton"
-													disabled={!this.state.regionSelectValue}
+													disabled={!this.state.regionSelectValue ||
+														!this.state.regionSelectValue.region_id}
 													onClick={this.addLocationRegion}
 												>
 													Add {this.state.regionSelectValue ? this.state.regionSelectValue.region_name : ""} to Location List
@@ -327,6 +329,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 	}
 
 	clearDates() {
+
 		this.setState({
 			dateRangeDisplay: formatDateRange({
 				firstDay: moment(),
@@ -335,13 +338,21 @@ export default class Search<Props> extends React.Component<any, any, any> {
 			focusedInput: "startDate",
 			startDate: null,
 		});
+
 	}
 
 	determineStartMonth() {
-		return this.state.startDate;
+
+		if (this.state.startDate) {
+			return this.state.startDate;
+		} else {
+			return moment();
+		}
+
 	}
 
 	onDatesChange(dates: {startDate: moment.Moment, endDate: moment.Moment}) {
+
 		const dateObject: IDerbyDates = {
 			firstDay: dates.startDate ? dates.startDate : moment(),
 			lastDay: dates.endDate ? dates.endDate : null,
@@ -351,19 +362,24 @@ export default class Search<Props> extends React.Component<any, any, any> {
 			endDate: dates.endDate,
 			startDate: dates.startDate,
 		});
+
 	}
 
 	changeCountrySelect(country: IGeoCountry) {
+
 		this.setState({
-			countrySelectValue: Object.assign({disabled: true}, country),
-			regionSelectValue: null,
+			countrySelectValue: Object.assign({disabled: true}, country) || {} as IGeoCountry,
+			regionSelectValue: {} as IGeoRegion,
 		});
+
 	}
 
 	changeRegionSelect(region: IGeoRegion) {
+
 		this.setState({
-			regionSelectValue: region,
+			regionSelectValue: region || {} as IGeoRegion,
 		});
+
 	}
 
 	addLocation(country: IGeoCountry, region?: IGeoRegion) {
@@ -412,14 +428,19 @@ export default class Search<Props> extends React.Component<any, any, any> {
 	}
 
 	addLocationCountry() {
+
 		this.addLocation(this.state.countrySelectValue);
+
 	}
 
 	addLocationRegion() {
+
 		this.addLocation(this.state.countrySelectValue, this.state.regionSelectValue);
+
 	}
 
 	removeLocation(countryCode: string, regionId?: number) {
+
 		const countryList = this.state.countryList;
 		const regionLists = this.state.regionLists;
 		const regions = this.state.selectedRegions;
@@ -458,6 +479,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 		});
 
 		this.forceUpdate();
+
 	}
 
 	toggleFeatureIcon(icon: string) {
@@ -478,26 +500,37 @@ export default class Search<Props> extends React.Component<any, any, any> {
 	}
 
 	handleFocusChange(focusedInput: string) {
+
 		this.setState({ focusedInput });
+
 	}
 
 	isCountryOptionDisabled(option: IGeoCountry) {
+
 		return option.disabled;
+
 	}
 
 	isRegionOptionDisabled(option: IGeoRegion) {
+
 		return option.disabled;
+
 	}
 
 	getCountryOptionLabel(option: IGeoCountry) {
-		return option.country_name;
+
+		return option.country_name || "(type here to search list)";
+
 	}
 
 	getRegionOptionLabel(option: IGeoRegion) {
-		return option.region_name;
+
+		return option.region_name || "(type here to search list)";
+
 	}
 
 	submitSearch() {
+
 		let searchURL = "";
 		const queryParts = [];
 		const eventFeatures: {
@@ -588,17 +621,20 @@ export default class Search<Props> extends React.Component<any, any, any> {
 					sanctions: eventSanctions,
 					tracks: eventTracks,
 				},
-				loading: false,
 				regionLists,
 			});
 
 			let startState: {
 				dateRangeDisplay: string,
 				endDate: moment.Moment,
+				loading: false,
 				startDate: moment.Moment,
 				selectedEventFeatures: string[],
 			};
-			startState = {} as typeof startState;
+
+			startState = {
+				loading: false,
+			} as typeof startState;
 
 			if (this.props.lastSearch) {
 
