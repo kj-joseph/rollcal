@@ -24,6 +24,10 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 			dataError: false,
 			eventData: {} as IDerbyEvent,
 			loading: true,
+			newDayDate: "",
+			newDayDescription: "",
+			newDayDoors: "",
+			newDayTime: "",
 			pageFunction: this.props.match.params.operation === "add" ? "Add New Event" :
 				this.props.match.params.operation === "edit"
 					&& this.props.match.params.eventId
@@ -34,7 +38,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 			sectionOpenDays: true,
 			sectionOpenFeatures: true,
 			sectionOpenVenue: true,
-			selectedEventFeatures: [] as string[],
+			selectedFeatures: [] as string[],
 		};
 
 		this.handleInputChange = this.handleInputChange.bind(this);
@@ -90,176 +94,221 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 					:
 
 						<form
+							className="entryForm"
 							id="accountForm"
 							onSubmit={this.submitEventForm}
 						>
 
-							<h3
-								className = {"formSectionHeader"
-									+ (this.state.sectionOpenBasic ? " open" : " closed")
-									+ (this.state.eventData.host ? " ok" : "")}
-								data-section = "Basic"
-								onClick={this.toggleSection}
-							>
-								Basic Event Information
-							</h3>
+							<div>
 
-							<div className = {"formSection" + (this.state.sectionOpenBasic ? " open" : " closed")}>
+								<h3
+									className={"formSectionHeader"
+										+ (this.state.sectionOpenBasic ? " open" : " closed")
+										+ (this.state.eventData.host ? " ok" : "")}
+									data-section="Basic"
+									onClick={this.toggleSection}
+								>
+									Basic Event Information
+								</h3>
 
-								<div className="inputGroup">
-									<label htmlFor="name">Event Name <em>(optional)</em></label>
-									<input
-										id="name"
-										name="name"
-										type="text"
-										required={false}
-										value={this.state.eventData.name}
-										onChange={this.handleInputChange}
-									/>
-								</div>
+								<div className={"formSection" + (this.state.sectionOpenBasic ? " open" : " closed")}>
 
-								<div className="inputGroup">
-									<label htmlFor="host">Host</label>
-									<input
-										id="host"
-										name="host"
-										type="text"
-										required={true}
-										value={this.state.eventData.host}
-										onChange={this.handleInputChange}
-									/>
-								</div>
-
-								<div className="inputGroup">
-									<label htmlFor="event_link">Web Page <em>(optional)</em></label>
-									<input
-										id="event_link"
-										name="event_link"
-										type="url"
-										required={false}
-										value={this.state.eventData.event_link}
-										onChange={this.handleInputChange}
-									/>
-								</div>
-
-								<div className="inputGroup">
-									<label htmlFor="event_description">Description <em>(recommended, but optional)</em></label>
-									<textarea
-										id="event_description"
-										name="event_description"
-										required={false}
-										value={this.state.eventData.event_description}
-										onChange={this.handleInputChange}
-									/>
-								</div>
-
-							</div>
-
-							<h3
-								className = {"formSectionHeader" + (this.state.sectionOpenDays ? " open" : " closed")}
-								data-section = "Days"
-								onClick={this.toggleSection}
-							>
-								Event Days ({this.state.eventData.days.length})
-							</h3>
-
-							<div className = {"formSection" + (this.state.sectionOpenDays ? " open" : " closed")}>
-
-
-
-							</div>
-
-							<h3
-								className = {"formSectionHeader" + (this.state.sectionOpenFeatures ? " open" : " closed")}
-								data-section = "Features"
-								onClick={this.toggleSection}
-							>
-								Event Features ({this.state.selectedEventFeatures.length})
-							</h3>
-
-							<div className = {"formSection" + (this.state.sectionOpenFeatures ? " open" : " closed")}>
-
-								{this.state.eventFeatures.tracks ?
-									<div className="derbyFeatures">
-										{(this.state.eventFeatures.tracks.length ?
-											<span className="eventIconGroup eventIconTracks">
-												<span className="label">Tracks</span>
-												{this.state.eventFeatures.tracks.map((icon: IDerbyTrack) => (
-													<FeatureIcon
-														imageClass={this.state.selectedEventFeatures.indexOf("track-" + icon.track_id) > -1 ? "selected" : ""}
-														abbreviation={icon.track_abbreviation}
-														alt={icon.track_name}
-														id={icon.track_id}
-														key={icon.track_id}
-														title={icon.title}
-														featureType="track"
-														toggleFunction={this.toggleFeatureIcon}
-													/>
-												))}
-											</span>
-											: "" )}
-										{(this.state.eventFeatures.derbytypes.length ?
-											<span className="eventIconGroup eventIconDerbytypes">
-												<span className="label">Derby Types</span>
-												{this.state.eventFeatures.derbytypes.map((icon: IDerbyType) => (
-													<FeatureIcon
-														imageClass={this.state.selectedEventFeatures.indexOf("derbytype-" + icon.derbytype_id) > -1 ? "selected" : ""}
-														abbreviation={icon.derbytype_abbreviation}
-														alt={icon.derbytype_name}
-														id={icon.derbytype_id}
-														key={icon.derbytype_id}
-														title={icon.title}
-														featureType="derbytype"
-														toggleFunction={this.toggleFeatureIcon}
-													/>
-												))}
-											</span>
-											: "" )}
-										{(this.state.eventFeatures.sanctions.length ?
-											<span className="eventIconGroup eventIconSanctions">
-												<span className="label">Sanctions</span>
-												{this.state.eventFeatures.sanctions.map((icon: IDerbySanction) => (
-													<FeatureIcon
-														imageClass={this.state.selectedEventFeatures.indexOf("sanction-" + icon.sanction_id) > -1 ? "selected" : ""}
-														abbreviation={icon.sanction_abbreviation}
-														alt={icon.sanction_name}
-														id={icon.sanction_id}
-														key={icon.sanction_id}
-														title={icon.title}
-														featureType="sanction"
-														toggleFunction={this.toggleFeatureIcon}
-													/>
-												))}
-											</span>
-											: "" )}
+									<div className="inputGroup">
+										<label htmlFor="name">Event Name <em>(optional)</em></label>
+										<input
+											id="name"
+											name="name"
+											data-handler="eventData"
+											type="text"
+											required={false}
+											value={this.state.eventData.name}
+											onChange={this.handleInputChange}
+										/>
 									</div>
-								: "" }
+
+									<div className="inputGroup">
+										<label htmlFor="host">Host</label>
+										<input
+											id="host"
+											name="host"
+											data-handler="eventData"
+											type="text"
+											required={true}
+											value={this.state.eventData.host}
+											onChange={this.handleInputChange}
+										/>
+									</div>
+
+									<div className="inputGroup">
+										<label htmlFor="event_link">Web Page <em>(optional)</em></label>
+										<input
+											id="event_link"
+											name="event_link"
+											data-handler="eventData"
+											type="url"
+											required={false}
+											value={this.state.eventData.event_link}
+											onChange={this.handleInputChange}
+										/>
+									</div>
+
+									<div className="inputGroup">
+										<label htmlFor="event_description">Description <em>(recommended, but optional)</em></label>
+										<textarea
+											id="event_description"
+											name="event_description"
+											data-handler="eventData"
+											required={false}
+											value={this.state.eventData.event_description}
+											onChange={this.handleInputChange}
+										/>
+									</div>
+
 								</div>
 
+							</div>
 
-							<div className="eventVenueInfo">
-								<address>
-									<strong>{this.state.eventData.venue_name}</strong><br />
-									{this.state.eventData.address1}<br />
-									{(this.state.eventData.address2) ?
-										<span>{this.state.eventData.address2}</span>
-										: ""
-									}
-									{this.state.eventData.location} {this.state.eventData.flag}
-								</address>
-								{(this.state.eventData.venue_link) ?
-									<p className="venueLink">
-										<a href={this.state.eventData.venue_link} target="_blank" rel="noopener noreferrer">
-											{this.state.eventData.venue_name} website
-										</a>
-									</p>
-									: ""
-								}
+							<div>
 
-								{(this.state.eventData.venue_description) ?
-									<p className="venueDescription">{this.state.eventData.venue_description}</p>
-									: ""
-								}
+								<h3
+									className={"formSectionHeader"
+										+ (this.state.sectionOpenVenue ? " open" : " closed")
+										+ (this.state.eventData.venue ? " ok" : "")}
+									data-section="Venue"
+									onClick={this.toggleSection}
+								>
+									Venue
+								</h3>
+
+								<div className={"formSection" + (this.state.sectionOpenVenue ? " open" : " closed")}>
+
+									<p>Test</p>
+
+								</div>
+
+							</div>
+
+							<div>
+
+								<h3
+									className={"formSectionHeader"
+										+ (this.state.sectionOpenDays ? " open" : " closed")
+										+ (this.state.eventData.days.length ? " ok" : "")}
+									data-section="Days"
+									onClick={this.toggleSection}
+								>
+									Event Days ({this.state.eventData.days.length})
+								</h3>
+
+								<div className={"formSection" + (this.state.sectionOpenDays ? " open" : " closed")}>
+
+									<div className="eventDays">
+										<dl>
+											{this.state.eventData.days.map((day: IDerbyEventDayFormatted) => (
+												<React.Fragment key={day.date}>
+													<dt><strong>{day.date}:</strong>{day.startTime}
+														{day.doorsTime ? ` (Doors: ${day.doorsTime})` : ""}
+													</dt>
+													<dd>{day.description}</dd>
+												</React.Fragment>
+											))}
+										</dl>
+									</div>
+
+									<div className="inputGroup short">
+										<label htmlFor="newDayTime">Start Time</label>
+										<input
+											id="newDayTime"
+											name="newDayTime"
+											data-handler="newDay"
+											type="time"
+											required={false}
+											value={this.state.newDayTime}
+											onChange={this.handleInputChange}
+										/>
+									</div>
+
+									<p>{this.state.newDayTime}</p>
+
+								</div>
+
+							</div>
+
+							<div>
+
+								<h3
+									className={"formSectionHeader"
+										+ (this.state.sectionOpenFeatures ? " open" : " closed")
+										+ (this.state.selectedFeatures.filter((feature: string) => feature.split("-")[0] === "derbytype").length
+											&& this.state.selectedFeatures.filter((feature: string) => feature.split("-")[0] === "track").length
+
+
+											? " ok" : "")}
+									data-section="Features"
+									onClick={this.toggleSection}
+								>
+									Event Features ({this.state.selectedFeatures.length})
+								</h3>
+
+								<div className={"formSection" + (this.state.sectionOpenFeatures ? " open" : " closed")}>
+
+									{this.state.eventFeatures.tracks ?
+										<div className="derbyFeatures">
+											{(this.state.eventFeatures.tracks.length ?
+												<span className="eventIconGroup eventIconTracks">
+													<span className="label">Tracks <em>(at least one)</em></span>
+													{this.state.eventFeatures.tracks.map((icon: IDerbyTrack) => (
+														<FeatureIcon
+															imageClass={this.state.selectedFeatures.indexOf("track-" + icon.track_id) > -1 ? "selected" : ""}
+															abbreviation={icon.track_abbreviation}
+															alt={icon.track_name}
+															id={icon.track_id}
+															key={icon.track_id}
+															title={icon.title}
+															featureType="track"
+															toggleFunction={this.toggleFeatureIcon}
+														/>
+													))}
+												</span>
+												: "" )}
+											{(this.state.eventFeatures.derbytypes.length ?
+												<span className="eventIconGroup eventIconDerbytypes">
+													<span className="label">Derby Types <em>(at least one)</em></span>
+													{this.state.eventFeatures.derbytypes.map((icon: IDerbyType) => (
+														<FeatureIcon
+															imageClass={this.state.selectedFeatures.indexOf("derbytype-" + icon.derbytype_id) > -1 ? "selected" : ""}
+															abbreviation={icon.derbytype_abbreviation}
+															alt={icon.derbytype_name}
+															id={icon.derbytype_id}
+															key={icon.derbytype_id}
+															title={icon.title}
+															featureType="derbytype"
+															toggleFunction={this.toggleFeatureIcon}
+														/>
+													))}
+												</span>
+												: "" )}
+											{(this.state.eventFeatures.sanctions.length ?
+												<span className="eventIconGroup eventIconSanctions">
+													<span className="label">Sanctions <em>(optional)</em></span>
+													{this.state.eventFeatures.sanctions.map((icon: IDerbySanction) => (
+														<FeatureIcon
+															imageClass={this.state.selectedFeatures.indexOf("sanction-" + icon.sanction_id) > -1 ? "selected" : ""}
+															abbreviation={icon.sanction_abbreviation}
+															alt={icon.sanction_name}
+															id={icon.sanction_id}
+															key={icon.sanction_id}
+															title={icon.title}
+															featureType="sanction"
+															toggleFunction={this.toggleFeatureIcon}
+														/>
+													))}
+												</span>
+												: "" )}
+										</div>
+									: "" }
+								</div>
+
 							</div>
 
 						</form>
@@ -345,10 +394,12 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 								});
 							}
 
+							const selectedFeatures = [] as string[];
+
 							if (eventResult.derbytypes) {
 
 								for (const derbytype of eventResult.derbytypes.split(",")) {
-									this.toggleFeatureIcon(`derbytype-${derbytype.trim()}`);
+									selectedFeatures.push(`derbytype-${derbytype.trim()}`);
 								}
 
 							}
@@ -356,7 +407,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 							if (eventResult.sanctions) {
 
 								for (const sanction of eventResult.sanctions.split(",")) {
-									this.toggleFeatureIcon(`sanction-${sanction.trim()}`);
+									selectedFeatures.push(`sanction-${sanction.trim()}`);
 								}
 
 							}
@@ -364,25 +415,30 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 							if (eventResult.tracks) {
 
 								for (const track of eventResult.tracks.split(",")) {
-									this.toggleFeatureIcon(`track-${track.trim()}`);
+									selectedFeatures.push(`track-${track.trim()}`);
 								}
 
 							}
 
+							const eventData = {
+								address1: eventResult.venue_address1,
+								address2: eventResult.venue_address2,
+								city: eventResult.venue_city || "",
+								days: eventDays,
+								event_description: eventResult.event_description || "",
+								event_link: eventResult.event_link || "",
+								host: eventResult.event_host || "",
+								id: eventResult.event_id,
+								name: eventResult.event_name || "",
+								venue: eventResult.venue_id || "",
+							};
+
 							this.setState({
-								eventData: {
-									address1: eventResult.venue_address1,
-									address2: eventResult.venue_address2,
-									city: eventResult.venue_city || "",
-									days: eventDays,
-									event_description: eventResult.event_description || "",
-									event_link: eventResult.event_link || "",
-									host: eventResult.event_host || "",
-									id: eventResult.event_id,
-									name: eventResult.event_name || "",
-									venue: eventResult.venue_id || "",
-								},
+								eventData,
+								initialEventData: eventData,
+								initialSelectedFeatures: selectedFeatures,
 								loading: false,
+								selectedFeatures,
 							});
 
 						} else {
@@ -430,29 +486,48 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 
 	handleInputChange(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
 
-		let eventData = this.state.eventData;
+		console.log(event.currentTarget.getAttribute("data-handler"));
 
-		eventData[event.currentTarget.name] = event.currentTarget.value;
+		switch (event.currentTarget.getAttribute("data-handler")) {
 
-		this.setState({
-			eventData,
-		});
+			case "eventData":
+
+				const eventData = this.state.eventData;
+				eventData[event.currentTarget.name] = event.currentTarget.value;
+
+				this.setState({
+					eventData,
+				});
+
+				break;
+
+			case "newDay":
+
+				this.setState({
+					[event.currentTarget.name]: event.currentTarget.value,
+				});
+				console.log(event.currentTarget.value);
+
+				break;
+
+
+		}
 
 	}
 
 	toggleFeatureIcon(icon: string) {
 
-		const selectedEventFeatures = this.state.selectedEventFeatures;
-		const iconIndex = selectedEventFeatures.indexOf(icon);
+		const selectedFeatures = this.state.selectedFeatures;
+		const iconIndex = selectedFeatures.indexOf(icon);
 
 		if (iconIndex === -1) {
-			selectedEventFeatures.push(icon);
+			selectedFeatures.push(icon);
 		} else {
-			selectedEventFeatures.splice(iconIndex, 1);
+			selectedFeatures.splice(iconIndex, 1);
 		}
 
 		this.setState({
-			selectedEventFeatures,
+			selectedFeatures,
 		});
 
 	}

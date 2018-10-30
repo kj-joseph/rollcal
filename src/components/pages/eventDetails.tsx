@@ -135,7 +135,7 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 										{this.state.eventData.days.map((day: IDerbyEventDayFormatted) => (
 											<React.Fragment key={day.date}>
 												<dt><strong>{day.date}:</strong>{day.startTime}
-													{day.doorsTime ? ` (Doors: ${day.doorsTime})` : "" }
+													{day.doorsTime ? ` (Doors: ${day.doorsTime})` : ""}
 												</dt>
 												<dd>{day.description}</dd>
 											</React.Fragment>

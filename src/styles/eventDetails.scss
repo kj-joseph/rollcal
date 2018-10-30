@@ -52,28 +52,6 @@ p.backToSearch {
 
 	}
 
-
-
-	dl {
-		margin-bottom: .5em;
-
-		dt {
-			display: block;
-			margin-bottom: .15em;
-
-			strong {
-				display: inline-block;
-				width: 3.5em;
-			}
-		}
-
-		dd {
-			display: block;
-			margin: 0 0 .4em 3.5em;
-		}
-
-	}
-
 	.eventIcons {
 
 		margin-top: 1.5em;
@@ -102,6 +80,30 @@ p.backToSearch {
 		svg {
 			height: 60px;
 		}
+	}
+
+}
+
+.eventDays {
+
+	dl {
+		margin-bottom: .5em;
+
+		dt {
+			display: block;
+			margin-bottom: .15em;
+
+			strong {
+				display: inline-block;
+				width: 3.5em;
+			}
+		}
+
+		dd {
+			display: block;
+			margin: 0 0 .4em 3.5em;
+		}
+
 	}
 
 }
