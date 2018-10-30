@@ -81,6 +81,7 @@ export interface IDerbyEventDay {
 export interface IDerbyEventDayFormatted {
 	date: string;
 	doorsTime?: string;
+	id?: number,
 	startTime: string;
 	description?: string;
 }
