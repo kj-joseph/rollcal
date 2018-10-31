@@ -39,4 +39,21 @@ router.get("/getRegionsByCountry/:countryId", (req: Request, res: Response) => {
 		});
 });
 
+router.get("/getTimeZones", (req: Request, res: Response) => {
+
+	res.locals.connection
+		.query("call getTimeZones()",
+		(error: MysqlError, results: any) => {
+
+			res.locals.connection.end();
+
+			if (error) {
+				console.error(error);
+				res.status(500).send();
+			} else {
+				res.status(200).json(results[0].map((row: {}) => ({...row})));
+			}
+		});
+});
+
 export default router;
