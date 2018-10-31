@@ -3,7 +3,7 @@ import { render } from "react-dom";
 import { BrowserRouter, NavLink, Route, Switch } from "react-router-dom";
 import ReactSVG from "react-svg";
 
-import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IReduxActionType, IUserInfo } from "components/interfaces";
+import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IReduxActionType, ITimeZone, IUserInfo } from "components/interfaces";
 
 import { connect, Provider } from "react-redux";
 import { Dispatch } from "redux";
@@ -44,9 +44,13 @@ class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
 
 	componentDidMount() {
 
-		auth.checkLoginStatus(this.props).then(() => {
-			this.props.setSessionState(true);
-		});
+		if (!this.props.sessionInitialized) {
+
+			auth.checkLoginStatus(this.props).then(() => {
+				this.props.setSessionState(true);
+			});
+
+		}
 
 	}
 
@@ -189,6 +193,7 @@ const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>) => {
 		saveDataSanctions: (data: IDerbySanction[]) => dispatch(reduxActions.saveDataSanctions(data)),
 		saveDataTracks: (data: IDerbyTrack[]) => dispatch(reduxActions.saveDataTracks(data)),
 		saveLastSearch: (search: string) => dispatch(reduxActions.saveLastSearch(search)),
+		saveTimeZones: (data: ITimeZone[]) => dispatch(reduxActions.saveTimeZones(data)),
 		setAccountModalState: (accountModalState: boolean) => dispatch(reduxActions.setAccountModalState(accountModalState)),
 		setLoginModalState: (loginModalState: boolean) => dispatch(reduxActions.setLoginModalState(loginModalState)),
 		setSessionState: (sessionInitialized: boolean) => dispatch(reduxActions.setSessionState(sessionInitialized)),

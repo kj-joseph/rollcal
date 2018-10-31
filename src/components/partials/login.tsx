@@ -48,8 +48,6 @@ class Login<Props> extends React.Component<any, any, any> {
 				path: window.location.pathname,
 			});
 
-			// auth.checkLoginStatus(this.props);
-
 		}
 	}
 

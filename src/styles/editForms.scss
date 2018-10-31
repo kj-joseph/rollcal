@@ -1,5 +1,12 @@
 .entryForm {
 
+	.inputGroup {
+		input, textarea {
+			margin-bottom: 0;
+		}
+
+	}
+
 	.derbyFeatures {
 		width: auto;
 
@@ -11,6 +18,7 @@
 }
 
 h3.formSectionHeader {
+	display: inline-block;
 	position: relative;
 	font-size: 1.8rem;
 	cursor: pointer;
@@ -57,7 +65,128 @@ h3.formSectionHeader {
 		display: none;
 	}
 
-	padding-bottom: 1.5em;
+	margin-bottom: 1.5em;
+
+	.Select {
+		margin-bottom: 1.5em;
+
+	}
+
+	.inputGroup .Select {
+		margin-bottom: 0;
+	}
+
+	.inputGroup:last-child {
+		margin-bottom: 0;
+	}
+
+	.eventDays {
+
+		ul.eventDayList {
+			margin: 0 0 1.5em;
+
+			&.empty {
+				display: none;
+			}
+
+			> li {
+
+				margin-bottom: 1em;
+				padding-top: .5em;
+				border: 2px solid $blue;
+
+				dl {
+					width: calc(100% - 1em);
+					margin: 0 auto;
+
+					dt {
+						display: inline-block;
+						float: left;
+						clear: both;
+						width: 6em;
+						font-weight: bold;
+						text-align: right;
+						margin-bottom: .3px;
+					}
+
+					dd {
+						margin-left: 7em;
+					}
+
+				}
+
+				.dayForm {
+					display: none;
+				}
+
+				.buttonRow {
+
+					text-align: left;
+					margin: .7em 0 0 0;
+					padding: .5em .5em .5em 7.5em;
+					border-top: 1px solid $blue;
+
+					&.editingButtons {
+						padding-left: .5em;
+						text-align: right;
+						display: none;
+					}
+
+					&.operationButtons {
+						display: block;
+					}
+
+				}
+
+				&.editing {
+
+					border-color: $pink;
+
+					dl {
+						display: none;
+					}
+
+					.dayForm {
+						display: block;
+					}
+
+					.buttonRow {
+						border-color: $pink;
+
+						&.editingButtons {
+							display: block;
+						}
+
+						&.operationButtons {
+							display: none;
+						}
+
+					}
+
+				}
+
+			}
+
+		}
+
+		> .buttonRow {
+			margin-top: 0;
+		}
+
+	}
+
+	.dayForm {
+
+		width: calc(100% - 1em);
+		margin: 0 auto;
+
+		.calendarContainer {
+			margin-bottom: 1em;
+			border-bottom: 1px solid $gray;
+		}
+
+	}
+
 
 }
 

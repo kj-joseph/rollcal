@@ -11,7 +11,12 @@ form h2 {
 	width: 100%;
 	margin-bottom: 1.5em;
 
-	&.short {
+	&.half {
+		width: calc(33% - 1em);
+		margin-right: 1em;
+	}
+
+	&.third {
 		width: calc(33% - 1em);
 		margin-right: 1em;
 	}
@@ -56,6 +61,11 @@ textarea {
 	form & {
 		text-align: right;
 	}
+
+	&.left {
+		text-align: left;
+	}
+
 }
 
 .smallButton {
@@ -143,6 +153,7 @@ form.disabled {
 	.Select__clear-indicator {
 		color: $pink;
 		font-weight: bold;
+		cursor: pointer;
 	}
 
 	.Select__menu-outer {
@@ -173,6 +184,10 @@ form.disabled {
 
 	.Select__input input {
 		margin-bottom: 0;
+	}
+
+	.Select__dropdown-indicator {
+		color: $blue;
 	}
 
 }

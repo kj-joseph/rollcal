@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom";
 import Modal from "react-modal";
 Modal.setAppElement("#root");
 
-import { IDerbyEvent, IDerbyVenue } from "components/interfaces";
+import { IDBDerbyEvent, IDBDerbyVenue, IDerbyEvent, IDerbyVenue } from "components/interfaces";
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 
@@ -229,11 +229,7 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 					+ `&startDate=${moment().format("YYYY-MM-DD")}`, { withCredentials: true })
 					.then((result: AxiosResponse) => {
 
-						const eventData = [];
-
-						for (const event of result.data) {
-
-							eventData.push({
+						const eventData = result.data.map((event: IDBDerbyEvent) => ({
 								dates_venue: formatDateRange({
 										firstDay: moment.utc(event.event_first_day),
 										lastDay: moment.utc(event.event_last_day),
@@ -242,8 +238,7 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 								id: event.event_id,
 								location: `${event.venue_city}${event.region_abbreviation ? ", " + event.region_abbreviation : ""}, ${event.country_code}`,
 								name: event.event_name ? event.event_name : event.event_host,
-							});
-						}
+							}));
 
 						this.setState({
 							eventData,
@@ -266,18 +261,15 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 				axios.get(`${this.props.apiLocation}venues/getVenuesByUser/${this.props.loggedInUserId}`, { withCredentials: true })
 					.then((result: AxiosResponse) => {
 
-						const venueData = [];
+						const venueData = result.data.map((venue: IDBDerbyVenue) => ({
+							city: venue.venue_city,
+							country: venue.venue_country,
+							id: venue.venue_id,
+							name: venue.venue_name,
+							location: `${venue.venue_city}${venue.region_abbreviation ? ", " + venue.region_abbreviation : ""}, ${venue.venue_country}`,
+							user: venue.venue_user,
+						}));
 
-						for (const venue of result.data) {
-
-							venueData.push({
-								id: venue.venue_id,
-								location: `${venue.venue_city}${venue.region_abbreviation ? ", " + venue.region_abbreviation : ""}, ${venue.country_code}`,
-								name: venue.venue_name,
-								region: venue.venue_region,
-							});
-
-						}
 
 						this.setState({
 							venueData,
