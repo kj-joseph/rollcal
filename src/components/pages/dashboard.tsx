@@ -65,6 +65,7 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 			}
 
 		}
+
 	}
 
 	render() {

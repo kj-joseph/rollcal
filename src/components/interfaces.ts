@@ -104,6 +104,7 @@ export interface IDerbyEventDayFormatted {
 	doorsTime?: string;
 	editing?: boolean;
 	id?: number;
+	sortValue?: string;
 	startTime: string;
 	description?: string;
 }

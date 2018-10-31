@@ -70,6 +70,10 @@ h3.formSectionHeader {
 	.Select {
 		margin-bottom: 1.5em;
 
+		&:first-child {
+			margin-top: 1.3em;
+		}
+
 	}
 
 	.inputGroup .Select {
@@ -183,10 +187,13 @@ h3.formSectionHeader {
 		.calendarContainer {
 			margin-bottom: 1em;
 			border-bottom: 1px solid $gray;
+
+			.DayPicker {
+				margin: 0 -.5em;
+			}
 		}
 
 	}
-
 
 }
 
