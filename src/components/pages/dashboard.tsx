@@ -227,7 +227,7 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 			case "events":
 
 				axios.get(`${this.props.apiLocation}events/search?user=${this.props.loggedInUserId}`
-					+ `&startDate=${moment().format("YYYY-MM-DD")}`, { withCredentials: true })
+					+ `&startDate=${moment().format("Y-MM-DD")}`, { withCredentials: true })
 					.then((result: AxiosResponse) => {
 
 						const eventData = result.data.map((event: IDBDerbyEvent) => ({

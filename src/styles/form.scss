@@ -12,7 +12,7 @@ form h2 {
 	margin-bottom: 1.5em;
 
 	&.half {
-		width: calc(33% - 1em);
+		width: calc(50% - 1em);
 		margin-right: 1em;
 	}
 
@@ -27,6 +27,11 @@ label {
 	font-size: .95em;
 	color: $blue;
 	margin-bottom: .4em;
+
+	em {
+		font-size: .85em;
+		color: $pink;
+	}
 }
 
 input, textarea {
@@ -69,8 +74,8 @@ textarea {
 }
 
 .smallButton {
-	font-size: 1.2rem;
-	line-height: 1.3rem;
+	font-size: 1.3rem;
+	line-height: 1.5rem;
 	color: $white;
 	margin: 0 0 0 1em;
 	padding-bottom: 2px;
@@ -143,6 +148,10 @@ form.disabled {
 		border: none;
 		border-radius: 0;
 		outline: none;
+	}
+
+	.Select__single-value {
+		line-height: 1.4em;
 	}
 
 	.Select.is-focused:not(.is-open) > .Select-control .Select__dropdown-indicator,

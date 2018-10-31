@@ -145,7 +145,7 @@ export default class Events<Props> extends React.Component<any, any, any> {
 		const saveSearchParts: string[] = [];
 
 		const queryStringDates: string = `${window.location.search}${!window.location.search ? "?" : "&"}`
-			+ `startDate=${this.props.match.params.startDate || moment().format("YYYY-MM-DD")}`
+			+ `startDate=${this.props.match.params.startDate || moment().format("Y-MM-DD")}`
 			+ `${this.props.match.params.endDate ? "&endDate=" + this.props.match.params.endDate : ""}`;
 
 		const dateDisplay: string = formatDateRange({

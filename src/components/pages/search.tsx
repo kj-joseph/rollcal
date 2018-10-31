@@ -167,6 +167,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 												isDisabled={!(this.state.countrySelectValue && this.state.regionLists[this.state.countrySelectValue.country_code])}
 												onChange={this.changeRegionSelect}
 												options={this.state.countrySelectValue
+													&& this.state.countrySelectValue.country_code
 													&& this.state.regionLists[this.state.countrySelectValue.country_code]
 													? this.state.regionLists[this.state.countrySelectValue.country_code]
 													: []}
@@ -542,10 +543,10 @@ export default class Search<Props> extends React.Component<any, any, any> {
 		};
 
 		if (this.state.startDate) {
-			searchURL += `/${this.state.startDate.format("YYYY-MM-DD")}`;
+			searchURL += `/${this.state.startDate.format("Y-MM-DD")}`;
 		}
 		if (this.state.endDate) {
-			searchURL += `/${this.state.endDate.format("YYYY-MM-DD")}`;
+			searchURL += `/${this.state.endDate.format("Y-MM-DD")}`;
 		}
 
 		if (this.state.selectedCountries.length) {

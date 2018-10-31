@@ -59,11 +59,37 @@ h4 {
 p {
 	line-height: 1.5em;
 	margin-bottom: 1.2em;
+
 }
+
+.callout {
+	margin-bottom: 1.2em;
+	padding: 0 0 .2em 0;
+	border: 2px solid $pink;
+
+	p {
+		padding-left: 6px;
+		padding-right: 6px;
+
+		&.header {
+			color: $white;
+			font-weight: strong;
+			margin: 0 0 .2em;
+			padding: 0 6px 2px;
+			background: $pink;
+		}
+
+		&:last-child {
+			margin-bottom: 0;
+		}
+
+	}
+
+}
+
 
 
 
 @include respond-to("small") {
 
 }
-

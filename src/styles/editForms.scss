@@ -1,4 +1,4 @@
-.entryForm {
+.entryForm .formContainer {
 
 	.inputGroup {
 		input, textarea {
@@ -69,10 +69,6 @@ h3.formSectionHeader {
 
 	.Select {
 		margin-bottom: 1.5em;
-
-		&:first-child {
-			margin-top: 1.3em;
-		}
 
 	}
 
@@ -195,11 +191,15 @@ h3.formSectionHeader {
 
 	}
 
+	.derbyFeatures {
+		margin-top: 0;
+	}
+
 }
 
 @include respond-to("medium") {
 
-	.entryForm {
+	.entryForm .formContainer {
 		display: flex;
 		flex-flow: row wrap;
 
@@ -235,6 +235,14 @@ h3.formSectionHeader {
 
 		&.closed {
 			display: none;
+		}
+
+		.Select {
+
+			&:first-child {
+				margin-top: 1.3em;
+			}
+
 		}
 
 	}
