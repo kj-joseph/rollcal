@@ -69,11 +69,18 @@ h3.formSectionHeader {
 
 	.Select {
 		margin-bottom: 1.5em;
-
 	}
 
 	.inputGroup .Select {
 		margin-bottom: 0;
+	}
+
+	.selectRegion .Select {
+		z-index: 52;
+	}
+
+	.selectTimeZone .Select {
+		z-index: 50;
 	}
 
 	.inputGroup:last-child {

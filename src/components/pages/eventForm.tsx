@@ -324,7 +324,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 													</div>
 
 													{(this.state.newVenueCountry && this.state.regionLists[this.state.newVenueCountry.country_code]) ?
-														<div className="inputGroup">
+														<div className="inputGroup selectRegion">
 															<label htmlFor="newVenueRegion">{this.state.newVenueCountry.country_region_type}</label>
 															<Select
 																id="newVenueRegion"
@@ -359,7 +359,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 														/>
 													</div>
 
-													<div className="inputGroup">
+													<div className="inputGroup selectTimeZone">
 														<label htmlFor="newVenueTimeZone">Time Zone</label>
 														<Select
 															id="newVenueTimeZone"
@@ -1089,7 +1089,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 							const eventDays = eventResult.days.map((day) => ({
 									date: moment.utc(day.eventday_start_venue).format("MMM D, Y"),
 									dateObject: moment.utc(day.eventday_start_venue),
-									description: day.eventday_description,
+									description: day.eventday_description || "",
 									doorsTime: day.eventday_doors_venue
 										&& day.eventday_doors_venue < day.eventday_start_venue
 										? moment.utc(day.eventday_doors_venue).format("HH:mm")
@@ -1103,7 +1103,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 							const initialEventDays = eventResult.days.map((day) => ({
 									date: moment.utc(day.eventday_start_venue).format("MMM D, Y"),
 									dateObject: moment.utc(day.eventday_start_venue),
-									description: day.eventday_description,
+									description: day.eventday_description || "",
 									doorsTime: day.eventday_doors_venue
 										&& day.eventday_doors_venue < day.eventday_start_venue
 										? moment.utc(day.eventday_doors_venue).format("HH:mm")
@@ -1117,7 +1117,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 							const editingDays = eventResult.days.map((day) => ({
 									date: moment.utc(day.eventday_start_venue).format("MMM D, Y"),
 									dateObject: moment.utc(day.eventday_start_venue),
-									description: day.eventday_description,
+									description: day.eventday_description || "",
 									doorsTime: day.eventday_doors_venue
 										&& day.eventday_doors_venue < day.eventday_start_venue
 										? moment.utc(day.eventday_doors_venue).format("HH:mm")
@@ -1384,7 +1384,20 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 
 		}
 
-		console.log(dataChanges);
+		axios.put(`${this.props.apiLocation}events/update`, {
+			changeObject: JSON.stringify(dataChanges),
+			id: this.state.eventData.id || 0,
+		}, { withCredentials: true })
+
+		.then((result: AxiosResponse) => {
+
+			console.log("GOOD!");
+
+		}).catch((error: AxiosError) => {
+
+			console.error(error);
+
+		});
 
 	}
 
