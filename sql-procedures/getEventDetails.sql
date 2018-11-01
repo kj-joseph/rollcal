@@ -22,7 +22,6 @@ select e.*, c.*, vr.*, tz.*, u.user_id, u.user_name,
 from events e, countries c, users u, timezones tz,
 	(select * from venues left outer join regions on region_id = venue_region) as vr
 where event_id = id
-	and event_approved = 1
 	and venue_id = event_venue and country_code = venue_country
 	and event_user = user_id and timezone_id = venue_timezone;
 

@@ -9,8 +9,7 @@ set @from = "
 	";
 
 set @where = "
-	where event_approved = 1
-		and vr.venue_id = event_venue and country_code = vr.venue_country
+	where vr.venue_id = event_venue and country_code = vr.venue_country
 		and event_user = user_id and timezone_id = vr.venue_timezone
 	";
 
