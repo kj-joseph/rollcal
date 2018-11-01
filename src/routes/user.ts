@@ -174,7 +174,7 @@ router.put("/account/update", checkSession("user"), upload.array(), (req: IReque
 			validationCode = generateHash(req.body.username + req.body.email + new Date()).toString();
 			needAuth = true;
 			changes.push(`user_email = ${res.locals.connection.escape(req.body.email)}`);
-			changes.push(`user_stauts = ${res.locals.connection.escape("unvalidated")}`);
+			changes.push(`user_status = ${res.locals.connection.escape("unvalidated")}`);
 			changes.push(`user_validation_code = ${validationCode}`);
 		}
 	}
@@ -268,6 +268,8 @@ router.post("/account/validate", upload.array(), (req: Request, res: Response) =
 				res.status(500).send();
 
 			} else {
+
+				console.log(results);
 
 				if (results[0].map((row: {}) => ({...row}))[0].validated) {
 
