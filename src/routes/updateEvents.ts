@@ -8,7 +8,7 @@ import { IRequestWithSession } from "interfaces";
 const router = Router();
 const upload = multer();
 
-router.put("/", upload.array(), checkSession("user"), (req: IRequestWithSession, res: Response) => {
+router.put("/saveEventChanges", upload.array(), checkSession("user"), (req: IRequestWithSession, res: Response) => {
 
 	res.locals.connection
 		.query(`call saveEventChanges(
