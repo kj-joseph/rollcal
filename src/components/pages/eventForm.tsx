@@ -75,6 +75,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 		this.isDisabledDate = this.isDisabledDate.bind(this);
 		this.onDateChange = this.onDateChange.bind(this);
 		this.saveDay = this.saveDay.bind(this);
+		this.submitEventForm = this.submitEventForm.bind(this);
 		this.toggleFeatureIcon = this.toggleFeatureIcon.bind(this);
 		this.toggleSection = this.toggleSection.bind(this);
 
@@ -260,7 +261,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 															id="newVenueName"
 															name="newVenueName"
 															data-handler="newVenue"
-															type="url"
+															type="text"
 															required={true}
 															value={this.state.eventData.newVenueName}
 															onChange={this.handleInputChange}
@@ -273,7 +274,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 															id="newVenueAddress1"
 															name="newVenueAddress1"
 															data-handler="newVenue"
-															type="url"
+															type="text"
 															required={true}
 															value={this.state.eventData.newVenueAddress1}
 															onChange={this.handleInputChange}
@@ -286,7 +287,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 															id="newVenueAddress2"
 															name="newVenueAddress2"
 															data-handler="newVenue"
-															type="url"
+															type="text"
 															required={false}
 															value={this.state.eventData.newVenueAddress2}
 															onChange={this.handleInputChange}
@@ -299,7 +300,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 															id="newVenueCity"
 															name="newVenueCity"
 															data-handler="newVenue"
-															type="url"
+															type="text"
 															required={true}
 															value={this.state.eventData.newVenueCity}
 															onChange={this.handleInputChange}
@@ -369,7 +370,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 															name="newVenueLink"
 															data-handler="newVenue"
 															type="url"
-															required={true}
+															required={false}
 															value={this.state.eventData.newVenueLink}
 															onChange={this.handleInputChange}
 														/>
@@ -632,8 +633,9 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 												)
 											|| !this.state.editingDays.length
 											|| (!this.state.selectedFeatures.filter((feature: string) => feature.split("-")[0] === "derbytype").length
-												&& !this.state.selectedFeatures.filter((feature: string) => feature.split("-")[0] === "track").length
+												|| !this.state.selectedFeatures.filter((feature: string) => feature.split("-")[0] === "track").length
 												)
+											|| this.state.editingDays.filter((day: IDerbyEventDayFormatted) => day.editing).length
 										}
 										className="largeButton"
 									>
@@ -717,11 +719,16 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 		event.preventDefault();
 
 		const id = Number(event.currentTarget.getAttribute("data-day-id"));
+		const eventData = this.state.eventData;
 
+		const eventDays = eventData.days.filter((day: IDerbyEventDayFormatted) => day.id !== id);
 		const editingDays = this.state.editingDays.filter((day: IDerbyEventDayFormatted) => day.id !== id);
+
+		eventData.days = eventDays;
 
 		this.setState({
 			editingDays,
+			eventData,
 		});
 
 	}
@@ -973,7 +980,6 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 		const promises: Array<Promise<any>> = [];
 		let regionLists: IGeoRegionList = {};
 		let selectedVenue = {} as IDerbyVenue;
-		let initialSelectedVenue = {} as IDerbyVenue;
 		let timeZones: ITimeZone[] = [];
 
 		promises.push(getGeography(this.props)
@@ -1139,35 +1145,26 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 							if (eventResult.event_venue) {
 
 								selectedVenue = allVenues.filter((venue: IDerbyVenue) => venue.id === eventResult.event_venue)[0];
-								initialSelectedVenue = allVenues.filter((venue: IDerbyVenue) => venue.id === eventResult.event_venue)[0];
 
 							}
 
 							const eventData = {
-								address1: eventResult.venue_address1,
-								address2: eventResult.venue_address2,
-								city: eventResult.venue_city || "",
 								days: eventDays,
 								description: eventResult.event_description || "",
 								host: eventResult.event_host || "",
 								id: eventResult.event_id,
 								link: eventResult.event_link || "",
 								name: eventResult.event_name || "",
-								selectedVenue,
 								venue: eventResult.venue_id || null as number,
 							};
 
 							const initialEventData = {
-								address1: eventResult.venue_address1,
-								address2: eventResult.venue_address2,
-								city: eventResult.venue_city || "",
 								days: initialEventDays,
 								description: eventResult.event_description || "",
 								host: eventResult.event_host || "",
 								id: eventResult.event_id,
 								link: eventResult.event_link || "",
 								name: eventResult.event_name || "",
-								selectedVenue: initialSelectedVenue,
 								venue: eventResult.venue_id || null as number,
 							};
 
@@ -1222,6 +1219,152 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 				}
 
 		});
+
+	}
+
+	submitEventForm(event: React.MouseEvent<HTMLFormElement>) {
+
+		event.preventDefault();
+
+		const dataChanges = {
+			data: [],
+			days: [],
+			features: {
+				add: [],
+				delete: [],
+			},
+		} as {
+			data: Array<{field: string, value: string}>,
+			days: Array<{id: number, operation: string, value: {
+				[key: string]: any,
+			}}>,
+			features: {
+				add: string[],
+				delete: string[],
+			}
+			newVenueData?: {
+				[key: string]: any,
+			},
+		};
+
+		const checkDataChange = (key: string) => {
+
+			if (this.state.eventData[key] !== this.state.initialEventData[key]) {
+				dataChanges.data.push({
+					field: key,
+					value: this.state.eventData[key] || null,
+				});
+			}
+
+		};
+
+		checkDataChange("description");
+		checkDataChange("host");
+		checkDataChange("link");
+		checkDataChange("name");
+
+		if (this.state.eventData.venue) {
+
+			checkDataChange("venue");
+
+		} else {
+
+			dataChanges.newVenueData = {
+				address1: this.state.newVenueAddress1,
+				address2: this.state.newVenueAddress2 || null,
+				city: this.state.newVenueCity,
+				country: this.state.newVenueCountry.country_code,
+				description: this.state.newVenueDescription,
+				link: this.state.newVenueLink || null,
+				name: this.state.newVenueName,
+				postcode: this.state.newVenuePostcode,
+				region: this.state.newVenueRegion.region_id || null,
+				timezone: this.state.newVenueTimeZone.timezone_id,
+			};
+
+		}
+
+		for (const feature of this.state.selectedFeatures) {
+
+			if (this.state.initialSelectedFeatures.indexOf(feature) === -1) {
+				dataChanges.features.add.push(feature);
+			}
+
+		}
+
+		for (const feature of this.state.initialSelectedFeatures) {
+
+			if (this.state.selectedFeatures.indexOf(feature) === -1) {
+				dataChanges.features.delete.push(feature);
+			}
+
+		}
+
+		const validDays = this.state.eventData.days.filter((day: IDerbyEventDayFormatted) =>
+			day.date && day.dateObject.isValid() && day.startTime);
+
+		const dayIds = this.state.eventData.days.map((day: IDerbyEventDayFormatted) => day.id);
+
+		dataChanges.days = dataChanges.days.concat(
+			validDays
+				.filter((day: IDerbyEventDayFormatted) => day.id < 0 )
+				.map((day: IDerbyEventDayFormatted) => ({
+					id: null as number,
+					operation: "add",
+					value: {
+						datetime: `${day.dateObject.format("Y-MM-DD")}T${day.startTime}:00`,
+						description: day.description,
+						doors: `${day.dateObject.format("Y-MM-DD")}T${day.doorsTime}:00`,
+					},
+				})));
+
+		dataChanges.days = dataChanges.days.concat(
+			this.state.initialEventData.days
+				.filter((day: IDerbyEventDayFormatted) => dayIds.indexOf(day.id) === -1 )
+				.map((day: IDerbyEventDayFormatted) => ({
+					id: day.id,
+					operation: "delete",
+					value: {},
+				})));
+
+		for (const editedDay of validDays.filter((day: IDerbyEventDayFormatted) => day.id > 0 )) {
+
+			const initialDay = this.state.initialEventData.days
+				.filter((day: IDerbyEventDayFormatted) => day.id === editedDay.id )[0];
+
+			if (editedDay.date !== initialDay.date
+				|| editedDay.startTime !== initialDay.startTime
+				|| editedDay.doorsTime !== initialDay.doorsTime
+				|| editedDay.description !== initialDay.description) {
+
+				const edits: {
+					datetime?: string,
+					description?: string,
+					doors?: string,
+				} = {};
+
+				if (editedDay.date !== initialDay.date
+					|| editedDay.startTime !== initialDay.startTime) {
+					edits.datetime = `${editedDay.dateObject.format("Y-MM-DD")}T${editedDay.startTime}:00`;
+				}
+
+				if (editedDay.description !== initialDay.description) {
+					edits.description = editedDay.description;
+				}
+
+				if (editedDay.doorsTime !== initialDay.doorsTime) {
+					edits.doors = `${editedDay.dateObject.format("Y-MM-DD")}T${editedDay.doorsTime}:00`;
+				}
+
+				dataChanges.days.push({
+					id: editedDay.id,
+					operation: "change",
+					value: edits,
+				});
+
+			}
+
+		}
 
 	}
 
