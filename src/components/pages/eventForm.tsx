@@ -1384,7 +1384,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 
 		}
 
-		axios.put(`${this.props.apiLocation}events/update`, {
+		axios.put(`${this.props.apiLocation}events/update/saveEventChanges`, {
 			changeObject: JSON.stringify(dataChanges),
 			id: this.state.eventData.id || 0,
 		}, { withCredentials: true })
