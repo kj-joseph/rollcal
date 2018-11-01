@@ -1,4 +1,4 @@
-import { Request, Response, Router } from "express";
+import { Response, Router } from "express";
 import multer from "multer";
 import { MysqlError } from "mysql";
 
@@ -10,33 +10,26 @@ const upload = multer();
 
 router.put("/", upload.array(), checkSession("user"), (req: IRequestWithSession, res: Response) => {
 
-	const timezone = req.query.timezone || "UTC";
+	res.locals.connection
+		.query(`call saveEventChanges(
+				${res.locals.connection.escape(req.session.user.id)},
+				${res.locals.connection.escape(req.body.id)},
+				${res.locals.connection.escape(req.body.changeObject)}
+			)`,
 
-	// req.session.user
+			(error: MysqlError, results: any) => {
+				if (error) {
+					res.locals.connection.end();
+					console.error(error);
+					res.status(500).send();
 
-	res.status(200).send();
+				} else {
 
-/*	res.locals.connection.query("select e.*, c.*, vr.*, tz.*, u.user_id, u.user_name"
-		+ " from events e, countries c, users u, timezones tz,"
-		+ " (select * from venues left outer join regions on region_id = venue_region) as vr"
-		+ ` where event_id = ${res.locals.connection.escape(req.params.eventId)}`
-		+ " and event_approved = 1"
-		+ " and venue_id = event_venue and country_code = venue_country"
-		+ " and event_user = user_id and timezone_id = event_timezone",
+					res.status(200).send();
 
-		(error: MysqlError, results: any) => {
-			if (error) {
-				res.locals.connection.end();
-				console.error(error);
-				res.status(500).send();
+				}
+			});
 
-			} else {
-
-				// test
-
-			}
-		});
-*/
 });
 
 export default router;
