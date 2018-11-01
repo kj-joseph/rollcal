@@ -346,6 +346,18 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 
 													: ""}
 
+													<div className="inputGroup">
+														<label htmlFor="newVenuePostcode">City</label>
+														<input
+															id="newVenuePostcode"
+															name="newVenuePostcode"
+															data-handler="newVenue"
+															type="text"
+															required={true}
+															value={this.state.eventData.newVenuePostcode}
+															onChange={this.handleInputChange}
+														/>
+													</div>
 
 													<div className="inputGroup">
 														<label htmlFor="newVenueTimeZone">Time Zone</label>
@@ -401,11 +413,13 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 										<h3
 											className={"formSectionHeader"
 												+ (this.state.sectionOpenDays ? " open" : " closed")
-												+ (this.state.editingDays.length ? " ok" : "")}
+												+ (this.state.editingDays.filter((day: IDerbyEventDayFormatted) =>
+													day.id > 0 || day.editing === false).length ? " ok" : "")}
 											data-section="Days"
 											onClick={this.toggleSection}
 										>
-											Event Days ({this.state.editingDays.length})
+											Event Days ({this.state.editingDays.filter((day: IDerbyEventDayFormatted) =>
+												day.id > 0 || day.editing === false).length})
 										</h3>
 
 										<div className={"formSection" + (this.state.sectionOpenDays ? " open" : " closed")}>
@@ -416,7 +430,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 													<p>There are currently no days for this event.  Please add at least one.</p>
 												: "" }
 
-												<ul className={"eventDayList" + (this.state.eventData.days.length ? "" : " empty")}>
+												<ul className={"eventDayList" + (this.state.editingDays.length ? "" : " empty")}>
 													{this.state.editingDays
 														.sort((day1: IDerbyEventDayFormatted, day2: IDerbyEventDayFormatted) =>
 															day1.sortValue > day2.sortValue ? 1 : day1.sortValue < day2.sortValue ? -1 : 0)
@@ -426,11 +440,11 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 																<dt>Date:</dt>
 																<dd>{day.dateObject.format("MMM D, Y")}</dd>
 																<dt>Start time:</dt>
-																<dd>{day.startTime ? moment(day.startTime, "H:mm").format("h:mm a") || "\u00A0" : "(not set)"}</dd>
+																<dd>{day.startTime ? moment(day.startTime, "H:mm").format("h:mm a") : "(not set)"}</dd>
 																<dt>Doors open:</dt>
-																<dd>{day.doorsTime ? moment(day.doorsTime, "H:mm").format("h:mm a") || "\u00A0" : "(not set)"}</dd>
+																<dd>{day.doorsTime ? moment(day.doorsTime, "H:mm").format("h:mm a") : "(not set)"}</dd>
 																<dt>Description:</dt>
-																<dd>{day.description || "\u00A0"}</dd>
+																<dd>{day.description || "(none)"}</dd>
 															</dl>
 
 															<div className="dayForm">
@@ -661,7 +675,6 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 
 		const editingDays = this.state.editingDays;
 		let nextDate = moment();
-
 
 		if (editingDays.length) {
 
@@ -1149,7 +1162,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 							}
 
 							const eventData = {
-								days: eventDays,
+								days: eventDays || [],
 								description: eventResult.event_description || "",
 								host: eventResult.event_host || "",
 								id: eventResult.event_id,
@@ -1159,7 +1172,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 							};
 
 							const initialEventData = {
-								days: initialEventDays,
+								days: initialEventDays || [],
 								description: eventResult.event_description || "",
 								host: eventResult.event_host || "",
 								id: eventResult.event_id,
@@ -1249,7 +1262,8 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 
 		const checkDataChange = (key: string) => {
 
-			if (this.state.eventData[key] !== this.state.initialEventData[key]) {
+			if ((!this.state.eventData.id && this.state.eventData[key])
+				|| (this.state.eventData.id && this.state.eventData[key] !== this.state.initialEventData[key])) {
 				dataChanges.data.push({
 					field: key,
 					value: this.state.eventData[key] || null,
@@ -1318,53 +1332,59 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 					},
 				})));
 
-		dataChanges.days = dataChanges.days.concat(
-			this.state.initialEventData.days
-				.filter((day: IDerbyEventDayFormatted) => dayIds.indexOf(day.id) === -1 )
-				.map((day: IDerbyEventDayFormatted) => ({
-					id: day.id,
-					operation: "delete",
-					value: {},
-				})));
+		if (this.state.eventData.id) {
 
-		for (const editedDay of validDays.filter((day: IDerbyEventDayFormatted) => day.id > 0 )) {
+			dataChanges.days = dataChanges.days.concat(
+				this.state.initialEventData.days
+					.filter((day: IDerbyEventDayFormatted) => dayIds.indexOf(day.id) === -1 )
+					.map((day: IDerbyEventDayFormatted) => ({
+						id: day.id,
+						operation: "delete",
+						value: {},
+					})));
 
-			const initialDay = this.state.initialEventData.days
-				.filter((day: IDerbyEventDayFormatted) => day.id === editedDay.id )[0];
+			for (const editedDay of validDays.filter((day: IDerbyEventDayFormatted) => day.id > 0 )) {
 
-			if (editedDay.date !== initialDay.date
-				|| editedDay.startTime !== initialDay.startTime
-				|| editedDay.doorsTime !== initialDay.doorsTime
-				|| editedDay.description !== initialDay.description) {
-
-				const edits: {
-					datetime?: string,
-					description?: string,
-					doors?: string,
-				} = {};
+				const initialDay = this.state.initialEventData.days
+					.filter((day: IDerbyEventDayFormatted) => day.id === editedDay.id )[0];
 
 				if (editedDay.date !== initialDay.date
-					|| editedDay.startTime !== initialDay.startTime) {
-					edits.datetime = `${editedDay.dateObject.format("Y-MM-DD")}T${editedDay.startTime}:00`;
-				}
+					|| editedDay.startTime !== initialDay.startTime
+					|| editedDay.doorsTime !== initialDay.doorsTime
+					|| editedDay.description !== initialDay.description) {
 
-				if (editedDay.description !== initialDay.description) {
-					edits.description = editedDay.description;
-				}
+					const edits: {
+						datetime?: string,
+						description?: string,
+						doors?: string,
+					} = {};
 
-				if (editedDay.doorsTime !== initialDay.doorsTime) {
-					edits.doors = `${editedDay.dateObject.format("Y-MM-DD")}T${editedDay.doorsTime}:00`;
-				}
+					if (editedDay.date !== initialDay.date
+						|| editedDay.startTime !== initialDay.startTime) {
+						edits.datetime = `${editedDay.dateObject.format("Y-MM-DD")}T${editedDay.startTime}:00`;
+					}
 
-				dataChanges.days.push({
-					id: editedDay.id,
-					operation: "change",
-					value: edits,
-				});
+					if (editedDay.description !== initialDay.description) {
+						edits.description = editedDay.description;
+					}
+
+					if (editedDay.doorsTime !== initialDay.doorsTime) {
+						edits.doors = `${editedDay.dateObject.format("Y-MM-DD")}T${editedDay.doorsTime}:00`;
+					}
+
+					dataChanges.days.push({
+						id: editedDay.id,
+						operation: "change",
+						value: edits,
+					});
+
+				}
 
 			}
 
 		}
+
+		console.log(dataChanges);
 
 	}
 
