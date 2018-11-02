@@ -58,6 +58,8 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 			sectionOpenVenue: true,
 			selectedFeatures: [] as string[],
 			selectedVenue: {} as IDerbyVenue,
+			submitError: null,
+			submitSuccess: false,
 			timeZoneList: [],
 			venueList: [],
 		};
@@ -127,6 +129,24 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 					{this.state.loading || this.state.processing ?
 
 						<div className="loader" />
+
+					: this.state.submitSuccess ?
+
+						( this.state.eventData.id ?
+
+							<React.Fragment>
+								<h2>Submission successful!  Thank you!</h2>
+								<p>Your changes to this event have been submitted.  Once one of our crack staff reviews your changes, we'll let you know.  Thanks for your help!</p>
+							</React.Fragment>
+
+						:
+
+							<React.Fragment>
+								<h2>Submission successful!  Thank you!</h2>
+								<p>Your new event has been submitted.  Once one of our crack staff reviews it, we'll let you know.  Thanks for your help!</p>
+							</React.Fragment>
+
+						)
 
 					: this.state.dataError ?
 
@@ -656,6 +676,10 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 										Save Event
 									</button>
 								</div>
+
+								{ this.state.submitError ?
+									<p className="error">{ this.state.submitError }</p>
+								: "" }
 
 							</form>
 
@@ -1391,11 +1415,16 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 
 		.then((result: AxiosResponse) => {
 
-			console.log("GOOD!");
+			this.setState({
+				submitSuccess: true,
+			});
+
 
 		}).catch((error: AxiosError) => {
 
-			console.error(error);
+			this.setState({
+				submitError: "There was an error submitting your changes. Please try again.",
+			});
 
 		});
 
