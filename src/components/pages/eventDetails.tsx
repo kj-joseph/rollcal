@@ -24,6 +24,8 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 			loading: true,
 		};
 
+		this.editEvent = this.editEvent.bind(this);
+
 	}
 
 	componentDidUpdate() {
@@ -78,6 +80,12 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 					:
 
 						<div className="eventDetails">
+
+							{this.state.eventData.user === this.props.loggedInUserId ?
+								<div className="buttonRow editButton">
+									<button type="button" onClick={this.editEvent} className="largeButton">Edit Event</button>
+								</div>
+							: "" }
 
 							<div className="data">
 
@@ -157,7 +165,10 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 									</div>
 								}
 
-								<p className="eventUser">Event entered by {this.state.eventData.user}</p>
+								<p className="eventUser">
+									Event added by {this.state.eventData.username}{this.state.eventData.user === this.props.loggedInUserId ? " (thank you!)" : "" }
+								</p>
+
 							</div>
 
 							<EventIcons
@@ -179,6 +190,10 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 			</div>
 		);
 
+	}
+
+	editEvent(event: React.MouseEvent<HTMLButtonElement>) {
+		this.props.history.push(`/dashboard/event/edit/${this.props.match.params.eventId}`);
 	}
 
 	loadData() {
@@ -275,7 +290,8 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 								location: `${eventResult.venue_city}${eventResult.region_abbreviation ? ", " + eventResult.region_abbreviation : ""}, ${eventResult.country_name}`,
 								multiDay: eventResult.days.length > 1,
 								name: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
-								user: eventResult.user_name,
+								user: eventResult.user_id,
+								username: eventResult.user_name,
 								venue_description: eventResult.venue_description,
 								venue_link: eventResult.venue_link,
 								venue_name: eventResult.venue_name,
