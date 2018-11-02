@@ -45,7 +45,7 @@ router.get("/getVenuesByUser/:userId", (req: Request, res: Response) => {
 router.get("/getVenueDetails/:id", (req: Request, res: Response) => {
 
 	res.locals.connection
-		.query(`call getVenuesByUser(${res.locals.connection.escape(req.params.id)})`,
+		.query(`call getVenueDetails(${res.locals.connection.escape(req.params.id)})`,
 		(error: MysqlError, results: any) => {
 
 			res.locals.connection.end();
