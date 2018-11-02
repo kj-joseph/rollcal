@@ -53,6 +53,7 @@ export interface IDBDerbyVenue {
 	venue_address1: string;
 	venue_address2: string;
 	venue_city: string;
+	venue_link: string;
 	venue_region: number;
 	venue_postcode: string;
 	venue_country: string;
@@ -159,7 +160,7 @@ export interface IDerbyVenue {
 	name: string;
 	postcode: string;
 	region: string;
-	user: number;
+	user?: number;
 }
 
 export interface IGeoCountry {

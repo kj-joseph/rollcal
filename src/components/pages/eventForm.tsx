@@ -96,8 +96,13 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 				userId: this.props.loggedInUserId,
 			});
 
-			if (this.props.loggedInUserId) {
+			if (this.props.loggedInUserId && this.state.pageFunction !== "Error") {
 				this.loadData();
+			} else {
+				this.setState({
+					dataError: true,
+					loading: false,
+				});
 			}
 
 		}
@@ -160,12 +165,12 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 
 							<div className="callout">
 								<p className="header">IMPORTANT!</p>
-								<p>Make sure to click the <strong>SAVE</strong> button at the bottom of the page to save your changes.</p>
+								<p>Make sure to click the <strong>Submit Changes</strong> button at the bottom of the page to save your changes.</p>
 							</div>
 
 							<form
 								className="entryForm"
-								id="accountForm"
+								id="eventForm"
 								onSubmit={this.submitEventForm}
 							>
 
@@ -655,6 +660,10 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 								</div>
 
 								<div className="buttonRow">
+								{ this.state.submitError ?
+									<p className="error">{ this.state.submitError }</p>
+								: "" }
+
 									<button
 										type="submit"
 										disabled={
@@ -674,13 +683,9 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 										}
 										className="largeButton"
 									>
-										Save Event
+										Submit Changes
 									</button>
 								</div>
-
-								{ this.state.submitError ?
-									<p className="error">{ this.state.submitError }</p>
-								: "" }
 
 							</form>
 
@@ -826,7 +831,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 	handleCountryChange(country: IGeoCountry) {
 
 		this.setState({
-			newVenueCountry: Object.assign({disabled: true}, country) || {} as IGeoCountry,
+			newVenueCountry: country || {} as IGeoCountry,
 			newVenueRegion: {} as IGeoRegion,
 		});
 
@@ -1289,13 +1294,16 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 			},
 		};
 
-		const checkDataChange = (key: string) => {
+		const checkDataChange = (field: string) => {
 
-			if ((!this.state.eventData.id && this.state.eventData[key])
-				|| (this.state.eventData.id && this.state.eventData[key] !== this.state.initialEventData[key])) {
+			const initialValue = this.state.initialEventData[field] || null;
+			const value = this.state.eventData[field] || null;
+
+			if ((!this.state.eventData.id && value)
+				|| (this.state.eventData.id && value !== initialValue)) {
 				dataChanges.data.push({
-					field: key,
-					value: this.state.eventData[key] || null,
+					field,
+					value,
 				});
 			}
 
@@ -1313,14 +1321,14 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 		} else {
 
 			dataChanges.newVenueData = {
-				address1: this.state.newVenueAddress1,
+				address1: this.state.newVenueAddress1 || null,
 				address2: this.state.newVenueAddress2 || null,
-				city: this.state.newVenueCity,
+				city: this.state.newVenueCity || null,
 				country: this.state.newVenueCountry.country_code,
-				description: this.state.newVenueDescription,
+				description: this.state.newVenueDescription || null,
 				link: this.state.newVenueLink || null,
-				name: this.state.newVenueName,
-				postcode: this.state.newVenuePostcode,
+				name: this.state.newVenueName || null,
+				postcode: this.state.newVenuePostcode || null,
 				region: this.state.newVenueRegion.region_id || null,
 				timezone: this.state.newVenueTimeZone.timezone_id,
 			};
@@ -1394,11 +1402,15 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 					}
 
 					if (editedDay.description !== initialDay.description) {
-						edits.description = editedDay.description;
+						edits.description = editedDay.description || null;
 					}
 
 					if (editedDay.doorsTime !== initialDay.doorsTime) {
-						edits.doors = `${editedDay.dateObject.format("Y-MM-DD")}T${editedDay.doorsTime}:00`;
+						if (editedDay.doorsTime) {
+							edits.doors = `${editedDay.dateObject.format("Y-MM-DD")}T${editedDay.doorsTime}:00`;
+						} else {
+							edits.doors = null;
+						}
 					}
 
 					dataChanges.days.push({
@@ -1413,27 +1425,43 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 
 		}
 
-		axios.put(`${this.props.apiLocation}events/update/saveEventChanges`, {
-			changeObject: JSON.stringify(dataChanges),
-			id: this.state.eventData.id || 0,
-		}, { withCredentials: true })
+		if (dataChanges.data.length
+			|| dataChanges.days.length
+			|| dataChanges.features.add.length
+			|| dataChanges.features.delete.length
+			|| dataChanges.newVenueData) {
 
-		.then((result: AxiosResponse) => {
+
+			axios.put(`${this.props.apiLocation}events/saveChanges`, {
+				changeObject: JSON.stringify(dataChanges),
+				id: this.state.eventData.id || 0,
+			}, { withCredentials: true })
+
+			.then((result: AxiosResponse) => {
+
+				this.setState({
+					processing: false,
+					submitSuccess: true,
+				});
+
+
+			}).catch((error: AxiosError) => {
+
+				this.setState({
+					processing: false,
+					submitError: "There was an error submitting your changes. Please try again.",
+				});
+
+			});
+
+		} else {
 
 			this.setState({
 				processing: false,
-				submitSuccess: true,
+				submitError: "You haven't made any changes.",
 			});
 
-
-		}).catch((error: AxiosError) => {
-
-			this.setState({
-				processing: false,
-				submitError: "There was an error submitting your changes. Please try again.",
-			});
-
-		});
+		}
 
 	}
 

@@ -1,4 +1,4 @@
-.entryForm .formContainer {
+.entryForm {
 
 	.inputGroup {
 		input, textarea {
@@ -13,6 +13,11 @@
 		.eventIconGroup .label {
 			font-weight: normal;
 		}
+	}
+
+	.error {
+		text-align: right;
+		color: $pink;
 	}
 
 }
@@ -206,6 +211,10 @@ h3.formSectionHeader {
 
 @include respond-to("medium") {
 
+	.venueForm {
+		max-width: 710px;
+	}
+
 	.entryForm .formContainer {
 		display: flex;
 		flex-flow: row wrap;
@@ -253,6 +262,5 @@ h3.formSectionHeader {
 		}
 
 	}
-
 
 }
