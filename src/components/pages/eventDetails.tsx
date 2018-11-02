@@ -108,7 +108,12 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 										<strong>{this.state.eventData.venue_name}</strong><br />
 										{this.state.eventData.address1}<br />
 										{(this.state.eventData.address2) ?
-											<span>{this.state.eventData.address2}</span>
+											<React.Fragment>
+												<span>
+													{this.state.eventData.address2}
+												</span>
+												<br />
+											</React.Fragment>
 											: ""
 										}
 										{this.state.eventData.location} {this.state.eventData.flag}
