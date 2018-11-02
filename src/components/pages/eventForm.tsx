@@ -283,7 +283,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 															data-handler="newVenue"
 															type="text"
 															required={true}
-															value={this.state.eventData.newVenueName}
+															value={this.state.newVenueName}
 															onChange={this.handleInputChange}
 														/>
 													</div>
@@ -296,7 +296,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 															data-handler="newVenue"
 															type="text"
 															required={true}
-															value={this.state.eventData.newVenueAddress1}
+															value={this.state.newVenueAddress1}
 															onChange={this.handleInputChange}
 														/>
 													</div>
@@ -309,7 +309,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 															data-handler="newVenue"
 															type="text"
 															required={false}
-															value={this.state.eventData.newVenueAddress2}
+															value={this.state.newVenueAddress2}
 															onChange={this.handleInputChange}
 														/>
 													</div>
@@ -322,7 +322,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 															data-handler="newVenue"
 															type="text"
 															required={true}
-															value={this.state.eventData.newVenueCity}
+															value={this.state.newVenueCity}
 															onChange={this.handleInputChange}
 														/>
 													</div>
@@ -367,14 +367,14 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 													: ""}
 
 													<div className="inputGroup">
-														<label htmlFor="newVenuePostcode">City</label>
+														<label htmlFor="newVenuePostcode">Postal Code <em>(optional, but suggested)</em></label>
 														<input
 															id="newVenuePostcode"
 															name="newVenuePostcode"
 															data-handler="newVenue"
 															type="text"
 															required={true}
-															value={this.state.eventData.newVenuePostcode}
+															value={this.state.newVenuePostcode}
 															onChange={this.handleInputChange}
 														/>
 													</div>
@@ -403,7 +403,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 															data-handler="newVenue"
 															type="url"
 															required={false}
-															value={this.state.eventData.newVenueLink}
+															value={this.state.newVenueLink}
 															onChange={this.handleInputChange}
 														/>
 													</div>
@@ -415,7 +415,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 															name="newVenueDescription"
 															data-handler="newVenue"
 															required={false}
-															value={this.state.eventData.newVenueDescription}
+															value={this.state.newVenueDescription}
 															onChange={this.handleInputChange}
 														/>
 													</div>
