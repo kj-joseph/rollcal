@@ -373,7 +373,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 															name="newVenuePostcode"
 															data-handler="newVenue"
 															type="text"
-															required={true}
+															required={false}
 															value={this.state.newVenuePostcode}
 															onChange={this.handleInputChange}
 														/>
@@ -663,6 +663,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 												&& (!this.state.newVenueName
 													|| !this.state.newVenueAddress1
 													|| !this.state.newVenueCity
+													|| !this.state.newVenueCountry.country_code
 													|| !this.state.newVenueTimeZone.timezone_id)
 												)
 											|| !this.state.editingDays.length
