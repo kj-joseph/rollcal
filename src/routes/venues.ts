@@ -41,4 +41,24 @@ router.get("/getVenuesByUser/:userId", (req: Request, res: Response) => {
 		});
 });
 
+
+router.get("/getVenueDetails/:id", (req: Request, res: Response) => {
+
+	res.locals.connection
+		.query(`call getVenuesByUser(${res.locals.connection.escape(req.params.id)})`,
+		(error: MysqlError, results: any) => {
+
+			res.locals.connection.end();
+
+			if (error) {
+				console.error(error);
+				res.status(500).send();
+
+			} else {
+				res.status(200).json(results[0].map((row: {}) => ({...row}))[0]);
+			}
+
+		});
+});
+
 export default router;
