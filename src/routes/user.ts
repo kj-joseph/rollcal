@@ -269,8 +269,6 @@ router.post("/account/validate", upload.array(), (req: Request, res: Response) =
 
 			} else {
 
-				console.log(results);
-
 				if (results[0].map((row: {}) => ({...row}))[0].validated) {
 
 					res.status(200).json({
