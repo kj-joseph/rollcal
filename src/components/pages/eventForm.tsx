@@ -1263,6 +1263,10 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 
 		event.preventDefault();
 
+		this.setState({
+			processing: true,
+		});
+
 		const dataChanges = {
 			data: [],
 			days: [],
@@ -1416,6 +1420,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 		.then((result: AxiosResponse) => {
 
 			this.setState({
+				processing: false,
 				submitSuccess: true,
 			});
 
@@ -1423,6 +1428,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 		}).catch((error: AxiosError) => {
 
 			this.setState({
+				processing: false,
 				submitError: "There was an error submitting your changes. Please try again.",
 			});
 
