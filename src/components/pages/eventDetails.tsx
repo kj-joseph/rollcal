@@ -124,7 +124,8 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 											</React.Fragment>
 											: ""
 										}
-										{this.state.eventData.location} {this.state.eventData.flag}
+										{this.state.eventData.location} {this.state.eventData.postcode}<br />
+										{this.state.eventData.country} {this.state.eventData.flag}
 									</address>
 									{(this.state.eventData.venue_link) ?
 										<p className="venueLink">
@@ -276,6 +277,7 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 							eventData: {
 								address1: eventResult.venue_address1,
 								address2: eventResult.venue_address2,
+								country: eventResult.country_name,
 								dates_venue: formatDateRange({
 										firstDay: moment.utc(eventResult.days[0].eventday_start_venue),
 										lastDay: moment.utc(eventResult.days[eventResult.days.length - 1].eventday_start_venue),
@@ -287,9 +289,11 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 								host: eventResult.event_name ? eventResult.event_host : null,
 								icons,
 								id: eventResult.event_id,
-								location: `${eventResult.venue_city}${eventResult.region_abbreviation ? ", " + eventResult.region_abbreviation : ""}, ${eventResult.country_name}`,
+								location: `${eventResult.venue_city}${eventResult.region_abbreviation ?
+									`, ${eventResult.region_abbreviation}` : ""}`,
 								multiDay: eventResult.days.length > 1,
 								name: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
+								postcode: eventResult.venue_postcode,
 								user: eventResult.user_id,
 								username: eventResult.user_name,
 								venue_description: eventResult.venue_description,
