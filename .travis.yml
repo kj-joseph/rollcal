@@ -12,7 +12,9 @@ script:
 deploy:
   - provider: script
     skip_cleanup: true
-    script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/build/* kj@server.bykev.in:/var/www/roll-cal/dev; fi
+    script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/build/* kj@server.bykev.in:/var/www/roll-cal/dev;
+      rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/build/.htaccess kj@server.bykev.in:/var/www/roll-cal/dev;
+      fi
     on:
       branch: dev
 before_install:
@@ -25,4 +27,3 @@ before_install:
 - sudo apt-get install nasm
 addons:
   ssh_known_hosts: server.bykev.in
-
