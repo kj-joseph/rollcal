@@ -95,4 +95,29 @@ router.put("/saveChanges", upload.array(), checkSession("user"), (req: IRequestW
 
 });
 
+
+router.delete("/deleteEvent/:id", upload.array(), checkSession("user"), (req: IRequestWithSession, res: Response) => {
+
+	res.locals.connection
+		.query(`call deleteEvent(
+				${res.locals.connection.escape(req.params.id)},
+				${res.locals.connection.escape(req.session.user.id)}
+			)`,
+
+			(error: MysqlError, results: any) => {
+				if (error) {
+					res.locals.connection.end();
+					console.error(error);
+					res.status(500).send();
+
+				} else {
+
+					res.status(200).send();
+
+				}
+			});
+
+});
+
+
 export default router;
