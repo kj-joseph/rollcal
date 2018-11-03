@@ -11,6 +11,28 @@ ul.boxList {
 		padding: 10px 10px 65px;
 		border: 2px solid $blue;
 
+		> * {
+			position: relative;
+			z-index: 11;
+		}
+
+		.myEventIcon {
+			position: absolute;
+			right: 6px;
+			top: 8px;
+			width: 36px;
+			z-index: 9;
+
+			svg {
+				fill: $mediumPink;
+			}
+
+		}
+
+		&.myEvent {
+			background: $palePink;
+		}
+
 		.listDate {
 			margin-bottom: 0;
 		}

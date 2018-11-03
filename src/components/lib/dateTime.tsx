@@ -3,7 +3,7 @@ import { IDerbyDates } from "components/interfaces";
 export const formatDateRange = (dates: IDerbyDates, monthFormat: string = "short") => {
 
 	const mo = monthFormat === "short" ? "MMM" : "MMMM";
-	const ds = "YYYY-MM-DD";
+	const ds = "Y-MM-DD";
 
 	if (dates.lastDay) {
 
@@ -21,7 +21,7 @@ export const formatDateRange = (dates: IDerbyDates, monthFormat: string = "short
 
 	} else {
 
-		return dates.firstDay.format(`${mo} D, YYYY`);
+		return dates.firstDay.format(`${mo} D, Y`);
 
 	}
 

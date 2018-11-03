@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom";
 import Modal from "react-modal";
 Modal.setAppElement("#root");
 
-import { IDerbyEvent, IDerbyVenue } from "components/interfaces";
+import { IDBDerbyEvent, IDBDerbyVenue, IDerbyEvent, IDerbyVenue } from "components/interfaces";
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 
@@ -49,7 +49,7 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 
 		if (!this.props.loggedIn) {
 			this.props.history.push("/");
-		} else if (!this.props.match.params.func) {
+		} else if (!this.props.match.params.operation) {
 			this.props.history.push("/dashboard/events");
 		} else if (window.location.pathname !== this.state.path
 			|| this.props.loggedInUserId !== this.state.userId ) {
@@ -61,10 +61,11 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 			});
 
 			if (this.props.loggedInUserId) {
-				this.loadData(this.props.match.params.func);
+				this.loadData(this.props.match.params.operation);
 			}
 
 		}
+
 	}
 
 	render() {
@@ -84,7 +85,7 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 						type="button"
 						onClick={this.activateTab}
 						data-tab="events"
-						className={`largeButton${this.props.match.params.func === "events" ? " active" : ""}`}
+						className={`largeButton${this.props.match.params.operation === "events" ? " active" : ""}`}
 					>
 						Events
 					</button>
@@ -92,14 +93,14 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 						type="button"
 						onClick={this.activateTab}
 						data-tab="venues"
-						className={`largeButton${this.props.match.params.func === "venues" ? " active" : ""}`}
+						className={`largeButton${this.props.match.params.operation === "venues" ? " active" : ""}`}
 					>
 						Venues
 					</button>
 
 				</div>
 
-				{this.props.match.params.func === "events" ?
+				{this.props.match.params.operation === "events" ?
 
 					<div className="userEventList">
 
@@ -143,7 +144,7 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 
 					</div>
 
-				: this.props.match.params.func === "venues" ?
+				: this.props.match.params.operation === "venues" ?
 
 					<div className="userVenueList">
 
@@ -226,14 +227,10 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 			case "events":
 
 				axios.get(`${this.props.apiLocation}events/search?user=${this.props.loggedInUserId}`
-					+ `&startDate=${moment().format("YYYY-MM-DD")}`, { withCredentials: true })
+					+ `&startDate=${moment().format("Y-MM-DD")}`, { withCredentials: true })
 					.then((result: AxiosResponse) => {
 
-						const eventData = [];
-
-						for (const event of result.data) {
-
-							eventData.push({
+						const eventData = result.data.map((event: IDBDerbyEvent) => ({
 								dates_venue: formatDateRange({
 										firstDay: moment.utc(event.event_first_day),
 										lastDay: moment.utc(event.event_last_day),
@@ -242,8 +239,7 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 								id: event.event_id,
 								location: `${event.venue_city}${event.region_abbreviation ? ", " + event.region_abbreviation : ""}, ${event.country_code}`,
 								name: event.event_name ? event.event_name : event.event_host,
-							});
-						}
+							}));
 
 						this.setState({
 							eventData,
@@ -266,18 +262,15 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 				axios.get(`${this.props.apiLocation}venues/getVenuesByUser/${this.props.loggedInUserId}`, { withCredentials: true })
 					.then((result: AxiosResponse) => {
 
-						const venueData = [];
+						const venueData = result.data.map((venue: IDBDerbyVenue) => ({
+							city: venue.venue_city,
+							country: venue.venue_country,
+							id: venue.venue_id,
+							name: venue.venue_name,
+							location: `${venue.venue_city}${venue.region_abbreviation ? ", " + venue.region_abbreviation : ""}, ${venue.venue_country}`,
+							user: venue.venue_user,
+						}));
 
-						for (const venue of result.data) {
-
-							venueData.push({
-								id: venue.venue_id,
-								location: `${venue.venue_city}${venue.region_abbreviation ? ", " + venue.region_abbreviation : ""}, ${venue.country_code}`,
-								name: venue.venue_name,
-								region: venue.venue_region,
-							});
-
-						}
 
 						this.setState({
 							venueData,

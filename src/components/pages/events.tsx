@@ -9,10 +9,12 @@ import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography } from "
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 
+import { formatDateRange } from "components/lib/dateTime";
 import moment from "moment";
 
-import { formatDateRange } from "components/lib/dateTime";
 import EventIconImage from "components/partials/eventIconImage";
+import MyEventIcon from "images/star.svg";
+import ReactSVG from "react-svg";
 
 export default class Events<Props> extends React.Component<any, any, any> {
 	constructor(props: Props) {
@@ -93,7 +95,14 @@ export default class Events<Props> extends React.Component<any, any, any> {
 				{!this.state.dataError &&  this.state.eventData.length > 0 && !this.state.loading ?
 					<ul className="eventList boxList">
 						{this.state.eventData.map((event: IDerbyEvent) => (
-							<li key={event.id}>
+							<li
+								key={event.id}
+								className={event.user === this.props.loggedInUserId ? "myEvent" : ""}
+							>
+								{event.user === this.props.loggedInUserId ?
+									<ReactSVG className="myEventIcon" src={MyEventIcon} title="You created this event" />
+								: ""}
+
 								<p className="listDate"><strong>{event.dates_venue}</strong></p>
 								<p className="listLocation">{event.location} {event.flag}</p>
 								<h2><NavLink to={`/event/${event.id}`} title="Event Details">
@@ -145,7 +154,7 @@ export default class Events<Props> extends React.Component<any, any, any> {
 		const saveSearchParts: string[] = [];
 
 		const queryStringDates: string = `${window.location.search}${!window.location.search ? "?" : "&"}`
-			+ `startDate=${this.props.match.params.startDate || moment().format("YYYY-MM-DD")}`
+			+ `startDate=${this.props.match.params.startDate || moment().format("Y-MM-DD")}`
 			+ `${this.props.match.params.endDate ? "&endDate=" + this.props.match.params.endDate : ""}`;
 
 		const dateDisplay: string = formatDateRange({
@@ -429,7 +438,8 @@ export default class Events<Props> extends React.Component<any, any, any> {
 									location: `${eventResult.venue_city}${eventResult.region_abbreviation ? ", " + eventResult.region_abbreviation : ""}, ${eventResult.country_code}`,
 									multiDay: eventResult.event_first_day.substring(0, 10) !== eventResult.event_last_day.substring(0, 10),
 									name: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
-									user: eventResult.user_name,
+									user: eventResult.user_id,
+									username: eventResult.user_name,
 									venue_description: eventResult.venue_description,
 									venue_link: eventResult.venue_link,
 									venue_name: eventResult.venue_name,

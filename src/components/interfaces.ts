@@ -10,8 +10,10 @@ export interface IDBDerbyEvent {
 	event_approved: number;
 	event_description?: string;
 	event_eventtype: number;
+	event_first_day: string;
 	event_host: string;
 	event_id: number;
+	event_last_day: string;
 	event_link?: string;
 	event_name?: string;
 	event_timezone: number;
@@ -38,6 +40,25 @@ export interface IDBDerbyEvent {
 	venue_postcode: string;
 	venue_region: number;
 	venue_user: number;
+}
+
+export interface IDBDerbyVenue {
+	country_name?: string;
+	country_flag?: string;
+	region_abbreviation?: string;
+	region_name?: string;
+	venue_id: number;
+	venue_user: number;
+	venue_name: string;
+	venue_address1: string;
+	venue_address2: string;
+	venue_city: string;
+	venue_link: string;
+	venue_region: number;
+	venue_postcode: string;
+	venue_country: string;
+	venue_description?: string;
+	venue_timezone: number;
 }
 
 export interface IDerbyDates {
@@ -80,7 +101,11 @@ export interface IDerbyEventDay {
 
 export interface IDerbyEventDayFormatted {
 	date: string;
+	dateObject?: moment.Moment;
 	doorsTime?: string;
+	editing?: boolean;
+	id?: number;
+	sortValue?: string;
 	startTime: string;
 	description?: string;
 }
@@ -135,7 +160,7 @@ export interface IDerbyVenue {
 	name: string;
 	postcode: string;
 	region: string;
-	user: number;
+	user?: number;
 }
 
 export interface IGeoCountry {
@@ -166,6 +191,12 @@ export interface IGeoRegionList {
 export interface IReduxActionType {
 	type: string;
 	payload: any;
+}
+
+export interface ITimeZone {
+	timezone_id: number;
+	timezone_name: string;
+	timezone_zone: string;
 }
 
 export interface IUserInfo {

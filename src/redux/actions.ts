@@ -1,4 +1,4 @@
-import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IReduxActionType, IUserInfo } from "components/interfaces";
+import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IReduxActionType, IUserInfo, ITimeZone } from "components/interfaces";
 
 export default {
 
@@ -30,6 +30,11 @@ export default {
 	saveLastSearch: (search: string): IReduxActionType => ({
 		payload: search,
 		type: "SAVE_LAST_SEARCH",
+	}),
+
+	saveTimeZones: (data: ITimeZone[]): IReduxActionType => ({
+		payload: data,
+		type: "SAVE_TIME_ZONES",
 	}),
 
 	setAccountModalState: (accountModalState: boolean): IReduxActionType => ({

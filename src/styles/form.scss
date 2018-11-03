@@ -7,7 +7,19 @@ form h2 {
 }
 
 .inputGroup {
+	display: inline-block;
+	width: 100%;
 	margin-bottom: 1.5em;
+
+	&.half {
+		width: calc(50% - 1em);
+		margin-right: 1em;
+	}
+
+	&.third {
+		width: calc(33% - 1em);
+		margin-right: 1em;
+	}
 }
 
 label {
@@ -15,14 +27,25 @@ label {
 	font-size: .95em;
 	color: $blue;
 	margin-bottom: .4em;
+
+	em {
+		font-size: .85em;
+		color: $pink;
+	}
 }
 
-input {
-	display: block;
+input, textarea {
+	display: inline-block;
 	width: calc(100% - 12px);
 	margin-bottom: .8em;
 	border: 1px solid $blue;
 	padding: 5px;
+
+}
+
+textarea {
+	height: 7em;
+	resize: vertical;
 }
 
 .buttonRow {
@@ -43,11 +66,16 @@ input {
 	form & {
 		text-align: right;
 	}
+
+	&.left {
+		text-align: left;
+	}
+
 }
 
 .smallButton {
-	font-size: 1.2rem;
-	line-height: 1.3rem;
+	font-size: 1.3rem;
+	line-height: 1.5rem;
 	color: $white;
 	margin: 0 0 0 1em;
 	padding-bottom: 2px;
@@ -108,10 +136,8 @@ form.disabled {
 
 }
 
-
-
-
 .Select {
+	z-index: 55;
 	border: 1px solid $blue;
 	border-radius: 0;
 
@@ -125,6 +151,10 @@ form.disabled {
 		outline: none;
 	}
 
+	.Select__single-value {
+		line-height: 1.4em;
+	}
+
 	.Select.is-focused:not(.is-open) > .Select-control .Select__dropdown-indicator,
 	&.is-open .Select__dropdown-indicator {
 		border-color: $blue transparent transparent;
@@ -133,6 +163,7 @@ form.disabled {
 	.Select__clear-indicator {
 		color: $pink;
 		font-weight: bold;
+		cursor: pointer;
 	}
 
 	.Select__menu-outer {
@@ -165,5 +196,8 @@ form.disabled {
 		margin-bottom: 0;
 	}
 
-}
+	.Select__dropdown-indicator {
+		color: $blue;
+	}
 
+}

@@ -1,6 +1,8 @@
 import axios, { AxiosResponse } from "axios";
 
-import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IGeoData, IGeoRegionList } from "components/interfaces";
+import { IDerbySanction, IDerbyTrack, IDerbyType,
+	IGeoCountry, IGeoData, IGeoRegionList, ITimeZone,
+	} from "components/interfaces";
 
 export const getDerbySanctions = (appState: any): Promise<IDerbySanction[]> => {
 
@@ -12,10 +14,10 @@ export const getDerbySanctions = (appState: any): Promise<IDerbySanction[]> => {
 
 		} else {
 
-			axios.get(appState.apiLocation + "eventFeatures/getSanctionTypes", { withCredentials: true })
+			axios.get(`${appState.apiLocation}eventFeatures/getSanctionTypes`, { withCredentials: true })
 				.then((result: AxiosResponse) => {
 					appState.saveDataSanctions(result.data as IDerbySanction[]);
-					resolve(result.data);
+					resolve(result.data as IDerbySanction[]);
 				}).catch((error) => {
 					reject(error);
 				});
@@ -34,10 +36,10 @@ export const getDerbyTracks = (appState: any): Promise<IDerbyTrack[]> => {
 
 		} else {
 
-			axios.get(appState.apiLocation + "eventFeatures/getTracks", { withCredentials: true })
+			axios.get(`${appState.apiLocation}eventFeatures/getTracks`, { withCredentials: true })
 				.then((result: AxiosResponse) => {
 					appState.saveDataTracks(result.data as IDerbyTrack[]);
-					resolve(result.data);
+					resolve(result.data as IDerbyTrack[]);
 				}).catch((error) => {
 					reject(error);
 				});
@@ -56,10 +58,10 @@ export const getDerbyTypes = (appState: any): Promise<IDerbyType[]> => {
 
 		} else {
 
-			axios.get(appState.apiLocation + "eventFeatures/getDerbyTypes", { withCredentials: true })
+			axios.get(`${appState.apiLocation}eventFeatures/getDerbyTypes`, { withCredentials: true })
 				.then((result: AxiosResponse) => {
 					appState.saveDataDerbyTypes(result.data as IDerbyType[]);
-					resolve(result.data);
+					resolve(result.data as IDerbyType[]);
 				}).catch((error) => {
 					reject(error);
 				});
@@ -81,7 +83,7 @@ export const getGeography = (appState: any): Promise<IGeoData> => {
 
 		} else {
 
-			axios.get(appState.apiLocation + "geography/getAllCountries", { withCredentials: true })
+			axios.get(`${appState.apiLocation}geography/getAllCountries`, { withCredentials: true })
 				.then((result: AxiosResponse) => {
 
 					const countries: IGeoCountry[] = result.data;
@@ -129,6 +131,29 @@ export const getGeography = (appState: any): Promise<IGeoData> => {
 
 					}
 
+				}).catch((error) => {
+					reject(error);
+				});
+		}
+
+	});
+
+};
+
+export const getTimeZones = (appState: any): Promise<ITimeZone[]> => {
+
+	return new Promise((resolve, reject) => {
+
+		if (appState.timeZones.length) {
+
+			resolve(appState.timeZones);
+
+		} else {
+
+			axios.get(`${appState.apiLocation}geography/getTimeZones`, { withCredentials: true })
+				.then((result: AxiosResponse) => {
+					appState.saveTimeZones(result.data as ITimeZone[]);
+					resolve(result.data as ITimeZone[]);
 				}).catch((error) => {
 					reject(error);
 				});

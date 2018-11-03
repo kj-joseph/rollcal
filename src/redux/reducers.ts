@@ -1,4 +1,4 @@
-import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IGeoRegionList, IReduxActionType } from "components/interfaces";
+import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IGeoRegionList, IReduxActionType, ITimeZone } from "components/interfaces";
 
 const initialState = {
 	apiLocation: process.env.API_URL,
@@ -18,6 +18,7 @@ const initialState = {
 	loginModalOpen: false,
 	page: "home",
 	sessionInitialized: false,
+	timeZones: [] as ITimeZone[],
 };
 
 const rootReducer = (state = initialState, action: IReduxActionType) => {
@@ -57,6 +58,11 @@ const rootReducer = (state = initialState, action: IReduxActionType) => {
 
 		case "SAVE_LAST_SEARCH":
 			newState.lastSearch = action.payload;
+			return newState;
+			break;
+
+		case "SAVE_TIME_ZONES":
+			newState.timeZones = action.payload;
 			return newState;
 			break;
 

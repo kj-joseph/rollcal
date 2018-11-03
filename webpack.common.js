@@ -63,14 +63,9 @@ module.exports = {
 				include: src_dir,
 				loader: "babel-loader",
 			},
-/*			{
-			  test: /\.js$/,
-			  use: ["source-map-loader"],
-			  enforce: "pre"
-			},*/
 			{
 				test: /\.(eot|ttf|woff|woff2)$/,
-				use: {					
+				use: {
 					loader: "file-loader",
 					options: {
 						name: "[name].[ext]",

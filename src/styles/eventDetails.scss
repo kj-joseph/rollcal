@@ -9,16 +9,20 @@ p.backToSearch {
 }
 
 .eventDetails {
+	position: relative;
+
+	.editButton {
+		position: absolute;
+		right: -3px;
+		top: -3.8em;
+	}
 
 	.eventInfo {
 		margin-bottom: 1.5em;
 
 		h1 {
+			clear: both;
 			margin-bottom: .1em;
-		}
-
-		h3 {
-			margin-bottom: .2em;
 		}
 
 		.eventDate {
@@ -48,28 +52,6 @@ p.backToSearch {
 
 		.venueDescription, .venueLink {
 			margin: .15em 0 0;
-		}
-
-	}
-
-
-
-	dl {
-		margin-bottom: .5em;
-
-		dt {
-			display: block;
-			margin-bottom: .15em;
-
-			strong {
-				display: inline-block;
-				width: 3.5em;
-			}
-		}
-
-		dd {
-			display: block;
-			margin: 0 0 .4em 3.5em;
 		}
 
 	}
@@ -106,6 +88,30 @@ p.backToSearch {
 
 }
 
+.eventDays {
+
+	dl {
+		margin-bottom: .5em;
+
+		dt {
+			display: block;
+			margin-bottom: .15em;
+
+			strong {
+				display: inline-block;
+				width: 3.5em;
+			}
+		}
+
+		dd {
+			display: block;
+			margin: 0 0 .4em 3.5em;
+		}
+
+	}
+
+}
+
 @include respond-to("xsmall") {
 
 	.eventDetails {
@@ -135,6 +141,11 @@ p.backToSearch {
 @include respond-to("small") {
 
 	.eventDetails {
+
+		.editButton {
+			right: 8px;
+			top: -3.5em;
+		}
 
 		.eventIcons svg {
 			height: 90px;

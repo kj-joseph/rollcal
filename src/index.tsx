@@ -3,7 +3,7 @@ import { render } from "react-dom";
 import { BrowserRouter, NavLink, Route, Switch } from "react-router-dom";
 import ReactSVG from "react-svg";
 
-import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IReduxActionType, IUserInfo } from "components/interfaces";
+import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IReduxActionType, ITimeZone, IUserInfo } from "components/interfaces";
 
 import { connect, Provider } from "react-redux";
 import { Dispatch } from "redux";
@@ -44,9 +44,13 @@ class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
 
 	componentDidMount() {
 
-		auth.checkLoginStatus(this.props).then(() => {
-			this.props.setSessionState(true);
-		});
+		if (!this.props.sessionInitialized) {
+
+			auth.checkLoginStatus(this.props).then(() => {
+				this.props.setSessionState(true);
+			});
+
+		}
 
 	}
 
@@ -93,8 +97,9 @@ class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
 							<Switch>
 								<Route path="/validate/:validationCode" component={ValidatePage} exact={true} />
 								<Route path="/event/:eventId?" component={EventDetailsPage} exact={true} />
-								<Route path="/dashboard/event/:func(add|edit)/:id(\d+)?" component={EventFormPage} exact={true} />
-								<Route path="/dashboard/:func(events|venues|changes|users)?" component={DashboardPage} exact={true} />
+								<Route path="/dashboard/event/:operation(add|edit)/:eventId(\d+)?" component={EventFormPage} exact={true} />
+								<Route path="/dashboard/venue/:operation(add|edit)/:venueId(\d+)?" component={VenueFormPage} exact={true} />
+								<Route path="/dashboard/:operation(events|venues|changes|users)?" component={DashboardPage} exact={true} />
 								<Route path="/search" component={SearchPage} exact={true} />
 								<Route path="/faq" component={FaqPage} exact={true} />
 								<Route path="/contact" component={ContactPage} exact={true} />
@@ -189,6 +194,7 @@ const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>) => {
 		saveDataSanctions: (data: IDerbySanction[]) => dispatch(reduxActions.saveDataSanctions(data)),
 		saveDataTracks: (data: IDerbyTrack[]) => dispatch(reduxActions.saveDataTracks(data)),
 		saveLastSearch: (search: string) => dispatch(reduxActions.saveLastSearch(search)),
+		saveTimeZones: (data: ITimeZone[]) => dispatch(reduxActions.saveTimeZones(data)),
 		setAccountModalState: (accountModalState: boolean) => dispatch(reduxActions.setAccountModalState(accountModalState)),
 		setLoginModalState: (loginModalState: boolean) => dispatch(reduxActions.setLoginModalState(loginModalState)),
 		setSessionState: (sessionInitialized: boolean) => dispatch(reduxActions.setSessionState(sessionInitialized)),
@@ -196,32 +202,46 @@ const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>) => {
 	};
 };
 
-import Contact from "components/pages/contact";
-import Dashboard from "components/pages/dashboard";
-import EventDetails from "components/pages/eventDetails";
-import EventForm from "components/pages/eventForm";
-import Events from "components/pages/events";
-import Faq from "components/pages/faq";
-import Search from "components/pages/search";
-import Validate from "components/pages/validate";
-import Account from "components/partials/account";
-import Login from "components/partials/login";
-import SiteMenu from "components/partials/siteMenu";
-import Error404 from "components/status/404";
-
-const ContactPage = connect(mapStateToProps, mapDispatchToProps)(Contact);
-const DashboardPage = connect(mapStateToProps, mapDispatchToProps)(Dashboard);
-const EventDetailsPage = connect(mapStateToProps, mapDispatchToProps)(EventDetails);
-const EventFormPage = connect(mapStateToProps, mapDispatchToProps)(EventForm);
-const EventsPage = connect(mapStateToProps, mapDispatchToProps)(Events);
-const FaqPage = connect(mapStateToProps, mapDispatchToProps)(Faq);
-const NotFoundPage = connect(mapStateToProps, mapDispatchToProps)(Error404);
-const SearchPage = connect(mapStateToProps, mapDispatchToProps)(Search);
-const SiteMenuComponent = connect(mapStateToProps, mapDispatchToProps)(SiteMenu);
 const SiteRouter = connect(mapStateToProps, mapDispatchToProps)(ConnectedSiteRouter);
-const AccountModal = connect(mapStateToProps, mapDispatchToProps)(Account);
-const LoginModal = connect(mapStateToProps, mapDispatchToProps)(Login);
+
+import Contact from "components/pages/contact";
+const ContactPage = connect(mapStateToProps, mapDispatchToProps)(Contact);
+
+import Dashboard from "components/pages/dashboard";
+const DashboardPage = connect(mapStateToProps, mapDispatchToProps)(Dashboard);
+
+import EventDetails from "components/pages/eventDetails";
+const EventDetailsPage = connect(mapStateToProps, mapDispatchToProps)(EventDetails);
+
+import EventForm from "components/pages/eventForm";
+const EventFormPage = connect(mapStateToProps, mapDispatchToProps)(EventForm);
+
+import Events from "components/pages/events";
+const EventsPage = connect(mapStateToProps, mapDispatchToProps)(Events);
+
+import Faq from "components/pages/faq";
+const FaqPage = connect(mapStateToProps, mapDispatchToProps)(Faq);
+
+import Search from "components/pages/search";
+const SearchPage = connect(mapStateToProps, mapDispatchToProps)(Search);
+
+import Validate from "components/pages/validate";
 const ValidatePage = connect(mapStateToProps, mapDispatchToProps)(Validate);
+
+import VenueForm from "components/pages/venueForm";
+const VenueFormPage = connect(mapStateToProps, mapDispatchToProps)(VenueForm);
+
+import Account from "components/partials/account";
+const AccountModal = connect(mapStateToProps, mapDispatchToProps)(Account);
+
+import Login from "components/partials/login";
+const LoginModal = connect(mapStateToProps, mapDispatchToProps)(Login);
+
+import SiteMenu from "components/partials/siteMenu";
+const SiteMenuComponent = connect(mapStateToProps, mapDispatchToProps)(SiteMenu);
+
+import Error404 from "components/status/404";
+const NotFoundPage = connect(mapStateToProps, mapDispatchToProps)(Error404);
 
 render(
 	<Provider store={store}>

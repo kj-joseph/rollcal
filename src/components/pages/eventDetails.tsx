@@ -7,9 +7,8 @@ import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "components/lib
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 
-import moment from "moment";
-
 import { formatDateRange } from "components/lib/dateTime";
+import moment from "moment";
 
 import EventIcons from "components/partials/eventIcons";
 
@@ -24,6 +23,8 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 			limit: this.props.limit || 12,
 			loading: true,
 		};
+
+		this.editEvent = this.editEvent.bind(this);
 
 	}
 
@@ -80,6 +81,12 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 
 						<div className="eventDetails">
 
+							{this.state.eventData.user === this.props.loggedInUserId ?
+								<div className="buttonRow editButton">
+									<button type="button" onClick={this.editEvent} className="largeButton">Edit Event</button>
+								</div>
+							: "" }
+
 							<div className="data">
 
 								<div className="eventInfo">
@@ -109,10 +116,16 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 										<strong>{this.state.eventData.venue_name}</strong><br />
 										{this.state.eventData.address1}<br />
 										{(this.state.eventData.address2) ?
-											<span>{this.state.eventData.address2}</span>
+											<React.Fragment>
+												<span>
+													{this.state.eventData.address2}
+												</span>
+												<br />
+											</React.Fragment>
 											: ""
 										}
-										{this.state.eventData.location} {this.state.eventData.flag}
+										{this.state.eventData.location} {this.state.eventData.postcode}<br />
+										{this.state.eventData.country} {this.state.eventData.flag}
 									</address>
 									{(this.state.eventData.venue_link) ?
 										<p className="venueLink">
@@ -136,7 +149,7 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 										{this.state.eventData.days.map((day: IDerbyEventDayFormatted) => (
 											<React.Fragment key={day.date}>
 												<dt><strong>{day.date}:</strong>{day.startTime}
-													{day.doorsTime ? ` (Doors: ${day.doorsTime})` : "" }
+													{day.doorsTime ? ` (Doors: ${day.doorsTime})` : ""}
 												</dt>
 												<dd>{day.description}</dd>
 											</React.Fragment>
@@ -153,7 +166,10 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 									</div>
 								}
 
-								<p className="eventUser">Event entered by {this.state.eventData.user}</p>
+								<p className="eventUser">
+									Event added by {this.state.eventData.username}{this.state.eventData.user === this.props.loggedInUserId ? " (thank you!)" : "" }
+								</p>
+
 							</div>
 
 							<EventIcons
@@ -175,6 +191,10 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 			</div>
 		);
 
+	}
+
+	editEvent(event: React.MouseEvent<HTMLButtonElement>) {
+		this.props.history.push(`/dashboard/event/edit/${this.props.match.params.eventId}`);
 	}
 
 	loadData() {
@@ -257,6 +277,7 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 							eventData: {
 								address1: eventResult.venue_address1,
 								address2: eventResult.venue_address2,
+								country: eventResult.country_name,
 								dates_venue: formatDateRange({
 										firstDay: moment.utc(eventResult.days[0].eventday_start_venue),
 										lastDay: moment.utc(eventResult.days[eventResult.days.length - 1].eventday_start_venue),
@@ -268,10 +289,13 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 								host: eventResult.event_name ? eventResult.event_host : null,
 								icons,
 								id: eventResult.event_id,
-								location: `${eventResult.venue_city}${eventResult.region_abbreviation ? ", " + eventResult.region_abbreviation : ""}, ${eventResult.country_name}`,
+								location: `${eventResult.venue_city}${eventResult.region_abbreviation ?
+									`, ${eventResult.region_abbreviation}` : ""}`,
 								multiDay: eventResult.days.length > 1,
 								name: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
-								user: eventResult.user_name,
+								postcode: eventResult.venue_postcode,
+								user: eventResult.user_id,
+								username: eventResult.user_name,
 								venue_description: eventResult.venue_description,
 								venue_link: eventResult.venue_link,
 								venue_name: eventResult.venue_name,
