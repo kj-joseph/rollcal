@@ -76,7 +76,6 @@ app.use(session({
 
 app.use("/eventFeatures", eventFeaturesRouter);
 app.use("/events", eventsRouter);
-app.use("/events/update", updateEventsRouter);
 app.use("/geography", geographyRouter);
 app.use("/user", userRouter);
 app.use("/venues", venuesRouter);
