@@ -11,6 +11,7 @@ const path = require("path");
 import eventFeaturesRouter from "routes/eventFeatures";
 import eventsRouter from "routes/events";
 import geographyRouter from "routes/geography";
+import updateEventsRouter from "routes/updateEvents";
 import userRouter from "routes/user";
 import venuesRouter from "routes/venues";
 
