@@ -4,7 +4,8 @@ if id > 0 then
 	delete
 	from changes
 	where changed_item_id = id
-		and changed_item_type = "event";
+		and changed_item_type = "event"
+		and change_status = "submitted";
 end if;
 
 insert
