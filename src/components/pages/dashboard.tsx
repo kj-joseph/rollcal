@@ -10,9 +10,9 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 
 import moment from "moment";
 
-import ReactSVG from "react-svg";
-
 import PlusIcon from "images/plus-circle.svg";
+import CloseIcon from "images/times-circle.svg";
+import ReactSVG from "react-svg";
 
 import * as auth from "components/lib/auth";
 import { formatDateRange } from "components/lib/dateTime";
@@ -23,8 +23,11 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 		super(props);
 
 		this.state = {
+			deleteEventId: null,
+			deleteModalOpen: false,
 			eventData: [],
 			eventsLoading: true,
+			modalProcessing: false,
 			path: "",
 			userId: "",
 			venueData: [],
@@ -34,6 +37,11 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 		this.activateTab = this.activateTab.bind(this);
 		this.addEvent = this.addEvent.bind(this);
 		this.addVenue = this.addVenue.bind(this);
+		this.closeDeleteModal = this.closeDeleteModal.bind(this);
+		this.confirmDeleteEvent = this.confirmDeleteEvent.bind(this);
+		this.deleteEvent = this.deleteEvent.bind(this);
+		this.editEvent = this.editEvent.bind(this);
+		this.editVenue = this.editVenue.bind(this);
 		this.logout = this.logout.bind(this);
 		this.openAccountModal = this.openAccountModal.bind(this);
 	}
@@ -124,10 +132,14 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 								{this.state.eventData.map((event: IDerbyEvent) => (
 
 									<li className="list" key={event.id}>
+										<div className="buttonRow">
+											<button type="button" data-event-id={event.id} onClick={this.editEvent} className="smallButton">Edit</button>
+											<button type="button" data-event-id={event.id} onClick={this.deleteEvent} className="smallButton pinkButton">Delete</button>
+										</div>
 										<p className="listDate">{event.dates_venue}</p>
-										<h2><NavLink to={`/dashboard/event/edit/${event.id}`} title={`Edit ${event.name}`}>
+										<h2>
 											{event.name}
-										</NavLink></h2>
+										</h2>
 										{(event.host) ?	<h3>Hosted by {event.host}</h3> : ""}
 										<p className="listLocation">{event.location}</p>
 									</li>
@@ -168,9 +180,10 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 								{this.state.venueData.map((venue: IDerbyVenue) => (
 
 									<li className="list" key={venue.id}>
-										<h2><NavLink to={`/dashboard/venue/edit/${venue.id}`} title={`Edit ${venue.name}`}>
-											{venue.name}
-										</NavLink></h2>
+										<div className="buttonRow">
+											<button type="button" data-venue-id={venue.id} onClick={this.editVenue} className="smallButton">Edit</button>
+										</div>
+										<h2>{venue.name}</h2>
 										<p className="listLocation">{venue.location}</p>
 									</li>
 
@@ -187,6 +200,53 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 					</div>
 
 				: "" }
+
+				<Modal
+					isOpen={this.state.deleteModalOpen}
+					onRequestClose={this.closeDeleteModal}
+					className="deleteModal"
+					overlayClassName="modalOverlay"
+				>
+
+					<div id="DeleteModal">
+
+						{ this.state.modalProcessing ?
+
+							<div className={"loader medium" + (this.state.processing ? "" : " disabled")} />
+
+						:
+
+							<React.Fragment>
+
+								<ReactSVG
+									className="modalClose"
+									title="close"
+									src={CloseIcon}
+									onClick={this.closeDeleteModal}
+								/>
+
+								<h2>Confirm Deletion</h2>
+
+								<p>Are you sure you want to delete this event?  You won't be able to get it back.</p>
+
+								<div className="buttonRow">
+									<button type="button" onClick={this.confirmDeleteEvent} className="largeButton pinkButton">Yes, Delete</button>
+									<button type="button" onClick={this.closeDeleteModal} className="largeButton">Cancel</button>
+								</div>
+
+								{ this.state.modalError ?
+
+									<p className="error">{this.state.modalError}</p>
+
+								: "" }
+
+							</React.Fragment>
+
+						}
+
+					</div>
+
+				</Modal>
 
 			</div>
 
@@ -210,6 +270,77 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 
 		event.preventDefault();
 		this.props.history.push(`/dashboard/${event.currentTarget.getAttribute("data-tab")}`);
+
+	}
+
+	closeDeleteModal(event?: React.MouseEvent<any>) {
+
+		if (event) {
+			event.preventDefault();
+		}
+
+		this.setState({
+			deleteEventId: null,
+			deleteModalOpen: false,
+		});
+
+	}
+
+	confirmDeleteEvent(event: React.MouseEvent<HTMLButtonElement>) {
+
+		event.preventDefault();
+
+		this.setState({
+			modalProcessing: true,
+		});
+
+		axios.delete(`${this.props.apiLocation}events/deleteEvent/${this.state.deleteEventId}`,
+			{ withCredentials: true })
+			.then((result: AxiosResponse) => {
+
+				this.loadData(this.props.match.params.operation);
+
+				this.setState({
+					deleteModalOpen: false,
+					modalProcessing: false,
+				});
+
+			}).catch((result: AxiosError) => {
+
+				this.setState({
+					modalError: "There was a problem trying to delete the event.",
+					modalProcessing: false,
+				});
+
+			});
+
+	}
+
+
+	deleteEvent(event: React.MouseEvent<HTMLButtonElement>) {
+
+		event.preventDefault();
+
+		this.setState({
+			deleteEventId: event.currentTarget.getAttribute("data-event-id"),
+			deleteModalOpen: true,
+		});
+
+	}
+
+	editEvent(event: React.MouseEvent<HTMLButtonElement>) {
+
+		event.preventDefault();
+
+		this.props.history.push(`/dashboard/event/edit/${event.currentTarget.getAttribute("data-event-id")}`);
+
+	}
+
+	editVenue(event: React.MouseEvent<HTMLButtonElement>) {
+
+		event.preventDefault();
+
+		this.props.history.push(`/dashboard/venue/edit/${event.currentTarget.getAttribute("data-venue-id")}`);
 
 	}
 
@@ -266,11 +397,10 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 							city: venue.venue_city,
 							country: venue.venue_country,
 							id: venue.venue_id,
-							name: venue.venue_name,
 							location: `${venue.venue_city}${venue.region_abbreviation ? ", " + venue.region_abbreviation : ""}, ${venue.venue_country}`,
+							name: venue.venue_name,
 							user: venue.venue_user,
 						}));
-
 
 						this.setState({
 							venueData,

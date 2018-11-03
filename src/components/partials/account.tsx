@@ -74,7 +74,6 @@ class Account<Props> extends React.Component<any, any, any> {
 			<Modal
 				isOpen={this.props.accountModalOpen}
 				onRequestClose={this.closeAccountModal}
-				contentLabel="Example Modal"
 				className="accountModal"
 				overlayClassName="modalOverlay"
 			>
