@@ -132,7 +132,7 @@ if @changeok = true then
 			if @country = "null" then
 				set @update = concat(@update, "venue_country = null");
 			else
-				set @update = concat(@update, "venue_country = ", @country);
+				set @update = concat(@update, "venue_country = '", @country, "'");
 			end if;
 		end if;
 
@@ -197,30 +197,28 @@ if @changeok = true then
 		end if;
 
 		set @query = concat(
-			"update values",
+			"update venues",
 			" set ", @update,
 			" where venue_id = ", @venueId, ";");
 
-		-- select @query, @venueId;
-
-		-- prepare stmt from @query;
-		-- execute stmt;
-		-- deallocate prepare stmt;
+		prepare stmt from @query;
+		execute stmt;
+		deallocate prepare stmt;
 
 	end if;
 
-	-- update changes
-	-- set change_status = "approved"
-	-- where change_id = changeId;
+	update changes
+	set change_status = "approved"
+	where change_id = changeId;
 
-	-- select user_name, user_email
-	-- 	into @username, @email
-	-- from users
-	-- where user_id = @user;
+	select user_name, user_email
+		into @username, @email
+	from users
+	where user_id = @user;
 
-	-- select @username as username, @email as email, @user as user_id, @venueId as venue_id;
+	select @username as username, @email as email, @user as user_id, @venueId as venue_id;
 
-	-- commit;
+	commit;
 
 else
 
