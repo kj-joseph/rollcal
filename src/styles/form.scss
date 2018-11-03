@@ -74,11 +74,12 @@ textarea {
 }
 
 .smallButton {
-	font-size: 1.3rem;
-	line-height: 1.5rem;
+	font-size: 1.7rem;
+	font-weight: bold;
+	line-height: 2.3rem;
 	color: $white;
 	margin: 0 0 0 1em;
-	padding-bottom: 2px;
+	padding: 0 10px;
 	background: $blue;
 	border: none;
 	outline: none;
@@ -93,13 +94,12 @@ textarea {
 }
 
 .largeButton {
+	font-family: $stratum-black;
 	font-size: 2rem;
+	font-weight: bold;
 	line-height: 2.4rem;
 	vertical-align: top;
 	color: $white;
-	font-family: $stratum-black;
-	font-weight: bold;
-	margin: 0;
 	padding: 4px 15px;
 	background: $blue;
 	border: none;

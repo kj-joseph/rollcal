@@ -55,6 +55,10 @@
 
 }
 
+#DeleteModal {
+	position: relative;
+}
+
 @include respond-to("small") {
 
 	.dashboard {

@@ -102,7 +102,10 @@ export default class Search<Props> extends React.Component<any, any, any> {
 										{(this.state.dateRangeDisplay || this.state.startDate) && !this.state.endDate ? " – (all)" : ""}
 										{this.state.startDate && this.state.endDate && this.state.startDate._d === this.state.endDate._d ? " (only)" : ""}
 										{this.state.startDate ?
-											<button className="smallButton" onClick={this.clearDates}>Clear dates</button>
+											<React.Fragment>
+												<br />
+												<button className="smallButton" onClick={this.clearDates}>Clear dates</button>
+											</React.Fragment>
 										: ""
 										}
 									</p>
