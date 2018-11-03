@@ -40,6 +40,11 @@ if @changeok = true then
 			set @address2 = null;
 		end if;
 
+		set @postcode = json_unquote(json_extract(@newVenueJSON, "$.postcode"));
+		if @postcode = "null" then
+			set @postcode = null;
+		end if;
+
 		set @link = json_unquote(json_extract(@newVenueJSON, "$.link"));
 		if @link = "null" then
 			set @link = null;
@@ -60,9 +65,9 @@ if @changeok = true then
 			json_unquote(json_extract(@newVenueJSON, "$.city")),
 			json_unquote(json_extract(@newVenueJSON, "$.country")),
 			@region,
-			json_unquote(json_extract(@newVenueJSON, "$.postcode")),
-			json_unquote(json_extract(@newVenueJSON, "$.link")),
-			json_unquote(json_extract(@newVenueJSON, "$.description")),
+			@postcode,
+			@link,
+			@description,
 			json_extract(@newVenueJSON, "$.timezone")
 		);
 
