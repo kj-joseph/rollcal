@@ -1,9 +1,11 @@
 BEGIN
 
-delete
-from changes
-where changed_item_id = id
-	and changed_item_type = "event";
+if id > 0 then
+	delete
+	from changes
+	where changed_item_id = id
+		and changed_item_type = "event";
+end if;
 
 insert
 into changes
