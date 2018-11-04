@@ -30,7 +30,8 @@ html {
 		background: $white;
 
 		#content {
-			padding: 70px 0;
+			position: relative;
+			padding: 65px 0;
 		}
 	}
 
@@ -54,7 +55,7 @@ html {
 			border-bottom: 50px solid $blue;
 
 			#content {
-				padding: 80px 0 0;
+				padding: 75px 0 0;
 			}
 		}
 

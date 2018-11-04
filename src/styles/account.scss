@@ -1,19 +1,8 @@
-#AccountModal {
-	position: relative;
-
-	.loader {
-		position: absolute;
-		top: calc(50% - 60px);
-		left: calc(50% - 40px);
-	}
-
-}
 
 @include respond-to("small") {
 
-	#AccountModal {
-		width: 500px;
-		height: auto;
+	.userAccount {
+		max-width: 710px;
 	}
 
 }

@@ -121,9 +121,9 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 		return (
 			<div className="eventForm">
 
-				<p className="backToSearch">
+				<p className="backToLink">
 					<Link to="/dashboard/events">
-						&laquo; Back to dashboard
+						&laquo; Back to your events
 					</Link>
 				</p>
 
@@ -661,7 +661,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 
 								<div className="buttonRow">
 								{ this.state.submitError ?
-									<p className="error">{ this.state.submitError }</p>
+									<p className="error">{this.state.submitError}</p>
 								: "" }
 
 									<button

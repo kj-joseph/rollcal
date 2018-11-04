@@ -82,9 +82,9 @@ export default class VenueForm<Props> extends React.Component<any, any, any> {
 		return (
 			<div className="venueForm">
 
-				<p className="backToSearch">
+				<p className="backToLink">
 					<Link to="/dashboard/venues">
-						&laquo; Back to dashboard
+						&laquo; Back to your venues
 					</Link>
 				</p>
 
@@ -281,7 +281,7 @@ export default class VenueForm<Props> extends React.Component<any, any, any> {
 								</div>
 
 								{ this.state.submitError ?
-									<p className="error">{ this.state.submitError }</p>
+									<p className="error">{this.state.submitError}</p>
 								: "" }
 
 								<div className="buttonRow">

@@ -50,17 +50,19 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 	render() {
 
 		return (
-			<div>
+
+			<React.Fragment>
 				{this.props.match.params.eventId ?
-				<div>
+
+				<React.Fragment>
 					{this.props.lastSearch ?
-						<p className="backToSearch">
+						<p className="backToLink">
 							<Link to={`${this.props.lastSearch}`}>
 								&laquo; Back to search results
 							</Link>
 						</p>
 					:
-						<p className="backToSearch">
+						<p className="backToLink">
 							<Link to={"/"}>
 								&laquo; Back to event list
 							</Link>
@@ -82,7 +84,7 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 						<div className="eventDetails">
 
 							{this.state.eventData.user === this.props.loggedInUserId ?
-								<div className="buttonRow editButton">
+								<div className="buttonRow cornerButton">
 									<button type="button" onClick={this.editEvent} className="largeButton">Edit Event</button>
 								</div>
 							: "" }
@@ -166,8 +168,10 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 									</div>
 								}
 
+								<p><em>All times shown are local to the venue.</em></p>
+
 								<p className="eventUser">
-									Event added by {this.state.eventData.username}{this.state.eventData.user === this.props.loggedInUserId ? " (thank you!)" : "" }
+									Event added by {this.state.eventData.username}{this.state.eventData.user === this.props.loggedInUserId ? " (thank you!)" : ""}
 								</p>
 
 							</div>
@@ -181,20 +185,25 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 
 					}
 
-				</div>
+				</React.Fragment>
+
 				:
+
 				<div className="eventDetails">
 					<h1>Event Details</h1>
 					<p>Sorry, there was an error. Please try again.</p>
 				</div>
+
 				}
-			</div>
+
+			</React.Fragment>
+
 		);
 
 	}
 
 	editEvent(event: React.MouseEvent<HTMLButtonElement>) {
-		this.props.history.push(`/dashboard/event/edit/${this.props.match.params.eventId}`);
+		this.props.history.push(`/dashboard/events/edit/${this.props.match.params.eventId}`);
 	}
 
 	loadData() {

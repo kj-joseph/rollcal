@@ -23,7 +23,7 @@ export const checkLoginStatus = (appState: any): Promise<void> => {
 
 };
 
-export const logout = (appState: any, event?: React.MouseEvent<any>): Promise<void> => {
+export const logout = (appState: any, event?: React.MouseEvent<any>, redirect = true): Promise<void> => {
 
 	if (event) {
 		event.preventDefault();
@@ -34,7 +34,7 @@ export const logout = (appState: any, event?: React.MouseEvent<any>): Promise<vo
 
 			appState.clearUserInfo();
 
-			if (window.location.pathname.match(/^\/dashboard/)) {
+			if (window.location.pathname.match(/^\/dashboard/) && redirect) {
 
 				appState.history.push("/");
 
