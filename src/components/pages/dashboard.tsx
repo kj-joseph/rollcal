@@ -69,16 +69,32 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 
 					<li>
 						<Link to="/dashboard/events">Your Events</Link>
+
+						{this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("reviewer") > -1 ?
+
+							<React.Fragment> (<Link to="/dashboard/events/all">All Events</Link>)
+							</React.Fragment>
+
+						: " "}
+
 					</li>
 
 					<li>
 						<Link to="/dashboard/venues">Your Venues</Link>
+
+						{this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("reviewer") > -1 ?
+
+							<React.Fragment> (<Link to="/dashboard/venues/all">All Venues</Link>)
+							</React.Fragment>
+
+						: " "}
+
 					</li>
 
 					{this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("reviewer") > -1 ?
 
 						<li>
-							<Link to="/dashboard/review">Review Changes</Link>
+							<Link to="/dashboard/changes">Review Changes</Link>
 						</li>
 
 					: " "}
@@ -86,7 +102,7 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 					{this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("admin") > -1 ?
 
 						<li>
-							<Link to="/dashboard/venues/review">User Admin</Link>
+							<Link to="/dashboard/admin">User Admin</Link>
 						</li>
 
 					: " "}

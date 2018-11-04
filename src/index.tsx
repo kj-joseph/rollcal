@@ -100,8 +100,9 @@ class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
 								<Route path="/event/:eventId?" component={EventDetailsPage} exact={true} />
 								<Route path="/dashboard/events/:operation(add|edit)/:eventId(\d+)?" component={EventFormPage} exact={true} />
 								<Route path="/dashboard/venues/:operation(add|edit)/:venueId(\d+)?" component={VenueFormPage} exact={true} />
-								<Route path="/dashboard/events" component={UserEventsPage} exact={true} />
-								<Route path="/dashboard/venues" component={UserVenuesPage} exact={true} />
+								<Route path="/dashboard/changes" component={ManageChangesPage} exact={true} />
+								<Route path="/dashboard/events/:all(all)?" component={UserEventsPage} exact={true} />
+								<Route path="/dashboard/venues/:all(all)?" component={UserVenuesPage} exact={true} />
 								<Route path="/dashboard/account" component={UserAccountPage} exact={true} />
 								<Route path="/dashboard" component={DashboardPage} exact={true} />
 								<Route path="/search" component={SearchPage} exact={true} />

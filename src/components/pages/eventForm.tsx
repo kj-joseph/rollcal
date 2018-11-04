@@ -1112,7 +1112,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 				axios.get(`${this.props.apiLocation}events/getEventDetails/${this.props.match.params.eventId}`, { withCredentials: true })
 					.then((result: AxiosResponse) => {
 
-						if (result.data && result.data.user_id === this.props.loggedInUserId) {
+						if (result.data) {
 
 							const eventResult: IDBDerbyEvent = result.data;
 
