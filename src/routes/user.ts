@@ -218,9 +218,9 @@ router.put("/account/update", checkSession("user"), upload.array(), (req: IReque
 									validationCode,
 								});
 
-							}).catch(() => {
+							}).catch((mailError: ErrorEventHandler) => {
 
-								console.error(error);
+								console.error(mailError);
 								res.status(500).send();
 
 							});

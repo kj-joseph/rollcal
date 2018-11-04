@@ -40,17 +40,7 @@ module.exports = () => {
 			filename: "rollcal-api.js",
 			path: build_dir,
 			publicPath: "/"
-		},
-
-		plugins: [
-			new webpack.EnvironmentPlugin([
-				'ROLLCAL_DB_HOST',
-				'ROLLCAL_DB_USER',
-				'ROLLCAL_DB_PASSWORD',
-				'ROLLCAL_DB_DATABASE',
-				'ROLLCAL_API_SECRET',
-			])
-		]
+		}
 
 	};
 
