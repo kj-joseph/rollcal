@@ -11,73 +11,78 @@ const path = require("path");
 import eventFeaturesRouter from "routes/eventFeatures";
 import eventsRouter from "routes/events";
 import geographyRouter from "routes/geography";
-import updateEventsRouter from "routes/updateEvents";
 import userRouter from "routes/user";
 import venuesRouter from "routes/venues";
 
 import { createPool } from "mysql";
 
-const app = express();
+let app: express.Application;
 
-app.use(cors({
-	credentials: true,
-	origin: true,
-}));
+if ((process.env.ROLLCAL_DEV_DBHOST || process.env.ROLLCAL_DBHOST)
+	&& (process.env.ROLLCAL_DEV_DBNAME || process.env.ROLLCAL_DBNAME)
+	&& (process.env.ROLLCAL_DEV_DBPASS || process.env.ROLLCAL_DBPASS)
+	&& (process.env.ROLLCAL_DEV_DBUSER || process.env.ROLLCAL_DBUSER)
+	&& (process.env.ROLLCAL_DEV_SECRET || process.env.ROLLCAL_SECRET)
+	&& process.env.ROLLCAL_ALLOW_ORIGIN
+	) {
 
-app.disable("x-powered-by");
+	app = express();
 
-app.use((req: Request, res: Response, next: any) => {
-	res.header("Access-Control-Allow-Credentials", "true");
-	res.header("Access-Control-Allow-Origin", process.env.ROLLCAL_ALLOW_ORIGIN);
-	res.header("Access-Control-Allow-Headers", "Content-Type");
-	next();
-});
+	app.use(cors({
+		credentials: true,
+		origin: true,
+	}));
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, "public")));
+	app.disable("x-powered-by");
 
-app.use(logger("dev"));
+	app.use((req: Request, res: Response, next: any) => {
+		res.header("Access-Control-Allow-Credentials", "true");
+		res.header("Access-Control-Allow-Origin", process.env.ROLLCAL_ALLOW_ORIGIN);
+		res.header("Access-Control-Allow-Headers", "Content-Type");
+		next();
+	});
 
-const dbPool = createPool({
-	connectionLimit: 50,
-	database: process.env.ROLLCAL_DB_DATABASE,
-	host: process.env.ROLLCAL_DB_HOST,
-	password: process.env.ROLLCAL_DB_PASSWORD,
-	timezone: "utc",
-	user: process.env.ROLLCAL_DB_USER,
-});
+	app.use(bodyParser.json());
+	app.use(bodyParser.urlencoded({extended: true}));
+	app.use(express.json());
+	app.use(express.urlencoded({ extended: false }));
+	app.use(express.static(path.join(__dirname, "public")));
 
-app.use((req: Request, res: Response, next: any) => {
-	res.locals.connection = createPool({
-	connectionLimit: 50,
-	database: process.env.ROLLCAL_DB_DATABASE,
-	host: process.env.ROLLCAL_DB_HOST,
-	multipleStatements: true,
-	password: process.env.ROLLCAL_DB_PASSWORD,
-	timezone: "utc",
-	user: process.env.ROLLCAL_DB_USER,
-});
-	next();
-});
+	app.use(logger("dev"));
 
-const mysqlStore = mysqlSession(session);
-const sessionStore = new mysqlStore({}, dbPool);
+	const dbSettings = {
+		connectionLimit: 50,
+		database: process.env.ROLLCAL_DEV_DBNAME || process.env.ROLLCAL_PROD_DBNAME,
+		host: process.env.ROLLCAL_DEV_DBHOST || process.env.ROLLCAL_PROD_DBHOST,
+		password: process.env.ROLLCAL_DEV_DBPASS || process.env.ROLLCAL_PROD_DBPASS,
+		timezone: "utc",
+		user: process.env.ROLLCAL_DEV_DBUSER || process.env.ROLLCAL_PROD_DBUSER,
+	};
 
-app.use(session({
-	key: "rollCalAuthCookie",
-	resave: false,
-	saveUninitialized: true,
-	secret: process.env.ROLLCAL_API_SECRET,
-	store: sessionStore,
-}));
+	const dbPool = createPool(dbSettings);
 
-app.use("/eventFeatures", eventFeaturesRouter);
-app.use("/events", eventsRouter);
-app.use("/geography", geographyRouter);
-app.use("/user", userRouter);
-app.use("/venues", venuesRouter);
+	app.use((req: Request, res: Response, next: any) => {
+		res.locals.connection = createPool(dbSettings);
+		next();
+	});
+
+	const mysqlStore = mysqlSession(session);
+	const sessionStore = new mysqlStore({}, dbPool);
+
+	app.use(session({
+		key: "rollCalAuthCookie",
+		resave: false,
+		saveUninitialized: true,
+		secret: process.env.ROLLCAL_DEV_SECRET || process.env.ROLLCAL_PROD_SECRET,
+		store: sessionStore,
+	}));
+
+	app.use("/eventFeatures", eventFeaturesRouter);
+	app.use("/events", eventsRouter);
+	app.use("/geography", geographyRouter);
+	app.use("/user", userRouter);
+	app.use("/venues", venuesRouter);
+
+}
 
 export default app;

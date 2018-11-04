@@ -14,7 +14,14 @@ module.exports = merge(common, {
 		new webpack.DefinePlugin({
 			"process.env.ROLLCAL_API_PORT": JSON.stringify("55022"),
 			"process.env.ROLLCAL_ALLOW_ORIGIN": JSON.stringify("https://dev.roll-cal.com")
-		})
+		}),
+		new webpack.EnvironmentPlugin([
+			'ROLLCAL_DEV_DBHOST',
+			'ROLLCAL_DEV_DBNAME',
+			'ROLLCAL_DEV_DBPASS',
+			'ROLLCAL_DEV_DBUSER',
+			'ROLLCAL_DEV_SECRET',
+		])
 	]
 
 });
