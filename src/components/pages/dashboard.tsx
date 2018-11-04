@@ -75,7 +75,7 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 						<Link to="/dashboard/venues">Your Venues</Link>
 					</li>
 
-					{this.props.loggedInUserRoles.indexOf("reviewer") > -1 ?
+					{this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("reviewer") > -1 ?
 
 						<li>
 							<Link to="/dashboard/review">Review Changes</Link>
@@ -83,7 +83,7 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 
 					: " "}
 
-					{this.props.loggedInUserRoles.indexOf("admin") > -1 ?
+					{this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("admin") > -1 ?
 
 						<li>
 							<Link to="/dashboard/venues/review">User Admin</Link>
