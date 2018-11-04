@@ -1,21 +1,4 @@
-p.backToSearch {
-	font-size: 1.4rem;
-	font-weight: bold;
-	margin: 0 0 .7em 0;
-
-	a {
-		text-decoration: none
-	}
-}
-
 .eventDetails {
-	position: relative;
-
-	.editButton {
-		position: absolute;
-		right: -3px;
-		top: -3.8em;
-	}
 
 	.eventInfo {
 		margin-bottom: 1.5em;
@@ -141,11 +124,6 @@ p.backToSearch {
 @include respond-to("small") {
 
 	.eventDetails {
-
-		.editButton {
-			right: 8px;
-			top: -3.5em;
-		}
 
 		.eventIcons svg {
 			height: 90px;
