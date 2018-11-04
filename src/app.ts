@@ -54,6 +54,7 @@ if ((process.env.ROLLCAL_DEV_DBHOST || process.env.ROLLCAL_DBHOST)
 		connectionLimit: 50,
 		database: process.env.ROLLCAL_DEV_DBNAME || process.env.ROLLCAL_PROD_DBNAME,
 		host: process.env.ROLLCAL_DEV_DBHOST || process.env.ROLLCAL_PROD_DBHOST,
+		multipleStatements: true,
 		password: process.env.ROLLCAL_DEV_DBPASS || process.env.ROLLCAL_PROD_DBPASS,
 		timezone: "utc",
 		user: process.env.ROLLCAL_DEV_DBUSER || process.env.ROLLCAL_PROD_DBUSER,
