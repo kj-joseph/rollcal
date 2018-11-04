@@ -43,7 +43,7 @@ router.get("/search", (req: Request, res: Response) => {
 	// procedure parameters: user, start date, end date, derbytypes, sanctions, tracks, locations
 	res.locals.connection.query(
 		`call searchEvents(
-			${req.query.user ? res.locals.connection.escape(req.query.query) : null},
+			${req.query.user ? res.locals.connection.escape(req.query.user) : null},
 			${req.query.startDate ? res.locals.connection.escape(req.query.startDate) : null},
 			${req.query.endDate ? res.locals.connection.escape(req.query.endDate) : null},
 			${req.query.derbytypes ? res.locals.connection.escape(req.query.derbytypes) : null},
