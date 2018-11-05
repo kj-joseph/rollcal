@@ -22,12 +22,12 @@ end if;
 
 if startDate != "" then
 	set @where = concat(@where,
-		"  and eventday_datetime >= '", startDate, "T00:00:00.000'");
+		"  and eventday_datetime >= ", quote(concat(startDate, " 00:00:00.000")));
 end if;
 
 if endDate != "" then
 	set @where = concat(@where,
-		"  and eventday_datetime <= '", endDate, "T00:00:00.000'");
+		"  and eventday_datetime <= ", quote(concat(endDate, " 00:00:00.000")));
 end if;
 
 if derbytypes != "" then
@@ -66,10 +66,10 @@ if locations != "" then
 
 		if char_length(@country) > 3 then
 			set @where = concat(@where,
-				" (v.venue_country = '", substring(@country, 1, 3), "'",
-				" and v.venue_region in (", replace(substring(@country, 5), "+", ","), ") ) ");
+				" (v.venue_country = ", quote(substring(@country, 1, 3)),
+				" and v.venue_region in (", replace(substring(@country, 5), " ", ","), ") ) ");
 		else
-			set @where = concat(@where, " v.venue_country = '", @country, "'");
+			set @where = concat(@where, " v.venue_country = ", quote(@country));
 		end if;
 
 		set @temp_locations = substring(@temp_locations, length(@country) + 2);

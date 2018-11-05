@@ -9,11 +9,12 @@ declare exit handler for SQLEXCEPTION
 
 start transaction;
 
-select c.change_object,	c.changed_item_id, c.change_user, true
-	into @changeObject, @venueId, @user, @changeok
-from changes c
+select c.change_object,	c.changed_item_id, c.change_user, v.venue_name, true
+	into @changeObject, @venueId, @user, @venueName, @changeok
+from changes c, venues v
 where c.change_id = changeId
 	and c.changed_item_type = "venue"
+	and c.changed_item_id = v.venue_id
 	and c.change_status = "submitted";
 
 if @changeok = true then
@@ -21,6 +22,11 @@ if @changeok = true then
 	if @venueId = 0 then
 
 	-- New venue
+
+		set @address1 = json_unquote(json_extract(@changeObject, "$.address1"));
+		if @address1 = "null" then
+			set @address1 = null;
+		end if;
 
 		set @address2 = json_unquote(json_extract(@changeObject, "$.address2"));
 		if @address2 = "null" then
@@ -32,9 +38,14 @@ if @changeok = true then
 			set @postcode = null;
 		end if;
 
-		set @region = json_extract(@changeObject, "$.region");
-		if @region = "null" then
-			set @region = null;
+		set @city = json_extract(@changeObject, "$.city");
+		if @city = "null" then
+			set @city = null;
+		end if;
+
+		set @country = json_extract(@changeObject, "$.country");
+		if @country = "null" then
+			set @country = null;
 		end if;
 
 		set @region = json_extract(@changeObject, "$.region");
@@ -47,25 +58,36 @@ if @changeok = true then
 			set @link = null;
 		end if;
 
+		set @name = json_unquote(json_extract(@changeObject, "$.name"));
+		if @name = "null" then
+			set @name = null;
+		end if;
+		set @venueName = @name;
+
 		set @description = json_unquote(json_extract(@changeObject, "$.description"));
 		if @description = "null" then
 			set @description = null;
+		end if;
+
+		set @timezone = json_unquote(json_extract(@changeObject, "$.timezone"));
+		if @timezone = "null" then
+			set @timezone = null;
 		end if;
 
 		insert into venues
 			(venue_user, venue_name, venue_address1, venue_address2, venue_city, venue_country, venue_region, venue_postcode, venue_link, venue_description, venue_timezone)
 		values (
 			@user,
-			json_unquote(json_extract(@changeObject, "$.name")),
-			json_unquote(json_extract(@changeObject, "$.address1")),
+			@name,
+			@address1,
 			@address2,
-			json_unquote(json_extract(@changeObject, "$.city")),
-			json_unquote(json_extract(@changeObject, "$.country")),
+			@city,
+			@country,
 			@region,
 			@postcode,
 			@link,
 			@description,
-			json_extract(@changeObject, "$.timezone")
+			@timezone
 		);
 
 		set @venueId = last_insert_id();
@@ -84,7 +106,7 @@ if @changeok = true then
 			if @name = "null" then
 				set @update = concat(@update, "venue_name = null");
 			else
-				set @update = concat(@update, "venue_name = '", @name, "'");
+				set @update = concat(@update, "venue_name = ", quote(@name));
 			end if;
 		end if;
 
@@ -96,7 +118,7 @@ if @changeok = true then
 			if @address1 = "null" then
 				set @update = concat(@update, "venue_address1 = null");
 			else
-				set @update = concat(@update, "venue_address1 = '", @address1, "'");
+				set @update = concat(@update, "venue_address1 = ", quote(@address1));
 			end if;
 		end if;
 
@@ -108,7 +130,7 @@ if @changeok = true then
 			if @address2 = "null" then
 				set @update = concat(@update, "venue_address2 = null");
 			else
-				set @update = concat(@update, "venue_address2 = ", @address2, "'");
+				set @update = concat(@update, "venue_address2 = ", quote(@address2));
 			end if;
 		end if;
 
@@ -120,7 +142,7 @@ if @changeok = true then
 			if @city = "null" then
 				set @update = concat(@update, "venue_city = null");
 			else
-				set @update = concat(@update, "venue_city = '", @city, "'");
+				set @update = concat(@update, "venue_city = ", quote(@city));
 			end if;
 		end if;
 
@@ -132,7 +154,7 @@ if @changeok = true then
 			if @country = "null" then
 				set @update = concat(@update, "venue_country = null");
 			else
-				set @update = concat(@update, "venue_country = '", @country, "'");
+				set @update = concat(@update, "venue_country = ", quote(@country));
 			end if;
 		end if;
 
@@ -144,7 +166,7 @@ if @changeok = true then
 			if @region = "null" then
 				set @update = concat(@update, "venue_region = null");
 			else
-				set @update = concat(@update, "venue_region = ", @region);
+				set @update = concat(@update, "venue_region = ", quote(@region));
 			end if;
 		end if;
 
@@ -156,7 +178,7 @@ if @changeok = true then
 			if @postcode = "null" then
 				set @update = concat(@update, "venue_postcode = null");
 			else
-				set @update = concat(@update, "venue_postcode = '", @postcode, "'");
+				set @update = concat(@update, "venue_postcode = ", quote(@postcode));
 			end if;
 		end if;
 
@@ -168,7 +190,7 @@ if @changeok = true then
 			if @link = "null" then
 				set @update = concat(@update, "venue_link = null");
 			else
-				set @update = concat(@update, "venue_link = ", @link);
+				set @update = concat(@update, "venue_link = ", quote(@link));
 			end if;
 		end if;
 
@@ -180,7 +202,7 @@ if @changeok = true then
 			if @description = "null" then
 				set @update = concat(@update, "venue_description = null");
 			else
-				set @update = concat(@update, "venue_description = '", @description, "'");
+				set @update = concat(@update, "venue_description = ", quote(@description));
 			end if;
 		end if;
 
@@ -192,7 +214,7 @@ if @changeok = true then
 			if @timezone = "null" then
 				set @update = concat(@update, "venue_timezone = null");
 			else
-				set @update = concat(@update, "venue_timezone = ", @timezone);
+				set @update = concat(@update, "venue_timezone = ", quote(@timezone));
 			end if;
 		end if;
 
@@ -217,7 +239,7 @@ if @changeok = true then
 	from users
 	where user_id = @user;
 
-	select @username as username, @email as email, @user as user_id, @venueId as venue_id;
+	select @username as username, @email as email, @user as user_id, @venueId as venue_id, @venueName as venue_name;
 
 	commit;
 

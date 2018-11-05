@@ -9,11 +9,12 @@ declare exit handler for SQLEXCEPTION
 
 start transaction;
 
-select c.change_object,	c.changed_item_id, c.change_user, true
-	into @changeObject, @eventId, @user, @changeok
-from changes c
+select c.change_object,	c.changed_item_id, c.change_user, e.event_name, e.event_host, true
+	into @changeObject, @eventId, @user, @eventName, @eventHost, @changeok
+from changes c, events e
 where c.change_id = changeId
 	and c.changed_item_type = "event"
+	and c.changed_item_id = e.event_id
 	and c.change_status = "submitted";
 
 if @changeok = true then
@@ -24,13 +25,16 @@ if @changeok = true then
 	set @featuresDeleteJSON = json_extract(@changeObject, "$.features.delete");
 	set @newVenueJSON = json_extract(@changeObject, "$.newVenueData");
 
+	if @eventName is null then
+		set @eventName = @eventHost;
+	end if;
 
 
 	-- Add venue
 
 	if @newVenueJSON is not null then
 
-		set @region = json_extract(@newVenueJSON, "$.region");
+		set @region = json_unquote(json_extract(@newVenueJSON, "$.region"));
 		if @region = "null" then
 			set @region = null;
 		end if;
@@ -93,32 +97,34 @@ if @changeok = true then
 				when "description" then
 					begin
 						set @insert = concat(@insert, ", event_description");
-						set @values = concat(@values, ", ", json_extract(@dataJSON, concat("$[",@x,"].value")));
+						set @values = concat(@values, ", ", quote(json_unquote(json_extract(@dataJSON, concat("$[",@x,"].value")))));
 					end;
 
 				when "host" then
 					begin
 						set @insert = concat(@insert, ", event_host");
-						set @values = concat(@values, ", ", json_extract(@dataJSON, concat("$[",@x,"].value")));
+						set @values = concat(@values, ", ", quote(json_unquote(json_extract(@dataJSON, concat("$[",@x,"].value")))));
+						set @newHost = json_unquote(json_extract(@dataJSON, concat("$[",@x,"].value")));
 					end;
 
 				when "link" then
 					begin
 						set @insert = concat(@insert, ", event_link");
-						set @values = concat(@values, ", ", json_extract(@dataJSON, concat("$[",@x,"].value")));
+						set @values = concat(@values, ", ", quote(json_unquote(json_extract(@dataJSON, concat("$[",@x,"].value")))));
 					end;
 
 				when "name" then
 					begin
 						set @insert = concat(@insert, ", event_name");
-						set @values = concat(@values, ", ", json_extract(@dataJSON, concat("$[",@x,"].value")));
+						set @values = concat(@values, ", ", quote(json_unquote(json_extract(@dataJSON, concat("$[",@x,"].value")))));
+						set @newName = json_unquote(json_extract(@dataJSON, concat("$[",@x,"].value")));
 					end;
 
 				when "venue" then
 					begin
 						if @newVenueId is not null then
 							set @insert = concat(@insert, ", event_venue");
-							set @values = concat(@values, ", ", json_unquote(json_extract(@dataJSON, concat("$[",@x,"].value"))));
+							set @values = concat(@values, ", ", quote(json_unquote(json_extract(@dataJSON, concat("$[",@x,"].value")))));
 						end if;
 					end;
 
@@ -134,7 +140,7 @@ if @changeok = true then
 
 		if @newVenueId is not null then
 			set @insert = concat(@insert, ", event_venue");
-			set @values = concat(@values, ", ", @newVenueId);
+			set @values = concat(@values, ", ", quote(@newVenueId));
 		end if;
 
 		set @query = concat(
@@ -164,7 +170,7 @@ if @changeok = true then
 						if char_length(@values) > 0 then
 							set @values = concat(@values, ", ");
 						end if;
-						set @values = concat(@values, "event_description = ", json_extract(@dataJSON, concat("$[",@x,"].value")));
+						set @values = concat(@values, "event_description = ", quote(json_unquote(json_extract(@dataJSON, concat("$[",@x,"].value")))));
 					end;
 
 				when "host" then
@@ -172,7 +178,7 @@ if @changeok = true then
 						if char_length(@values) > 0 then
 							set @values = concat(@values, ", ");
 						end if;
-						set @values = concat(@values, "event_host = ", json_extract(@dataJSON, concat("$[",@x,"].value")));
+						set @values = concat(@values, "event_host = ", quote(json_unquote(json_extract(@dataJSON, concat("$[",@x,"].value")))));
 					end;
 
 				when "link" then
@@ -180,7 +186,7 @@ if @changeok = true then
 						if char_length(@values) > 0 then
 							set @values = concat(@values, ", ");
 						end if;
-						set @values = concat(@values, "event_link = ", json_extract(@dataJSON, concat("$[",@x,"].value")));
+						set @values = concat(@values, "event_link = ", quote(json_unquote(json_extract(@dataJSON, concat("$[",@x,"].value")))));
 					end;
 
 				when "name" then
@@ -188,7 +194,7 @@ if @changeok = true then
 						if char_length(@values) > 0 then
 							set @values = concat(@values, ", ");
 						end if;
-						set @values = concat(@values, "event_name = ", json_extract(@dataJSON, concat("$[",@x,"].value")));
+						set @values = concat(@values, "event_name = ", quote(json_unquote(json_extract(@dataJSON, concat("$[",@x,"].value")))));
 					end;
 
 				when "venue" then
@@ -197,7 +203,7 @@ if @changeok = true then
 							if char_length(@values) > 0 then
 								set @values = concat(@values, ", ");
 							end if;
-							set @values = concat(@values, "event_venue = ", json_extract(@dataJSON, concat("$[",@x,"].value")));
+							set @values = concat(@values, "event_venue = ", quote(json_unquote(json_extract(@dataJSON, concat("$[",@x,"].value")))));
 						end if;
 					end;
 
@@ -215,7 +221,7 @@ if @changeok = true then
 			if char_length(@values) > 0 then
 				set @values = concat(@values, ", ");
 			end if;
-			set @values = concat(@values, "event_venue = ", @newVenueId);
+			set @values = concat(@values, "event_venue = ", quote(@newVenueId));
 		end if;
 
 		set @query = concat(
@@ -243,7 +249,7 @@ if @changeok = true then
 			set @featureId = substring_index(@featureItem, "-", -1);
 
 			set @query = concat("insert into event_", @featureType, "s (event, ", @featureType, ") "
-				"values (", @eventId, ", ", @featureId, ");");
+				"values (", quote(@eventId), ", ", quote(@featureId), ");");
 
 			prepare stmt from @query;
 			execute stmt;
@@ -338,9 +344,9 @@ if @changeok = true then
 					begin
 						set @values = "";
 
-						set @datetime = json_extract(@daysJSON, concat("$[",@x,"].value.datetime"));
-						set @description = json_extract(@daysJSON, concat("$[",@x,"].value.description"));
-						set @doors = json_extract(@daysJSON, concat("$[",@x,"].value.doors"));
+						set @datetime = json_unquote(json_extract(@daysJSON, concat("$[",@x,"].value.datetime")));
+						set @description = json_unquote(json_extract(@daysJSON, concat("$[",@x,"].value.description")));
+						set @doors = json_unquote(json_extract(@daysJSON, concat("$[",@x,"].value.doors")));
 
 						if @datetime is not null then
 							if @datetime = "\"null\"" then
@@ -349,7 +355,7 @@ if @changeok = true then
 							if char_length(@values) > 0 then
 								set @values = concat(@values, ", ");
 							end if;
-							set @values = concat(@values, "eventday_datetime = ", @datetime);
+							set @values = concat(@values, "eventday_datetime = ", quote(@datetime));
 						end if;
 
 						if @description is not null then
@@ -359,7 +365,7 @@ if @changeok = true then
 							if char_length(@values) > 0 then
 								set @values = concat(@values, ", ");
 							end if;
-							set @values = concat(@values, "eventday_description = ", @description);
+							set @values = concat(@values, "eventday_description = ", quote(@description));
 						end if;
 
 						if @doors is not null then
@@ -369,13 +375,13 @@ if @changeok = true then
 							if char_length(@values) > 0 then
 								set @values = concat(@values, ", ");
 							end if;
-							set @values = concat(@values, "eventday_doors = ", @doors);
+							set @values = concat(@values, "eventday_doors = ", quote(@doors));
 						end if;
 
 						set @query = concat("update eventdays set ",
 							@values,
-							" where eventday_id = ", json_unquote(json_extract(@daysJSON, concat("$[",@x,"].id")))
-						);
+							" where eventday_id = ", quote(json_unquote(json_extract(@daysJSON, concat("$[",@x,"].id")))
+						));
 
 						prepare stmt from @query;
 						execute stmt;
@@ -402,6 +408,12 @@ if @changeok = true then
 
 	if @eventdayCount > 0 then
 
+		if @newName is not null then
+			set @eventName = @newName;
+		elseif @eventName is null then
+			set @eventName = @newHost;
+		end if;
+
 		update changes
 		set change_status = "approved",
 			change_reviewer = reviewer
@@ -412,7 +424,7 @@ if @changeok = true then
 		from users
 		where user_id = @user;
 
-		select @username as username, @email as email, @user as user_id, @eventId as event_id;
+		select @username as username, @email as email, @user as user_id, @eventId as event_id, @eventName as event_name;
 
 		commit;
 
