@@ -45,7 +45,7 @@ end if;
 if tracks != "" then
 	set @from = concat(@from, ", event_tracks et");
 	set @where = concat(@where,
-		" and et.event = event_id and et.t rack in (", tracks, ")");
+		" and et.event = event_id and et.track in (", tracks, ")");
 end if;
 
 if locations != "" then
