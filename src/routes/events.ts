@@ -120,4 +120,27 @@ router.delete("/deleteEvent/:id", upload.array(), checkSession("user"), (req: IR
 });
 
 
+router.get("/getChanges", checkSession("reviewer"), (req: IRequestWithSession, res: Response) => {
+
+	res.locals.connection
+		.query(`call getEventChanges(${res.locals.connection.escape(req.session.user.id)})`,
+
+		(error: MysqlError, results: any) => {
+
+			if (error) {
+				res.locals.connection.end();
+				console.error(error);
+				res.status(500).send();
+
+			} else {
+
+				res.locals.connection.end();
+				res.status(200).json(results[0].map((row: {}) => ({...row})));
+
+			}
+		});
+
+});
+
+
 export default router;

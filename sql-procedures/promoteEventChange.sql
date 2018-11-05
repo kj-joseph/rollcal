@@ -403,7 +403,8 @@ if @changeok = true then
 	if @eventdayCount > 0 then
 
 		update changes
-		set change_status = "approved"
+		set change_status = "approved",
+			change_reviewer = reviewer
 		where change_id = changeId;
 
 		select user_name, user_email

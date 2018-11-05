@@ -8,6 +8,7 @@ import { IRequestWithSession } from "interfaces";
 const router = Router();
 const upload = multer();
 
+
 router.get("/getAllVenues", (req: Request, res: Response) => {
 
 	res.locals.connection
@@ -26,6 +27,7 @@ router.get("/getAllVenues", (req: Request, res: Response) => {
 
 		});
 });
+
 
 router.get("/getVenuesByUser/:userId", (req: Request, res: Response) => {
 
@@ -66,6 +68,7 @@ router.get("/getVenueDetails/:id", (req: Request, res: Response) => {
 		});
 });
 
+
 router.put("/saveChanges", upload.array(), checkSession("user"), (req: IRequestWithSession, res: Response) => {
 
 	res.locals.connection
@@ -89,5 +92,29 @@ router.put("/saveChanges", upload.array(), checkSession("user"), (req: IRequestW
 			});
 
 });
+
+
+router.get("/getChanges", checkSession("reviewer"), (req: IRequestWithSession, res: Response) => {
+
+	res.locals.connection
+		.query(`call getVenueChanges(${res.locals.connection.escape(req.session.user.id)})`,
+
+		(error: MysqlError, results: any) => {
+
+			if (error) {
+				res.locals.connection.end();
+				console.error(error);
+				res.status(500).send();
+
+			} else {
+
+				res.locals.connection.end();
+				res.status(200).json(results[0].map((row: {}) => ({...row})));
+
+			}
+		});
+
+});
+
 
 export default router;
