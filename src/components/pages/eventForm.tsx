@@ -97,12 +97,16 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 			});
 
 			if (this.props.loggedInUserId && this.state.pageFunction !== "Error") {
+
 				this.loadData();
+
 			} else {
+
 				this.setState({
 					dataError: true,
 					loading: false,
 				});
+
 			}
 
 		}
@@ -191,19 +195,6 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 										<div className={"formSection" + (this.state.sectionOpenBasic ? " open" : " closed")}>
 
 											<div className="inputGroup">
-												<label htmlFor="name">Event Name <em>(optional)</em></label>
-												<input
-													id="name"
-													name="name"
-													data-handler="eventData"
-													type="text"
-													required={false}
-													value={this.state.eventData.name}
-													onChange={this.handleInputChange}
-												/>
-											</div>
-
-											<div className="inputGroup">
 												<label htmlFor="host">Host</label>
 												<input
 													id="host"
@@ -212,6 +203,19 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 													type="text"
 													required={true}
 													value={this.state.eventData.host}
+													onChange={this.handleInputChange}
+												/>
+											</div>
+
+											<div className="inputGroup">
+												<label htmlFor="name">Event Name <em>(optional)</em></label>
+												<input
+													id="name"
+													name="name"
+													data-handler="eventData"
+													type="text"
+													required={false}
+													value={this.state.eventData.name}
 													onChange={this.handleInputChange}
 												/>
 											</div>
@@ -1363,9 +1367,9 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 					id: null as number,
 					operation: "add",
 					value: {
-						datetime: `${day.dateObject.format("Y-MM-DD")}T${day.startTime}:00`,
+						datetime: `${day.dateObject.format("Y-MM-DD")} ${day.startTime}:00`,
 						description: day.description,
-						doors: `${day.dateObject.format("Y-MM-DD")}T${day.doorsTime}:00`,
+						doors: `${day.dateObject.format("Y-MM-DD")} ${day.doorsTime}:00`,
 					},
 				})));
 
@@ -1398,7 +1402,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 
 					if (editedDay.date !== initialDay.date
 						|| editedDay.startTime !== initialDay.startTime) {
-						edits.datetime = `${editedDay.dateObject.format("Y-MM-DD")}T${editedDay.startTime}:00`;
+						edits.datetime = `${editedDay.dateObject.format("Y-MM-DD")} ${editedDay.startTime}:00`;
 					}
 
 					if (editedDay.description !== initialDay.description) {
@@ -1407,7 +1411,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 
 					if (editedDay.doorsTime !== initialDay.doorsTime) {
 						if (editedDay.doorsTime) {
-							edits.doors = `${editedDay.dateObject.format("Y-MM-DD")}T${editedDay.doorsTime}:00`;
+							edits.doors = `${editedDay.dateObject.format("Y-MM-DD")} ${editedDay.doorsTime}:00`;
 						} else {
 							edits.doors = null;
 						}

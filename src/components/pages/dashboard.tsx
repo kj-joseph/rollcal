@@ -94,7 +94,15 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 					{this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("reviewer") > -1 ?
 
 						<li>
-							<Link to="/dashboard/changes">Review Changes</Link>
+							<Link to="/dashboard/events/changes">Review Event Changes</Link>
+						</li>
+
+					: " "}
+
+					{this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("reviewer") > -1 ?
+
+						<li>
+							<Link to="/dashboard/venues/changes">Review Venue Changes</Link>
 						</li>
 
 					: " "}

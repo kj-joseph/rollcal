@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import {
 	IDerbyEvent, IDerbyIcon, IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType,
@@ -105,9 +105,9 @@ export default class Events<Props> extends React.Component<any, any, any> {
 
 								<p className="listDate"><strong>{event.dates_venue}</strong></p>
 								<p className="listLocation">{event.location} {event.flag}</p>
-								<h2><NavLink to={`/event/${event.id}`} title="Event Details">
+								<h2><Link to={`/event/${event.id}`} title="Event Details">
 									{event.name}
-								</NavLink></h2>
+								</Link></h2>
 								{(event.host) ?	<h3>Hosted by {event.host}</h3> : ""}
 
 								<div className="listIcons">
@@ -439,7 +439,6 @@ export default class Events<Props> extends React.Component<any, any, any> {
 									multiDay: eventResult.event_first_day.substring(0, 10) !== eventResult.event_last_day.substring(0, 10),
 									name: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
 									user: eventResult.user_id,
-									username: eventResult.user_name,
 									venue_description: eventResult.venue_description,
 									venue_link: eventResult.venue_link,
 									venue_name: eventResult.venue_name,

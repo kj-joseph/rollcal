@@ -112,9 +112,9 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 											<button type="button" data-event-id={event.id} onClick={this.deleteEvent} className="smallButton pinkButton">Delete</button>
 										</div>
 										<p className="listDate">{event.dates_venue}</p>
-										<h2>
+										<h2><Link to={`/event/${event.id}`} title="Event Details">
 											{event.name}
-										</h2>
+										</Link></h2>
 										{(event.host) ?	<h3>Hosted by {event.host}</h3> : ""}
 										<p className="listLocation">{event.location}</p>
 									</li>
