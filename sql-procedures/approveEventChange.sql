@@ -86,6 +86,8 @@ if @changeok = true then
 
 	-- New Event
 
+		set @isNew = true;
+
 		set @x = 0;
 		set @insert = "event_user";
 		set @values = @user;
@@ -157,6 +159,8 @@ if @changeok = true then
 	elseif json_length(@dataJSON) > 0 then
 
 	-- Existing event
+
+		set @isNew = false;
 
 		set @x = 0;
 		set @values = "";
@@ -424,7 +428,7 @@ if @changeok = true then
 		from users
 		where user_id = @user;
 
-		select @username as username, @email as email, @user as user_id, @eventId as event_id, @eventName as event_name;
+		select @username as username, @email as email, @user as user_id, @eventId as event_id, @eventName as event_name, @isNew as isNew;
 
 		commit;
 

@@ -23,6 +23,8 @@ if @changeok = true then
 
 	-- New venue
 
+		set @isNew = true;
+
 		set @address1 = json_unquote(json_extract(@changeObject, "$.address1"));
 		if @address1 = "null" then
 			set @address1 = null;
@@ -95,6 +97,8 @@ if @changeok = true then
 	else
 
 	-- Existing venue
+
+		set @isNew = false;
 
 		set @update = "";
 
@@ -239,7 +243,7 @@ if @changeok = true then
 	from users
 	where user_id = @user;
 
-	select @username as username, @email as email, @user as user_id, @venueId as venue_id, @venueName as venue_name;
+	select @username as username, @email as email, @user as user_id, @venueId as venue_id, @venueName as venue_name, @isNew as isNew;
 
 	commit;
 
