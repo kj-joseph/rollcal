@@ -42,17 +42,17 @@ if @changeok = true then
 			set @postcode = null;
 		end if;
 
-		set @city = json_extract(@changeObject, "$.city");
+		set @city = json_unquote(json_extract(@changeObject, "$.city"));
 		if @city = "null" then
 			set @city = null;
 		end if;
 
-		set @country = json_extract(@changeObject, "$.country");
+		set @country = json_unquote(json_extract(@changeObject, "$.country"));
 		if @country = "null" then
 			set @country = null;
 		end if;
 
-		set @region = json_extract(@changeObject, "$.region");
+		set @region = json_unquote(json_extract(@changeObject, "$.region"));
 		if @region = "null" then
 			set @region = null;
 		end if;
