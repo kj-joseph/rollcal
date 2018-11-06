@@ -19,6 +19,40 @@ const mailConfig =
 const emailTransport = nodemailer.createTransport(mailConfig);
 
 
+export const sendChangeApprovalEmail =
+	(email: string, username: string, changeId: number, type: string, newItem: boolean, itemName: string) => {
+
+	let changeText = "";
+
+	switch (type) {
+
+		case "event":
+			changeText = (newItem ? `new event you submitted` : "change you submitted to your event");
+			break;
+
+		case "venue":
+			changeText = (newItem ? "new venue you submitted" : "change you submitted to your venue");
+			break;
+
+	}
+
+	return emailTransport.sendMail({
+		from: "Roll-Cal.com <feedback@roll-cal.com>",
+		html: `
+		<p><img src="https://www.roll-cal.com/images/header-logo.png" alt="Roll-Cal.com" width="305" height="100" /></p>
+		<p>Hey there, ${username}!</p>
+		<p>We looked over the ${changeText}, ${itemName}.  Everything looked good, so we made it live.
+		Thanks again for helping the derby community!</p>
+		<p>Thanks,<br />Roll-Cal</p>
+		<p style="margin-top: 1em; font-size: .8em;">[change ${changeId}]</p>
+		`,
+		subject: `${type.charAt(0).toUpperCase()}${type.slice(1)} Submission approved`,
+		to: `${username} <${email}>`,
+	}, null);
+
+};
+
+
 export const sendChangeRejectionEmail =
 	(email: string, username: string, changeId: number, type: string, newItem: boolean, itemName: string, comment: string) => {
 
@@ -39,7 +73,6 @@ export const sendChangeRejectionEmail =
 	return emailTransport.sendMail({
 		from: "Roll-Cal.com <feedback@roll-cal.com>",
 		html: `
-		<p>[change ${changeId}]</p>
 		<p><img src="https://www.roll-cal.com/images/header-logo.png" alt="Roll-Cal.com" width="305" height="100" /></p>
 		<p>Hey there, ${username}!</p>
 		<p>We looked over the ${changeText}, ${itemName}.  Unfortunately, we were unable to approve your change.</p>
@@ -48,6 +81,8 @@ export const sendChangeRejectionEmail =
 			<p>${comment}</p>`
 		: ""}
 		<p>If you have any questions, please reply to this email and we will look into the issue.</p>
+		<p>Thanks,<br />Roll-Cal</p>
+		<p style="margin-top: 1em; font-size: .8em;">[change ${changeId}]</p>
 		`,
 		subject: `${type.charAt(0).toUpperCase()}${type.slice(1)} Submission rejected`,
 		to: `${username} <${email}>`,
@@ -98,4 +133,3 @@ export const sendValidationEmail = (email: string, username: string, validationC
 	}, null);
 
 };
-

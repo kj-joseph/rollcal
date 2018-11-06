@@ -5,6 +5,8 @@ import { MysqlError } from "mysql";
 import { checkSession } from "checkSession";
 import { IRequestWithSession } from "interfaces";
 
+import { sendChangeApprovalEmail, sendChangeRejectionEmail } from "lib/email";
+
 const router = Router();
 const upload = multer();
 
@@ -141,4 +143,54 @@ router.get("/getChange/:changeId", checkSession("reviewer"), (req: IRequestWithS
 		});
 
 });
+
+
+router.get("/approveChange/:changeId", checkSession("reviewer"), (req: IRequestWithSession, res: Response) => {
+
+	res.locals.connection
+		.query(`call approveVenueChange(
+			${res.locals.connection.escape(req.params.changeId)},
+			${res.locals.connection.escape(req.session.user.id)}
+			)`,
+
+		(error: MysqlError, results: any) => {
+
+			if (error) {
+				res.locals.connection.end();
+				console.error(error);
+				res.status(500).send();
+
+			} else {
+
+				const returnedData = results[0].map((row: {}) => ({...row}))[0];
+
+				if (returnedData.error) {
+					res.locals.connection.end();
+					console.error(returnedData.error);
+					res.status(500).send();
+
+				} else {
+
+					sendChangeApprovalEmail(returnedData.email, returnedData.username, req.params.changeId, "venue", returnedData.isNew, returnedData.venue_name)
+						.then(() => {
+
+							res.status(200).send({
+								success: true,
+								venueId: returnedData.venue_id,
+							});
+
+						}).catch((mailError: ErrorEventHandler) => {
+
+							console.error(mailError);
+							res.status(500).send();
+
+						});
+
+				}
+			}
+		});
+
+});
+
+
 export default router;

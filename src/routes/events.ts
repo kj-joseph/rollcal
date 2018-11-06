@@ -5,6 +5,8 @@ import { MysqlError } from "mysql";
 import { checkSession } from "checkSession";
 import { IRequestWithSession } from "interfaces";
 
+import { sendChangeApprovalEmail, sendChangeRejectionEmail } from "lib/email";
+
 const router = Router();
 const upload = multer();
 
