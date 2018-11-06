@@ -7,7 +7,7 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 
 import moment from "moment";
 
-import { IGeoCountry, IGeoRegion } from "components/interfaces";
+import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList } from "components/interfaces";
 import { getGeography } from "components/lib/data";
 
 export default class VenueChanges<Props> extends React.Component<any, any, any> {
@@ -173,8 +173,8 @@ export default class VenueChanges<Props> extends React.Component<any, any, any> 
 
 						} else {
 
-							const changeObject = JSON.parse(change.change_object);
-							const venueChangeObject = {
+							const changeObject: {[key: string]: any} = JSON.parse(change.change_object);
+							const venueChangeObject: {[key: string]: any} = {
 								changeId: change.change_id,
 								submittedDuration: moment.duration(moment(change.change_submitted).diff(moment())).humanize(),
 								submittedTime: moment(change.change_submitted).format("MMM D, Y h:mm a"),
@@ -205,7 +205,7 @@ export default class VenueChanges<Props> extends React.Component<any, any, any> 
 											break;
 
 										case "region":
-											regionAbbr = regionLists[changeObject.country || venueData.country].filter(
+											regionAbbr = regionLists[changeObject.country || change.venue_country].filter(
 												(region: IGeoRegion) => region.region_id === changeObject[key])[0].region_abbreviation;
 											break;
 

@@ -44,7 +44,7 @@ export interface IDBDerbyEvent {
 
 export interface IDBDerbyEventChange extends IDBDerbyEvent {
 	change_id: number;
-	change_object: {};
+	change_object: any;
 	change_submitted: string;
 	change_user: number;
 	change_user_name: number;
@@ -73,7 +73,7 @@ export interface IDBDerbyVenue {
 
 export interface IDBDerbyVenueChange extends IDBDerbyVenue {
 	change_id: number;
-	change_object: {};
+	change_object: any;
 	change_submitted: string;
 	change_user: number;
 	change_user_name: number;
@@ -192,6 +192,7 @@ export interface IDerbyVenue {
 
 export interface IDerbyVenueChange extends IDerbyEvent {
 	changeId: number;
+	changedItemId: number;
 	submittedDuration: string;
 	submittedTime: string;
 	username: string;

@@ -1,5 +1,4 @@
-#LoginModal {
-	position: relative;
+#loginModal {
 
 	#loginForm,
 	#registerForm {
@@ -16,7 +15,7 @@
 
 @include respond-to("small") {
 
-	#LoginModal {
+	#loginModal {
 		width: 500px;
 		height: auto;
 	}

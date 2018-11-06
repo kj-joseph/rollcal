@@ -62,7 +62,7 @@ class Login<Props> extends React.Component<any, any, any> {
 				overlayClassName="modalOverlay"
 			>
 
-				<div id="LoginModal">
+				<div id="loginModal">
 
 					<ReactSVG
 						className="modalClose"

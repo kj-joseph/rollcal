@@ -103,7 +103,7 @@ export default class Events<Props> extends React.Component<any, any, any> {
 									<ReactSVG className="myEventIcon" src={MyEventIcon} title="You created this event" />
 								: ""}
 
-								<p className="listDate"><strong>{event.dates_venue}</strong></p>
+								<p className="listDate"><strong>{event.datesVenue}</strong></p>
 								<p className="listLocation">{event.location} {event.flag}</p>
 								<h2><Link to={`/event/${event.id}`} title="Event Details">
 									{event.name}
@@ -426,7 +426,7 @@ export default class Events<Props> extends React.Component<any, any, any> {
 									eventData.push({
 										address1: eventResult.venue_address1,
 										address2: eventResult.venue_address2,
-										dates_venue: formatDateRange({
+										datesVenue: formatDateRange({
 												firstDay: moment.utc(eventResult.event_first_day),
 												lastDay: moment.utc(eventResult.event_last_day),
 											}, "long"),

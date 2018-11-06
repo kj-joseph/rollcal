@@ -5,10 +5,16 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 
 import moment from "moment";
 
-import { IGeoCountry, IGeoRegion, IGeoRegionList, ITimeZone } from "components/interfaces";
+import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList, ITimeZone } from "components/interfaces";
 import { getGeography, getTimeZones } from "components/lib/data";
 
-export default class ReviewVenueChanges<Props> extends React.Component<any, any, any> {
+import Modal from "react-modal";
+Modal.setAppElement("#root");
+
+import CloseIcon from "images/times-circle.svg";
+import ReactSVG from "react-svg";
+
+export default class ReviewVenueChange<Props> extends React.Component<any, any, any> {
 
 	constructor(props: Props) {
 		super(props);
@@ -16,7 +22,9 @@ export default class ReviewVenueChanges<Props> extends React.Component<any, any,
 		this.state = {
 			errorMessage: null,
 			loading: true,
+			modalOpen: false,
 			path: "",
+			rejectComment: "",
 			status: null,
 			userId: null,
 			venueChanges: {},
@@ -24,6 +32,9 @@ export default class ReviewVenueChanges<Props> extends React.Component<any, any,
 		};
 
 		this.approveChange = this.approveChange.bind(this);
+		this.closeModal = this.closeModal.bind(this);
+		this.handleInputChange = this.handleInputChange.bind(this);
+		this.openRejectModal = this.openRejectModal.bind(this);
 		this.rejectChange = this.rejectChange.bind(this);
 
 	}
@@ -69,7 +80,7 @@ export default class ReviewVenueChanges<Props> extends React.Component<any, any,
 					</Link>
 				</p>
 
-				<div className="dashboard">
+				<div className="dashboard reviewVenueChange">
 
 					<h1>Review Venue Change</h1>
 
@@ -265,10 +276,10 @@ export default class ReviewVenueChanges<Props> extends React.Component<any, any,
 
 								</dl>
 
-								<div className="buttonRow">
+								<div className="buttonRow right">
 									<p className="error">{this.state.errorMessage}</p>
 									<button type="button" className="largeButton" onClick={this.approveChange}>Approve</button>
-									<button type="button" className="largeButton pinkButton" onClick={this.rejectChange}>Reject</button>
+									<button type="button" className="largeButton pinkButton" onClick={this.openRejectModal}>Reject</button>
 								</div>
 
 							</React.Fragment>
@@ -286,6 +297,54 @@ export default class ReviewVenueChanges<Props> extends React.Component<any, any,
 
 				</div>
 
+				<Modal
+					isOpen={this.state.modalOpen}
+					onRequestClose={this.closeModal}
+					className="rejectChangeModal"
+					overlayClassName="modalOverlay"
+				>
+
+					<div id="rejectChangeModal">
+
+						<ReactSVG
+							className="modalClose"
+							title="close"
+							src={CloseIcon}
+							onClick={this.closeModal}
+						/>
+
+						<h2>Reject Change</h2>
+
+						<form id="rejectionForm" onSubmit={this.rejectChange}>
+
+							<div className="inputGroup">
+								<p>
+									Please enter a reason for rejecting the change.
+									This will be included in an email to the user letting them know their change was rejected;
+									it will also be stored in the database.
+								</p>
+
+								<label htmlFor="rejectComment">Reason</label>
+								<textarea
+									id="rejectComment"
+									name="rejectComment"
+									required={true}
+									value={this.state.rejectComment}
+									onChange={this.handleInputChange}
+								/>
+							</div>
+
+							<div className="buttonRow">
+								<button type="submit" disabled={!this.state.rejectComment} className="largeButton">Confirm Rejection</button>
+								<button type="button" onClick={this.closeModal} className="largeButton">Cancel</button>
+							</div>
+
+						</form>
+
+					</div>
+
+				</Modal>
+
 			</React.Fragment>
 
 		);
@@ -300,7 +359,9 @@ export default class ReviewVenueChanges<Props> extends React.Component<any, any,
 			loading: true,
 		});
 
-		axios.get(`${this.props.apiLocation}venues/approveChange/${this.props.match.params.changeId}`, { withCredentials: true })
+		axios.post(`${this.props.apiLocation}venues/approveChange/${this.props.match.params.changeId}`,
+			{},
+			{ withCredentials: true })
 			.then((result: AxiosResponse) => {
 
 				this.setState({
@@ -310,7 +371,7 @@ export default class ReviewVenueChanges<Props> extends React.Component<any, any,
 
 			}).catch((error: AxiosError) => {
 
-				console.log(error);
+				console.error(error);
 				this.setState({
 					errorMessage: "Something went wrong.  Please reload the page and try again.",
 					loading: false,
@@ -320,9 +381,61 @@ export default class ReviewVenueChanges<Props> extends React.Component<any, any,
 
 	}
 
-	rejectChange(event: React.MouseEvent<HTMLButtonElement>) {
+	closeModal() {
+
+		this.setState({
+			modalOpen: false,
+			rejectComment: "",
+		});
+
+	}
+
+	handleInputChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
+
+		this.setState({
+			[event.currentTarget.name]: event.currentTarget.value,
+		});
+
+	}
+
+	openRejectModal(event: React.MouseEvent<HTMLButtonElement>) {
 
 		event.preventDefault();
+
+		this.setState({
+			modalOpen: true,
+		});
+
+	}
+
+	rejectChange(event: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>) {
+
+		event.preventDefault();
+
+		this.setState({
+			loading: true,
+			modalOpen: false,
+		});
+
+		axios.post(`${this.props.apiLocation}venues/rejectChange/${this.props.match.params.changeId}`,
+			{ comment: this.state.rejectComment },
+			{ withCredentials: true })
+			.then((result: AxiosResponse) => {
+
+				this.setState({
+					loading: false,
+					status: "rejected",
+				});
+
+			}).catch((error: AxiosError) => {
+
+				console.error(error);
+				this.setState({
+					errorMessage: "Something went wrong.  Please reload the page and try again.",
+					loading: false,
+				});
+
+			});
 
 	}
 
@@ -374,7 +487,7 @@ export default class ReviewVenueChanges<Props> extends React.Component<any, any,
 						}
 					: {};
 
-					const venueChanges = {
+					const venueChanges: {[key: string]: any} = {
 						changeId: result.data.change_id,
 						submittedDuration: moment.duration(moment(result.data.change_submitted).diff(moment())).humanize(),
 						submittedTime: moment(result.data.change_submitted).format("MMM D, Y h:mm a"),

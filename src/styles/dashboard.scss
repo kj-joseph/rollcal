@@ -50,6 +50,10 @@ dl.changeDetails {
 
 	.dashboard {
 
+		&.reviewVenueChange {
+			max-width: 710px;
+		}
+
 	}
 
 	dl.changeDetails {

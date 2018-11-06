@@ -111,7 +111,7 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 											<button type="button" data-event-id={event.id} onClick={this.editEvent} className="smallButton">Edit</button>
 											<button type="button" data-event-id={event.id} onClick={this.deleteEvent} className="smallButton pinkButton">Delete</button>
 										</div>
-										<p className="listDate">{event.dates_venue}</p>
+										<p className="listDate">{event.datesVenue}</p>
 										<h2><Link to={`/event/${event.id}`} title="Event Details">
 											{event.name}
 										</Link></h2>
@@ -268,7 +268,7 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 			.then((result: AxiosResponse) => {
 
 				const eventData = result.data.map((event: IDBDerbyEvent) => ({
-						dates_venue: formatDateRange({
+						datesVenue: formatDateRange({
 								firstDay: moment.utc(event.event_first_day),
 								lastDay: moment.utc(event.event_last_day),
 							}, "short"),
