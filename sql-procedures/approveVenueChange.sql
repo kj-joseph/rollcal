@@ -3,7 +3,8 @@ BEGIN
 declare exit handler for SQLEXCEPTION
 	begin
 		get diagnostics condition 1 @sqlstate = RETURNED_SQLSTATE, @errno = MYSQL_ERRNO, @text = MESSAGE_TEXT;
-		select @sqlstate, @errno, @text;
+		select @sqlstate, @errno, @text,
+		@user, @name, @address1, @address2, @city, @country, @region, @postcode, @link, @description, @timezone;
 		rollback;
 	end;
 
@@ -11,10 +12,11 @@ start transaction;
 
 select c.change_object,	c.changed_item_id, c.change_user, v.venue_name, true
 	into @changeObject, @venueId, @user, @venueName, @changeok
-from changes c, venues v
+from changes c
+	left join venues v
+		on c.changed_item_id = v.venue_id
 where c.change_id = changeId
 	and c.changed_item_type = "venue"
-	and c.changed_item_id = v.venue_id
 	and c.change_status = "submitted";
 
 if @changeok = true then
@@ -78,19 +80,8 @@ if @changeok = true then
 
 		insert into venues
 			(venue_user, venue_name, venue_address1, venue_address2, venue_city, venue_country, venue_region, venue_postcode, venue_link, venue_description, venue_timezone)
-		values (
-			@user,
-			@name,
-			@address1,
-			@address2,
-			@city,
-			@country,
-			@region,
-			@postcode,
-			@link,
-			@description,
-			@timezone
-		);
+		values
+			(@user, @name, @address1, @address2, @city, @country, @region, @postcode, @link, @description, @timezone);
 
 		set @venueId = last_insert_id();
 
