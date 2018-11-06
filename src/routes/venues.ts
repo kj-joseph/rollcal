@@ -94,10 +94,10 @@ router.put("/saveChanges", upload.array(), checkSession("user"), (req: IRequestW
 });
 
 
-router.get("/getChanges", checkSession("reviewer"), (req: IRequestWithSession, res: Response) => {
+router.get("/getChangeList", checkSession("reviewer"), (req: IRequestWithSession, res: Response) => {
 
 	res.locals.connection
-		.query(`call getVenueChanges(${res.locals.connection.escape(req.session.user.id)})`,
+		.query(`call getVenueChangeList(${res.locals.connection.escape(req.session.user.id)})`,
 
 		(error: MysqlError, results: any) => {
 
@@ -117,4 +117,28 @@ router.get("/getChanges", checkSession("reviewer"), (req: IRequestWithSession, r
 });
 
 
+router.get("/getChange/:changeId", checkSession("reviewer"), (req: IRequestWithSession, res: Response) => {
+
+	res.locals.connection
+		.query(`call getVenueChange(
+			${res.locals.connection.escape(req.params.changeId)},
+			${res.locals.connection.escape(req.session.user.id)}
+			)`,
+
+		(error: MysqlError, results: any) => {
+
+			if (error) {
+				res.locals.connection.end();
+				console.error(error);
+				res.status(500).send();
+
+			} else {
+
+				res.locals.connection.end();
+				res.status(200).json(results[0].map((row: {}) => ({...row}))[0]);
+
+			}
+		});
+
+});
 export default router;
