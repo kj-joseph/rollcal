@@ -197,7 +197,7 @@ export default class VenueChanges<Props> extends React.Component<any, any, any> 
 
 										case "country":
 											countryCode = countryList.filter(
-												(country: IGeoCountry) => country.country_code === changeObject[key])[0].country_name;
+												(country: IGeoCountry) => country.country_code === changeObject[key])[0].country_code;
 											break;
 
 										case "name":
@@ -205,7 +205,7 @@ export default class VenueChanges<Props> extends React.Component<any, any, any> 
 											break;
 
 										case "region":
-											regionAbbr = regionLists[changeObject.country || change.venue_country].filter(
+											regionAbbr = regionLists[changeObject.country].filter(
 												(region: IGeoRegion) => region.region_id === changeObject[key])[0].region_abbreviation;
 											break;
 
