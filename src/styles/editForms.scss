@@ -20,10 +20,19 @@
 h3.formSectionHeader {
 	display: inline-block;
 	position: relative;
-	font-size: 1.8rem;
+	font-size: 2rem;
 	cursor: pointer;
 	margin-bottom: 1em;
 	padding-left: 25px;
+
+	span {
+		text-decoration: underline;
+	}
+
+	&.noOpener {
+		cursor: auto;
+		padding-left: 0;
+	}
 
 	&.closed::before {
 		position: absolute;
@@ -223,6 +232,7 @@ h3.formSectionHeader {
 	}
 
 	h3.formSectionHeader {
+		cursor: auto;
 		padding-left: 0;
 
 		&.closed::before {

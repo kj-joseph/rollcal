@@ -18,6 +18,7 @@
 }
 
 dl.changeDetails {
+	line-height: 1.2em;
 
 	dt {
 		font-weight: bold;
@@ -31,7 +32,6 @@ dl.changeDetails {
 }
 
 .removed {
-	font-size: .95em;
 	color: $gray;
 	text-decoration: line-through;
 }

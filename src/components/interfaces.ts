@@ -131,6 +131,7 @@ export interface IDerbyEventDayFormatted {
 
 export interface IDerbyEventChange extends IDerbyEvent {
 	changeId: number;
+	changedItemId: number;
 	submittedDuration: string;
 	submittedTime: string;
 	username: string;

@@ -100,6 +100,7 @@ class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
 								<Route path="/event/:eventId?" component={EventDetailsPage} exact={true} />
 								<Route path="/dashboard/events/:operation(add|edit)/:eventId(\d+)?" component={EventFormPage} exact={true} />
 								<Route path="/dashboard/venues/:operation(add|edit)/:venueId(\d+)?" component={VenueFormPage} exact={true} />
+								<Route path="/dashboard/events/changes/:changeId(\d+)" component={ReviewEventChangePage} exact={true} />
 								<Route path="/dashboard/events/changes" component={EventChangesPage} exact={true} />
 								<Route path="/dashboard/venues/changes/:changeId(\d+)" component={ReviewVenueChangePage} exact={true} />
 								<Route path="/dashboard/venues/changes" component={VenueChangesPage} exact={true} />
@@ -229,6 +230,9 @@ const EventsPage = connect(mapStateToProps, mapDispatchToProps)(Events);
 
 import Faq from "components/pages/faq";
 const FaqPage = connect(mapStateToProps, mapDispatchToProps)(Faq);
+
+import ReviewEventChange from "components/pages/reviewEventChange";
+const ReviewEventChangePage = connect(mapStateToProps, mapDispatchToProps)(ReviewEventChange);
 
 import ReviewVenueChange from "components/pages/reviewVenueChange";
 const ReviewVenueChangePage = connect(mapStateToProps, mapDispatchToProps)(ReviewVenueChange);

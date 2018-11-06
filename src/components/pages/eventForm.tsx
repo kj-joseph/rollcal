@@ -189,7 +189,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 											data-section="Basic"
 											onClick={this.toggleSection}
 										>
-											Basic Event Information
+											<span>Basic Event Information</span>
 										</h3>
 
 										<div className={"formSection" + (this.state.sectionOpenBasic ? " open" : " closed")}>
@@ -263,7 +263,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 											data-section="Venue"
 											onClick={this.toggleSection}
 										>
-											Venue
+											<span>Venue</span>
 										</h3>
 
 										<div className={"formSection" + (this.state.sectionOpenVenue ? " open" : " closed")}>
@@ -447,7 +447,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 											data-section="Days"
 											onClick={this.toggleSection}
 										>
-											Event Days ({this.state.editingDays.filter((day: IDerbyEventDayFormatted) =>
+											<span>Event Days</span> ({this.state.editingDays.filter((day: IDerbyEventDayFormatted) =>
 												day.id > 0 || day.editing === false).length})
 										</h3>
 
@@ -594,7 +594,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 											data-section="Features"
 											onClick={this.toggleSection}
 										>
-											Event Features ({this.state.selectedFeatures.length})
+											<span>Event Features</span> ({this.state.selectedFeatures.length})
 										</h3>
 
 										<div className={"formSection" + (this.state.sectionOpenFeatures ? " open" : " closed")}>
