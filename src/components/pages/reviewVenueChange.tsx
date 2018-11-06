@@ -14,6 +14,8 @@ Modal.setAppElement("#root");
 import CloseIcon from "images/times-circle.svg";
 import ReactSVG from "react-svg";
 
+import CompareValues from "components/partials/compareValues";
+
 export default class ReviewVenueChange<Props> extends React.Component<any, any, any> {
 
 	constructor(props: Props) {
@@ -115,164 +117,87 @@ export default class ReviewVenueChange<Props> extends React.Component<any, any, 
 
 								<dl className="changeDetails">
 
-									<dt>Name:</dt>
-
-									<dd>
-										<span className={`old${this.state.venueChanges.name !== this.state.venueData.name ? " removed" : ""}`}>
-											{this.state.venueData.name}
-										</span>
-										{this.state.venueChanges.name && this.state.venueChanges.name !== this.state.venueData.name ?
-											<React.Fragment>
-												{this.state.venueData.name ? " " : ""}
-												<span className="new">{this.state.venueChanges.name}</span>
-											</React.Fragment>
-										: ""}
-									</dd>
+									<CompareValues
+										label="name"
+										oldValue={this.state.venueData.name}
+										newValue={this.state.venueChanges.name}
+									/>
 
 									<dt>Address:</dt>
 
 									<dd>
 
-										<span className={`old${this.state.venueChanges.address1 !== this.state.venueData.address1 ? " removed" : ""}`}>
-											{this.state.venueData.address1}
-										</span>
-										{this.state.venueChanges.address1 && this.state.venueChanges.address1 !== this.state.venueData.address1 ?
-											<React.Fragment>
-												{this.state.venueData.address1 ? " " : ""}
-												<span className="new">{this.state.venueChanges.address1}</span>
-											</React.Fragment>
-										: ""}
+										<CompareValues
+											oldValue={this.state.venueData.address1}
+											newValue={this.state.venueChanges.address1}
+											inline={true}
+										/><br />
 
 										{this.state.venueData.address2 || this.state.venueChanges.address2 ?
 											<React.Fragment>
+												<CompareValues
+													oldValue={this.state.venueData.address2}
+													newValue={this.state.venueChanges.address2}
+													inline={true}
+												/>
 												<br />
-												<span className={`old${this.state.venueChanges.address2 !== this.state.venueData.address2 ? " removed" : ""}`}>
-													{this.state.venueData.address2}
-												</span>
-												{this.state.venueChanges.address2 && this.state.venueChanges.address2 !== this.state.venueData.address2 ?
-													<React.Fragment>
-														{this.state.venueData.address2 ? " " : ""}
-														<span className="new">{this.state.venueChanges.address2}</span>
-													</React.Fragment>
-												: ""}
 											</React.Fragment>
 										: ""}
 
-										<br />
-
-										<span className={`old${this.state.venueChanges.city !== this.state.venueData.city ? " removed" : ""}`}>
-											{this.state.venueData.city}
-										</span>
-										{this.state.venueChanges.city && this.state.venueChanges.city !== this.state.venueData.city ?
-											<React.Fragment>
-												{this.state.venueData.city ? " " : ""}
-												<span className="new">{this.state.venueChanges.city}</span>
-											</React.Fragment>
-										: ""}
+										<CompareValues
+											oldValue={this.state.venueData.city}
+											newValue={this.state.venueChanges.city}
+											inline={true}
+										/>
 
 										{this.state.venueData.region || this.state.venueChanges.region ?
 											<React.Fragment>
 												{", "}
-
-												<span className={`old${this.state.venueChanges.region !== this.state.venueData.region ? " removed" : ""}`}>
-													{this.state.venueData.region}
-												</span>
-												{this.state.venueChanges.region && this.state.venueChanges.region !== this.state.venueData.region ?
-													<React.Fragment>
-														{this.state.venueData.region ? " " : ""}
-														<span className="new">{this.state.venueChanges.region}</span>
-													</React.Fragment>
-												: ""}
-
+												<CompareValues
+													oldValue={this.state.venueData.region}
+													newValue={this.state.venueChanges.region}
+													inline={true}
+												/>
 											</React.Fragment>
 										: ""}
 
-										{this.state.venueData.postcode || this.state.venueChanges.postcode ?
+										{this.state.venueData.postalcode || this.state.venueChanges.postalcode ?
 											<React.Fragment>
 												{" "}
-
-												<span className={`old${this.state.venueChanges.postcode !== this.state.venueData.postcode ? " removed" : ""}`}>
-													{this.state.venueData.postcode}
-												</span>
-												{this.state.venueChanges.postcode && this.state.venueChanges.postcode !== this.state.venueData.postcode ?
-													<React.Fragment>
-														{this.state.venueData.postcode ? " " : ""}
-														<span className="new">{this.state.venueChanges.postcode}</span>
-													</React.Fragment>
-												: ""}
-
+												<CompareValues
+													oldValue={this.state.venueData.postalcode}
+													newValue={this.state.venueChanges.postalcode}
+													inline={true}
+												/>
 											</React.Fragment>
-										: ""}
+										: ""}<br />
 
-										<br />
+										<CompareValues
+											oldValue={this.state.venueData.country}
+											newValue={this.state.venueChanges.country}
+											inline={true}
+										/>
 
-										<span className={`old${this.state.venueChanges.country !== this.state.venueData.country ? " removed" : ""}`}>
-											{this.state.venueData.country}
-										</span>
-										{this.state.venueChanges.country && this.state.venueChanges.country !== this.state.venueData.country ?
-											<React.Fragment>
-												{this.state.venueData.country ? " " : ""}
-												<span className="new">{this.state.venueChanges.country}</span>
-											</React.Fragment>
-										: ""}
 
 									</dd>
 
-									<dt>Link:</dt>
+									<CompareValues
+										label="Web Page"
+										oldValue={this.state.venueData.link}
+										newValue={this.state.venueChanges.link}
+									/>
 
-									<dd>
-										{this.state.venueData.link || this.state.venueChanges.link ?
-											<React.Fragment>
-												<span className={`old${this.state.venueChanges.link !== this.state.venueData.link ? " removed" : ""}`}>
-													{this.state.venueData.link}
-												</span>
-												{this.state.venueChanges.link && this.state.venueChanges.link !== this.state.venueData.link ?
-													<React.Fragment>
-														{this.state.venueData.link ? " " : ""}
-														<span className="new">{this.state.venueChanges.link}</span>
-													</React.Fragment>
-												: ""}
-											</React.Fragment>
-										:
-											<span className="nodata">(none)</span>
-										}
-									</dd>
+									<CompareValues
+										label="description"
+										oldValue={this.state.venueData.description}
+										newValue={this.state.venueChanges.description}
+									/>
 
-
-									<dt>Description:</dt>
-
-									<dd>
-										{this.state.venueData.description || this.state.venueChanges.description ?
-											<React.Fragment>
-												<span className={`old${this.state.venueChanges.description !== this.state.venueData.description ? " removed" : ""}`}>
-													{this.state.venueData.description}
-												</span>
-												{this.state.venueChanges.description && this.state.venueChanges.description !== this.state.venueData.description ?
-													<React.Fragment>
-														{this.state.venueData.description ? " " : ""}
-														<span className="new">{this.state.venueChanges.description}</span>
-													</React.Fragment>
-												: ""}
-											</React.Fragment>
-										:
-											<span className="nodata">(none)</span>
-										}
-									</dd>
-
-
-									<dt>Time Zone:</dt>
-
-									<dd>
-										<span className={`old${this.state.venueChanges.timezone !== this.state.venueData.timezone ? " removed" : ""}`}>
-											{this.state.venueData.timezone}
-										</span>
-										{this.state.venueChanges.timezone && this.state.venueChanges.timezone !== this.state.venueData.timezone ?
-											<React.Fragment>
-												{this.state.venueData.timezone ? " " : ""}
-												<span className="new">{this.state.venueChanges.timezone}</span>
-											</React.Fragment>
-										: ""}
-									</dd>
+									<CompareValues
+										label="Time Zone"
+										oldValue={this.state.venueData.timezone}
+										newValue={this.state.venueChanges.timezone}
+									/>
 
 								</dl>
 
