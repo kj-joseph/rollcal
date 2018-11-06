@@ -87,7 +87,7 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 								<div className="buttonRow cornerButton">
 									<button type="button" onClick={this.editEvent} className="largeButton">Edit Event</button>
 								</div>
-							: "" }
+							: ""}
 
 							<div className="data">
 
@@ -163,7 +163,7 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 										<p>
 											<strong>Start time:</strong> {this.state.eventData.days[0].startTime}
 											{this.state.eventData.days[0].doorsTime
-												? ` (Doors: ${this.state.eventData.days[0].doorsTime})` : "" }
+												? ` (Doors: ${this.state.eventData.days[0].doorsTime})` : ""}
 										</p>
 									</div>
 								}

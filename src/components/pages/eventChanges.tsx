@@ -8,6 +8,9 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import { formatDateRange } from "components/lib/dateTime";
 import moment from "moment";
 
+import { IGeoCountry, IGeoRegion } from "components/interfaces";
+import { getGeography } from "components/lib/data";
+
 export default class EventChanges<Props> extends React.Component<any, any, any> {
 
 	constructor(props: Props) {
@@ -86,12 +89,15 @@ export default class EventChanges<Props> extends React.Component<any, any, any> 
 
 								{this.state.eventChanges.map((change: IDerbyEventChange) => (
 
-									<li className="list" key={change.id}>
+									<li className="list" key={change.changeId}>
 										<p className="submittedTime">
-											Submitted by <strong>{change.username}</strong> <span title={change.submittedTime}>{change.submittedDuration} ago</span>
+											<strong>{change.changedItemId ? "Change" : "New event"}</strong>
+											<br />
+											<span title={change.submittedTime}>{change.submittedDuration} ago</span>{" "}
+											by <strong>{change.username}</strong>
 										</p>
 										<div className="buttonRow">
-											<button type="button" data-change-id={change.id} onClick={this.reviewChange} className="smallButton">Review</button>
+											<button type="button" data-change-id={change.changeId} onClick={this.reviewChange} className="smallButton">Review</button>
 										</div>
 										<p className="listDate">{change.datesVenue}</p>
 										<h2>{change.name}</h2>
@@ -137,22 +143,23 @@ export default class EventChanges<Props> extends React.Component<any, any, any> 
 			loading: true,
 		});
 
-		axios.get(`${this.props.apiLocation}events/getChanges`, { withCredentials: true })
+		axios.get(`${this.props.apiLocation}events/getChangeList`, { withCredentials: true })
 			.then((result: AxiosResponse) => {
 
 				const eventChanges = result.data.map((change: IDBDerbyEventChange) => ({
+					changeId: change.change_id,
+					changedItemId: change.changed_item_id,
 					datesVenue: formatDateRange({
 							firstDay: moment.utc(change.event_first_day),
 							lastDay: moment.utc(change.event_last_day),
 						}, "short"),
 					host: change.event_name ? change.event_host : null,
-					id: change.change_id,
 					location: `${change.venue_city}${change.region_abbreviation ? ", " + change.region_abbreviation : ""}, ${change.country_code}`,
 					name: change.event_name ? change.event_name : change.event_host,
 					submittedDuration: moment.duration(moment(change.change_submitted).diff(moment())).humanize(),
 					submittedTime: moment(change.change_submitted).format("MMM D, Y h:mm a"),
-					user: change.user_id,
-					username: change.user_name,
+					user: change.change_user,
+					username: change.change_user_name,
 				}));
 
 				this.setState({

@@ -42,23 +42,17 @@ export interface IDBDerbyEvent {
 	venue_user: number;
 }
 
-export interface IDBDerbyEventChange {
+export interface IDBDerbyEventChange extends IDBDerbyEvent {
 	change_id: number;
-	changed_item_id: number;
 	change_object: {};
 	change_submitted: string;
-	country_code: string;
-	event_first_day: string;
-	event_host: string;
-	event_last_day: string;
-	event_name: string;
-	region_abbreviation: string;
-	user_id: number;
-	user_name: string;
-	venue_city: string;
+	change_user: number;
+	change_user_name: number;
+	changed_item_id: number;
 }
 
 export interface IDBDerbyVenue {
+	country_code?: string;
 	country_name?: string;
 	country_flag?: string;
 	region_abbreviation?: string;
@@ -77,17 +71,13 @@ export interface IDBDerbyVenue {
 	venue_timezone: number;
 }
 
-export interface IDBDerbyVenueChange {
+export interface IDBDerbyVenueChange extends IDBDerbyVenue {
 	change_id: number;
 	change_object: {};
 	change_submitted: string;
+	change_user: number;
+	change_user_name: number;
 	changed_item_id: number;
-	country_code: string;
-	region_abbreviation: string;
-	user_id: number;
-	user_name: string;
-	venue_city: string;
-	venue_name: string;
 }
 
 export interface IDerbyDates {
@@ -98,7 +88,7 @@ export interface IDerbyDates {
 export interface IDerbyEvent {
 	address1: string;
 	address2?: string;
-	dates_venue: string;
+	datesVenue: string;
 	days?: moment.Moment[];
 	event_description?: string;
 	event_link?: string;
@@ -114,7 +104,6 @@ export interface IDerbyEvent {
 	venue_link?: string;
 	venue_name: string;
 }
-
 
 export interface IDerbyEventDay {
 	eventday_description?: string;
@@ -140,12 +129,8 @@ export interface IDerbyEventDayFormatted {
 	description?: string;
 }
 
-export interface IDerbyEventChange {
-	datesVenue: string;
-	host?: string;
-	id: number;
-	location: string;
-	name: string;
+export interface IDerbyEventChange extends IDerbyEvent {
+	changeId: number;
 	submittedDuration: string;
 	submittedTime: string;
 	username: string;
@@ -205,14 +190,12 @@ export interface IDerbyVenue {
 	user?: number;
 }
 
-export interface IDerbyVenueChange {
-	id: number;
-	location: string;
-	name: string;
+export interface IDerbyVenueChange extends IDerbyEvent {
+	changeId: number;
 	submittedDuration: string;
 	submittedTime: string;
 	username: string;
-	user: number;
+	userId?: number;
 }
 
 export interface IGeoCountry {

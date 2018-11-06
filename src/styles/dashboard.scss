@@ -17,10 +17,58 @@
 
 }
 
+dl.changeDetails {
+
+	dt {
+		font-weight: bold;
+		margin-bottom: .2em;
+	}
+
+	dd {
+		margin-bottom: 1em;
+	}
+
+}
+
+.removed {
+	font-size: .95em;
+	color: $gray;
+	text-decoration: line-through;
+}
+
+.new {
+	color: $green;
+}
+
+.nodata {
+	font-size: .9em;
+	color: $gray;
+}
+
 
 @include respond-to("small") {
 
 	.dashboard {
+
+	}
+
+	dl.changeDetails {
+		display: flex;
+		flex-flow: row wrap;
+		max-width: 710px;
+
+		dt {
+			width: 130px;
+			vertical-align: top;
+			margin-bottom: 1em;
+		}
+
+		dd {
+			width: calc(100% - 145px);
+			vertical-align: top;
+			margin: 0 0 1em 15px;
+
+		}
 
 	}
 

@@ -166,7 +166,7 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 
 											<p className="error">{this.state.modalError}</p>
 
-										: "" }
+										: ""}
 
 									</React.Fragment>
 

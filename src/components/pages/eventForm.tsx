@@ -457,7 +457,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 
 												{ !this.state.editingDays.length ?
 													<p>There are currently no days for this event.  Please add at least one.</p>
-												: "" }
+												: ""}
 
 												<ul className={"eventDayList" + (this.state.editingDays.length ? "" : " empty")}>
 													{this.state.editingDays
@@ -493,7 +493,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 																			onFocusChange={this.handleFocusChange}
 																			noBorder={true}
 																		/>
-																	: "" }
+																	: ""}
 																</div>
 
 																<div className="inputGroup half">
@@ -655,7 +655,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 														</span>
 														: "" )}
 												</div>
-											: "" }
+											: ""}
 
 										</div>
 
@@ -666,7 +666,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 								<div className="buttonRow">
 								{ this.state.submitError ?
 									<p className="error">{this.state.submitError}</p>
-								: "" }
+								: ""}
 
 									<button
 										type="submit"

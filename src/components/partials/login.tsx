@@ -210,11 +210,11 @@ class Login<Props> extends React.Component<any, any, any> {
 
 						</div>
 
-					: "" }
+					: ""}
 
 					{ this.state.loading ?
 						<div className={"loader medium" + (this.state.loading ? "" : " disabled")} />
-					: "" }
+					: ""}
 
 				</div>
 
