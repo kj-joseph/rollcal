@@ -23,6 +23,7 @@ export default class ReviewVenueChange<Props> extends React.Component<any, any, 
 
 		this.state = {
 			errorMessage: null,
+			initialLoad: false,
 			loading: true,
 			modalOpen: false,
 			path: "",
@@ -82,9 +83,9 @@ export default class ReviewVenueChange<Props> extends React.Component<any, any, 
 					</Link>
 				</p>
 
-				<div className="dashboard reviewVenueChange">
+				<div className={`dashboard reviewVenueChange ${this.state.venueData.eventId ? "" : "newEvent"}`}>
 
-					<h1>Review Venue Change</h1>
+					<h1>{this.state.initialLoad ? `Review ${this.state.venueData.venueId ? "Venue Change" : "New Venue"}` : ""}</h1>
 
 					{this.state.loading ?
 
@@ -102,14 +103,16 @@ export default class ReviewVenueChange<Props> extends React.Component<any, any, 
 
 					<React.Fragment>
 
-						<div className="callout">
-							<p className="header">KEY TO CHANGES</p>
-							<p>
-								<span className="old">Existing data</span>{" / "}
-								<span className="removed">Replaced data</span>{" / "}
-								<span className="new">New data</span>
-							</p>
-						</div>
+						{this.state.venueData.eventId ?
+							<div className="callout">
+								<p className="header">KEY TO CHANGES</p>
+								<p>
+									<span className="old">Unchanged data</span>{" / "}
+									<span className="removed">Replaced data</span>{" / "}
+									<span className="new">New data</span>
+								</p>
+							</div>
+						: ""}
 
 						{this.state.venueChanges.changeId ?
 
@@ -409,6 +412,7 @@ export default class ReviewVenueChange<Props> extends React.Component<any, any, 
 							postcode: result.data.venue_postcode,
 							region: result.data.region_abbreviation,
 							timezone: timeZones.filter((tz: ITimeZone) => tz.timezone_id === result.data.venue_timezone)[0].timezone_name,
+							venueId: result.data.venue_id,
 						}
 					: {};
 
@@ -455,6 +459,7 @@ export default class ReviewVenueChange<Props> extends React.Component<any, any, 
 						}
 
 						this.setState({
+							initialLoad: true,
 							loading: false,
 							venueChanges,
 							venueData,

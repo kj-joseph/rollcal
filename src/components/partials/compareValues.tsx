@@ -27,7 +27,7 @@ export default class CompareValues extends React.Component<{
 			} else {
 				return (
 					<React.Fragment>
-						<dt>{this.props.label}</dt>
+						<dt>{this.props.label}:</dt>
 						<dd><span className="nodata">(none)</span></dd>
 					</React.Fragment>
 				);
@@ -44,7 +44,7 @@ export default class CompareValues extends React.Component<{
 			} else {
 				return (
 					<React.Fragment>
-						<dt>{this.props.label}</dt>
+						<dt>{this.props.label}:</dt>
 						<dd>
 							<span className="new">{this.props.newValue}</span>
 						</dd>
@@ -63,7 +63,7 @@ export default class CompareValues extends React.Component<{
 			} else {
 				return (
 					<React.Fragment>
-						<dt>{this.props.label}</dt>
+						<dt>{this.props.label}:</dt>
 						<dd>
 							<span className="old">{this.props.oldValue}</span>
 						</dd>
@@ -82,7 +82,7 @@ export default class CompareValues extends React.Component<{
 			} else {
 				return (
 					<React.Fragment>
-						<dt>{this.props.label}</dt>
+						<dt>{this.props.label}:</dt>
 						<dd>
 							<span className="old removed">{this.props.oldValue}</span>
 						</dd>
@@ -103,7 +103,7 @@ export default class CompareValues extends React.Component<{
 				} else {
 					return (
 						<React.Fragment>
-							<dt>{this.props.label}</dt>
+							<dt>{this.props.label}:</dt>
 							<dd>
 								<span className="old">{this.props.oldValue}</span><br />
 							</dd>
@@ -122,7 +122,7 @@ export default class CompareValues extends React.Component<{
 				} else {
 					return (
 						<React.Fragment>
-							<dt>{this.props.label}</dt>
+							<dt>{this.props.label}:</dt>
 							<dd>
 								<span className="old removed">{this.props.oldValue}</span><br />
 								<span className="new">{this.props.newValue}</span>

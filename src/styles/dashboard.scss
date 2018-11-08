@@ -36,15 +36,18 @@ dl.changeDetails {
 	text-decoration: line-through;
 }
 
-.new {
-	color: $green;
-}
-
 .nodata {
 	font-size: .9em;
 	color: $gray;
 }
 
+.new {
+	color: $green;
+}
+
+.newEvent .new {
+	color: inherit;
+}
 
 @include respond-to("small") {
 

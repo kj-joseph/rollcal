@@ -5,8 +5,7 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 
 import moment from "moment";
 
-import { IDBDerbyEvent, IDBDerbyVenue,
-	IDerbyEvent, IDerbyEventDayFormatted,
+import { IDBDerbyVenue,
 	IDerbySanction, IDerbyTrack, IDerbyType,
 	IDerbyVenue,
 	IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList, ITimeZone,
@@ -31,6 +30,7 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 			errorMessage: null,
 			eventChanges: {},
 			eventData: {},
+			initialLoad: false,
 			loading: true,
 			modalOpen: false,
 			path: "",
@@ -88,9 +88,9 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 					</Link>
 				</p>
 
-				<div className="dashboard reviewEventChange">
+				<div className={`dashboard reviewEventChange ${this.state.eventData.eventId ? "" : "newEvent"}`}>
 
-					<h1>Review Event Change</h1>
+					<h1>{this.state.initialLoad ? `Review ${this.state.eventData.eventId ? "Event Change" : "New Event"}` : ""}</h1>
 
 					{this.state.loading ?
 
@@ -108,14 +108,16 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 
 					<React.Fragment>
 
-						<div className="callout">
-							<p className="header">KEY TO CHANGES</p>
-							<p>
-								<span className="old">Existing data</span>{" / "}
-								<span className="removed">Replaced data</span>{" / "}
-								<span className="new">New data</span>
-							</p>
-						</div>
+						{this.state.eventData.eventId ?
+							<div className="callout">
+								<p className="header">KEY TO CHANGES</p>
+								<p>
+									<span className="old">Unchanged data</span>{" / "}
+									<span className="removed">Replaced data</span>{" / "}
+									<span className="new">New data</span>
+								</p>
+							</div>
+						: ""}
 
 						{this.state.eventChanges.changeId ?
 
@@ -165,164 +167,99 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 
 												<dl className="changeDetails">
 
-													<dt>Name:</dt>
+													{this.state.eventChanges.newVenue ?
+														<React.Fragment>
 
-													<dd>
-														<span className={`old${this.state.eventChanges.name !== this.state.eventData.name ? " removed" : ""}`}>
-															{this.state.eventData.name}
-														</span>
-														{this.state.eventChanges.name && this.state.eventChanges.name !== this.state.eventData.name ?
-															<React.Fragment>
-																{this.state.eventData.name ? " " : ""}
-																<span className="new">{this.state.eventChanges.name}</span>
-															</React.Fragment>
-														: ""}
-													</dd>
+															{this.state.eventData.venue ?
+																<React.Fragment>
 
-													<dt>Address:</dt>
+																	<dt>Old Venue:</dt>
 
-													<dd>
+																	<dd>
+																		<span className="old removed">
+																			{this.state.eventData.venueName}<br />
+																			{this.state.eventData.venueLocation}
+																		</span>
+																	</dd>
 
-														<span className={`old${this.state.eventChanges.address1 !== this.state.eventData.address1 ? " removed" : ""}`}>
-															{this.state.eventData.address1}
-														</span>
-														{this.state.eventChanges.address1 && this.state.eventChanges.address1 !== this.state.eventData.address1 ?
-															<React.Fragment>
-																{this.state.eventData.address1 ? " " : ""}
-																<span className="new">{this.state.eventChanges.address1}</span>
-															</React.Fragment>
-														: ""}
+																</React.Fragment>
+															: ""}
 
-														{this.state.eventData.address2 || this.state.eventChanges.address2 ?
-															<React.Fragment>
-																<br />
-																<span className={`old${this.state.eventChanges.address2 !== this.state.eventData.address2 ? " removed" : ""}`}>
-																	{this.state.eventData.address2}
-																</span>
-																{this.state.eventChanges.address2 && this.state.eventChanges.address2 !== this.state.eventData.address2 ?
+															<dt>Adding New Venue:</dt>
+
+															<dd>
+																<span className="new">
+																{this.state.eventChanges.newVenue.name}<br />
+																{this.state.eventChanges.newVenue.address1}<br />
+																{this.state.eventChanges.newVenue.address2 ?
 																	<React.Fragment>
-																		{this.state.eventData.address2 ? " " : ""}
-																		<span className="new">{this.state.eventChanges.address2}</span>
+																		{this.state.eventChanges.newVenue.address2}
+																		<br />
 																	</React.Fragment>
 																: ""}
-															</React.Fragment>
-														: ""}
-
-														<br />
-
-														<span className={`old${this.state.eventChanges.city !== this.state.eventData.city ? " removed" : ""}`}>
-															{this.state.eventData.city}
-														</span>
-														{this.state.eventChanges.city && this.state.eventChanges.city !== this.state.eventData.city ?
-															<React.Fragment>
-																{this.state.eventData.city ? " " : ""}
-																<span className="new">{this.state.eventChanges.city}</span>
-															</React.Fragment>
-														: ""}
-
-														{this.state.eventData.region || this.state.eventChanges.region ?
-															<React.Fragment>
-																{", "}
-
-																<span className={`old${this.state.eventChanges.region !== this.state.eventData.region ? " removed" : ""}`}>
-																	{this.state.eventData.region}
+																{this.state.eventChanges.newVenue.location}<br />
+																{this.state.eventChanges.newVenue.country}<br />
 																</span>
-																{this.state.eventChanges.region && this.state.eventChanges.region !== this.state.eventData.region ?
+															</dd>
+
+															{this.state.eventChanges.newVenue.link ?
+																<React.Fragment>
+																	<dt>New Venue Web Site:</dt>
+																	<dd><span className="new">
+																		{this.state.eventChanges.newVenue.link}
+																	</span></dd>
+																</React.Fragment>
+															: ""}
+															{this.state.eventChanges.newVenue.description ?
+																<React.Fragment>
+																	<dt>New Venue Description:</dt>
+																	<dd><span className="new">
+																		{this.state.eventChanges.newVenue.description}
+																	</span></dd>
+																</React.Fragment>
+															: ""}
+															{this.state.eventChanges.newVenue.timezone ?
+																<React.Fragment>
+																	<dt>New Venue Time Zone:</dt>
+																	<dd><span className="new">
+																		{this.state.eventChanges.newVenue.timezone}
+																	</span></dd>
+																</React.Fragment>
+															: ""}
+
+														</React.Fragment>
+
+													: this.state.eventChanges.venue
+														&& this.state.eventChanges.venue !== this.state.eventData.venue ?
+
+														<React.Fragment>
+															<dt>{!this.state.eventData.eventId ? "Existing " : ""}Venue:</dt>
+
+															<dd>
+																{this.state.eventData.venue ?
 																	<React.Fragment>
-																		{this.state.eventData.region ? " " : ""}
-																		<span className="new">{this.state.eventChanges.region}</span>
+																		<span className="old removed">
+																			{this.state.eventData.venueName}<br />
+																			{this.state.eventData.venueLocation}</span>
+																			<br />
 																	</React.Fragment>
 																: ""}
+																<span className="new">{this.state.eventChanges.venueName}<br />{this.state.eventChanges.venueLocation}</span><br />
+															</dd>
 
-															</React.Fragment>
-														: ""}
+														</React.Fragment>
 
-														{this.state.eventData.postcode || this.state.eventChanges.postcode ?
-															<React.Fragment>
-																{" "}
+													:
 
-																<span className={`old${this.state.eventChanges.postcode !== this.state.eventData.postcode ? " removed" : ""}`}>
-																	{this.state.eventData.postcode}
-																</span>
-																{this.state.eventChanges.postcode && this.state.eventChanges.postcode !== this.state.eventData.postcode ?
-																	<React.Fragment>
-																		{this.state.eventData.postcode ? " " : ""}
-																		<span className="new">{this.state.eventChanges.postcode}</span>
-																	</React.Fragment>
-																: ""}
+														<React.Fragment>
+															<dt>Venue:</dt>
 
-															</React.Fragment>
-														: ""}
+															<dd>
+																<span className="old">{this.state.eventData.venueName}<br />{this.state.eventData.venueLocation}</span>
+															</dd>
+														</React.Fragment>
 
-														<br />
-
-														<span className={`old${this.state.eventChanges.country !== this.state.eventData.country ? " removed" : ""}`}>
-															{this.state.eventData.country}
-														</span>
-														{this.state.eventChanges.country && this.state.eventChanges.country !== this.state.eventData.country ?
-															<React.Fragment>
-																{this.state.eventData.country ? " " : ""}
-																<span className="new">{this.state.eventChanges.country}</span>
-															</React.Fragment>
-														: ""}
-
-													</dd>
-
-													<dt>Link:</dt>
-
-													<dd>
-														{this.state.eventData.link || this.state.eventChanges.link ?
-															<React.Fragment>
-																<span className={`old${this.state.eventChanges.link !== this.state.eventData.link ? " removed" : ""}`}>
-																	{this.state.eventData.link}
-																</span>
-																{this.state.eventChanges.link && this.state.eventChanges.link !== this.state.eventData.link ?
-																	<React.Fragment>
-																		{this.state.eventData.link ? " " : ""}
-																		<span className="new">{this.state.eventChanges.link}</span>
-																	</React.Fragment>
-																: ""}
-															</React.Fragment>
-														:
-															<span className="nodata">(none)</span>
-														}
-													</dd>
-
-
-													<dt>Description:</dt>
-
-													<dd>
-														{this.state.eventData.description || this.state.eventChanges.description ?
-															<React.Fragment>
-																<span className={`old${this.state.eventChanges.description !== this.state.eventData.description ? " removed" : ""}`}>
-																	{this.state.eventData.description}
-																</span>
-																{this.state.eventChanges.description && this.state.eventChanges.description !== this.state.eventData.description ?
-																	<React.Fragment>
-																		{this.state.eventData.description ? " " : ""}
-																		<span className="new">{this.state.eventChanges.description}</span>
-																	</React.Fragment>
-																: ""}
-															</React.Fragment>
-														:
-															<span className="nodata">(none)</span>
-														}
-													</dd>
-
-
-													<dt>Time Zone:</dt>
-
-													<dd>
-														<span className={`old${this.state.eventChanges.timezone !== this.state.eventData.timezone ? " removed" : ""}`}>
-															{this.state.eventData.timezone}
-														</span>
-														{this.state.eventChanges.timezone && this.state.eventChanges.timezone !== this.state.eventData.timezone ?
-															<React.Fragment>
-																{this.state.eventData.timezone ? " " : ""}
-																<span className="new">{this.state.eventChanges.timezone}</span>
-															</React.Fragment>
-														: ""}
-													</dd>
+													}
 
 												</dl>
 
@@ -333,12 +270,124 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 											<h3 className="formSectionHeader noOpener"><span>Event Days</span></h3>
 											<div className="formSection">
 
+												<dl className="changeDetails">
+
+												{this.state.eventChanges.days.map((day: {[key: string]: any}) => (
+													<React.Fragment key={day.id}>
+
+														<dt>
+															{day.status === "delete" ?
+																<span className="old removed">{day.old.date}</span>
+															:
+																<CompareValues
+																	inline={true}
+																	oldValue={day.old.date}
+																	newValue={day.new.date}
+																/>
+															}{day.status === "delete" ? "" :
+																day.status === "add" && this.state.eventData.eventId ? " (new):"
+																: ":"}
+
+														</dt>
+
+														<dd>
+															{day.status !== "delete" ?
+																<React.Fragment>
+																<em>Start time:</em>{" "}
+																<CompareValues
+																	inline={true}
+																	oldValue={day.old.start}
+																	newValue={day.new.start}
+																/><br />
+
+																<em>Doors open:</em>{" "}
+																{day.old.doors || day.new.doors ?
+																<CompareValues
+																	inline={true}
+																	oldValue={day.old.doors}
+																	newValue={day.new.doors}
+																/>
+																:
+																	<span className="nodata">(none)</span>
+																}<br />
+
+																<em>Description:</em><br />
+																{day.old.description || day.new.description ?
+																	<CompareValues
+																		inline={true}
+																		oldValue={day.old.description}
+																		newValue={day.new.description}
+																	/>
+																:
+																	<span className="nodata">(none)</span>
+																}
+																</React.Fragment>
+															:
+																<span className="nodata">(deleted)</span>
+															}
+
+														</dd>
+
+													</React.Fragment>
+												))}
+
+												</dl>
+
 											</div>
 										</div>
 
 										<div>
 											<h3 className="formSectionHeader noOpener"><span>Event Features</span></h3>
 											<div className="formSection">
+
+											<dl className="changeDetails">
+
+												<dt>Derby types:</dt>
+												<dd>
+													{this.state.eventChanges.features.derbytypes.map((dt: {name: string, status: string}) => (
+														<React.Fragment key={dt.name}>
+															{dt.status === "add" ?
+																<span className="new">{dt.name}</span>
+															: dt.status === "delete" ?
+																<span className="old removed">{dt.name}</span>
+															:
+																<span className="old">{dt.name}</span>
+															}<br />
+														</React.Fragment>
+													))}
+												</dd>
+
+												<dt>Sanctions:</dt>
+												<dd>
+													{this.state.eventChanges.features.sanctions.map((s: {name: string, status: string}) => (
+														<React.Fragment key={s.name}>
+															{s.status === "add" ?
+																<span className="new">{s.name}</span>
+															: s.status === "delete" ?
+																<span className="old removed">{s.name}</span>
+															:
+																<span className="old">{s.name}</span>
+															}<br />
+														</React.Fragment>
+													))}
+												</dd>
+
+												<dt>Tracks:</dt>
+												<dd>
+													{this.state.eventChanges.features.tracks.map((t: {name: string, status: string}) => (
+														<React.Fragment key={t.name}>
+															{t.status === "add" ?
+																<span className="new">{t.name}</span>
+															: t.status === "delete" ?
+																<span className="old removed">{t.name}</span>
+															:
+																<span className="old">{t.name}</span>
+															}<br />
+														</React.Fragment>
+													))}
+												</dd>
+
+											</dl>
 
 											</div>
 										</div>
@@ -518,9 +567,12 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 		});
 
 		let countryList = [] as IGeoCountry[];
+		let derbytypesList = [] as IDerbyType[];
 		const promises: Array<Promise<any>> = [];
 		let regionLists = {} as IGeoRegionList;
+		let sanctionsList = [] as IDerbySanction[];
 		let timeZones = [] as ITimeZone[];
+		let tracksList = [] as IDerbyTrack[];
 		let venueList = [] as IDerbyVenue[];
 
 		promises.push(getGeography(this.props)
@@ -538,16 +590,42 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 				console.error(err);
 			}));
 
+		promises.push(getDerbyTypes(this.props)
+			.then((dataResponse: IDerbyType[]) => {
+				derbytypesList = dataResponse;
+			}).catch((err: ErrorEventHandler) => {
+				console.error(err);
+			}));
+
+		promises.push(getDerbySanctions(this.props)
+			.then((dataResponse: IDerbySanction[]) => {
+				sanctionsList = dataResponse;
+			}).catch((err: ErrorEventHandler) => {
+				console.error(err);
+			}));
+
+		promises.push(getDerbyTracks(this.props)
+			.then((dataResponse: IDerbyTrack[]) => {
+				tracksList = dataResponse;
+			}).catch((err: ErrorEventHandler) => {
+				console.error(err);
+			}));
+
 		promises.push(
 			axios.get(`${this.props.apiLocation}venues/getAllVenues`, { withCredentials: true })
 				.then((dataResponse: AxiosResponse) => {
-				venueList = dataResponse.data;
+				venueList = dataResponse.data.map((venue: IDBDerbyVenue) => ({
+					city: venue.venue_city,
+					country: venue.venue_country,
+					id: venue.venue_id,
+					name: venue.venue_name,
+					region: venue.region_abbreviation,
+				}));
 			}).catch((err: ErrorEventHandler) => {
 				console.error(err);
 			}));
 
 		Promise.all(promises).then(() => {
-			console.log(venueList);
 
 			axios.get(`${this.props.apiLocation}events/getChange/${this.props.match.params.changeId}`, { withCredentials: true })
 				.then((result: AxiosResponse) => {
@@ -555,18 +633,22 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 					const eventData = result.data.changed_item_id ?
 						{
 							country: result.data.country_code,
+							days: result.data.days,
 							description: result.data.event_description,
+							eventId: result.data.event_id,
 							host: result.data.event_host,
 							link: result.data.event_link,
 							name: result.data.event_name,
-							venue: result.data.venue_name,
-							venuelocation: `${result.data.venue_city}${result.data.region_abbreviation ?
+							venue: result.data.venue_id,
+							venueLocation: `${result.data.venue_city}${result.data.region_abbreviation ?
 								", " + result.data.region_abbreviation : ""}, ${result.data.country_code}`,
+							venueName: result.data.venue_name,
 						}
 					: {};
 
 					const eventChanges: {[key: string]: any} = {
 						changeId: result.data.change_id,
+						days: [],
 						submittedDuration: moment.duration(moment(result.data.change_submitted).diff(moment())).humanize(),
 						submittedTime: moment(result.data.change_submitted).format("MMM D, Y h:mm a"),
 						user: result.data.change_user,
@@ -577,11 +659,17 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 
 						const changeObject = JSON.parse(result.data.change_object);
 
+						// Basic Info
+
 						for (const field of changeObject.data) {
 							eventChanges[field.field] = field.value;
 						}
 
+						// Venue
+
 						if (changeObject.newVenueData) {
+
+							const newVenue: {[key: string]: any} = {};
 
 							for (const key in changeObject.newVenueData) {
 								if (changeObject.newVenueData.hasOwnProperty(key)) {
@@ -589,45 +677,206 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 									switch (key) {
 
 										case "country":
-											eventChanges[key] = countryList.filter(
+											newVenue[key] = countryList.filter(
 												(country: IGeoCountry) => country.country_code === changeObject.newVenueData[key])[0].country_name;
 											break;
 
 										case "region":
-											eventChanges[key] = regionLists[changeObject.newVenueData.country || eventData.country].filter(
+											newVenue[key] = regionLists[changeObject.newVenueData.country || eventData.country].filter(
 												(region: IGeoRegion) => region.region_id === changeObject.newVenueData[key])[0].region_abbreviation;
 											break;
 
 										case "timezone":
-											eventChanges[key] = timeZones.filter(
+											newVenue[key] = timeZones.filter(
 												(tz: ITimeZone) => tz.timezone_id === changeObject.newVenueData[key])[0].timezone_name;
 											break;
 
 										default:
 
-											eventChanges[key] = changeObject.newVenueData[key];
+											newVenue[key] = changeObject.newVenueData[key];
 											break;
 
 									}
 
-									eventChanges.newVenue = true;
-									eventChanges.venuelocation = `${result.data.venue_city}${result.data.region_abbreviation ?
-										", " + result.data.region_abbreviation : ""}, ${result.data.country_code}`;
+									newVenue.location = `${newVenue.city}${newVenue.region ?
+										", " + newVenue.region : ""}${newVenue.postcode ?
+										", " + newVenue.postcode : ""}`;
+
+									eventChanges.newVenue = newVenue;
 
 								}
 							}
 
-						} else {
+						} else if (eventChanges.venue) {
 
-							// new venue
+							const venueObject = venueList.filter(
+								(venue: IDerbyVenue) => venue.id === eventChanges.venue)[0];
+
+							eventChanges.venueName = venueObject.name;
+							eventChanges.venueLocation = `${venueObject.city}${venueObject.region ?
+								", " + venueObject.region : ""}, ${venueObject.country}`;
 
 						}
+
+						// Event Days
+
+						if (eventData.days) {
+
+							for (const day of eventData.days) {
+
+								const dayData = {
+									id: day.eventday_id,
+									new: {},
+									old: {
+										date: moment.utc(day.eventday_start_venue).format("MMM D, Y"),
+										description: day.eventday_description,
+										doors: day.eventday_doors_venue ?
+											moment.utc(day.eventday_doors_venue).format("h:mm a")
+											: undefined,
+										start: moment.utc(day.eventday_start_venue).format("h:mm a"),
+									},
+									startDate: moment.utc(day.eventday_start_venue).format("Y-MM-DD"),
+									status: "unchanged",
+								};
+
+								const newDay = changeObject.days.filter((d: {[key: string]: any}) => d.id === day.eventday_id);
+
+								if (newDay.length) {
+									dayData.status = newDay[0].operation;
+									if (newDay[0].operation === "change") {
+										dayData.new = {
+											date: typeof newDay[0].value.datetime !== "undefined"
+												? moment.utc(newDay[0].value.datetime).format("MMM D, Y")
+												: undefined,
+											description: typeof newDay[0].value.description !== "undefined"
+												? newDay[0].value.description
+												: undefined,
+											doors: typeof newDay[0].value.doors === "undefined"
+												? undefined
+												: newDay[0].value.doors !== null ?
+													moment.utc(newDay[0].value.doors).format("h:mm a")
+													: null,
+											start: typeof newDay[0].value.datetime !== "undefined"
+												? moment.utc(newDay[0].value.datetime).format("h:mm a")
+												: undefined,
+										};
+									}
+								}
+
+								eventChanges.days.push(dayData);
+
+							}
+
+						}
+
+						let iterator = -1;
+
+						for (const day of changeObject.days.filter((d: {[key: string]: any}) => d.operation === "add")) {
+
+							eventChanges.days.push({
+								id: iterator,
+								new: {
+									date: moment.utc(day.value.datetime).format("MMM D, Y"),
+									description: day.description,
+									doors: day.doors ?
+										moment.utc(day.value.doors).format("h:mm a")
+										: undefined,
+									start: moment.utc(day.value.datetime).format("h:mm a"),
+								},
+								old: {},
+								startDate: moment.utc(day.value.datetime).format("Y-MM-DD"),
+								status: "add",
+							});
+
+							iterator --;
+
+						}
+
+						eventChanges.days.sort((a: {[key: string]: any}, b: {[key: string]: any}) =>
+								a.startDate > b.startDate ? 1 : a.startDate < b.startDate ? -1 : 0);
+
+						// features
+
+						const features = {
+							derbytypes: [] as Array<{name: string, status: string}>,
+							sanctions: [] as Array<{name: string, status: string}>,
+							tracks: [] as Array<{name: string, status: string}>,
+						};
+
+						if (result.data.derbytypes) {
+							features.derbytypes =
+								derbytypesList
+									.filter((dt: IDerbyType) => result.data.derbytypes.split(",").indexOf(dt.derbytype_id.toString()) > -1 )
+									.map((dt: IDerbyType) => ({
+										name: dt.derbytype_name,
+										status: changeObject.features.delete.indexOf(`derbytype-${dt.derbytype_id}`) > -1 ?  "delete" : "unchanged",
+									}));
+						}
+
+						if (result.data.sanctions) {
+							features.sanctions =
+								sanctionsList
+									.filter((s: IDerbySanction) => result.data.sanctions.split(",").indexOf(s.sanction_id.toString()) > -1 )
+									.map((s: IDerbySanction) => ({
+										name: s.sanction_name,
+										status: changeObject.features.delete.indexOf(`sanction-${s.sanction_id}`) > -1 ?  "delete" : "unchanged",
+									}));
+						}
+
+						if (result.data.tracks) {
+							features.tracks =
+								tracksList
+									.filter((t: IDerbyTrack) => result.data.tracks.split(",").indexOf(t.track_id.toString()) > -1 )
+									.map((t: IDerbyTrack) => ({
+										name: t.track_name,
+										status: changeObject.features.delete.indexOf(`track-${t.track_id}`) > -1 ?  "delete" : "unchanged",
+									}));
+						}
+
+						for (const feature of changeObject.features.add) {
+							const featureItem = feature.split("-");
+
+							switch (featureItem[0]) {
+
+								case "derbytype":
+									features.derbytypes.push({
+										name: derbytypesList
+											.filter((dt: IDerbyType) => dt.derbytype_id.toString() === featureItem[1])[0].derbytype_name,
+										status: "add",
+									});
+									break;
+
+								case "sanction":
+									features.sanctions.push({
+										name: sanctionsList
+											.filter((s: IDerbySanction) => s.sanction_id.toString() === featureItem[1])[0].sanction_name,
+										status: "add",
+									});
+									break;
+
+								case "track":
+									features.tracks.push({
+										name: tracksList
+											.filter((t: IDerbyTrack) => t.track_id.toString() === featureItem[1])[0].track_name,
+										status: "add",
+									});
+									break;
+
+							}
+						}
+
+						features.derbytypes.sort((a, b) => a.name > b.name ? 1 : a.name < b.name ? -1 : 0);
+						features.sanctions.sort((a, b) => a.name > b.name ? 1 : a.name < b.name ? -1 : 0);
+						features.tracks.sort((a, b) => a.name > b.name ? 1 : a.name < b.name ? -1 : 0);
+
+						eventChanges.features = features;
 
 						console.log(eventData, eventChanges);
 
 						this.setState({
 							eventChanges,
 							eventData,
+							initialLoad: true,
 							loading: false,
 						});
 
@@ -639,7 +888,6 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 						});
 
 					}
-
 
 				}).catch((error: AxiosError) => {
 					console.error(error);
