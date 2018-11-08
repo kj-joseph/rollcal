@@ -78,7 +78,7 @@ export const sendChangeRejectionEmail =
 		<p>We looked over the ${changeText}, ${itemName}.  Unfortunately, we were unable to approve your change.</p>
 		${comment ?
 			`<p>The person who reviewed your changed commented:</p>
-			<p>${comment}</p>`
+			<p style="padding: 5px; border: 1px solid #999999;">${comment}</p>`
 		: ""}
 		<p>If you have any questions, please reply to this email and we will look into the issue.</p>
 		<p>Thanks,<br />Roll-Cal</p>

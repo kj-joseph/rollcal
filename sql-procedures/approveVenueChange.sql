@@ -3,8 +3,7 @@ BEGIN
 declare exit handler for SQLEXCEPTION
 	begin
 		get diagnostics condition 1 @sqlstate = RETURNED_SQLSTATE, @errno = MYSQL_ERRNO, @text = MESSAGE_TEXT;
-		select @sqlstate, @errno, @text,
-		@user, @name, @address1, @address2, @city, @country, @region, @postcode, @link, @description, @timezone;
+		select @sqlstate, @errno, @text as error;
 		rollback;
 	end;
 

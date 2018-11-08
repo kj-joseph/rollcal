@@ -2,10 +2,11 @@ BEGIN
 
 select c.change_user, c.change_object, c.changed_item_id, e.event_name, e.event_host, true
 	into @user, @changeObject, @eventId, @eventName, @eventHost, @changeok
-from changes c, events e
+from changes c
+	left join events e
+		on c.changed_item_id = e.event_id
 where c.change_id = changeId
 	and c.changed_item_type = "event"
-	and c.changed_item_id = e.event_id
 	and c.change_status = "submitted";
 
 if @changeok = true then
