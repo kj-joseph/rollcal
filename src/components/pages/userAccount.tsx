@@ -65,7 +65,7 @@ export default class UserAccount<Props> extends React.Component<any, any, any> {
 								</Link>
 							</p>
 
-						: "" }
+						: ""}
 
 						<div className="userAccount">
 
@@ -173,11 +173,11 @@ export default class UserAccount<Props> extends React.Component<any, any, any> {
 										<p>Since you changed your email address, you have been logged out.
 											An email has been sent to your new address in order to confirm your account.</p>
 
-									: "" }
+									: ""}
 
 								</React.Fragment>
 
-							: "" }
+							: ""}
 
 						</div>
 

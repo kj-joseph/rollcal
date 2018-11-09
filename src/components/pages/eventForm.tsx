@@ -97,12 +97,16 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 			});
 
 			if (this.props.loggedInUserId && this.state.pageFunction !== "Error") {
+
 				this.loadData();
+
 			} else {
+
 				this.setState({
 					dataError: true,
 					loading: false,
 				});
+
 			}
 
 		}
@@ -185,23 +189,10 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 											data-section="Basic"
 											onClick={this.toggleSection}
 										>
-											Basic Event Information
+											<span>Basic Event Information</span>
 										</h3>
 
 										<div className={"formSection" + (this.state.sectionOpenBasic ? " open" : " closed")}>
-
-											<div className="inputGroup">
-												<label htmlFor="name">Event Name <em>(optional)</em></label>
-												<input
-													id="name"
-													name="name"
-													data-handler="eventData"
-													type="text"
-													required={false}
-													value={this.state.eventData.name}
-													onChange={this.handleInputChange}
-												/>
-											</div>
 
 											<div className="inputGroup">
 												<label htmlFor="host">Host</label>
@@ -212,6 +203,19 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 													type="text"
 													required={true}
 													value={this.state.eventData.host}
+													onChange={this.handleInputChange}
+												/>
+											</div>
+
+											<div className="inputGroup">
+												<label htmlFor="name">Event Name <em>(optional)</em></label>
+												<input
+													id="name"
+													name="name"
+													data-handler="eventData"
+													type="text"
+													required={false}
+													value={this.state.eventData.name}
 													onChange={this.handleInputChange}
 												/>
 											</div>
@@ -259,7 +263,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 											data-section="Venue"
 											onClick={this.toggleSection}
 										>
-											Venue
+											<span>Venue</span>
 										</h3>
 
 										<div className={"formSection" + (this.state.sectionOpenVenue ? " open" : " closed")}>
@@ -443,7 +447,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 											data-section="Days"
 											onClick={this.toggleSection}
 										>
-											Event Days ({this.state.editingDays.filter((day: IDerbyEventDayFormatted) =>
+											<span>Event Days</span> ({this.state.editingDays.filter((day: IDerbyEventDayFormatted) =>
 												day.id > 0 || day.editing === false).length})
 										</h3>
 
@@ -453,7 +457,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 
 												{ !this.state.editingDays.length ?
 													<p>There are currently no days for this event.  Please add at least one.</p>
-												: "" }
+												: ""}
 
 												<ul className={"eventDayList" + (this.state.editingDays.length ? "" : " empty")}>
 													{this.state.editingDays
@@ -489,7 +493,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 																			onFocusChange={this.handleFocusChange}
 																			noBorder={true}
 																		/>
-																	: "" }
+																	: ""}
 																</div>
 
 																<div className="inputGroup half">
@@ -590,7 +594,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 											data-section="Features"
 											onClick={this.toggleSection}
 										>
-											Event Features ({this.state.selectedFeatures.length})
+											<span>Event Features</span> ({this.state.selectedFeatures.length})
 										</h3>
 
 										<div className={"formSection" + (this.state.sectionOpenFeatures ? " open" : " closed")}>
@@ -651,7 +655,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 														</span>
 														: "" )}
 												</div>
-											: "" }
+											: ""}
 
 										</div>
 
@@ -662,7 +666,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 								<div className="buttonRow">
 								{ this.state.submitError ?
 									<p className="error">{this.state.submitError}</p>
-								: "" }
+								: ""}
 
 									<button
 										type="submit"
@@ -1112,7 +1116,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 				axios.get(`${this.props.apiLocation}events/getEventDetails/${this.props.match.params.eventId}`, { withCredentials: true })
 					.then((result: AxiosResponse) => {
 
-						if (result.data && result.data.user_id === this.props.loggedInUserId) {
+						if (result.data) {
 
 							const eventResult: IDBDerbyEvent = result.data;
 
@@ -1363,9 +1367,9 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 					id: null as number,
 					operation: "add",
 					value: {
-						datetime: `${day.dateObject.format("Y-MM-DD")}T${day.startTime}:00`,
+						datetime: `${day.dateObject.format("Y-MM-DD")} ${day.startTime}:00`,
 						description: day.description,
-						doors: `${day.dateObject.format("Y-MM-DD")}T${day.doorsTime}:00`,
+						doors: `${day.dateObject.format("Y-MM-DD")} ${day.doorsTime}:00`,
 					},
 				})));
 
@@ -1398,7 +1402,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 
 					if (editedDay.date !== initialDay.date
 						|| editedDay.startTime !== initialDay.startTime) {
-						edits.datetime = `${editedDay.dateObject.format("Y-MM-DD")}T${editedDay.startTime}:00`;
+						edits.datetime = `${editedDay.dateObject.format("Y-MM-DD")} ${editedDay.startTime}:00`;
 					}
 
 					if (editedDay.description !== initialDay.description) {
@@ -1407,7 +1411,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 
 					if (editedDay.doorsTime !== initialDay.doorsTime) {
 						if (editedDay.doorsTime) {
-							edits.doors = `${editedDay.dateObject.format("Y-MM-DD")}T${editedDay.doorsTime}:00`;
+							edits.doors = `${editedDay.dateObject.format("Y-MM-DD")} ${editedDay.doorsTime}:00`;
 						} else {
 							edits.doors = null;
 						}

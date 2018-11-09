@@ -9,12 +9,73 @@
 
 	}
 
+	.submittedTime {
+		font-size: 1.6rem;
+		color: $pink;
+		margin: 0;
+	}
+
 }
 
+dl.changeDetails {
+	line-height: 1.2em;
+
+	dt {
+		font-weight: bold;
+		margin-bottom: .2em;
+	}
+
+	dd {
+		margin-bottom: 1em;
+	}
+
+}
+
+.removed {
+	color: $gray;
+	text-decoration: line-through;
+}
+
+.nodata {
+	font-size: .9em;
+	color: $gray;
+}
+
+.new {
+	color: $green;
+}
+
+.newEvent .new {
+	color: inherit;
+}
 
 @include respond-to("small") {
 
 	.dashboard {
+
+		&.reviewVenueChange {
+			max-width: 710px;
+		}
+
+	}
+
+	dl.changeDetails {
+		display: flex;
+		flex-flow: row wrap;
+		max-width: 710px;
+
+		dt {
+			width: 130px;
+			vertical-align: top;
+			margin-bottom: 1em;
+		}
+
+		dd {
+			width: calc(100% - 145px);
+			vertical-align: top;
+			margin: 0 0 1em 15px;
+
+		}
 
 	}
 

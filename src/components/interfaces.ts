@@ -42,7 +42,17 @@ export interface IDBDerbyEvent {
 	venue_user: number;
 }
 
+export interface IDBDerbyEventChange extends IDBDerbyEvent {
+	change_id: number;
+	change_object: any;
+	change_submitted: string;
+	change_user: number;
+	change_user_name: number;
+	changed_item_id: number;
+}
+
 export interface IDBDerbyVenue {
+	country_code?: string;
 	country_name?: string;
 	country_flag?: string;
 	region_abbreviation?: string;
@@ -61,6 +71,15 @@ export interface IDBDerbyVenue {
 	venue_timezone: number;
 }
 
+export interface IDBDerbyVenueChange extends IDBDerbyVenue {
+	change_id: number;
+	change_object: any;
+	change_submitted: string;
+	change_user: number;
+	change_user_name: number;
+	changed_item_id: number;
+}
+
 export interface IDerbyDates {
 	firstDay: moment.Moment;
 	lastDay?: moment.Moment;
@@ -69,7 +88,7 @@ export interface IDerbyDates {
 export interface IDerbyEvent {
 	address1: string;
 	address2?: string;
-	dates_venue: string;
+	datesVenue: string;
 	days?: moment.Moment[];
 	event_description?: string;
 	event_link?: string;
@@ -108,6 +127,15 @@ export interface IDerbyEventDayFormatted {
 	sortValue?: string;
 	startTime: string;
 	description?: string;
+}
+
+export interface IDerbyEventChange extends IDerbyEvent {
+	changeId: number;
+	changedItemId: number;
+	submittedDuration: string;
+	submittedTime: string;
+	username: string;
+	userId?: number;
 }
 
 export interface IDerbyFeatures {
@@ -161,6 +189,15 @@ export interface IDerbyVenue {
 	postcode: string;
 	region: string;
 	user?: number;
+}
+
+export interface IDerbyVenueChange extends IDerbyEvent {
+	changeId: number;
+	changedItemId: number;
+	submittedDuration: string;
+	submittedTime: string;
+	username: string;
+	userId?: number;
 }
 
 export interface IGeoCountry {

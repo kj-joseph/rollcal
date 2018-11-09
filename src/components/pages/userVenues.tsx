@@ -11,6 +11,7 @@ export default class UserVenues<Props> extends React.Component<any, any, any> {
 		super(props);
 
 		this.state = {
+			allVenues: false,
 			loading: true,
 			path: "",
 			userId: null,
@@ -37,14 +38,18 @@ export default class UserVenues<Props> extends React.Component<any, any, any> {
 
 		} else if (window.location.pathname !== this.state.path || this.props.loggedInUserId !== this.state.userId ) {
 
+			const allVenues = (this.props.match.params.all === "all"
+					&& this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("reviewer") > -1);
+
 			this.setState({
+				allVenues,
 				isSearch: (this.props.match.params.startDate || window.location.pathname !== "/"),
 				path: window.location.pathname,
 				userId: this.props.loggedInUserId,
 			});
 
 			if (this.props.loggedInUserId) {
-				this.loadData();
+				this.loadData(allVenues);
 			}
 
 		}
@@ -77,7 +82,7 @@ export default class UserVenues<Props> extends React.Component<any, any, any> {
 							<button type="button" onClick={this.addVenue} className="largeButton">New Venue</button>
 						</div>
 
-						<h1>Your Venues</h1>
+						<h1>{this.state.allVenues ? "All" : "Your"} Venues</h1>
 
 						{this.state.venueData.length ?
 
@@ -130,14 +135,17 @@ export default class UserVenues<Props> extends React.Component<any, any, any> {
 
 	}
 
-	loadData() {
+	loadData(allVenues = false) {
 
 		this.setState({
 			eventData: [],
 			loading: true,
 		});
 
-		axios.get(`${this.props.apiLocation}venues/getVenuesByUser/${this.props.loggedInUserId}`, { withCredentials: true })
+		axios.get(`${this.props.apiLocation}venues/${
+			allVenues ? "getAllVenues"
+				: `getVenuesByUser/${this.props.loggedInUserId}`
+		}`, { withCredentials: true })
 			.then((result: AxiosResponse) => {
 
 				const venueData = result.data.map((venue: IDBDerbyVenue) => ({

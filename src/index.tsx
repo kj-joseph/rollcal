@@ -100,8 +100,12 @@ class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
 								<Route path="/event/:eventId?" component={EventDetailsPage} exact={true} />
 								<Route path="/dashboard/events/:operation(add|edit)/:eventId(\d+)?" component={EventFormPage} exact={true} />
 								<Route path="/dashboard/venues/:operation(add|edit)/:venueId(\d+)?" component={VenueFormPage} exact={true} />
-								<Route path="/dashboard/events" component={UserEventsPage} exact={true} />
-								<Route path="/dashboard/venues" component={UserVenuesPage} exact={true} />
+								<Route path="/dashboard/events/changes/:changeId(\d+)" component={ReviewEventChangePage} exact={true} />
+								<Route path="/dashboard/events/changes" component={EventChangesPage} exact={true} />
+								<Route path="/dashboard/venues/changes/:changeId(\d+)" component={ReviewVenueChangePage} exact={true} />
+								<Route path="/dashboard/venues/changes" component={VenueChangesPage} exact={true} />
+								<Route path="/dashboard/events/:all(all)?" component={UserEventsPage} exact={true} />
+								<Route path="/dashboard/venues/:all(all)?" component={UserVenuesPage} exact={true} />
 								<Route path="/dashboard/account" component={UserAccountPage} exact={true} />
 								<Route path="/dashboard" component={DashboardPage} exact={true} />
 								<Route path="/search" component={SearchPage} exact={true} />
@@ -215,6 +219,9 @@ const DashboardPage = connect(mapStateToProps, mapDispatchToProps)(Dashboard);
 import EventDetails from "components/pages/eventDetails";
 const EventDetailsPage = connect(mapStateToProps, mapDispatchToProps)(EventDetails);
 
+import EventChanges from "components/pages/eventChanges";
+const EventChangesPage = connect(mapStateToProps, mapDispatchToProps)(EventChanges);
+
 import EventForm from "components/pages/eventForm";
 const EventFormPage = connect(mapStateToProps, mapDispatchToProps)(EventForm);
 
@@ -223,6 +230,12 @@ const EventsPage = connect(mapStateToProps, mapDispatchToProps)(Events);
 
 import Faq from "components/pages/faq";
 const FaqPage = connect(mapStateToProps, mapDispatchToProps)(Faq);
+
+import ReviewEventChange from "components/pages/reviewEventChange";
+const ReviewEventChangePage = connect(mapStateToProps, mapDispatchToProps)(ReviewEventChange);
+
+import ReviewVenueChange from "components/pages/reviewVenueChange";
+const ReviewVenueChangePage = connect(mapStateToProps, mapDispatchToProps)(ReviewVenueChange);
 
 import Search from "components/pages/search";
 const SearchPage = connect(mapStateToProps, mapDispatchToProps)(Search);
@@ -238,6 +251,9 @@ const UserVenuesPage = connect(mapStateToProps, mapDispatchToProps)(UserVenues);
 
 import Validate from "components/pages/validate";
 const ValidatePage = connect(mapStateToProps, mapDispatchToProps)(Validate);
+
+import VenueChanges from "components/pages/venueChanges";
+const VenueChangesPage = connect(mapStateToProps, mapDispatchToProps)(VenueChanges);
 
 import VenueForm from "components/pages/venueForm";
 const VenueFormPage = connect(mapStateToProps, mapDispatchToProps)(VenueForm);

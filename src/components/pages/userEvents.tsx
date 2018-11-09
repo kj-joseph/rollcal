@@ -21,6 +21,7 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 		super(props);
 
 		this.state = {
+			allEvents: false,
 			deleteEventId: null,
 			deleteModalOpen: false,
 			eventData: [],
@@ -53,14 +54,18 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 
 		} else if (window.location.pathname !== this.state.path || this.props.loggedInUserId !== this.state.userId ) {
 
+			const allEvents = (this.props.match.params.all === "all"
+					&& this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("reviewer") > -1);
+
 			this.setState({
+				allEvents,
 				isSearch: (this.props.match.params.startDate || window.location.pathname !== "/"),
 				path: window.location.pathname,
 				userId: this.props.loggedInUserId,
 			});
 
 			if (this.props.loggedInUserId) {
-				this.loadData();
+				this.loadData(allEvents);
 			}
 
 		}
@@ -93,7 +98,7 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 							<button type="button" onClick={this.addEvent} className="largeButton">New Event</button>
 						</div>
 
-						<h1>Your Events</h1>
+						<h1>{this.state.allEvents ? "All" : "Your"} Events</h1>
 
 						{this.state.eventData.length ?
 
@@ -106,10 +111,10 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 											<button type="button" data-event-id={event.id} onClick={this.editEvent} className="smallButton">Edit</button>
 											<button type="button" data-event-id={event.id} onClick={this.deleteEvent} className="smallButton pinkButton">Delete</button>
 										</div>
-										<p className="listDate">{event.dates_venue}</p>
-										<h2>
+										<p className="listDate">{event.datesVenue}</p>
+										<h2><Link to={`/event/${event.id}`} title="Event Details">
 											{event.name}
-										</h2>
+										</Link></h2>
 										{(event.host) ?	<h3>Hosted by {event.host}</h3> : ""}
 										<p className="listLocation">{event.location}</p>
 									</li>
@@ -161,7 +166,7 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 
 											<p className="error">{this.state.modalError}</p>
 
-										: "" }
+										: ""}
 
 									</React.Fragment>
 
@@ -251,19 +256,19 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 
 	}
 
-	loadData() {
+	loadData(allEvents = false) {
 
 		this.setState({
 			eventData: [],
 			loading: true,
 		});
 
-		axios.get(`${this.props.apiLocation}events/search?user=${this.props.loggedInUserId}`
-			+ `&startDate=${moment().format("Y-MM-DD")}`, { withCredentials: true })
+		axios.get(`${this.props.apiLocation}events/search${allEvents ? "" : `?user=${this.props.loggedInUserId}`}`
+			+ `${allEvents ? "?" : "&"}startDate=${moment().format("Y-MM-DD")}`, { withCredentials: true })
 			.then((result: AxiosResponse) => {
 
 				const eventData = result.data.map((event: IDBDerbyEvent) => ({
-						dates_venue: formatDateRange({
+						datesVenue: formatDateRange({
 								firstDay: moment.utc(event.event_first_day),
 								lastDay: moment.utc(event.event_last_day),
 							}, "short"),

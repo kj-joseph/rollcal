@@ -282,7 +282,7 @@ export default class VenueForm<Props> extends React.Component<any, any, any> {
 
 								{ this.state.submitError ?
 									<p className="error">{this.state.submitError}</p>
-								: "" }
+								: ""}
 
 								<div className="buttonRow">
 									<button

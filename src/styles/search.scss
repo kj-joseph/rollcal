@@ -27,6 +27,14 @@
 			max-width: 400px;
 			margin-bottom: 2em;
 
+			.searchSelectCountries {
+				z-index: 65
+			}
+
+			.searchSelectRegions {
+				z-index: 62
+			}
+
 			.selectedLocationsHeader {
 				font-size: 1.4rem;
 				margin: 1.5em 0 .5em;

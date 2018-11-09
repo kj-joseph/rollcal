@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import {
 	IDerbyEvent, IDerbyIcon, IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType,
@@ -103,11 +103,11 @@ export default class Events<Props> extends React.Component<any, any, any> {
 									<ReactSVG className="myEventIcon" src={MyEventIcon} title="You created this event" />
 								: ""}
 
-								<p className="listDate"><strong>{event.dates_venue}</strong></p>
+								<p className="listDate"><strong>{event.datesVenue}</strong></p>
 								<p className="listLocation">{event.location} {event.flag}</p>
-								<h2><NavLink to={`/event/${event.id}`} title="Event Details">
+								<h2><Link to={`/event/${event.id}`} title="Event Details">
 									{event.name}
-								</NavLink></h2>
+								</Link></h2>
 								{(event.host) ?	<h3>Hosted by {event.host}</h3> : ""}
 
 								<div className="listIcons">
@@ -373,88 +373,100 @@ export default class Events<Props> extends React.Component<any, any, any> {
 						eventPromises.push(getDerbyTracks(this.props));
 						eventPromises.push(getDerbyTypes(this.props));
 
-						Promise.all(eventPromises).then(() => {
+						if (result.data.length) {
 
-							for (let e = 0; e < result.data.length; e ++) {
+							Promise.all(eventPromises).then(() => {
 
-								const eventResult = result.data[e];
+								for (let e = 0; e < result.data.length; e ++) {
 
-								const icons: IDerbyIcons = {
-									derbytypes: [],
-									sanctions: [],
-									tracks: [],
-								};
+									const eventResult = result.data[e];
 
-								if (eventResult.derbytypes) {
+									const icons: IDerbyIcons = {
+										derbytypes: [],
+										sanctions: [],
+										tracks: [],
+									};
 
-									icons.derbytypes =
-										this.props.dataDerbyTypes.filter((dt: IDerbyType) =>
-											eventResult.derbytypes.split(",").indexOf(dt.derbytype_id.toString()) > -1 )
-												.map((dt: IDerbyType) => ({
-													filename: `derbytype-${dt.derbytype_abbreviation}`,
-													title: dt.derbytype_name,
-												}));
+									if (eventResult.derbytypes) {
+
+										icons.derbytypes =
+											this.props.dataDerbyTypes.filter((dt: IDerbyType) =>
+												eventResult.derbytypes.split(",").indexOf(dt.derbytype_id.toString()) > -1 )
+													.map((dt: IDerbyType) => ({
+														filename: `derbytype-${dt.derbytype_abbreviation}`,
+														title: dt.derbytype_name,
+													}));
+
+									}
+
+									if (eventResult.sanctions) {
+
+										icons.sanctions =
+											this.props.dataSanctions.filter((s: IDerbySanction) =>
+												eventResult.sanctions.split(",").indexOf(s.sanction_id.toString()) > -1 )
+													.map((s: IDerbySanction) => ({
+														filename: `sanction-${s.sanction_abbreviation}`,
+														title: `${s.sanction_name} (${s.sanction_abbreviation})`,
+													}));
+
+									}
+
+									if (eventResult.tracks) {
+
+										icons.tracks =
+											this.props.dataTracks.filter((t: IDerbyTrack) =>
+												eventResult.tracks.split(",").indexOf(t.track_id.toString()) > -1 )
+													.map((t: IDerbyTrack) => ({
+														filename: `track-${t.track_abbreviation}`,
+														title: t.track_name,
+													}));
+
+									}
+
+									eventData.push({
+										address1: eventResult.venue_address1,
+										address2: eventResult.venue_address2,
+										datesVenue: formatDateRange({
+												firstDay: moment.utc(eventResult.event_first_day),
+												lastDay: moment.utc(eventResult.event_last_day),
+											}, "long"),
+										days: null,
+										event_description: eventResult.event_description,
+										event_link: eventResult.event_link,
+										flag: eventResult.country_flag ? <span title={eventResult.country_name} className={`flag-icon flag-icon-${eventResult.country_flag}`} /> : null,
+										host: eventResult.event_name ? eventResult.event_host : null,
+										icons,
+										id: eventResult.event_id,
+										location: `${eventResult.venue_city}${eventResult.region_abbreviation ? ", " + eventResult.region_abbreviation : ""}, ${eventResult.country_code}`,
+										multiDay: eventResult.event_first_day.substring(0, 10) !== eventResult.event_last_day.substring(0, 10),
+										name: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
+										user: eventResult.user_id,
+										venue_description: eventResult.venue_description,
+										venue_link: eventResult.venue_link,
+										venue_name: eventResult.venue_name,
+									});
+
+									this.setState({
+										eventData,
+										loading: false,
+										searchDisplayDates: dateDisplay || null,
+									});
 
 								}
 
-								if (eventResult.sanctions) {
-
-									icons.sanctions =
-										this.props.dataSanctions.filter((s: IDerbySanction) =>
-											eventResult.sanctions.split(",").indexOf(s.sanction_id.toString()) > -1 )
-												.map((s: IDerbySanction) => ({
-													filename: `sanction-${s.sanction_abbreviation}`,
-													title: `${s.sanction_name} (${s.sanction_abbreviation})`,
-												}));
-
-								}
-
-								if (eventResult.tracks) {
-
-									icons.tracks =
-										this.props.dataTracks.filter((t: IDerbyTrack) =>
-											eventResult.tracks.split(",").indexOf(t.track_id.toString()) > -1 )
-												.map((t: IDerbyTrack) => ({
-													filename: `track-${t.track_abbreviation}`,
-													title: t.track_name,
-												}));
-
-								}
-
-								eventData.push({
-									address1: eventResult.venue_address1,
-									address2: eventResult.venue_address2,
-									dates_venue: formatDateRange({
-											firstDay: moment.utc(eventResult.event_first_day),
-											lastDay: moment.utc(eventResult.event_last_day),
-										}, "long"),
-									days: null,
-									event_description: eventResult.event_description,
-									event_link: eventResult.event_link,
-									flag: eventResult.country_flag ? <span title={eventResult.country_name} className={`flag-icon flag-icon-${eventResult.country_flag}`} /> : null,
-									host: eventResult.event_name ? eventResult.event_host : null,
-									icons,
-									id: eventResult.event_id,
-									location: `${eventResult.venue_city}${eventResult.region_abbreviation ? ", " + eventResult.region_abbreviation : ""}, ${eventResult.country_code}`,
-									multiDay: eventResult.event_first_day.substring(0, 10) !== eventResult.event_last_day.substring(0, 10),
-									name: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
-									user: eventResult.user_id,
-									username: eventResult.user_name,
-									venue_description: eventResult.venue_description,
-									venue_link: eventResult.venue_link,
-									venue_name: eventResult.venue_name,
-								});
-
-								this.setState({
-									eventData,
-									loading: false,
-									searchDisplayDates: dateDisplay || null,
-								});
+							});
 
 
-							}
+						} else {
 
-						});
+							this.setState({
+								eventData: [],
+								loading: false,
+								searchDisplayDates: dateDisplay || null,
+							});
+
+						}
+
 
 					}).catch((error: AxiosError) => {
 						console.error(error);

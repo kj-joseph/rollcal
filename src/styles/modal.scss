@@ -17,6 +17,10 @@
 			border: 10px solid $pink;
 			outline: none !important;
 
+			> div {
+				position: relative;
+			}
+
 			.modalClose {
 				position: absolute;
 				top: -17px;
