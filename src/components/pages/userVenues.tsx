@@ -5,13 +5,17 @@ import { IDBDerbyVenue, IDerbyVenue } from "components/interfaces";
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 
+import CheckIcon from "images/check-circle.svg";
+import CircleIcon from "images/circle.svg";
+import ReactSVG from "react-svg";
+
 export default class UserVenues<Props> extends React.Component<any, any, any> {
 
 	constructor(props: Props) {
 		super(props);
 
 		this.state = {
-			allVenues: false,
+			isReviewer: false,
 			loading: true,
 			path: "",
 			userId: null,
@@ -20,6 +24,7 @@ export default class UserVenues<Props> extends React.Component<any, any, any> {
 
 		this.addVenue = this.addVenue.bind(this);
 		this.editVenue = this.editVenue.bind(this);
+		this.toggleShowAll = this.toggleShowAll.bind(this);
 
 	}
 
@@ -38,18 +43,17 @@ export default class UserVenues<Props> extends React.Component<any, any, any> {
 
 		} else if (window.location.pathname !== this.state.path || this.props.loggedInUserId !== this.state.userId ) {
 
-			const allVenues = (this.props.match.params.all === "all"
-					&& this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("reviewer") > -1);
+			const isReviewer = (this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("reviewer") > -1);
 
 			this.setState({
-				allVenues,
+				isReviewer,
 				isSearch: (this.props.match.params.startDate || window.location.pathname !== "/"),
 				path: window.location.pathname,
 				userId: this.props.loggedInUserId,
 			});
 
 			if (this.props.loggedInUserId) {
-				this.loadData(allVenues);
+				this.loadData(isReviewer);
 			}
 
 		}
@@ -82,13 +86,35 @@ export default class UserVenues<Props> extends React.Component<any, any, any> {
 							<button type="button" onClick={this.addVenue} className="largeButton">New Venue</button>
 						</div>
 
-						<h1>{this.state.allVenues ? "All" : "Your"} Venues</h1>
+						<h1>Edit Venues</h1>
+
+						{this.state.isReviewer} {
+
+							<div className="showAll">
+							<a href="" onClick={this.toggleShowAll}>
+								<ReactSVG
+									className={this.state.showAll ? "hidden" : ""}
+									src={CircleIcon}
+								/>
+								<ReactSVG
+									className={this.state.showAll ? "" : "hidden"}
+									src={CheckIcon}
+								/>
+								Show All Events
+							</a>
+							</div>
+
+						}
 
 						{this.state.venueData.length ?
 
 							<ul className="boxList noIcons">
 
 								{this.state.venueData.map((venue: IDerbyVenue) => (
+
+									this.state.isReviewer
+									&& !this.state.showAll
+									&& venue.user !== this.props.loggedInUserId ? "" :
 
 									<li className="list" key={venue.id}>
 										<div className="buttonRow">
@@ -135,7 +161,17 @@ export default class UserVenues<Props> extends React.Component<any, any, any> {
 
 	}
 
-	loadData(allVenues = false) {
+	toggleShowAll(event: React.MouseEvent<HTMLElement>) {
+
+		event.preventDefault();
+
+		this.setState({
+			showAll: !this.state.showAll,
+		});
+
+	}
+
+	loadData(isReviewer = false) {
 
 		this.setState({
 			eventData: [],
@@ -143,7 +179,7 @@ export default class UserVenues<Props> extends React.Component<any, any, any> {
 		});
 
 		axios.get(`${this.props.apiLocation}venues/${
-			allVenues ? "getAllVenues"
+			isReviewer ? "getAllVenues"
 				: `getVenuesByUser/${this.props.loggedInUserId}`
 		}`, { withCredentials: true })
 			.then((result: AxiosResponse) => {
