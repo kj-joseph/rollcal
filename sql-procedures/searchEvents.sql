@@ -22,12 +22,12 @@ end if;
 
 if startDate != "" then
 	set @where = concat(@where,
-		"  and eventday_datetime >= '", startDate, "T00:00:00.000'");
+		"  and eventday_datetime >= ", quote(concat(startDate, " 00:00:00.000")));
 end if;
 
 if endDate != "" then
 	set @where = concat(@where,
-		"  and eventday_datetime >= '", endDate, "T00:00:00.000'");
+		"  and eventday_datetime <= ", quote(concat(endDate, " 00:00:00.000")));
 end if;
 
 if derbytypes != "" then
@@ -45,7 +45,7 @@ end if;
 if tracks != "" then
 	set @from = concat(@from, ", event_tracks et");
 	set @where = concat(@where,
-		" and et.event = event_id and et.t rack in (", tracks, ")");
+		" and et.event = event_id and et.track in (", tracks, ")");
 end if;
 
 if locations != "" then
@@ -66,10 +66,10 @@ if locations != "" then
 
 		if char_length(@country) > 3 then
 			set @where = concat(@where,
-				" (v.venue_country = '", substring(@country, 1, 3), "'",
-				" and v.venue_region in (", replace(substring(@country, 5), "+", ","), ") ) ");
+				" (v.venue_country = ", quote(substring(@country, 1, 3)),
+				" and v.venue_region in (", replace(substring(@country, 5), " ", ","), ") ) ");
 		else
-			set @where = concat(@where, " v.venue_country = '", @country, "'");
+			set @where = concat(@where, " v.venue_country = ", quote(@country));
 		end if;
 
 		set @temp_locations = substring(@temp_locations, length(@country) + 2);
@@ -82,7 +82,7 @@ if locations != "" then
 end if;
 
 set @query = concat(
-	"select eventlist.*, ed.*, derbytypeslocations.list as derbytypes, sanctionslocations.list as sanctions, trackslocations.list as tracks",
+	"select eventlist.*, ed.*, derbytypeslist.list as derbytypes, sanctionslist.list as sanctions, trackslist.list as tracks",
 	" from (
 	", @select, @from, @where, @group, "
 	) eventlist
@@ -94,22 +94,22 @@ set @query = concat(
 	    	from derbytypes dt, event_derbytypes edt
 	     	where edt.derbytype = dt.derbytype_id
          	group by edt.event
-	    ) as derbytypeslocations
-	    on derbytypeslocations.id = eventlist.event_id
+	    ) as derbytypeslist
+	    on derbytypeslist.id = eventlist.event_id
 
 	left join (select es.event as id, group_concat(distinct sanction_id) as list
 	    	from sanctions s, event_sanctions es
 	     	where es.sanction = s.sanction_id
          	group by es.event
-	    ) as sanctionslocations
-	    on sanctionslocations.id = eventlist.event_id
+	    ) as sanctionslist
+	    on sanctionslist.id = eventlist.event_id
 
 	left join(select et.event as id, group_concat(distinct track_id) as list
 	    	from tracks t, event_tracks et
 	     	where et.track = t.track_id
          	group by et.event
-	    ) as trackslocations
-		on trackslocations.id = eventlist.event_id
+	    ) as trackslist
+		on trackslist.id = eventlist.event_id
 
 	order by ed.event_first_day"
 );

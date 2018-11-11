@@ -5,7 +5,7 @@ import { MysqlError } from "mysql";
 import { checkSession } from "checkSession";
 import { IRequestWithSession } from "interfaces";
 
-import * as email from "lib/email";
+import { sendEmailChangeEmail, sendValidationEmail } from "lib/email";
 
 const router = Router();
 const upload = multer();
@@ -118,7 +118,7 @@ router.post("/register", upload.array(), (req: Request, res: Response) => {
 
 			} else {
 
-				email.sendValidationEmail(req.body.email, req.body.username, validationCode)
+				sendValidationEmail(req.body.email, req.body.username, validationCode)
 					.then(() => {
 
 						res.status(200).send();
@@ -211,7 +211,7 @@ router.put("/account/update", checkSession("user"), upload.array(), (req: IReque
 
 					if (validationCode) {
 
-						email.sendEmailChangeEmail(req.body.email, req.body.username || req.session.user.username, validationCode)
+						sendEmailChangeEmail(req.body.email, req.body.username || req.session.user.username, validationCode)
 							.then(() => {
 
 								res.status(200).json({
