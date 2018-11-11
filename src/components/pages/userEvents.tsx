@@ -10,6 +10,8 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 
 import moment from "moment";
 
+import CheckIcon from "images/check-circle.svg";
+import CircleIcon from "images/circle.svg";
 import CloseIcon from "images/times-circle.svg";
 import ReactSVG from "react-svg";
 
@@ -21,13 +23,14 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 		super(props);
 
 		this.state = {
-			allEvents: false,
 			deleteEventId: null,
 			deleteModalOpen: false,
 			eventData: [],
+			isReviewer: false,
 			loading: true,
 			modalProcessing: false,
 			path: "",
+			showAll: false,
 			userId: null,
 		};
 
@@ -36,6 +39,7 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 		this.confirmDeleteEvent = this.confirmDeleteEvent.bind(this);
 		this.deleteEvent = this.deleteEvent.bind(this);
 		this.editEvent = this.editEvent.bind(this);
+		this.toggleShowAll = this.toggleShowAll.bind(this);
 
 	}
 
@@ -54,18 +58,16 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 
 		} else if (window.location.pathname !== this.state.path || this.props.loggedInUserId !== this.state.userId ) {
 
-			const allEvents = (this.props.match.params.all === "all"
-					&& this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("reviewer") > -1);
+			const isReviewer = (this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("reviewer") > -1);
 
 			this.setState({
-				allEvents,
-				isSearch: (this.props.match.params.startDate || window.location.pathname !== "/"),
+				isReviewer,
 				path: window.location.pathname,
 				userId: this.props.loggedInUserId,
 			});
 
 			if (this.props.loggedInUserId) {
-				this.loadData(allEvents);
+				this.loadData(isReviewer);
 			}
 
 		}
@@ -98,13 +100,35 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 							<button type="button" onClick={this.addEvent} className="largeButton">New Event</button>
 						</div>
 
-						<h1>{this.state.allEvents ? "All" : "Your"} Events</h1>
+						<h1>Edit Events</h1>
+
+						{this.state.isReviewer} {
+
+							<div className="showAll">
+							<a href="" onClick={this.toggleShowAll}>
+								<ReactSVG
+									className={this.state.showAll ? "hidden" : ""}
+									src={CircleIcon}
+								/>
+								<ReactSVG
+									className={this.state.showAll ? "" : "hidden"}
+									src={CheckIcon}
+								/>
+								Show All Events
+							</a>
+							</div>
+
+						}
 
 						{this.state.eventData.length ?
 
 							<ul className="boxList noIcons">
 
 								{this.state.eventData.map((event: IDerbyEvent) => (
+
+									this.state.isReviewer
+									&& !this.state.showAll
+									&& event.user !== this.props.loggedInUserId ? "" :
 
 									<li className="list" key={event.id}>
 										<div className="buttonRow">
@@ -256,15 +280,25 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 
 	}
 
-	loadData(allEvents = false) {
+	toggleShowAll(event: React.MouseEvent<HTMLElement>) {
+
+		event.preventDefault();
+
+		this.setState({
+			showAll: !this.state.showAll,
+		});
+
+	}
+
+	loadData(isReviewer = false) {
 
 		this.setState({
 			eventData: [],
 			loading: true,
 		});
 
-		axios.get(`${this.props.apiLocation}events/search${allEvents ? "" : `?user=${this.props.loggedInUserId}`}`
-			+ `${allEvents ? "?" : "&"}startDate=${moment().format("Y-MM-DD")}`, { withCredentials: true })
+		axios.get(`${this.props.apiLocation}events/search${isReviewer ? "" : `?user=${this.props.loggedInUserId}`}`
+			+ `${isReviewer ? "?" : "&"}startDate=${moment().format("Y-MM-DD")}`, { withCredentials: true })
 			.then((result: AxiosResponse) => {
 
 				const eventData = result.data.map((event: IDBDerbyEvent) => ({
@@ -276,6 +310,7 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 						id: event.event_id,
 						location: `${event.venue_city}${event.region_abbreviation ? ", " + event.region_abbreviation : ""}, ${event.country_code}`,
 						name: event.event_name ? event.event_name : event.event_host,
+						user: event.event_user,
 					}));
 
 				this.setState({
