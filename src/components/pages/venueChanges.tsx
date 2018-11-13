@@ -10,6 +10,8 @@ import moment from "moment";
 import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList } from "components/interfaces";
 import { getGeography } from "components/lib/data";
 
+import BoxList from "components/partials/boxList";
+
 export default class VenueChanges<Props> extends React.Component<any, any, any> {
 
 	constructor(props: Props) {
@@ -83,27 +85,14 @@ export default class VenueChanges<Props> extends React.Component<any, any, any> 
 
 						{this.state.venueChanges.length ?
 
-							<ul className="boxList noIcons">
-
-								{this.state.venueChanges.map((change: IDerbyVenueChange) => (
-
-									<li className="list" key={change.changeId}>
-										<p className="submittedTime">
-											<strong>{change.changedItemId ? "Change" : "New venue"}</strong>
-											<br />
-											<span title={change.submittedTime}>{change.submittedDuration} ago</span>{" "}
-											by <strong>{change.username}</strong>
-										</p>
-										<div className="buttonRow">
-											<button type="button" data-change-id={change.changeId} onClick={this.reviewChange} className="smallButton">Review</button>
-										</div>
-										<h2>{change.name}</h2>
-										<p className="listLocation">{change.location}</p>
-									</li>
-
-								))}
-
-							</ul>
+							<BoxList
+								data={this.state.venueChanges}
+								itemType="venues"
+								listType="review"
+								loggedInUserId={this.props.loggedInUserId}
+								noIcons={true}
+								reviewFunction={this.reviewChange}
+							/>
 
 						:
 
@@ -162,7 +151,7 @@ export default class VenueChanges<Props> extends React.Component<any, any, any> 
 
 							return {
 								changeId: change.change_id,
-								changedItemId: change.changed_item_id,
+								id: change.changed_item_id,
 								location: `${change.venue_city}${change.region_abbreviation ? ", " + change.region_abbreviation : ""}, ${change.country_code}`,
 								name: change.venue_name,
 								submittedDuration: moment.duration(moment(change.change_submitted).diff(moment())).humanize(),

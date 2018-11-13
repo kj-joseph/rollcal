@@ -1,8 +1,7 @@
 import React from "react";
-import { Link } from "react-router-dom";
 
-import {
-	IDerbyEvent, IDerbyIcon, IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType,
+import { IBoxListItem,
+	IDerbyEvent, IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType,
 	IGeoCountry, IGeoData, IGeoRegion,
 } from "components/interfaces";
 import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography } from "components/lib/data";
@@ -12,9 +11,7 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import { formatDateRange } from "components/lib/dateTime";
 import moment from "moment";
 
-import EventIconImage from "components/partials/eventIconImage";
-import MyEventIcon from "images/star.svg";
-import ReactSVG from "react-svg";
+import BoxList from "components/partials/boxList";
 
 export default class Events<Props> extends React.Component<any, any, any> {
 	constructor(props: Props) {
@@ -93,50 +90,12 @@ export default class Events<Props> extends React.Component<any, any, any> {
 				: ""
 				}
 				{!this.state.dataError &&  this.state.eventData.length > 0 && !this.state.loading ?
-					<ul className="eventList boxList">
-						{this.state.eventData.map((event: IDerbyEvent) => (
-							<li
-								key={event.id}
-								className={event.user === this.props.loggedInUserId ? "myEvent" : ""}
-							>
-								{event.user === this.props.loggedInUserId ?
-									<ReactSVG className="myEventIcon" src={MyEventIcon} title="You created this event" />
-								: ""}
-
-								<p className="listDate"><strong>{event.datesVenue}</strong></p>
-								<p className="listLocation">{event.location} {event.flag}</p>
-								<h2><Link to={`/event/${event.id}`} title="Event Details">
-									{event.name}
-								</Link></h2>
-								{(event.host) ?	<h3>Hosted by {event.host}</h3> : ""}
-
-								<div className="listIcons">
-									{(event.icons.tracks.length ?
-										<span className="listIconGroup eventIconTracks">
-											{event.icons.tracks.map((icon: IDerbyIcon) => (
-												<EventIconImage icon={icon} key={icon.filename} />
-											))}
-										</span>
-										: "" )}
-									{(event.icons.derbytypes.length ?
-										<span className="listIconGroup eventIconDerbytypes">
-											{event.icons.derbytypes.map((icon: IDerbyIcon) => (
-												<EventIconImage icon={icon} key={icon.filename} />
-											))}
-										</span>
-										: "" )}
-									{(event.icons.sanctions.length ?
-										<span className="listIconGroup eventIconSanctions">
-											{event.icons.sanctions.map((icon: IDerbyIcon) => (
-												<EventIconImage icon={icon} key={icon.filename} />
-											))}
-										</span>
-										: "" )}
-								</div>
-
-							</li>
-						))}
-					</ul>
+					<BoxList
+						data={this.state.eventData}
+						itemType="events"
+						listType="display"
+						loggedInUserId={this.props.loggedInUserId}
+					/>
 				: ""
 				}
 			</React.Fragment>
@@ -366,7 +325,7 @@ export default class Events<Props> extends React.Component<any, any, any> {
 					{ withCredentials: true })
 					.then((result: AxiosResponse) => {
 
-						const eventData: IDerbyEvent[] = [];
+						const eventData: IBoxListItem[] = [];
 						const eventPromises: Array<Promise<any>> = [];
 
 						eventPromises.push(getDerbySanctions(this.props));
@@ -426,24 +385,19 @@ export default class Events<Props> extends React.Component<any, any, any> {
 									eventData.push({
 										address1: eventResult.venue_address1,
 										address2: eventResult.venue_address2,
+										countryFlag: eventResult.country_flag,
 										datesVenue: formatDateRange({
 												firstDay: moment.utc(eventResult.event_first_day),
 												lastDay: moment.utc(eventResult.event_last_day),
 											}, "long"),
 										days: null,
-										event_description: eventResult.event_description,
-										event_link: eventResult.event_link,
-										flag: eventResult.country_flag ? <span title={eventResult.country_name} className={`flag-icon flag-icon-${eventResult.country_flag}`} /> : null,
 										host: eventResult.event_name ? eventResult.event_host : null,
 										icons,
 										id: eventResult.event_id,
 										location: `${eventResult.venue_city}${eventResult.region_abbreviation ? ", " + eventResult.region_abbreviation : ""}, ${eventResult.country_code}`,
 										multiDay: eventResult.event_first_day.substring(0, 10) !== eventResult.event_last_day.substring(0, 10),
 										name: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
-										user: eventResult.user_id,
-										venue_description: eventResult.venue_description,
-										venue_link: eventResult.venue_link,
-										venue_name: eventResult.venue_name,
+										user: eventResult.event_user,
 									});
 
 									this.setState({

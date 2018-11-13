@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import Modal from "react-modal";
 Modal.setAppElement("#root");
 
-import { IDBDerbyEvent, IDerbyEvent } from "components/interfaces";
+import { IBoxListItem, IDBDerbyEvent } from "components/interfaces";
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 
@@ -16,6 +16,8 @@ import CloseIcon from "images/times-circle.svg";
 import ReactSVG from "react-svg";
 
 import { formatDateRange } from "components/lib/dateTime";
+
+import BoxList from "components/partials/boxList";
 
 export default class UserEvents<Props> extends React.Component<any, any, any> {
 
@@ -122,30 +124,18 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 
 						{this.state.eventData.length ?
 
-							<ul className="boxList noIcons">
-
-								{this.state.eventData.map((event: IDerbyEvent) => (
-
-									this.state.isReviewer
-									&& !this.state.showAll
-									&& event.user !== this.props.loggedInUserId ? "" :
-
-									<li className="list" key={event.id}>
-										<div className="buttonRow">
-											<button type="button" data-event-id={event.id} onClick={this.editEvent} className="smallButton">Edit</button>
-											<button type="button" data-event-id={event.id} onClick={this.deleteEvent} className="smallButton pinkButton">Delete</button>
-										</div>
-										<p className="listDate">{event.datesVenue}</p>
-										<h2><Link to={`/event/${event.id}`} title="Event Details">
-											{event.name}
-										</Link></h2>
-										{(event.host) ?	<h3>Hosted by {event.host}</h3> : ""}
-										<p className="listLocation">{event.location}</p>
-									</li>
-
-								))}
-
-							</ul>
+							<BoxList
+								data={this.state.eventData.filter((event: IBoxListItem) =>
+									event.user === this.props.loggedInUserId
+									|| (this.state.isReviewer
+										&& this.state.showAll))}
+								deleteFunction={this.deleteEvent}
+								editFunction={this.editEvent}
+								itemType="events"
+								listType="review"
+								loggedInUserId={this.props.loggedInUserId}
+								noIcons={true}
+							/>
 
 						:
 
