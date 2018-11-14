@@ -1,3 +1,6 @@
+branches:
+  only:
+  - dev
 matrix:
   include:
     - name: "web"
@@ -11,7 +14,7 @@ matrix:
         only:
         - dev
       script:
-      - cd /web
+      - cd web
       - if [ "$TRAVIS_BRANCH" = "dev" ]; then npm run deploy:dev; fi
       deploy:
       - provider: script
@@ -42,7 +45,7 @@ matrix:
         only:
         - dev
       script:
-      - cd /api
+      - cd api
       - if [ "$TRAVIS_BRANCH" = "dev" ]; then npm run build:dev; fi
       deploy:
       - provider: script
