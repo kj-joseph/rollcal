@@ -291,7 +291,7 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 			+ `${isReviewer ? "?" : "&"}startDate=${moment().format("Y-MM-DD")}`, { withCredentials: true })
 			.then((result: AxiosResponse) => {
 
-				const eventData = result.data.map((event: IDBDerbyEvent) => ({
+				const eventData = result.data.events.map((event: IDBDerbyEvent) => ({
 						datesVenue: formatDateRange({
 								firstDay: moment.utc(event.event_first_day),
 								lastDay: moment.utc(event.event_last_day),

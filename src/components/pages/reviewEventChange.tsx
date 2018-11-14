@@ -871,8 +871,6 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 
 						eventChanges.features = features;
 
-						console.log(eventData, eventChanges);
-
 						this.setState({
 							eventChanges,
 							eventData,

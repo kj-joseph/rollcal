@@ -83,6 +83,17 @@ ul.boxList {
 		padding-bottom: 10px;
 	}
 
+	> .buttonRow {
+		margin-top: -.7em;
+	}
+
+}
+
+.loader.loadingMore {
+	height: 2em;
+	width: 2em;
+	margin-top: -.5em;
+	border-width: 7px;
 }
 
 @include respond-to("small") {

@@ -104,6 +104,16 @@ p.backToLink {
 	color: $pink;
 }
 
+.listCount {
+	font-size: 1.8rem;
+	font-weight: bold;
+	color: $blue;
+	margin-top: -1.2rem;
+
+	h1 + & {
+		margin-top: 0;
+	}
+}
 
 
 @include respond-to("small") {

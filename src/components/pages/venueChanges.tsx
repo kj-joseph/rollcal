@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { IDBDerbyVenueChange, IDerbyVenueChange } from "components/interfaces";
+import { IDBDerbyVenueChange } from "components/interfaces";
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 
