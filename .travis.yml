@@ -7,9 +7,6 @@ matrix:
     language: node_js
     node_js:
     - stable
-    cache:
-      directories:
-      - node_modules
     branches:
       only:
       - dev
@@ -38,9 +35,6 @@ matrix:
     language: node_js
     node_js:
     - stable
-    cache:
-      directories:
-      - node_modules
     branches:
       only:
       - dev
