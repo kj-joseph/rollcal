@@ -81,6 +81,15 @@ if locations != "" then
 
 end if;
 
+set @countQuery = concat(
+	"select count(eventlist.event_id)",
+	" into @eventCount"
+	" from (", @select, @from, @where, @group, ") eventlist");
+
+prepare stmt from @countQuery;
+execute stmt;
+deallocate prepare stmt;
+
 set @query = concat(
 	"select eventlist.*, ed.*, derbytypeslist.list as derbytypes, sanctionslist.list as sanctions, trackslist.list as tracks",
 	" from (
@@ -114,8 +123,16 @@ set @query = concat(
 	order by ed.event_first_day"
 );
 
+if count and start then
+	set @query = concat(@query, " limit ", start, ", ", count);
+elseif count then
+	set @query = concat(@query, " limit ", count);
+end if;
+
 prepare stmt from @query;
 execute stmt;
 deallocate prepare stmt;
+
+select @eventCount as eventCount;
 
 END
