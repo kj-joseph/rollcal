@@ -15,7 +15,7 @@ matrix:
       - dev
     script:
     - cd web
-    - if [ "$TRAVIS_BRANCH" = "dev" ]; then npm install; npm run build:dev; fi
+    - if [ "$TRAVIS_BRANCH" = "dev" ]; then npm install; npm run deploy:dev; fi
     deploy:
     - provider: script
       skip_cleanup: true
