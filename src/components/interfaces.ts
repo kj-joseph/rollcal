@@ -1,5 +1,26 @@
 import moment from "moment";
 
+export interface IBoxListItem {
+	address1: string;
+	address2?: string;
+	changeId?: number;
+	countryCode?: string;
+	countryFlag?: string;
+	countryName?: string;
+	datesVenue?: string;
+	days?: moment.Moment[];
+	host?: string;
+	icons?: IDerbyIcons;
+	id?: number;
+	location: string;
+	multiDay?: boolean;
+	name: string;
+	submittedDuration?: string;
+	submittedTime?: string;
+	user: string;
+	username?: string;
+}
+
 export interface IDBDerbyEvent {
 	country_code: string;
 	country_flag: string;
@@ -100,9 +121,6 @@ export interface IDerbyEvent {
 	multiDay: boolean;
 	name: string;
 	user: string;
-	venue_description?: string;
-	venue_link?: string;
-	venue_name: string;
 }
 
 export interface IDerbyEventDay {

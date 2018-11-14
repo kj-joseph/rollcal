@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { IDBDerbyEventChange, IDerbyEventChange } from "components/interfaces";
+import { IDBDerbyEventChange } from "components/interfaces";
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 
@@ -10,6 +10,8 @@ import moment from "moment";
 
 import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList } from "components/interfaces";
 import { getGeography } from "components/lib/data";
+
+import BoxList from "components/partials/boxList";
 
 export default class EventChanges<Props> extends React.Component<any, any, any> {
 
@@ -85,29 +87,14 @@ export default class EventChanges<Props> extends React.Component<any, any, any> 
 
 						{this.state.eventChanges.length ?
 
-							<ul className="boxList noIcons">
-
-								{this.state.eventChanges.map((change: IDerbyEventChange) => (
-
-									<li className="list" key={change.changeId}>
-										<p className="submittedTime">
-											<strong>{change.changedItemId ? "Change" : "New event"}</strong>
-											<br />
-											<span title={change.submittedTime}>{change.submittedDuration} ago</span>{" "}
-											by <strong>{change.username}</strong>
-										</p>
-										<div className="buttonRow">
-											<button type="button" data-change-id={change.changeId} onClick={this.reviewChange} className="smallButton">Review</button>
-										</div>
-										<p className="listDate">{change.datesVenue}</p>
-										<h2>{change.name}</h2>
-										{(change.host) ?	<h3>Hosted by {change.host}</h3> : ""}
-										<p className="listLocation">{change.location}</p>
-									</li>
-
-								))}
-
-							</ul>
+							<BoxList
+								data={this.state.eventChanges}
+								itemType="venues"
+								listType="review"
+								loggedInUserId={this.props.loggedInUserId}
+								noIcons={true}
+								reviewFunction={this.reviewChange}
+							/>
 
 						:
 
@@ -172,6 +159,7 @@ export default class EventChanges<Props> extends React.Component<any, any, any> 
 										lastDay: moment.utc(change.event_last_day),
 									}, "short"),
 								host: change.event_name ? change.event_host : null,
+								id: change.changed_item_id,
 								location: `${change.venue_city}${change.region_abbreviation ? ", " + change.region_abbreviation : ""}, ${change.country_code}`,
 								name: change.event_name ? change.event_name : change.event_host,
 								submittedDuration: moment.duration(moment(change.change_submitted).diff(moment())).humanize(),

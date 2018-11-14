@@ -10,6 +10,7 @@ const initialState = {
 	dataSanctions: [] as IDerbySanction[],
 	dataTracks: [] as IDerbyTrack[],
 	lastSearch: "",
+	listPageLength: 9,
 	loggedIn: false,
 	loggedInUserEmail: "",
 	loggedInUserId: "",

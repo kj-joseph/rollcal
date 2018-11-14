@@ -1,13 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { IDBDerbyVenue, IDerbyVenue } from "components/interfaces";
+import { IBoxListItem, IDBDerbyVenue } from "components/interfaces";
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 
 import CheckIcon from "images/check-circle.svg";
 import CircleIcon from "images/circle.svg";
 import ReactSVG from "react-svg";
+
+import BoxList from "components/partials/boxList";
 
 export default class UserVenues<Props> extends React.Component<any, any, any> {
 
@@ -108,25 +110,17 @@ export default class UserVenues<Props> extends React.Component<any, any, any> {
 
 						{this.state.venueData.length ?
 
-							<ul className="boxList noIcons">
-
-								{this.state.venueData.map((venue: IDerbyVenue) => (
-
-									this.state.isReviewer
-									&& !this.state.showAll
-									&& venue.user !== this.props.loggedInUserId ? "" :
-
-									<li className="list" key={venue.id}>
-										<div className="buttonRow">
-											<button type="button" data-venue-id={venue.id} onClick={this.editVenue} className="smallButton">Edit</button>
-										</div>
-										<h2>{venue.name}</h2>
-										<p className="listLocation">{venue.location}</p>
-									</li>
-
-								))}
-
-							</ul>
+							<BoxList
+								data={this.state.venueData.filter((venue: IBoxListItem) =>
+									venue.user === this.props.loggedInUserId
+									|| (this.state.isReviewer
+										&& this.state.showAll))}
+								editFunction={this.editVenue}
+								itemType="events"
+								listType="review"
+								loggedInUserId={this.props.loggedInUserId}
+								noIcons={true}
+							/>
 
 						:
 
