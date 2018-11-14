@@ -51,7 +51,12 @@ router.get("/search", (req: Request, res: Response) => {
 			${req.query.derbytypes ? res.locals.connection.escape(req.query.derbytypes) : null},
 			${req.query.sanctions ? res.locals.connection.escape(req.query.sanctions) : null},
 			${req.query.tracks ? res.locals.connection.escape(req.query.tracks) : null},
-			${req.query.locations ? res.locals.connection.escape(req.query.locations) : null}
+			${req.query.locations ? res.locals.connection.escape(req.query.locations) : null},
+			${req.query.start ? res.locals.connection.escape(req.query.start) : null},
+			${req.query.count ?
+				(req.query.count === "all"
+					? 65535 : res.locals.connection.escape(req.query.count))
+				: null}
 		)`, (eventError: MysqlError, eventResults: any) => {
 
 			if (eventError) {
@@ -61,10 +66,11 @@ router.get("/search", (req: Request, res: Response) => {
 
 			} else {
 
-				const result = eventResults[0].map((row: {}) => ({...row}));
-
 				res.locals.connection.end();
-				res.status(200).json(result);
+				res.status(200).json({
+					events: eventResults[0].map((row: {}) => ({...row})),
+					total: eventResults[1].map((row: {}) => ({...row}))[0].eventCount,
+				});
 
 			}
 
