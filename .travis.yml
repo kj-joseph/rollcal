@@ -19,8 +19,8 @@ matrix:
     deploy:
     - provider: script
       skip_cleanup: true
-      script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/build/* kj@server.bykev.in:/var/www/roll-cal/dev;
-        rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/build/.htaccess kj@server.bykev.in:/var/www/roll-cal/dev;
+      script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/* kj@server.bykev.in:/var/www/roll-cal/dev;
+        rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/.htaccess kj@server.bykev.in:/var/www/roll-cal/dev;
         fi
       on:
         branch: dev
@@ -50,7 +50,7 @@ matrix:
     deploy:
     - provider: script
       skip_cleanup: true
-      script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/build/* kj@server.bykev.in:/var/www/roll-cal/api;
+      script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/api/build/* kj@server.bykev.in:/var/www/roll-cal/api;
         fi
       on:
         branch: dev
