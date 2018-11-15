@@ -116,8 +116,8 @@ export default class UserVenues<Props> extends React.Component<any, any, any> {
 									|| (this.state.isReviewer
 										&& this.state.showAll))}
 								editFunction={this.editVenue}
-								itemType="events"
-								listType="review"
+								itemType="venues"
+								listType="edit"
 								loggedInUserId={this.props.loggedInUserId}
 								noIcons={true}
 							/>
@@ -151,7 +151,7 @@ export default class UserVenues<Props> extends React.Component<any, any, any> {
 
 		event.preventDefault();
 
-		this.props.history.push(`/dashboard/venues/edit/${event.currentTarget.getAttribute("data-venue-id")}`);
+		this.props.history.push(`/dashboard/venues/edit/${event.currentTarget.getAttribute("data-item-id")}`);
 
 	}
 
