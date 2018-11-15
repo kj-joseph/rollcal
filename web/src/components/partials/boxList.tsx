@@ -42,21 +42,22 @@ export default class BoxList<Props> extends React.Component<any, any, any> {
 										<span title={item.submittedTime}>{item.submittedDuration} ago</span>{" "}
 										by <strong>{item.username}</strong>
 									</p>
-									{this.props.listType === "edit" ?
-										<div className="buttonRow">
-											{this.props.editFunction ?
-												<button type="button" data-event-id={item.id} onClick={this.props.editFunction} className="smallButton">Edit</button>
-											: ""}
-											{this.props.deleteFunction ?
-												<button type="button" data-event-id={item.id} onClick={this.props.deleteFunction} className="smallButton pinkButton">Delete</button>
-											: ""}
-										</div>
-									: this.props.listType === "review" ?
-										<div className="buttonRow">
-											<button type="button" data-change-id={item.changeId} onClick={this.props.reviewFunction} className="smallButton">Review</button>
-										</div>
-									: ""}
 								</React.Fragment>
+							: ""}
+
+							{this.props.listType === "edit" ?
+								<div className="buttonRow">
+									{this.props.editFunction ?
+										<button type="button" data-item-id={item.id} onClick={this.props.editFunction} className="smallButton">Edit</button>
+									: ""}
+									{this.props.deleteFunction ?
+										<button type="button" data-item-id={item.id} onClick={this.props.deleteFunction} className="smallButton pinkButton">Delete</button>
+									: ""}
+								</div>
+							: this.props.listType === "review" ?
+								<div className="buttonRow">
+									<button type="button" data-change-id={item.changeId} onClick={this.props.reviewFunction} className="smallButton">Review</button>
+								</div>
 							: ""}
 
 							<p className="listDate"><strong>{item.datesVenue}</strong></p>
@@ -69,9 +70,17 @@ export default class BoxList<Props> extends React.Component<any, any, any> {
 									</React.Fragment>
 								: ""}</p>
 							: ""}
-							<h2><Link to={`/event/${item.id}`}>
-								{item.name}
-							</Link></h2>
+
+							<h2>
+								{this.props.itemType === "events" ?
+									<Link to={`/event/${item.id}`}>
+										{item.name}
+									</Link>
+								:
+									item.name
+								}
+							</h2>
+
 							{this.props.itemType === "venues" ?
 								<p className="listLocation">{item.location}</p>
 							: ""}

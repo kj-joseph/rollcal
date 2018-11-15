@@ -132,7 +132,7 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 								deleteFunction={this.deleteEvent}
 								editFunction={this.editEvent}
 								itemType="events"
-								listType="review"
+								listType="edit"
 								loggedInUserId={this.props.loggedInUserId}
 								noIcons={true}
 							/>
@@ -256,7 +256,7 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 		event.preventDefault();
 
 		this.setState({
-			deleteEventId: event.currentTarget.getAttribute("data-event-id"),
+			deleteEventId: event.currentTarget.getAttribute("data-item-id"),
 			deleteModalOpen: true,
 		});
 
@@ -266,7 +266,7 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 
 		event.preventDefault();
 
-		this.props.history.push(`/dashboard/events/edit/${event.currentTarget.getAttribute("data-event-id")}`);
+		this.props.history.push(`/dashboard/events/edit/${event.currentTarget.getAttribute("data-item-id")}`);
 
 	}
 
