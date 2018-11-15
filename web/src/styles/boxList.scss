@@ -16,7 +16,7 @@ ul.boxList {
 		position: relative;
 		width: calc(100% - 20px);
 		margin: 0 0 20px;
-		padding: 10px 10px 65px;
+		padding: 10px 10px 50px;
 		border: 2px solid $blue;
 
 		> * {
@@ -52,7 +52,7 @@ ul.boxList {
 		.listIcons {
 
 			position: absolute;
-			bottom: 10px;
+			bottom: 8px;
 			left: 10px;
 
 			.listIconGroup {
@@ -94,6 +94,27 @@ ul.boxList {
 	width: 2em;
 	margin-top: -.5em;
 	border-width: 7px;
+}
+
+@include respond-to("tiny") {
+
+	ul.boxList {
+
+		li {
+			padding-bottom: 40px;
+
+			.listIcons {
+				bottom: 7px;
+
+				svg {
+					height: 28px;
+				}
+			}
+
+		}
+
+	}
+
 }
 
 @include respond-to("small") {
