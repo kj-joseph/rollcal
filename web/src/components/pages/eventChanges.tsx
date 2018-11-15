@@ -18,6 +18,8 @@ export default class EventChanges<Props> extends React.Component<any, any, any> 
 	constructor(props: Props) {
 		super(props);
 
+		this.mounted = false;
+
 		this.state = {
 			eventChanges: [],
 			loading: true,
@@ -32,8 +34,16 @@ export default class EventChanges<Props> extends React.Component<any, any, any> 
 
 	componentDidMount() {
 
+		this.mounted = true;
+
 		window.scrollTo(0, 0);
 		this.props.setSessionState(this.props.sessionInitialized);
+
+	}
+
+	componentWillUnmount() {
+
+		this.mounted = false;
 
 	}
 
@@ -45,11 +55,13 @@ export default class EventChanges<Props> extends React.Component<any, any, any> 
 
 		} else if (window.location.pathname !== this.state.path || this.props.loggedInUserId !== this.state.userId ) {
 
-			this.setState({
-				isSearch: (this.props.match.params.startDate || window.location.pathname !== "/"),
-				path: window.location.pathname,
-				userId: this.props.loggedInUserId,
-			});
+			if (this.mounted) {
+				this.setState({
+					isSearch: (this.props.match.params.startDate || window.location.pathname !== "/"),
+					path: window.location.pathname,
+					userId: this.props.loggedInUserId,
+				});
+			}
 
 			if (this.props.loggedInUserId) {
 				this.loadData();
@@ -125,121 +137,136 @@ export default class EventChanges<Props> extends React.Component<any, any, any> 
 
 	loadData() {
 
-		this.setState({
-			eventData: [],
-			loading: true,
-		});
+		if (this.mounted) {
+			this.setState({
+				eventData: [],
+				loading: true,
+			});
 
-		let countryList = [] as IGeoCountry[];
-		const promises: Array<Promise<any>> = [];
-		let regionLists = {} as IGeoRegionList;
+			let countryList = [] as IGeoCountry[];
+			const promises: Array<Promise<any>> = [];
+			let regionLists = {} as IGeoRegionList;
 
-		promises.push(getGeography(this.props)
-			.then((dataResponse: IGeoData) => {
-				countryList = dataResponse.countries;
-				regionLists = dataResponse.regions;
-			}).catch((err: ErrorEventHandler) => {
-				console.error(err);
-			}));
+			promises.push(getGeography(this.props)
+				.then((dataResponse: IGeoData) => {
+					countryList = dataResponse.countries;
+					regionLists = dataResponse.regions;
+				}).catch((err: ErrorEventHandler) => {
+					console.error(err);
+				}));
 
-		Promise.all(promises).then(() => {
+			Promise.all(promises).then(() => {
 
-			axios.get(`${this.props.apiLocation}events/getChangeList`, { withCredentials: true })
-				.then((result: AxiosResponse) => {
+				if (this.mounted) {
 
-					const eventChanges = result.data.map((change: IDBDerbyEventChange) => {
+					axios.get(`${this.props.apiLocation}events/getChangeList`, { withCredentials: true })
+						.then((result: AxiosResponse) => {
 
-						if (change.changed_item_id) {
+							if (this.mounted) {
 
-							return {
-								changeId: change.change_id,
-								changedItemId: change.changed_item_id,
-								datesVenue: formatDateRange({
-										firstDay: moment.utc(change.event_first_day),
-										lastDay: moment.utc(change.event_last_day),
-									}, "short"),
-								host: change.event_name ? change.event_host : null,
-								id: change.changed_item_id,
-								location: `${change.venue_city}${change.region_abbreviation ? ", " + change.region_abbreviation : ""}, ${change.country_code}`,
-								name: change.event_name ? change.event_name : change.event_host,
-								submittedDuration: moment.duration(moment(change.change_submitted).diff(moment())).humanize(),
-								submittedTime: moment(change.change_submitted).format("MMM D, Y h:mm a"),
-								user: change.change_user,
-								username: change.change_user_name,
-							};
+								const eventChanges = result.data.map((change: IDBDerbyEventChange) => {
 
-						} else {
+									if (change.changed_item_id) {
 
-							const changeObject: {[key: string]: any} = JSON.parse(change.change_object);
-							const eventChangeObject: {[key: string]: any} = {
-								changeId: change.change_id,
-								submittedDuration: moment.duration(moment(change.change_submitted).diff(moment())).humanize(),
-								submittedTime: moment(change.change_submitted).format("MMM D, Y h:mm a"),
-								user: change.change_user,
-								username: change.change_user_name,
-							};
+										return {
+											changeId: change.change_id,
+											changedItemId: change.changed_item_id,
+											datesVenue: formatDateRange({
+													firstDay: moment.utc(change.event_first_day),
+													lastDay: moment.utc(change.event_last_day),
+												}, "short"),
+											host: change.event_name ? change.event_host : null,
+											id: change.changed_item_id,
+											location: `${change.venue_city}${change.region_abbreviation ? ", " + change.region_abbreviation : ""}, ${change.country_code}`,
+											name: change.event_name ? change.event_name : change.event_host,
+											submittedDuration: moment.duration(moment(change.change_submitted).diff(moment())).humanize(),
+											submittedTime: moment(change.change_submitted).format("MMM D, Y h:mm a"),
+											user: change.change_user,
+											username: change.change_user_name,
+										};
 
-							const name = changeObject.data.filter(
-								(item: {field: string, venue: string}) => item.field === "name")[0];
-							const host = changeObject.data.filter(
-								(item: {field: string, venue: string}) => item.field === "host")[0];
+									} else {
 
-							if (name) {
-								eventChangeObject.name = name.value;
-								eventChangeObject.host = host.value;
-							} else {
-								eventChangeObject.name = host.value;
-							}
+										const changeObject: {[key: string]: any} = JSON.parse(change.change_object);
+										const eventChangeObject: {[key: string]: any} = {
+											changeId: change.change_id,
+											submittedDuration: moment.duration(moment(change.change_submitted).diff(moment())).humanize(),
+											submittedTime: moment(change.change_submitted).format("MMM D, Y h:mm a"),
+											user: change.change_user,
+											username: change.change_user_name,
+										};
 
-							let cityString: string;
-							let countryCode: string;
-							let regionAbbr: string;
+										const name = changeObject.data.filter(
+											(item: {field: string, venue: string}) => item.field === "name")[0];
+										const host = changeObject.data.filter(
+											(item: {field: string, venue: string}) => item.field === "host")[0];
 
-							for (const key in changeObject.newVenueData) {
-								if (changeObject.newVenueData.hasOwnProperty(key)) {
+										if (name) {
+											eventChangeObject.name = name.value;
+											eventChangeObject.host = host.value;
+										} else {
+											eventChangeObject.name = host.value;
+										}
 
-									switch (key) {
+										let cityString: string;
+										let countryCode: string;
+										let regionAbbr: string;
 
-										case "city":
-											cityString = changeObject.newVenueData[key];
-											break;
+										for (const key in changeObject.newVenueData) {
+											if (changeObject.newVenueData.hasOwnProperty(key)) {
 
-										case "country":
-											countryCode = countryList.filter(
-												(country: IGeoCountry) => country.country_code === changeObject.newVenueData[key])[0].country_code;
-											break;
+												switch (key) {
 
-										case "region":
-											regionAbbr = regionLists[changeObject.newVenueData.country].filter(
-												(region: IGeoRegion) => region.region_id === changeObject.newVenueData[key])[0].region_abbreviation;
-											break;
+													case "city":
+														cityString = changeObject.newVenueData[key];
+														break;
 
+													case "country":
+														countryCode = countryList.filter(
+															(country: IGeoCountry) => country.country_code === changeObject.newVenueData[key])[0].country_code;
+														break;
+
+													case "region":
+														regionAbbr = regionLists[changeObject.newVenueData.country].filter(
+															(region: IGeoRegion) => region.region_id === changeObject.newVenueData[key])[0].region_abbreviation;
+														break;
+
+												}
+											}
+										}
+
+										eventChangeObject.location = `${cityString}${regionAbbr ? ", " + regionAbbr : ""}, ${countryCode}`;
+
+										return eventChangeObject;
 									}
+
+								});
+
+								if (this.mounted) {
+									this.setState({
+										eventChanges,
+										loading: false,
+									});
 								}
+
 							}
 
-							eventChangeObject.location = `${cityString}${regionAbbr ? ", " + regionAbbr : ""}, ${countryCode}`;
+						}).catch((error: AxiosError) => {
+							console.error(error);
 
-							return eventChangeObject;
-						}
+							if (this.mounted) {
+								this.setState({
+									dataError: true,
+								});
+							}
 
-					});
+						});
 
-					this.setState({
-						eventChanges,
-						loading: false,
-					});
+				}
 
-				}).catch((error: AxiosError) => {
-					console.error(error);
+			});
+		}
 
-					this.setState({
-						dataError: true,
-					});
-
-				});
-
-		});
 	}
 
 }

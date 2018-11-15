@@ -11,6 +11,8 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 	constructor(props: Props) {
 		super(props);
 
+		this.mounted = false;
+
 		this.state = {
 			path: "",
 			userId: "",
@@ -23,6 +25,13 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 
 		window.scrollTo(0, 0);
 		this.props.setSessionState(this.props.sessionInitialized);
+		this.mounted = true;
+
+	}
+
+	componentWillUnmount() {
+
+		this.mounted = false;
 
 	}
 
@@ -36,10 +45,12 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 
 			|| this.props.loggedInUserId !== this.state.userId ) {
 
-			this.setState({
-				path: window.location.pathname,
-				userId: this.props.loggedInUserId,
-			});
+			if (this.mounted) {
+				this.setState({
+					path: window.location.pathname,
+					userId: this.props.loggedInUserId,
+				});
+			}
 
 		}
 
