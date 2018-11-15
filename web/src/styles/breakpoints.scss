@@ -1,4 +1,5 @@
 $breakpoints: (
+  "tiny": 340px,
   "xsmall": 470px,
   "small": 768px,
   "medium": 992px,
@@ -12,8 +13,19 @@ $breakpoints: (
   $value: map-get($breakpoints, $breakpoint);
 
   @if $value != null {
-    @media (min-width: $value) {
-      @content;
+
+    @if $breakpoint == "tiny" {
+
+      @media (max-width: $value) {
+        @content;
+      }
+
+    } @else {
+
+      @media (min-width: $value) {
+        @content;
+      }
+
     }
   }
 

@@ -58,6 +58,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 		this.loadData = this.loadData.bind(this);
 		this.onDatesChange = this.onDatesChange.bind(this);
 		this.removeLocation = this.removeLocation.bind(this);
+		this.renderMonthHeader = this.renderMonthHeader.bind(this);
 		this.submitSearch = this.submitSearch.bind(this);
 		this.toggleFeatureIcon = this.toggleFeatureIcon.bind(this);
 
@@ -123,6 +124,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 										minimumNights={0}
 										onDatesChange={this.onDatesChange}
 										onFocusChange={this.handleFocusChange}
+										renderMonthElement={this.renderMonthHeader}
 									/>
 
 								</div>
@@ -530,6 +532,16 @@ export default class Search<Props> extends React.Component<any, any, any> {
 	getRegionOptionLabel(option: IGeoRegion) {
 
 		return option.region_name || "(type here to search list)";
+
+	}
+
+	renderMonthHeader(date: {month: moment.Moment}) {
+
+		return (
+			<React.Fragment>
+				<span className="monthLong">{date.month.format("MMMM")}</span><span className="monthShort">{date.month.format("MMM")}</span> {date.month.format("Y")}
+			</React.Fragment>
+		);
 
 	}
 

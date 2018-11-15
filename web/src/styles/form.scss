@@ -230,3 +230,14 @@ form.disabled {
 
 
 }
+
+@include respond-to("tiny") {
+
+	.buttonRow.cornerButton {
+		text-align: right;
+		position: static;
+		margin: 0 0 1em;
+	}
+
+
+}
