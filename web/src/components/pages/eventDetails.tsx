@@ -81,7 +81,7 @@ export default class EventDetails extends React.Component<IProps, IEventDetailsS
 
 					: this.state.dataError ?
 
-						<div className="eventDetails">
+						<div>
 							<h1>Event Details</h1>
 							<p>Sorry, there was an error. Please try again.</p>
 						</div>
@@ -231,7 +231,10 @@ export default class EventDetails extends React.Component<IProps, IEventDetailsS
 
 					if (eventResult.derbytypes) {
 
-						promises.push(getDerbyTypes(this.props)
+						promises.push(getDerbyTypes(
+							this.props.apiLocation,
+							this.props.dataDerbyTypes,
+							this.props.saveDataDerbyTypes)
 							.then((dataResponse: IDerbyType[]) => {
 								icons.derbytypes =
 									dataResponse.filter((dt: IDerbyType) =>
@@ -246,7 +249,10 @@ export default class EventDetails extends React.Component<IProps, IEventDetailsS
 
 					if (eventResult.sanctions) {
 
-						promises.push(getDerbySanctions(this.props)
+						promises.push(getDerbySanctions(
+							this.props.apiLocation,
+							this.props.dataSanctions,
+							this.props.saveDataSanctions)
 							.then((dataResponse: IDerbySanction[]) => {
 								icons.sanctions =
 									dataResponse.filter((s: IDerbySanction) =>
@@ -261,7 +267,10 @@ export default class EventDetails extends React.Component<IProps, IEventDetailsS
 
 					if (eventResult.tracks) {
 
-						promises.push(getDerbyTracks(this.props)
+						promises.push(getDerbyTracks(
+							this.props.apiLocation,
+							this.props.dataTracks,
+							this.props.saveDataTracks)
 							.then((dataResponse: IDerbyTrack[]) => {
 								icons.tracks =
 									dataResponse.filter((t: IDerbyTrack) =>
@@ -311,6 +320,13 @@ export default class EventDetails extends React.Component<IProps, IEventDetailsS
 								venueLink: eventResult.venue_link,
 								venueName: eventResult.venue_name,
 							},
+							loading: false,
+						});
+
+					}).catch(() => {
+
+						this.setState({
+							dataError: true,
 							loading: false,
 						});
 

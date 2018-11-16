@@ -1087,7 +1087,10 @@ export default class EventForm<Props> extends React.Component<IProps, IEventForm
 		let selectedVenue = {} as IDerbyVenue;
 		let timeZones: ITimeZone[] = [];
 
-		promises.push(getGeography(this.props)
+		promises.push(getGeography(
+			this.props.apiLocation,
+			this.props.dataGeography,
+			this.props.saveDataGeography)
 			.then((dataResponse: IGeoData) => {
 				countryList = dataResponse.countries;
 				regionLists = dataResponse.regions;
@@ -1095,28 +1098,40 @@ export default class EventForm<Props> extends React.Component<IProps, IEventForm
 				console.error(err);
 			}));
 
-		promises.push(getTimeZones(this.props)
+		promises.push(getTimeZones(
+			this.props.apiLocation,
+			this.props.timeZones,
+			this.props.saveTimeZones)
 			.then((dataResponse: ITimeZone[]) => {
 				timeZones = dataResponse;
 			}).catch((err: ErrorEventHandler) => {
 				console.error(err);
 			}));
 
-		promises.push(getDerbySanctions(this.props)
+		promises.push(getDerbySanctions(
+			this.props.apiLocation,
+			this.props.dataSanctions,
+			this.props.saveDataSanctions)
 			.then((dataResponse: IDerbySanction[]) => {
 				eventSanctions = dataResponse;
 			}).catch((err: ErrorEventHandler) => {
 				console.error(err);
 			}));
 
-		promises.push(getDerbyTracks(this.props)
+		promises.push(getDerbyTracks(
+			this.props.apiLocation,
+			this.props.dataTracks,
+			this.props.saveDataTracks)
 			.then((dataResponse: IDerbyTrack[]) => {
 				eventTracks = dataResponse;
 			}).catch((err: ErrorEventHandler) => {
 				console.error(err);
 			}));
 
-		promises.push(getDerbyTypes(this.props)
+		promises.push(getDerbyTypes(
+			this.props.apiLocation,
+			this.props.dataDerbyTypes,
+			this.props.saveDataDerbyTypes)
 			.then((dataResponse: IDerbyType[]) => {
 				eventTypes = dataResponse;
 			}).catch((err: ErrorEventHandler) => {

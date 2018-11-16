@@ -427,7 +427,10 @@ export default class VenueForm extends React.Component<IProps, IVenueFormState> 
 		let regionLists: IGeoRegionList = {};
 		let timeZones: ITimeZone[] = [];
 
-		promises.push(getGeography(this.props)
+		promises.push(getGeography(
+			this.props.apiLocation,
+			this.props.dataGeography,
+			this.props.saveDataGeography)
 			.then((dataResponse: IGeoData) => {
 				countryList = dataResponse.countries;
 				regionLists = dataResponse.regions;
@@ -435,7 +438,10 @@ export default class VenueForm extends React.Component<IProps, IVenueFormState> 
 				console.error(err);
 			}));
 
-		promises.push(getTimeZones(this.props)
+		promises.push(getTimeZones(
+			this.props.apiLocation,
+			this.props.timeZones,
+			this.props.saveTimeZones)
 			.then((dataResponse: ITimeZone[]) => {
 				timeZones = dataResponse;
 			}).catch((err: ErrorEventHandler) => {

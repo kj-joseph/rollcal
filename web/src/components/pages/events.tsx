@@ -179,7 +179,10 @@ export default class Events extends React.Component<IProps, IEventsState> {
 				switch (label) {
 					case "locations":
 
-						promises.push(getGeography(this.props)
+						promises.push(getGeography(
+							this.props.apiLocation,
+							this.props.dataGeography,
+							this.props.saveDataGeography)
 							.then((dataResponse: IGeoData) => {
 
 								const geoDisplay: string[] = [];
@@ -236,7 +239,10 @@ export default class Events extends React.Component<IProps, IEventsState> {
 
 					case "derbytypes":
 
-						promises.push(getDerbyTypes(this.props)
+						promises.push(getDerbyTypes(
+							this.props.apiLocation,
+							this.props.dataDerbyTypes,
+							this.props.saveDataDerbyTypes)
 							.then((dataResponse: IDerbyType[]) => {
 
 								const validTypes = dataResponse
@@ -272,7 +278,10 @@ export default class Events extends React.Component<IProps, IEventsState> {
 
 					case "sanctions":
 
-						promises.push(getDerbySanctions(this.props)
+						promises.push(getDerbySanctions(
+							this.props.apiLocation,
+							this.props.dataSanctions,
+							this.props.saveDataSanctions)
 							.then((dataResponse: IDerbySanction[]) => {
 
 								const validSanctions = dataResponse
@@ -308,7 +317,10 @@ export default class Events extends React.Component<IProps, IEventsState> {
 
 					case "tracks":
 
-						promises.push(getDerbyTracks(this.props)
+						promises.push(getDerbyTracks(
+							this.props.apiLocation,
+							this.props.dataTracks,
+							this.props.saveDataTracks)
 							.then((dataResponse: IDerbyTrack[]) => {
 
 								const validTracks = dataResponse
@@ -361,6 +373,13 @@ export default class Events extends React.Component<IProps, IEventsState> {
 
 				this.loadPage();
 
+			}).catch(() => {
+
+				this.setState({
+					dataError: true,
+					loading: false,
+				});
+
 			});
 		}
 
@@ -388,9 +407,20 @@ export default class Events extends React.Component<IProps, IEventsState> {
 				const eventList: IBoxListItem[] = this.state.eventList || [];
 				const eventPromises: Array<Promise<any>> = [];
 
-				eventPromises.push(getDerbySanctions(this.props));
-				eventPromises.push(getDerbyTracks(this.props));
-				eventPromises.push(getDerbyTypes(this.props));
+				eventPromises.push(getDerbySanctions(
+					this.props.apiLocation,
+					this.props.dataSanctions,
+					this.props.saveDataSanctions));
+
+				eventPromises.push(getDerbyTracks(
+					this.props.apiLocation,
+					this.props.dataTracks,
+					this.props.saveDataTracks));
+
+				eventPromises.push(getDerbyTypes(
+					this.props.apiLocation,
+					this.props.dataDerbyTypes,
+					this.props.saveDataDerbyTypes));
 
 				if (result.data.events.length) {
 
@@ -467,6 +497,11 @@ export default class Events extends React.Component<IProps, IEventsState> {
 							loadingMore: false,
 						});
 
+					}).catch(() => {
+						this.setState({
+							dataError: true,
+							loading: false,
+						});
 					});
 
 				} else {

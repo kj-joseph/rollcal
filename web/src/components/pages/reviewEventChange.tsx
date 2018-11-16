@@ -590,7 +590,10 @@ export default class ReviewEventChange extends React.Component<IProps, IReviewEv
 		let tracksList = [] as IDerbyTrack[];
 		let venueList = [] as IDerbyVenue[];
 
-		promises.push(getGeography(this.props)
+		promises.push(getGeography(
+			this.props.apiLocation,
+			this.props.dataGeography,
+			this.props.saveDataGeography)
 			.then((dataResponse: IGeoData) => {
 				countryList = dataResponse.countries;
 				regionLists = dataResponse.regions;
@@ -598,30 +601,42 @@ export default class ReviewEventChange extends React.Component<IProps, IReviewEv
 				console.error(err);
 			}));
 
-		promises.push(getTimeZones(this.props)
+		promises.push(getTimeZones(
+			this.props.apiLocation,
+			this.props.timeZones,
+			this.props.saveTimeZones)
 			.then((dataResponse: ITimeZone[]) => {
 				timeZones = dataResponse;
 			}).catch((err: ErrorEventHandler) => {
 				console.error(err);
 			}));
 
-		promises.push(getDerbyTypes(this.props)
-			.then((dataResponse: IDerbyType[]) => {
-				derbytypesList = dataResponse;
-			}).catch((err: ErrorEventHandler) => {
-				console.error(err);
-			}));
-
-		promises.push(getDerbySanctions(this.props)
+		promises.push(getDerbySanctions(
+			this.props.apiLocation,
+			this.props.dataSanctions,
+			this.props.saveDataSanctions)
 			.then((dataResponse: IDerbySanction[]) => {
 				sanctionsList = dataResponse;
 			}).catch((err: ErrorEventHandler) => {
 				console.error(err);
 			}));
 
-		promises.push(getDerbyTracks(this.props)
+		promises.push(getDerbyTracks(
+			this.props.apiLocation,
+			this.props.dataTracks,
+			this.props.saveDataTracks)
 			.then((dataResponse: IDerbyTrack[]) => {
 				tracksList = dataResponse;
+			}).catch((err: ErrorEventHandler) => {
+				console.error(err);
+			}));
+
+		promises.push(getDerbyTypes(
+			this.props.apiLocation,
+			this.props.dataDerbyTypes,
+			this.props.saveDataDerbyTypes)
+			.then((dataResponse: IDerbyType[]) => {
+				derbytypesList = dataResponse;
 			}).catch((err: ErrorEventHandler) => {
 				console.error(err);
 			}));
