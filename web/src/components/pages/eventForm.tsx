@@ -62,56 +62,56 @@ interface IEventFormState {
 	venueList: IDerbyVenue[];
 }
 
-export default class EventForm<Props> extends React.Component<IProps, IEventFormState> {
+export default class EventForm<Props> extends React.Component<IProps> {
+
+	state: IEventFormState = {
+		countryList: [],
+		dataError: false,
+		editingDays: [],
+		eventData: {} as IDerbyEvent,
+		eventFeatures: {
+			derbytypes: [],
+			sanctions: [],
+			tracks: [],
+		},
+		focused: true,
+		initialEventData: {} as IDerbyEvent,
+		initialSelectedFeatures: [],
+		loading: true,
+		newDayCounter: -1,
+		newVenueAddress1: "",
+		newVenueAddress2: "",
+		newVenueCity: "",
+		newVenueCountry: {} as IGeoCountry,
+		newVenueDescription: "",
+		newVenueLink: "",
+		newVenueName: "",
+		newVenuePostcode: "",
+		newVenueRegion: {} as IGeoRegion,
+		newVenueTimeZone: {} as ITimeZone,
+		pageFunction: this.props.match.params.operation === "add" ? "Add New Event" :
+			this.props.match.params.operation === "edit"
+				&& this.props.match.params.eventId
+				&& this.props.match.params.eventId.match(/[0-9]+/)
+				? "Edit Event" : "Error",
+		path: null,
+		processing: false,
+		regionLists: {} as IGeoRegionList,
+		sectionOpenBasic: true,
+		sectionOpenDays: true,
+		sectionOpenFeatures: true,
+		sectionOpenVenue: true,
+		selectedFeatures: [],
+		selectedVenue: {} as IDerbyVenue,
+		submitError: null,
+		submitSuccess: false,
+		timeZoneList: [],
+		userId: null,
+		venueList: [],
+	};
 
 	constructor(props: IProps) {
 		super(props);
-
-		this.state = {
-			countryList: [],
-			dataError: false,
-			editingDays: [],
-			eventData: {} as IDerbyEvent,
-			eventFeatures: {
-				derbytypes: [],
-				sanctions: [],
-				tracks: [],
-			},
-			focused: true,
-			initialEventData: {} as IDerbyEvent,
-			initialSelectedFeatures: [],
-			loading: true,
-			newDayCounter: -1,
-			newVenueAddress1: "",
-			newVenueAddress2: "",
-			newVenueCity: "",
-			newVenueCountry: {} as IGeoCountry,
-			newVenueDescription: "",
-			newVenueLink: "",
-			newVenueName: "",
-			newVenuePostcode: "",
-			newVenueRegion: {} as IGeoRegion,
-			newVenueTimeZone: {} as ITimeZone,
-			pageFunction: this.props.match.params.operation === "add" ? "Add New Event" :
-				this.props.match.params.operation === "edit"
-					&& this.props.match.params.eventId
-					&& this.props.match.params.eventId.match(/[0-9]+/)
-					? "Edit Event" : "Error",
-			path: null,
-			processing: false,
-			regionLists: {} as IGeoRegionList,
-			sectionOpenBasic: true,
-			sectionOpenDays: true,
-			sectionOpenFeatures: true,
-			sectionOpenVenue: true,
-			selectedFeatures: [],
-			selectedVenue: {} as IDerbyVenue,
-			submitError: null,
-			submitSuccess: false,
-			timeZoneList: [],
-			userId: null,
-			venueList: [],
-		};
 
 		this.addDay = this.addDay.bind(this);
 		this.cancelDayEdit = this.cancelDayEdit.bind(this);
@@ -129,13 +129,14 @@ export default class EventForm<Props> extends React.Component<IProps, IEventForm
 		this.submitEventForm = this.submitEventForm.bind(this);
 		this.toggleFeatureIcon = this.toggleFeatureIcon.bind(this);
 		this.toggleSection = this.toggleSection.bind(this);
-
 	}
 
 	componentDidUpdate() {
 
 		if (!this.props.loggedIn) {
+
 			this.props.history.push("/");
+
 		} else if (window.location.pathname !== this.state.path
 			|| this.props.loggedInUserId !== this.state.userId ) {
 

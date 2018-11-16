@@ -21,20 +21,19 @@ interface IVenueChangesState {
 	venueChanges: IBoxListItem[];
 }
 
-export default class VenueChanges extends React.Component<IProps, IVenueChangesState> {
+export default class VenueChanges extends React.Component<IProps> {
+
+	state: IVenueChangesState = {
+		loading: true,
+		path: null,
+		userId: null,
+		venueChanges: [],
+	};
 
 	constructor(props: IProps) {
 		super(props);
 
-		this.state = {
-			loading: true,
-			path: null,
-			userId: null,
-			venueChanges: [],
-		};
-
 		this.reviewChange = this.reviewChange.bind(this);
-
 	}
 
 	componentDidMount() {
@@ -54,7 +53,8 @@ export default class VenueChanges extends React.Component<IProps, IVenueChangesS
 
 			this.props.history.push("/dashboard");
 
-		} else if (window.location.pathname !== this.state.path || this.props.loggedInUserId !== this.state.userId ) {
+		} else if (window.location.pathname !== this.state.path
+			|| this.props.loggedInUserId !== this.state.userId ) {
 
 			this.setState({
 				path: window.location.pathname,

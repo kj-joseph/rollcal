@@ -12,22 +12,21 @@ interface IValidateState {
 	validationCode: string;
 }
 
-export default class Validate extends React.Component<IProps, IValidateState> {
+export default class Validate extends React.Component<IProps> {
+
+	validationParts = decodeURIComponent(this.props.match.params.validationCode).split("||");
+
+	state: IValidateState = {
+		email: this.validationParts[1],
+		status: "validating",
+		username: this.validationParts[2],
+		validationCode: this.validationParts[0],
+	};
 
 	constructor(props: IProps) {
 		super(props);
 
-		const validationParts = decodeURIComponent(this.props.match.params.validationCode).split("||");
-
-		this.state = {
-			email: validationParts[1],
-			status: "validating",
-			username: validationParts[2],
-			validationCode: validationParts[0],
-		};
-
 		this.loadData = this.loadData.bind(this);
-
 	}
 
 	componentDidMount() {

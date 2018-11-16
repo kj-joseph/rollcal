@@ -23,27 +23,28 @@ interface IUserAccountState {
 	status: string;
 }
 
-export default class UserAccount extends React.Component<IProps, IUserAccountState> {
+export default class UserAccount extends React.Component<IProps> {
+
+	state: IUserAccountState = {
+		accountCurrentPassword: "",
+		accountEmail: this.props.loggedInUserEmail,
+		accountId: this.props.loggedInUserId,
+		accountNewPassword: "",
+		accountNewPasswordConfirm: "",
+		accountUsername: this.props.loggedInUserName,
+		errorMessage: null,
+		initialAccountEmail: this.props.loggedInUserEmail,
+		initialAccountId: this.props.loggedInUserId,
+		initialAccountUsername: this.props.loggedInUserName,
+		path: window.location.pathname,
+		processing: false,
+		status: "form",
+	};
 
 	constructor(props: IProps) {
 		super(props);
 
-		this.state = {
-			accountCurrentPassword: "",
-			accountEmail: this.props.loggedInUserEmail,
-			accountId: this.props.loggedInUserId,
-			accountNewPassword: "",
-			accountNewPasswordConfirm: "",
-			accountUsername: this.props.loggedInUserName,
-			errorMessage: null,
-			initialAccountEmail: this.props.loggedInUserEmail,
-			initialAccountId: this.props.loggedInUserId,
-			initialAccountUsername: this.props.loggedInUserName,
-			path: window.location.pathname,
-			processing: false,
-			status: "form",
-		};
-
+		// TODO: Not sure why componentDidUpdate doesn't execute, forcing this into the constructor
 		if (!this.props.loggedIn && this.state.status !== "successLogout") {
 
 			this.props.history.push("/");
@@ -52,7 +53,6 @@ export default class UserAccount extends React.Component<IProps, IUserAccountSta
 
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.submitAccountForm = this.submitAccountForm.bind(this);
-
 	}
 
 	render() {

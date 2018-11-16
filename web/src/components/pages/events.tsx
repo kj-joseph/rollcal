@@ -32,31 +32,31 @@ interface IEventsState {
 
 }
 
-export default class Events extends React.Component<IProps, IEventsState> {
+export default class Events extends React.Component<IProps> {
+
+	state: IEventsState = {
+		dataError: false,
+		eventList: [],
+		isSearch: (this.props.match.params.startDate || window.location.pathname !== "/"),
+		listItemsTotal: 0,
+		listPageLength: this.props.listPageLength,
+		loading: true,
+		loadingMore: false,
+		path: null,
+		searchDisplayDates: null,
+		searchDisplayDerbyTypes: null,
+		searchDisplayLocations: null,
+		searchDisplaySanctions: null,
+		searchDisplayTracks: null,
+		searchURL: null,
+	};
+
 	constructor(props: IProps) {
 		super(props);
-
-		this.state = {
-			dataError: false,
-			eventList: [],
-			isSearch: (this.props.match.params.startDate || window.location.pathname !== "/"),
-			listItemsTotal: 0,
-			listPageLength: this.props.listPageLength,
-			loading: true,
-			loadingMore: false,
-			path: null,
-			searchDisplayDates: null,
-			searchDisplayDerbyTypes: null,
-			searchDisplayLocations: null,
-			searchDisplaySanctions: null,
-			searchDisplayTracks: null,
-			searchURL: null,
-		};
 
 		this.initialLoad = this.initialLoad.bind(this);
 		this.loadAll = this.loadAll.bind(this);
 		this.loadPage = this.loadPage.bind(this);
-
 	}
 
 	componentDidMount() {

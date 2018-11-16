@@ -13,17 +13,17 @@ interface IDashboardState {
 	userId: number;
 }
 
-export default class Dashboard extends React.Component<IProps, IDashboardState> {
+export default class Dashboard extends React.Component<IProps> {
 
 	mounted = false;
 
+	state: IDashboardState = {
+		path: null,
+		userId: null,
+	};
+
 	constructor(props: IProps) {
 		super(props);
-
-		this.state = {
-			path: null,
-			userId: null,
-		};
 
 		this.logout = this.logout.bind(this);
 	}
@@ -49,7 +49,6 @@ export default class Dashboard extends React.Component<IProps, IDashboardState> 
 			this.props.history.push("/");
 
 		} else if (window.location.pathname !== this.state.path
-
 			|| this.props.loggedInUserId !== this.state.userId ) {
 
 			if (this.mounted) {

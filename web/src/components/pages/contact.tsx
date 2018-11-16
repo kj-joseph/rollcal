@@ -6,9 +6,13 @@ interface IContactState {
 	TBD: any;
 }
 
-export default class Contact extends React.Component<IProps, IContactState> {
+export default class Contact extends React.Component<IProps> {
 
 	mounted = false;
+
+	state: IContactState = {
+		TBD: null,
+	};
 
 	constructor(props: IProps) {
 		super(props);

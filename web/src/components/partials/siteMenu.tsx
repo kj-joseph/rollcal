@@ -21,21 +21,6 @@ export default class SiteMenu extends React.Component<IProps> {
 
 	}
 
-	openLoginModal(event?: React.MouseEvent<HTMLAnchorElement>) {
-
-		if (event) {
-			event.preventDefault();
-		}
-
-		this.props.setLoginModalState(true);
-
-	}
-
-	isEventsCurrentPage(path: any, match: any, location: any) {
-
-		return match && !match.pathname.match(/\/(?:search|faq|contact|dashboard|validate)/);
-	}
-
 	render() {
 
 		return (
@@ -107,6 +92,21 @@ export default class SiteMenu extends React.Component<IProps> {
 			</React.Fragment>
 		);
 
+	}
+
+	openLoginModal(event?: React.MouseEvent<HTMLAnchorElement>) {
+
+		if (event) {
+			event.preventDefault();
+		}
+
+		this.props.setLoginModalState(true);
+
+	}
+
+	isEventsCurrentPage(path: any, match: any, location: any) {
+
+		return match && !match.pathname.match(/\/(?:search|faq|contact|dashboard|validate)/);
 	}
 
 }

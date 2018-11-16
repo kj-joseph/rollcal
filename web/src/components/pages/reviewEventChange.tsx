@@ -36,31 +36,30 @@ interface IReviewEventChangeState {
 	userId: number;
 }
 
-export default class ReviewEventChange extends React.Component<IProps, IReviewEventChangeState> {
+export default class ReviewEventChange extends React.Component<IProps> {
+
+	state: IReviewEventChangeState = {
+		dataError: false,
+		errorMessage: null,
+		eventChanges: {} as IDerbyEventChange,
+		eventData: {} as IDerbyEvent,
+		initialLoad: false,
+		loading: true,
+		modalOpen: false,
+		path: null,
+		rejectComment: null,
+		status: null,
+		userId: null,
+	};
 
 	constructor(props: IProps) {
 		super(props);
-
-		this.state = {
-			dataError: false,
-			errorMessage: null,
-			eventChanges: {} as IDerbyEventChange,
-			eventData: {} as IDerbyEvent,
-			initialLoad: false,
-			loading: true,
-			modalOpen: false,
-			path: null,
-			rejectComment: null,
-			status: null,
-			userId: null,
-		};
 
 		this.approveChange = this.approveChange.bind(this);
 		this.closeModal = this.closeModal.bind(this);
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.openRejectModal = this.openRejectModal.bind(this);
 		this.rejectChange = this.rejectChange.bind(this);
-
 	}
 
 	componentDidMount() {
@@ -80,7 +79,8 @@ export default class ReviewEventChange extends React.Component<IProps, IReviewEv
 
 			this.props.history.push("/dashboard");
 
-		} else if (window.location.pathname !== this.state.path || this.props.loggedInUserId !== this.state.userId ) {
+		} else if (window.location.pathname !== this.state.path
+			|| this.props.loggedInUserId !== this.state.userId ) {
 
 			this.setState({
 				path: window.location.pathname,

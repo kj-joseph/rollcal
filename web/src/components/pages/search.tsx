@@ -36,29 +36,29 @@ interface ISearchState {
 	startDate: moment.Moment;
 }
 
-export default class Search extends React.Component<IProps, ISearchState> {
+export default class Search extends React.Component<IProps> {
+
+	state: ISearchState = {
+		countryList: [],
+		countrySelectValue: {} as IGeoCountry,
+		dateRangeDisplay: formatDateRange({
+			firstDay: moment(),
+		}),
+		endDate: null,
+		eventFeatures: {} as IDerbyFeatures,
+		focusedInput: "startDate",
+		loading: true,
+		path: null,
+		regionLists: {},
+		regionSelectValue: {} as IGeoRegion,
+		selectedCountries: [],
+		selectedEventFeatures: [],
+		selectedRegions: {} as IGeoRegionList,
+		startDate: null,
+	};
 
 	constructor(props: IProps) {
 		super(props);
-
-		this.state = {
-			countryList: [],
-			countrySelectValue: {} as IGeoCountry,
-			dateRangeDisplay: formatDateRange({
-				firstDay: moment(),
-			}),
-			endDate: null,
-			eventFeatures: {} as IDerbyFeatures,
-			focusedInput: "startDate",
-			loading: true,
-			path: null,
-			regionLists: {},
-			regionSelectValue: {} as IGeoRegion,
-			selectedCountries: [],
-			selectedEventFeatures: [],
-			selectedRegions: {} as IGeoRegionList,
-			startDate: null,
-		};
 
 		this.addLocation = this.addLocation.bind(this);
 		this.addLocationCountry = this.addLocationCountry.bind(this);
@@ -79,7 +79,6 @@ export default class Search extends React.Component<IProps, ISearchState> {
 		this.renderMonthHeader = this.renderMonthHeader.bind(this);
 		this.submitSearch = this.submitSearch.bind(this);
 		this.toggleFeatureIcon = this.toggleFeatureIcon.bind(this);
-
 	}
 
 	componentDidMount() {

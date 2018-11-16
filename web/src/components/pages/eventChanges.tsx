@@ -21,25 +21,22 @@ interface IEventChangesState {
 	userId: number;
 }
 
-export default class EventChanges extends React.Component<IProps, IEventChangesState> {
+export default class EventChanges extends React.Component<IProps> {
 
 	mounted = false;
+
+	state: IEventChangesState = {
+		dataError: false,
+		eventChanges: [],
+		loading: true,
+		path: null,
+		userId: null,
+	};
 
 	constructor(props: IProps) {
 		super(props);
 
-		this.mounted = false;
-
-		this.state = {
-			dataError: false,
-			eventChanges: [],
-			loading: true,
-			path: null,
-			userId: null,
-		};
-
 		this.reviewChange = this.reviewChange.bind(this);
-
 	}
 
 	componentDidMount() {
@@ -67,7 +64,8 @@ export default class EventChanges extends React.Component<IProps, IEventChangesS
 
 			this.props.history.push("/dashboard");
 
-		} else if (window.location.pathname !== this.state.path || this.props.loggedInUserId !== this.state.userId ) {
+		} else if (window.location.pathname !== this.state.path
+			|| this.props.loggedInUserId !== this.state.userId ) {
 
 			if (this.mounted) {
 				this.setState({

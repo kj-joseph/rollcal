@@ -25,22 +25,21 @@ interface IUserVenuesState {
 
 export default class UserVenues extends React.Component<IProps, IUserVenuesState> {
 
+	state: IUserVenuesState = {
+		isReviewer: false,
+		loading: true,
+		path: null,
+		showAll: false,
+		userId: null,
+		venueData: [],
+	};
+
 	constructor(props: IProps) {
 		super(props);
-
-		this.state = {
-			isReviewer: false,
-			loading: true,
-			path: null,
-			showAll: false,
-			userId: null,
-			venueData: [],
-		};
 
 		this.addVenue = this.addVenue.bind(this);
 		this.editVenue = this.editVenue.bind(this);
 		this.toggleShowAll = this.toggleShowAll.bind(this);
-
 	}
 
 	componentDidMount() {

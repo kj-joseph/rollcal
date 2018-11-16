@@ -34,23 +34,23 @@ interface IUserEventsState {
 	userId: number;
 }
 
-export default class UserEvents extends React.Component<IProps, IUserEventsState> {
+export default class UserEvents extends React.Component<IProps> {
+
+	state: IUserEventsState = {
+		deleteEventId: null,
+		deleteModalOpen: false,
+		eventData: [],
+		isReviewer: false,
+		loading: true,
+		modalError: null,
+		modalProcessing: false,
+		path: null,
+		showAll: false,
+		userId: null,
+	};
 
 	constructor(props: IProps) {
 		super(props);
-
-		this.state = {
-			deleteEventId: null,
-			deleteModalOpen: false,
-			eventData: [],
-			isReviewer: false,
-			loading: true,
-			modalError: null,
-			modalProcessing: false,
-			path: null,
-			showAll: false,
-			userId: null,
-		};
 
 		this.addEvent = this.addEvent.bind(this);
 		this.closeDeleteModal = this.closeDeleteModal.bind(this);
@@ -58,7 +58,6 @@ export default class UserEvents extends React.Component<IProps, IUserEventsState
 		this.deleteEvent = this.deleteEvent.bind(this);
 		this.editEvent = this.editEvent.bind(this);
 		this.toggleShowAll = this.toggleShowAll.bind(this);
-
 	}
 
 	componentDidMount() {

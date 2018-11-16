@@ -19,20 +19,19 @@ interface IEventDetailsState {
 	path: string;
 }
 
-export default class EventDetails extends React.Component<IProps, IEventDetailsState> {
+export default class EventDetails extends React.Component<IProps> {
+
+	state: IEventDetailsState = {
+		dataError: false,
+		eventData: null,
+		loading: true,
+		path: null,
+	};
 
 	constructor(props: IProps) {
 		super(props);
 
-		this.state = {
-			dataError: false,
-			eventData: null,
-			loading: true,
-			path: null,
-		};
-
 		this.editEvent = this.editEvent.bind(this);
-
 	}
 
 	componentDidUpdate() {

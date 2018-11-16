@@ -30,40 +30,39 @@ interface IVenueFormState {
 	venueData: IDerbyVenue;
 }
 
-export default class VenueForm extends React.Component<IProps, IVenueFormState> {
+export default class VenueForm extends React.Component<IProps> {
+
+	state: IVenueFormState = {
+		countryList: [],
+		dataError: false,
+		initialVenueData: {} as IDerbyVenue,
+		loading: true,
+		pageFunction: this.props.match.params.operation === "add" ? "Add New Venue" :
+			this.props.match.params.operation === "edit"
+				&& this.props.match.params.venueId
+				&& this.props.match.params.venueId.match(/[0-9]+/)
+				? "Edit Venue" : "Error",
+		path: null,
+		processing: false,
+		regionLists: {} as IGeoRegionList,
+		selectedCountry: {} as IGeoCountry,
+		selectedRegion: {} as IGeoRegion,
+		selectedTimeZone: {} as ITimeZone,
+		submitError: null,
+		submitSuccess: false,
+		timeZoneList: [],
+		userId: null,
+		venueData: {} as IDerbyVenue,
+	};
 
 	constructor(props: IProps) {
 		super(props);
-
-		this.state = {
-			countryList: [],
-			dataError: false,
-			initialVenueData: {} as IDerbyVenue,
-			loading: true,
-			pageFunction: this.props.match.params.operation === "add" ? "Add New Venue" :
-				this.props.match.params.operation === "edit"
-					&& this.props.match.params.venueId
-					&& this.props.match.params.venueId.match(/[0-9]+/)
-					? "Edit Venue" : "Error",
-			path: null,
-			processing: false,
-			regionLists: {} as IGeoRegionList,
-			selectedCountry: {} as IGeoCountry,
-			selectedRegion: {} as IGeoRegion,
-			selectedTimeZone: {} as ITimeZone,
-			submitError: null,
-			submitSuccess: false,
-			timeZoneList: [],
-			userId: null,
-			venueData: {} as IDerbyVenue,
-		};
 
 		this.handleCountryChange = this.handleCountryChange.bind(this);
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.handleRegionChange = this.handleRegionChange.bind(this);
 		this.handleTimeZoneChange = this.handleTimeZoneChange.bind(this);
 		this.submitVenueForm = this.submitVenueForm.bind(this);
-
 	}
 
 	componentDidUpdate() {

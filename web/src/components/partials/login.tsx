@@ -25,24 +25,24 @@ interface ILoginState {
 	registerUsername: string;
 }
 
-class Login extends React.Component<IProps, ILoginState> {
+class Login extends React.Component<IProps> {
+
+	state: ILoginState = {
+		errorMessage: null,
+		formValid: false,
+		loading: false,
+		loginEmail: "",
+		loginPassword: "",
+		modalStatus: "login",
+		path: null,
+		registerEmail: "",
+		registerPassword: "",
+		registerPasswordConfirm: "",
+		registerUsername: "",
+	};
 
 	constructor(props: IProps) {
 		super(props);
-
-		this.state = {
-			errorMessage: null,
-			formValid: false,
-			loading: false,
-			loginEmail: "",
-			loginPassword: "",
-			modalStatus: "login",
-			path: null,
-			registerEmail: "",
-			registerPassword: "",
-			registerPasswordConfirm: "",
-			registerUsername: "",
-		};
 
 		this.closeLoginModal = this.closeLoginModal.bind(this);
 		this.changeStatusClearState = this.changeStatusClearState.bind(this);
@@ -51,7 +51,6 @@ class Login extends React.Component<IProps, ILoginState> {
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.submitLogin = this.submitLogin.bind(this);
 		this.submitRegistration = this.submitRegistration.bind(this);
-
 	}
 
 	componentDidUpdate() {
