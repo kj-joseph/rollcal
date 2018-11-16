@@ -6,7 +6,7 @@ import { IProps } from "interfaces/redux";
 import Modal from "react-modal";
 Modal.setAppElement("#root");
 
-import * as auth from "components/lib/auth";
+import { logout } from "components/lib/auth";
 
 interface IDashboardState {
 	path: string;
@@ -127,7 +127,7 @@ export default class Dashboard extends React.Component<IProps, IDashboardState> 
 
 	logout(event: React.MouseEvent<HTMLButtonElement>) {
 
-		auth.logout(this.props.apiLocation, this.props.clearUserInfo, this.props.history, event);
+		logout(this.props.apiLocation, this.props.clearUserInfo, this.props.history, event);
 
 	}
 

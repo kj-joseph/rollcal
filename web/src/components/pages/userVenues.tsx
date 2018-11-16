@@ -11,6 +11,7 @@ import CheckIcon from "images/check-circle.svg";
 import CircleIcon from "images/circle.svg";
 import ReactSVG from "react-svg";
 
+import { checkUserRole } from "components/lib/auth";
 import BoxList from "components/partials/boxList";
 
 interface IUserVenuesState {
@@ -57,7 +58,7 @@ export default class UserVenues extends React.Component<IProps, IUserVenuesState
 
 		} else if (window.location.pathname !== this.state.path || this.props.loggedInUserId !== this.state.userId ) {
 
-			const isReviewer = (this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("reviewer") > -1);
+			const isReviewer = checkUserRole(this.props.loggedInUserRoles, "reviewer");
 
 			this.setState({
 				isReviewer,

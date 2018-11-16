@@ -8,6 +8,7 @@ import { IDBDerbyEventChange, IDerbyEventChange, IDerbyEventChangeObject } from 
 import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList } from "interfaces/geo";
 import { IProps } from "interfaces/redux";
 
+import { checkUserRole } from "components/lib/auth";
 import { formatDateRange } from "components/lib/dateTime";
 import BoxList from "components/partials/boxList";
 import moment from "moment";
@@ -61,6 +62,10 @@ export default class EventChanges extends React.Component<IProps, IEventChangesS
 		if (!this.props.loggedIn) {
 
 			this.props.history.push("/");
+
+		} else if (!checkUserRole(this.props.loggedInUserRoles, "reviewer")) {
+
+			this.props.history.push("/dashboard");
 
 		} else if (window.location.pathname !== this.state.path || this.props.loggedInUserId !== this.state.userId ) {
 

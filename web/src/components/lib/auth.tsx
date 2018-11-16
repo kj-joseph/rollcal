@@ -29,6 +29,9 @@ export const checkLoginStatus = (
 
 };
 
+export const checkUserRole = (userRoles: string[], role: string): boolean =>
+	userRoles && userRoles.indexOf(role) > -1;
+
 export const logout = (
 	apiLocation: string,
 	clearUserInfo: () => void,

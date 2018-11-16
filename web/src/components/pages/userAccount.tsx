@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 
-import * as auth from "components/lib/auth";
+import { logout } from "components/lib/auth";
 
 import { IProps } from "interfaces/redux";
 
@@ -306,7 +306,7 @@ export default class UserAccount extends React.Component<IProps, IUserAccountSta
 
 	logout(event?: React.MouseEvent<HTMLButtonElement>) {
 
-		auth.logout(this.props.apiLocation, this.props.clearUserInfo, this.props.history, event, false);
+		logout(this.props.apiLocation, this.props.clearUserInfo, this.props.history, event, false);
 
 	}
 

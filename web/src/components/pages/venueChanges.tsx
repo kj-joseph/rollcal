@@ -10,6 +10,7 @@ import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList } from "interfaces/ge
 import { IProps } from "interfaces/redux";
 import { IDBDerbyVenueChange, IDerbyVenueChange, IDerbyVenueChangeObject } from "interfaces/venue";
 
+import { checkUserRole } from "components/lib/auth";
 import { getGeography } from "components/lib/data";
 import BoxList from "components/partials/boxList";
 
@@ -48,6 +49,10 @@ export default class VenueChanges extends React.Component<IProps, IVenueChangesS
 		if (!this.props.loggedIn) {
 
 			this.props.history.push("/");
+
+		} else if (!checkUserRole(this.props.loggedInUserRoles, "reviewer")) {
+
+			this.props.history.push("/dashboard");
 
 		} else if (window.location.pathname !== this.state.path || this.props.loggedInUserId !== this.state.userId ) {
 

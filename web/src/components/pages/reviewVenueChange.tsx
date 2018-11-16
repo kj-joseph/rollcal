@@ -9,6 +9,7 @@ import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList, ITimeZone } from "in
 import { IProps } from "interfaces/redux";
 import { IDBDerbyVenueChange, IDerbyVenue, IDerbyVenueChange } from "interfaces/venue";
 
+import { checkUserRole } from "components/lib/auth";
 import { getGeography, getTimeZones } from "components/lib/data";
 
 import Modal from "react-modal";
@@ -72,6 +73,10 @@ export default class ReviewVenueChange extends React.Component<IProps, IReviewVe
 		if (!this.props.loggedIn) {
 
 			this.props.history.push("/");
+
+		} else if (!checkUserRole(this.props.loggedInUserRoles, "reviewer")) {
+
+			this.props.history.push("/dashboard");
 
 		} else if (window.location.pathname !== this.state.path || this.props.loggedInUserId !== this.state.userId ) {
 

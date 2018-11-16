@@ -11,6 +11,7 @@ import { IGeoCountry, IGeoData, IGeoRegionList, ITimeZone } from "interfaces/geo
 import { IProps } from "interfaces/redux";
 import { IDBDerbyVenue, IDerbyVenue, INewDerbyVenue } from "interfaces/venue";
 
+import { checkUserRole } from "components/lib/auth";
 import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography, getTimeZones } from "components/lib/data";
 
 import CompareValues from "components/partials/compareValues";
@@ -74,6 +75,10 @@ export default class ReviewEventChange extends React.Component<IProps, IReviewEv
 		if (!this.props.loggedIn) {
 
 			this.props.history.push("/");
+
+		} else if (!checkUserRole(this.props.loggedInUserRoles, "reviewer")) {
+
+			this.props.history.push("/dashboard");
 
 		} else if (window.location.pathname !== this.state.path || this.props.loggedInUserId !== this.state.userId ) {
 

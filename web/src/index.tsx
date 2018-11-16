@@ -12,7 +12,7 @@ import { Dispatch } from "redux";
 import reduxActions from "redux/actions";
 import store from "redux/store";
 
-import * as auth from "components/lib/auth";
+import { checkLoginStatus } from "components/lib/auth";
 
 // load css for modules
 import "flag-icon-css/sass/flag-icon.scss";
@@ -48,7 +48,7 @@ class ConnectedSiteRouter extends React.Component<IProps> {
 
 		if (!this.props.sessionInitialized) {
 
-			auth.checkLoginStatus(this.props.apiLocation, this.props.setUserInfo).then(() => {
+			checkLoginStatus(this.props.apiLocation, this.props.setUserInfo).then(() => {
 				this.props.setSessionState(true);
 			});
 

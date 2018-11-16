@@ -17,8 +17,8 @@ import CircleIcon from "images/circle.svg";
 import CloseIcon from "images/times-circle.svg";
 import ReactSVG from "react-svg";
 
+import { checkUserRole } from "components/lib/auth";
 import { formatDateRange } from "components/lib/dateTime";
-
 import BoxList from "components/partials/boxList";
 
 interface IUserEventsState {
@@ -76,7 +76,7 @@ export default class UserEvents extends React.Component<IProps, IUserEventsState
 
 		} else if (window.location.pathname !== this.state.path || this.props.loggedInUserId !== this.state.userId ) {
 
-			const isReviewer = (this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("reviewer") > -1);
+			const isReviewer = checkUserRole(this.props.loggedInUserRoles, "reviewer");
 
 			this.setState({
 				isReviewer,
