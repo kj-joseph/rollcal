@@ -5,11 +5,11 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 
 import moment from "moment";
 
-import { IDBDerbyVenue,
-	IDerbySanction, IDerbyTrack, IDerbyType,
-	IDerbyVenue,
-	IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList, ITimeZone,
-	} from "components/interfaces";
+import { IDBDerbyEventChange, IDerbyEvent, IDerbyEventChange, IDerbyEventChangeObject } from "interfaces/event";
+import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
+import { IGeoCountry, IGeoData, IGeoRegionList, ITimeZone } from "interfaces/geo";
+import { IProps } from "interfaces/redux";
+import { IDBDerbyVenue, IDerbyVenue, INewDerbyVenue } from "interfaces/venue";
 
 import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography, getTimeZones } from "components/lib/data";
 
@@ -21,20 +21,35 @@ Modal.setAppElement("#root");
 import CloseIcon from "images/times-circle.svg";
 import ReactSVG from "react-svg";
 
-export default class ReviewEventChange<Props> extends React.Component<any, any, any> {
+interface IReviewEventChangeState {
+	dataError: boolean;
+	errorMessage: string;
+	eventChanges: IDerbyEventChange;
+	eventData: IDerbyEvent;
+	initialLoad: boolean;
+	loading: boolean;
+	modalOpen: boolean;
+	path: string;
+	rejectComment: string;
+	status: string;
+	userId: number;
+}
 
-	constructor(props: Props) {
+export default class ReviewEventChange extends React.Component<IProps, IReviewEventChangeState> {
+
+	constructor(props: IProps) {
 		super(props);
 
 		this.state = {
+			dataError: false,
 			errorMessage: null,
-			eventChanges: {},
-			eventData: {},
+			eventChanges: {} as IDerbyEventChange,
+			eventData: {} as IDerbyEvent,
 			initialLoad: false,
 			loading: true,
 			modalOpen: false,
-			path: "",
-			rejectComment: "",
+			path: null,
+			rejectComment: null,
 			status: null,
 			userId: null,
 		};
@@ -63,7 +78,6 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 		} else if (window.location.pathname !== this.state.path || this.props.loggedInUserId !== this.state.userId ) {
 
 			this.setState({
-				isSearch: (this.props.match.params.startDate || window.location.pathname !== "/"),
 				path: window.location.pathname,
 				userId: this.props.loggedInUserId,
 			});
@@ -88,9 +102,9 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 					</Link>
 				</p>
 
-				<div className={`dashboard reviewEventChange ${this.state.eventData.eventId ? "" : "newEvent"}`}>
+				<div className={`dashboard reviewEventChange ${this.state.eventData.id ? "" : "newEvent"}`}>
 
-					<h1>{this.state.initialLoad ? `Review ${this.state.eventData.eventId ? "Event Change" : "New Event"}` : ""}</h1>
+					<h1>{this.state.initialLoad ? `Review ${this.state.eventData.id ? "Event Change" : "New Event"}` : ""}</h1>
 
 					{this.state.loading ?
 
@@ -108,7 +122,7 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 
 					<React.Fragment>
 
-						{this.state.eventData.eventId ?
+						{this.state.eventData.id ?
 							<div className="callout">
 								<p className="header">KEY TO CHANGES</p>
 								<p>
@@ -233,7 +247,7 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 														&& this.state.eventChanges.venue !== this.state.eventData.venue ?
 
 														<React.Fragment>
-															<dt>{!this.state.eventData.eventId ? "Existing " : ""}Venue:</dt>
+															<dt>{!this.state.eventData.id ? "Existing " : ""}Venue:</dt>
 
 															<dd>
 																{this.state.eventData.venue ?
@@ -272,7 +286,7 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 
 												<dl className="changeDetails">
 
-												{this.state.eventChanges.days.map((day: {[key: string]: any}) => (
+												{this.state.eventChanges.dayChanges.map((day) => (
 													<React.Fragment key={day.id}>
 
 														<dt>
@@ -285,7 +299,7 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 																	newValue={day.new.date}
 																/>
 															}{day.status === "delete" ? "" :
-																day.status === "add" && this.state.eventData.eventId ? " (new):"
+																day.status === "add" && this.state.eventData.id ? " (new):"
 																: ":"}
 
 														</dt>
@@ -344,14 +358,14 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 
 												<dt>Derby types:</dt>
 												<dd>
-													{this.state.eventChanges.features.derbytypes.map((dt: {name: string, status: string}) => (
-														<React.Fragment key={dt.name}>
-															{dt.status === "add" ?
-																<span className="new">{dt.name}</span>
-															: dt.status === "delete" ?
-																<span className="old removed">{dt.name}</span>
+													{this.state.eventChanges.features.derbytypes.map((derbytype) => (
+														<React.Fragment key={derbytype.name}>
+															{derbytype.status === "add" ?
+																<span className="new">{derbytype.name}</span>
+															: derbytype.status === "delete" ?
+																<span className="old removed">{derbytype.name}</span>
 															:
-																<span className="old">{dt.name}</span>
+																<span className="old">{derbytype.name}</span>
 															}<br />
 														</React.Fragment>
 													))}
@@ -359,14 +373,14 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 
 												<dt>Sanctions:</dt>
 												<dd>
-													{this.state.eventChanges.features.sanctions.map((s: {name: string, status: string}) => (
-														<React.Fragment key={s.name}>
-															{s.status === "add" ?
-																<span className="new">{s.name}</span>
-															: s.status === "delete" ?
-																<span className="old removed">{s.name}</span>
+													{this.state.eventChanges.features.sanctions.map((sanction) => (
+														<React.Fragment key={sanction.name}>
+															{sanction.status === "add" ?
+																<span className="new">{sanction.name}</span>
+															: sanction.status === "delete" ?
+																<span className="old removed">{sanction.name}</span>
 															:
-																<span className="old">{s.name}</span>
+																<span className="old">{sanction.name}</span>
 															}<br />
 														</React.Fragment>
 													))}
@@ -374,14 +388,14 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 
 												<dt>Tracks:</dt>
 												<dd>
-													{this.state.eventChanges.features.tracks.map((t: {name: string, status: string}) => (
-														<React.Fragment key={t.name}>
-															{t.status === "add" ?
-																<span className="new">{t.name}</span>
-															: t.status === "delete" ?
-																<span className="old removed">{t.name}</span>
+													{this.state.eventChanges.features.tracks.map((track) => (
+														<React.Fragment key={track.name}>
+															{track.status === "add" ?
+																<span className="new">{track.name}</span>
+															: track.status === "delete" ?
+																<span className="old removed">{track.name}</span>
 															:
-																<span className="old">{t.name}</span>
+																<span className="old">{track.name}</span>
 															}<br />
 														</React.Fragment>
 													))}
@@ -510,11 +524,15 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 
 	}
 
-	handleInputChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
+	handleInputChange <T extends keyof IReviewEventChangeState>(event: React.ChangeEvent<HTMLTextAreaElement>) {
 
-		this.setState({
-			[event.currentTarget.name]: event.currentTarget.value,
+		const fieldName: (keyof IReviewEventChangeState) = event.currentTarget.name as (keyof IReviewEventChangeState);
+
+		const newState = ({
+			[fieldName]: event.currentTarget.value,
 		});
+
+		this.setState(newState as { [P in T]: IReviewEventChangeState[P]; });
 
 	}
 
@@ -562,7 +580,6 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 	loadData() {
 
 		this.setState({
-			eventData: [],
 			loading: true,
 		});
 
@@ -630,46 +647,62 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 			axios.get(`${this.props.apiLocation}events/getChange/${this.props.match.params.changeId}`, { withCredentials: true })
 				.then((result: AxiosResponse) => {
 
-					const eventData = result.data.changed_item_id ?
-						{
-							country: result.data.country_code,
-							days: result.data.days,
-							description: result.data.event_description,
-							eventId: result.data.event_id,
-							host: result.data.event_host,
-							link: result.data.event_link,
-							name: result.data.event_name,
-							venue: result.data.venue_id,
-							venueLocation: `${result.data.venue_city}${result.data.region_abbreviation ?
-								", " + result.data.region_abbreviation : ""}, ${result.data.country_code}`,
-							venueName: result.data.venue_name,
-						}
-					: {};
+					const eventResult: IDBDerbyEventChange = result.data;
 
-					const eventChanges: {[key: string]: any} = {
-						changeId: result.data.change_id,
-						days: [],
-						submittedDuration: moment.duration(moment(result.data.change_submitted).diff(moment())).humanize(),
-						submittedTime: moment(result.data.change_submitted).format("MMM D, Y h:mm a"),
-						user: result.data.change_user,
-						username: result.data.change_user_name,
+					const eventData: IDerbyEvent = eventResult.changed_item_id ?
+						{
+							country: eventResult.country_code,
+							days: eventResult.days.map((day) => ({
+								date: moment.utc(day.eventday_start_venue).format("MMM D"),
+								description: day.eventday_description || undefined,
+								doorsTime: day.eventday_doors_venue
+									&& day.eventday_doors_venue < day.eventday_start_venue
+									? moment.utc(day.eventday_doors_venue).format("h:mm a")
+									: undefined,
+								id: day.eventday_id,
+								startTime: moment.utc(day.eventday_start_venue).format("h:mm a"),
+							})),
+							description: eventResult.event_description,
+							host: eventResult.event_host,
+							id: eventResult.event_id,
+							link: eventResult.event_link,
+							name: eventResult.event_name,
+							venue: eventResult.venue_id,
+							venueLocation: `${eventResult.venue_city}${eventResult.region_abbreviation ?
+								", " + eventResult.region_abbreviation : ""}, ${eventResult.country_code}`,
+							venueName: eventResult.venue_name,
+						}
+					: {} as IDerbyEvent;
+
+					const eventChanges: IDerbyEventChange = {
+						changeId: eventResult.change_id,
+						dayChanges: [],
+						id: eventResult.change_id,
+						name: eventResult.event_name,
+						submittedDuration: moment.duration(moment(eventResult.change_submitted).diff(moment())).humanize(),
+						submittedTime: moment(eventResult.change_submitted).format("MMM D, Y h:mm a"),
+						user: eventResult.change_user,
+						username: eventResult.change_user_name,
 					};
 
-					if (result.data.change_object) {
+					if (eventResult.change_object) {
 
-						const changeObject = JSON.parse(result.data.change_object);
+						const changeObject: IDerbyEventChangeObject = JSON.parse(eventResult.change_object);
 
 						// Basic Info
 
 						for (const field of changeObject.data) {
-							eventChanges[field.field] = field.value;
+
+							const fieldName: (keyof IDerbyEventChange) = field.field as (keyof IDerbyEventChange);
+							eventChanges[fieldName] = field.value;
+
 						}
 
 						// Venue
 
 						if (changeObject.newVenueData) {
 
-							const newVenue: {[key: string]: any} = {};
+							const newVenue: INewDerbyVenue = {} as INewDerbyVenue;
 
 							for (const key in changeObject.newVenueData) {
 								if (changeObject.newVenueData.hasOwnProperty(key)) {
@@ -678,20 +711,26 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 
 										case "country":
 											newVenue[key] = countryList.filter(
-												(country: IGeoCountry) => country.country_code === changeObject.newVenueData[key])[0].country_name;
+												(country) => country.country_code === changeObject.newVenueData[key])[0].country_name;
 											break;
 
 										case "region":
 											newVenue[key] = regionLists[changeObject.newVenueData.country || eventData.country].filter(
-												(region: IGeoRegion) => region.region_id === changeObject.newVenueData[key])[0].region_abbreviation;
+												(region) => region.region_id === changeObject.newVenueData[key])[0].region_abbreviation;
 											break;
 
 										case "timezone":
 											newVenue[key] = timeZones.filter(
-												(tz: ITimeZone) => tz.timezone_id === changeObject.newVenueData[key])[0].timezone_name;
+												(tz) => tz.timezone_id === changeObject.newVenueData[key])[0].timezone_name;
 											break;
 
-										default:
+										case "address1":
+										case "address2":
+										case "city":
+										case "description":
+										case "link":
+										case "postcode":
+										case "name":
 
 											newVenue[key] = changeObject.newVenueData[key];
 											break;
@@ -710,7 +749,7 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 						} else if (eventChanges.venue) {
 
 							const venueObject = venueList.filter(
-								(venue: IDerbyVenue) => venue.id === eventChanges.venue)[0];
+								(venue) => venue.id === eventChanges.venue)[0];
 
 							eventChanges.venueName = venueObject.name;
 							eventChanges.venueLocation = `${venueObject.city}${venueObject.region ?
@@ -725,21 +764,19 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 							for (const day of eventData.days) {
 
 								const dayData = {
-									id: day.eventday_id,
+									id: day.id,
 									new: {},
 									old: {
-										date: moment.utc(day.eventday_start_venue).format("MMM D, Y"),
-										description: day.eventday_description,
-										doors: day.eventday_doors_venue ?
-											moment.utc(day.eventday_doors_venue).format("h:mm a")
-											: undefined,
-										start: moment.utc(day.eventday_start_venue).format("h:mm a"),
+										date: day.date,
+										description: day.description,
+										doors: day.doorsTime,
+										start: day.startTime,
 									},
-									startDate: moment.utc(day.eventday_start_venue).format("Y-MM-DD"),
+									startDate: moment.utc(day.dateObject).format("Y-MM-DD"),
 									status: "unchanged",
 								};
 
-								const newDay = changeObject.days.filter((d: {[key: string]: any}) => d.id === day.eventday_id);
+								const newDay = changeObject.days.filter((d: {[key: string]: any}) => d.id === day.id);
 
 								if (newDay.length) {
 									dayData.status = newDay[0].operation;
@@ -763,7 +800,7 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 									}
 								}
 
-								eventChanges.days.push(dayData);
+								eventChanges.dayChanges.push(dayData);
 
 							}
 
@@ -771,14 +808,14 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 
 						let iterator = -1;
 
-						for (const day of changeObject.days.filter((d: {[key: string]: any}) => d.operation === "add")) {
+						for (const day of changeObject.days.filter((d) => d.operation === "add")) {
 
-							eventChanges.days.push({
+							eventChanges.dayChanges.push({
 								id: iterator,
 								new: {
 									date: moment.utc(day.value.datetime).format("MMM D, Y"),
-									description: day.description,
-									doors: day.doors ?
+									description: day.value.description,
+									doors: day.value.doors ?
 										moment.utc(day.value.doors).format("h:mm a")
 										: undefined,
 									start: moment.utc(day.value.datetime).format("h:mm a"),
@@ -792,7 +829,7 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 
 						}
 
-						eventChanges.days.sort((a: {[key: string]: any}, b: {[key: string]: any}) =>
+						eventChanges.dayChanges.sort((a, b) =>
 								a.startDate > b.startDate ? 1 : a.startDate < b.startDate ? -1 : 0);
 
 						// features
@@ -803,30 +840,30 @@ export default class ReviewEventChange<Props> extends React.Component<any, any, 
 							tracks: [] as Array<{name: string, status: string}>,
 						};
 
-						if (result.data.derbytypes) {
+						if (eventResult.derbytypes) {
 							features.derbytypes =
 								derbytypesList
-									.filter((dt: IDerbyType) => result.data.derbytypes.split(",").indexOf(dt.derbytype_id.toString()) > -1 )
+									.filter((dt: IDerbyType) => eventResult.derbytypes.split(",").indexOf(dt.derbytype_id.toString()) > -1 )
 									.map((dt: IDerbyType) => ({
 										name: dt.derbytype_name,
 										status: changeObject.features.delete.indexOf(`derbytype-${dt.derbytype_id}`) > -1 ?  "delete" : "unchanged",
 									}));
 						}
 
-						if (result.data.sanctions) {
+						if (eventResult.sanctions) {
 							features.sanctions =
 								sanctionsList
-									.filter((s: IDerbySanction) => result.data.sanctions.split(",").indexOf(s.sanction_id.toString()) > -1 )
+									.filter((s: IDerbySanction) => eventResult.sanctions.split(",").indexOf(s.sanction_id.toString()) > -1 )
 									.map((s: IDerbySanction) => ({
 										name: s.sanction_name,
 										status: changeObject.features.delete.indexOf(`sanction-${s.sanction_id}`) > -1 ?  "delete" : "unchanged",
 									}));
 						}
 
-						if (result.data.tracks) {
+						if (eventResult.tracks) {
 							features.tracks =
 								tracksList
-									.filter((t: IDerbyTrack) => result.data.tracks.split(",").indexOf(t.track_id.toString()) > -1 )
+									.filter((t: IDerbyTrack) => eventResult.tracks.split(",").indexOf(t.track_id.toString()) > -1 )
 									.map((t: IDerbyTrack) => ({
 										name: t.track_name,
 										status: changeObject.features.delete.indexOf(`track-${t.track_id}`) > -1 ?  "delete" : "unchanged",

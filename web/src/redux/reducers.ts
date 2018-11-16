@@ -1,19 +1,21 @@
-import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IGeoRegionList, IReduxActionType, ITimeZone } from "components/interfaces";
+import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
+import { IGeoData, ITimeZone } from "interfaces/geo";
+import { IReduxActionType, IReduxStore } from "interfaces/redux";
 
-const initialState = {
+const initialState: IReduxStore = {
 	apiLocation: process.env.API_URL,
 	dataDerbyTypes: [] as IDerbyType[],
 	dataGeography: {
-		countries: [] as IGeoCountry[],
-		regions: {} as IGeoRegionList,
-	},
+		countries: [],
+		regions: {},
+	} as IGeoData,
 	dataSanctions: [] as IDerbySanction[],
 	dataTracks: [] as IDerbyTrack[],
 	lastSearch: "",
 	listPageLength: 9,
 	loggedIn: false,
 	loggedInUserEmail: "",
-	loggedInUserId: "",
+	loggedInUserId: null,
 	loggedInUserName: "",
 	loggedInUserRoles: null as string[],
 	loginModalOpen: false,
@@ -64,17 +66,6 @@ const rootReducer = (state = initialState, action: IReduxActionType) => {
 
 		case "SAVE_TIME_ZONES":
 			newState.timeZones = action.payload;
-			return newState;
-			break;
-
-		case "SET_ACCOUNT_MODAL_STATE":
-			newState.accountModalOpen = action.payload;
-
-			if (newState.accountModalOpen) {
-				document.getElementsByTagName("html")[0].classList.add("noscroll");
-			} else {
-				document.getElementsByTagName("html")[0].classList.remove("noscroll");
-			}
 			return newState;
 			break;
 

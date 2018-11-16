@@ -58,7 +58,6 @@ export default class ReviewVenueChange<Props> extends React.Component<any, any, 
 		} else if (window.location.pathname !== this.state.path || this.props.loggedInUserId !== this.state.userId ) {
 
 			this.setState({
-				isSearch: (this.props.match.params.startDate || window.location.pathname !== "/"),
 				path: window.location.pathname,
 				userId: this.props.loggedInUserId,
 			});

@@ -286,7 +286,7 @@ export default class UserAccount<Props> extends React.Component<any, any, any> {
 
 	logout(event?: React.MouseEvent<HTMLButtonElement>) {
 
-		auth.logout(this.props, event, false);
+		auth.logout(this.props.apiLocation, this.props.clearUserInfo, this.props.history, event, false);
 
 	}
 

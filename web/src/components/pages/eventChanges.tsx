@@ -1,31 +1,40 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { IDBDerbyEventChange } from "components/interfaces";
-
 import axios, { AxiosError, AxiosResponse } from "axios";
 
+import { getGeography } from "components/lib/data";
+import { IDBDerbyEventChange } from "interfaces/event";
+import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList } from "interfaces/geo";
+import { IProps } from "interfaces/redux";
+
 import { formatDateRange } from "components/lib/dateTime";
+import BoxList from "components/partials/boxList";
 import moment from "moment";
 
-import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList } from "components/interfaces";
-import { getGeography } from "components/lib/data";
+interface IEventChangesState {
+	dataError: boolean;
+	eventChanges: [];
+	loading: boolean;
+	path: string;
+	userId: number;
+}
 
-import BoxList from "components/partials/boxList";
+export default class EventChanges extends React.Component<IProps, IEventChangesState> {
 
-export default class EventChanges<Props> extends React.Component<any, any, any> {
+	mounted: boolean;
 
-	constructor(props: Props) {
+	constructor(props: IProps) {
 		super(props);
 
 		this.mounted = false;
 
 		this.state = {
+			dataError: false,
 			eventChanges: [],
 			loading: true,
-			path: "",
+			path: null,
 			userId: null,
-			venueChanges: [],
 		};
 
 		this.reviewChange = this.reviewChange.bind(this);
@@ -57,7 +66,6 @@ export default class EventChanges<Props> extends React.Component<any, any, any> 
 
 			if (this.mounted) {
 				this.setState({
-					isSearch: (this.props.match.params.startDate || window.location.pathname !== "/"),
 					path: window.location.pathname,
 					userId: this.props.loggedInUserId,
 				});
@@ -101,7 +109,7 @@ export default class EventChanges<Props> extends React.Component<any, any, any> 
 
 							<BoxList
 								data={this.state.eventChanges}
-								itemType="venues"
+								itemType="events"
 								listType="review"
 								loggedInUserId={this.props.loggedInUserId}
 								noIcons={true}
@@ -138,8 +146,9 @@ export default class EventChanges<Props> extends React.Component<any, any, any> 
 	loadData() {
 
 		if (this.mounted) {
+
 			this.setState({
-				eventData: [],
+				eventChanges: [],
 				loading: true,
 			});
 

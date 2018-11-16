@@ -221,6 +221,10 @@ form.disabled {
 
 }
 
+input[type="time"] {
+	background: $white;
+}
+
 @include respond-to("small") {
 
 	.buttonRow.cornerButton {

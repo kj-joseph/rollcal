@@ -3,7 +3,9 @@ import { render } from "react-dom";
 import { BrowserRouter, NavLink, Route, Switch } from "react-router-dom";
 import ReactSVG from "react-svg";
 
-import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IReduxActionType, ITimeZone, IUserInfo } from "components/interfaces";
+import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
+import { IGeoData, ITimeZone } from "interfaces/geo";
+import { IPropsRoot, IReduxActions, IReduxActionType, IReduxStore, IUserInfo } from "interfaces/redux";
 
 import { connect, Provider } from "react-redux";
 import { Dispatch } from "redux";
@@ -33,9 +35,9 @@ import HeaderLogo from "images/header-logo.svg";
 import LoginIconSolid from "images/menu/user-circle-solid.svg";
 import LoginIconOutline from "images/menu/user-circle.svg";
 
-class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
+class ConnectedSiteRouter extends React.Component<IPropsRoot, any> {
 
-	constructor(props: Props) {
+	constructor(props: IPropsRoot) {
 		super(props);
 
 		this.openLoginModal = this.openLoginModal.bind(this);
@@ -46,7 +48,7 @@ class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
 
 		if (!this.props.sessionInitialized) {
 
-			auth.checkLoginStatus(this.props).then(() => {
+			auth.checkLoginStatus(this.props.apiLocation, this.props.setUserInfo).then(() => {
 				this.props.setSessionState(true);
 			});
 
@@ -188,20 +190,19 @@ class ConnectedSiteRouter<Props> extends React.Component<any, any, any> {
 
 }
 
-const mapStateToProps = (reduxState: {[key: string]: any}) => {
+const mapStateToProps = (reduxState: IReduxStore) => {
 	return reduxState;
 };
 
-const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>) => {
+const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>): IReduxActions => {
 	return {
 		clearUserInfo: () => dispatch(reduxActions.clearUserInfo()),
 		saveDataDerbyTypes: (data: IDerbyType[]) => dispatch(reduxActions.saveDataDerbyTypes(data)),
-		saveDataGeography: (data: IGeoCountry[]) => dispatch(reduxActions.saveDataGeography(data)),
+		saveDataGeography: (data: IGeoData) => dispatch(reduxActions.saveDataGeography(data)),
 		saveDataSanctions: (data: IDerbySanction[]) => dispatch(reduxActions.saveDataSanctions(data)),
 		saveDataTracks: (data: IDerbyTrack[]) => dispatch(reduxActions.saveDataTracks(data)),
 		saveLastSearch: (search: string) => dispatch(reduxActions.saveLastSearch(search)),
 		saveTimeZones: (data: ITimeZone[]) => dispatch(reduxActions.saveTimeZones(data)),
-		setAccountModalState: (accountModalState: boolean) => dispatch(reduxActions.setAccountModalState(accountModalState)),
 		setLoginModalState: (loginModalState: boolean) => dispatch(reduxActions.setLoginModalState(loginModalState)),
 		setSessionState: (sessionInitialized: boolean) => dispatch(reduxActions.setSessionState(sessionInitialized)),
 		setUserInfo: (userState: IUserInfo) => dispatch(reduxActions.setUserInfo(userState)),

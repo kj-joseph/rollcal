@@ -1,4 +1,4 @@
-import { IDerbyDates } from "components/interfaces";
+import { IDerbyDates } from "interfaces/event";
 
 export const formatDateRange = (dates: IDerbyDates, monthFormat: string = "short") => {
 

@@ -1,31 +1,49 @@
 import React from "react";
 
-import { IBoxListItem,
-	IDerbyEvent, IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType,
-	IGeoCountry, IGeoData, IGeoRegion,
-} from "components/interfaces";
-import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography } from "components/lib/data";
+import { IBoxListItem } from "interfaces/boxList";
+import { IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
+import { IGeoCountry, IGeoData, IGeoRegion} from "interfaces/geo";
+import { IProps } from "interfaces/redux";
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 
+import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography } from "components/lib/data";
 import { formatDateRange } from "components/lib/dateTime";
 import moment from "moment";
 
 import BoxList from "components/partials/boxList";
 
-export default class Events<Props> extends React.Component<any, any, any> {
-	constructor(props: Props) {
+interface IEventsState {
+	dataError: boolean;
+	eventList: IBoxListItem[];
+	isSearch: string;
+	listItemsTotal: number;
+	listPageLength: number;
+	loading: boolean;
+	loadingMore: boolean;
+	path: string;
+	searchDisplayDates: string;
+	searchDisplayDerbyTypes: string;
+	searchDisplayLocations: string;
+	searchDisplaySanctions: string;
+	searchDisplayTracks: string;
+	searchURL: string;
+
+}
+
+export default class Events extends React.Component<IProps, IEventsState> {
+	constructor(props: IProps) {
 		super(props);
 
 		this.state = {
 			dataError: false,
-			eventList: [] as IDerbyEvent[],
+			eventList: [],
 			isSearch: (this.props.match.params.startDate || window.location.pathname !== "/"),
 			listItemsTotal: 0,
 			listPageLength: this.props.listPageLength,
 			loading: true,
 			loadingMore: false,
-			path: null as string,
+			path: null,
 			searchDisplayDates: null,
 			searchDisplayDerbyTypes: null,
 			searchDisplayLocations: null,
@@ -148,7 +166,6 @@ export default class Events<Props> extends React.Component<any, any, any> {
 					|| !part.match(/(?:locations|derbytypes|sanctions|tracks)\([^\)]+\)/) ) {
 					continue;
 				}
-
 
 				const [, label, values] = part.match(/([a-z]+)\((.*)\)/);
 
@@ -446,7 +463,6 @@ export default class Events<Props> extends React.Component<any, any, any> {
 
 					});
 
-
 				} else {
 
 					this.setState({
@@ -457,7 +473,6 @@ export default class Events<Props> extends React.Component<any, any, any> {
 
 				}
 
-
 			}).catch((error: AxiosError) => {
 				console.error(error);
 
@@ -466,7 +481,6 @@ export default class Events<Props> extends React.Component<any, any, any> {
 				});
 
 			});
-
 
 	}
 

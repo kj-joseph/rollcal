@@ -49,7 +49,6 @@ export default class UserVenues<Props> extends React.Component<any, any, any> {
 
 			this.setState({
 				isReviewer,
-				isSearch: (this.props.match.params.startDate || window.location.pathname !== "/"),
 				path: window.location.pathname,
 				userId: this.props.loggedInUserId,
 			});

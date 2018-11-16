@@ -1,27 +1,34 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { IDBDerbyEvent, IDerbyEvent, IDerbyEventDayFormatted, IDerbyIcons,
-	IDerbySanction, IDerbyTrack, IDerbyType } from "components/interfaces";
-import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "components/lib/data";
-
 import axios, { AxiosError, AxiosResponse } from "axios";
 
+import EventIcons from "components/partials/eventIcons";
+import { IDBDerbyEvent, IDerbyEvent, IDerbyEventDayFormatted } from "interfaces/event";
+import { IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
+import { IProps } from "interfaces/redux";
+
+import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "components/lib/data";
 import { formatDateRange } from "components/lib/dateTime";
 import moment from "moment";
 
-import EventIcons from "components/partials/eventIcons";
+interface IEventDetailsState {
+	dataError: boolean;
+	eventData: IDerbyEvent;
+	loading: boolean;
+	path: string;
+}
 
-export default class EventDetails<Props> extends React.Component<any, any, any> {
+export default class EventDetails extends React.Component<IProps, IEventDetailsState> {
 
-	constructor(props: Props) {
+	constructor(props: IProps) {
 		super(props);
 
 		this.state = {
 			dataError: false,
-			eventData: {} as IDerbyEvent,
-			limit: this.props.limit || 12,
+			eventData: null,
 			loading: true,
+			path: null,
 		};
 
 		this.editEvent = this.editEvent.bind(this);
@@ -95,11 +102,11 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 									<h1>{this.state.eventData.name}</h1>
 									{(this.state.eventData.host) ?  <h3>Hosted by {this.state.eventData.host}</h3> : ""}
 
-									<p className="eventDate"><strong>{this.state.eventData.dates_venue}</strong></p>
+									<p className="eventDate"><strong>{this.state.eventData.datesVenue}</strong></p>
 
-									{(this.state.eventData.event_link) ?
+									{(this.state.eventData.link) ?
 										<p className="eventLink">
-											<a href={this.state.eventData.event_link} target="_blank" rel="noopener noreferrer">
+											<a href={this.state.eventData.link} target="_blank" rel="noopener noreferrer">
 												{this.state.eventData.name} website
 											</a>
 										</p>
@@ -108,14 +115,14 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 								</div>
 
 
-								{(this.state.eventData.event_description) ?
-									<p>{this.state.eventData.event_description}</p>
+								{(this.state.eventData.description) ?
+									<p>{this.state.eventData.description}</p>
 									: ""
 								}
 
 								<div className="eventVenueInfo">
 									<address>
-										<strong>{this.state.eventData.venue_name}</strong><br />
+										<strong>{this.state.eventData.venueName}</strong><br />
 										{this.state.eventData.address1}<br />
 										{(this.state.eventData.address2) ?
 											<React.Fragment>
@@ -129,17 +136,17 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 										{this.state.eventData.location} {this.state.eventData.postcode}<br />
 										{this.state.eventData.country} {this.state.eventData.flag}
 									</address>
-									{(this.state.eventData.venue_link) ?
+									{(this.state.eventData.venueLink) ?
 										<p className="venueLink">
-											<a href={this.state.eventData.venue_link} target="_blank" rel="noopener noreferrer">
-												{this.state.eventData.venue_name} website
+											<a href={this.state.eventData.venueLink} target="_blank" rel="noopener noreferrer">
+												{this.state.eventData.venueName} website
 											</a>
 										</p>
 										: ""
 									}
 
-									{(this.state.eventData.venue_description) ?
-										<p className="venueDescription">{this.state.eventData.venue_description}</p>
+									{(this.state.eventData.venueDescription) ?
+										<p className="venueDescription">{this.state.eventData.venueDescription}</p>
 										: ""
 									}
 								</div>
@@ -215,19 +222,6 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 
 					const eventResult: IDBDerbyEvent = result.data;
 
-					const eventDays = [] as IDerbyEventDayFormatted[];
-					for (const day of eventResult.days) {
-						eventDays.push({
-							date: moment.utc(day.eventday_start_venue).format("MMM D"),
-							description: day.eventday_description,
-							doorsTime: day.eventday_doors_venue
-								&& day.eventday_doors_venue < day.eventday_start_venue
-								? moment.utc(day.eventday_doors_venue).format("h:mm a")
-								: "",
-							startTime: moment.utc(day.eventday_start_venue).format("h:mm a"),
-						});
-					}
-
 					const icons: IDerbyIcons = {
 						derbytypes: [],
 						sanctions: [],
@@ -287,17 +281,25 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 								address1: eventResult.venue_address1,
 								address2: eventResult.venue_address2,
 								country: eventResult.country_name,
-								dates_venue: formatDateRange({
+								datesVenue: formatDateRange({
 										firstDay: moment.utc(eventResult.days[0].eventday_start_venue),
 										lastDay: moment.utc(eventResult.days[eventResult.days.length - 1].eventday_start_venue),
 									}, "long"),
-								days: eventDays,
-								event_description: eventResult.event_description,
-								event_link: eventResult.event_link,
+								days: eventResult.days.map((day) => ({
+									date: moment.utc(day.eventday_start_venue).format("MMM D"),
+									description: day.eventday_description,
+									doorsTime: day.eventday_doors_venue
+										&& day.eventday_doors_venue < day.eventday_start_venue
+										? moment.utc(day.eventday_doors_venue).format("h:mm a")
+										: "",
+									startTime: moment.utc(day.eventday_start_venue).format("h:mm a"),
+								})),
+								description: eventResult.event_description,
 								flag: eventResult.country_flag ? <span title={eventResult.country_name} className={`flag-icon flag-icon-${eventResult.country_flag}`} /> : null,
 								host: eventResult.event_name ? eventResult.event_host : null,
 								icons,
 								id: eventResult.event_id,
+								link: eventResult.event_link,
 								location: `${eventResult.venue_city}${eventResult.region_abbreviation ?
 									`, ${eventResult.region_abbreviation}` : ""}`,
 								multiDay: eventResult.days.length > 1,
@@ -305,9 +307,9 @@ export default class EventDetails<Props> extends React.Component<any, any, any> 
 								postcode: eventResult.venue_postcode,
 								user: eventResult.user_id,
 								username: eventResult.user_name,
-								venue_description: eventResult.venue_description,
-								venue_link: eventResult.venue_link,
-								venue_name: eventResult.venue_name,
+								venueDescription: eventResult.venue_description,
+								venueLink: eventResult.venue_link,
+								venueName: eventResult.venue_name,
 							},
 							loading: false,
 						});

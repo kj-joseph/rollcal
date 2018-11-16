@@ -1,8 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 
-import { IDerbySanction, IDerbyTrack, IDerbyType,
-	IGeoCountry, IGeoData, IGeoRegionList, ITimeZone,
-	} from "components/interfaces";
+import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
+import { IGeoCountry, IGeoData, IGeoRegionList, ITimeZone } from "interfaces/geo";
 
 export const getDerbySanctions = (appState: any): Promise<IDerbySanction[]> => {
 
