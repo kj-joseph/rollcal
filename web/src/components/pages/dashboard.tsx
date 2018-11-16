@@ -15,8 +15,6 @@ interface IDashboardState {
 
 export default class Dashboard extends React.Component<IProps> {
 
-	mounted = false;
-
 	state: IDashboardState = {
 		path: null,
 		userId: null,
@@ -32,13 +30,6 @@ export default class Dashboard extends React.Component<IProps> {
 
 		window.scrollTo(0, 0);
 		this.props.setSessionState(this.props.sessionInitialized);
-		this.mounted = true;
-
-	}
-
-	componentWillUnmount() {
-
-		this.mounted = false;
 
 	}
 
@@ -51,12 +42,10 @@ export default class Dashboard extends React.Component<IProps> {
 		} else if (window.location.pathname !== this.state.path
 			|| this.props.loggedInUserId !== this.state.userId ) {
 
-			if (this.mounted) {
-				this.setState({
-					path: window.location.pathname,
-					userId: this.props.loggedInUserId,
-				});
-			}
+			this.setState({
+				path: window.location.pathname,
+				userId: this.props.loggedInUserId,
+			});
 
 		}
 
