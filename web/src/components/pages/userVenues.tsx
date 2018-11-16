@@ -101,7 +101,7 @@ export default class UserVenues extends React.Component<IProps, IUserVenuesState
 
 						<h1>Edit Venues</h1>
 
-						{this.state.isReviewer} {
+						{this.state.isReviewer ?
 
 							<div className="showAll">
 							<a href="" onClick={this.toggleShowAll}>
@@ -117,7 +117,7 @@ export default class UserVenues extends React.Component<IProps, IUserVenuesState
 							</a>
 							</div>
 
-						}
+						: ""}
 
 						{this.state.venueData.length ?
 

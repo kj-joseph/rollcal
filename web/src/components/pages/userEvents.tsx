@@ -120,7 +120,7 @@ export default class UserEvents extends React.Component<IProps, IUserEventsState
 
 						<h1>Edit Events</h1>
 
-						{this.state.isReviewer} {
+						{this.state.isReviewer ?
 
 							<div className="showAll">
 							<a href="" onClick={this.toggleShowAll}>
@@ -136,7 +136,7 @@ export default class UserEvents extends React.Component<IProps, IUserEventsState
 							</a>
 							</div>
 
-						}
+						: ""}
 
 						{this.state.eventData.length ?
 
@@ -299,7 +299,6 @@ export default class UserEvents extends React.Component<IProps, IUserEventsState
 	loadData(isReviewer = false) {
 
 		this.setState({
-			eventData: [],
 			loading: true,
 		});
 
