@@ -5,7 +5,10 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 
 import moment from "moment";
 
-import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList, ITimeZone } from "components/interfaces";
+import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList, ITimeZone } from "interfaces/geo";
+import { IProps } from "interfaces/redux";
+import { IDBDerbyVenueChange, IDerbyVenue, IDerbyVenueChange } from "interfaces/venue";
+
 import { getGeography, getTimeZones } from "components/lib/data";
 
 import Modal from "react-modal";
@@ -16,12 +19,27 @@ import ReactSVG from "react-svg";
 
 import CompareValues from "components/partials/compareValues";
 
-export default class ReviewVenueChange<Props> extends React.Component<any, any, any> {
+interface IReviewVenueChangeState {
+	dataError: boolean;
+	errorMessage: string;
+	initialLoad: boolean;
+	loading: boolean;
+	modalOpen: boolean;
+	path: string;
+	rejectComment: string;
+	status: string;
+	userId: number;
+	venueChanges: IDerbyVenueChange;
+	venueData: IDerbyVenue;
+}
 
-	constructor(props: Props) {
+export default class ReviewVenueChange extends React.Component<IProps, IReviewVenueChangeState> {
+
+	constructor(props: IProps) {
 		super(props);
 
 		this.state = {
+			dataError: false,
 			errorMessage: null,
 			initialLoad: false,
 			loading: true,
@@ -30,8 +48,8 @@ export default class ReviewVenueChange<Props> extends React.Component<any, any, 
 			rejectComment: "",
 			status: null,
 			userId: null,
-			venueChanges: {},
-			venueData: {},
+			venueChanges: {} as IDerbyVenueChange,
+			venueData: {} as IDerbyVenue,
 		};
 
 		this.approveChange = this.approveChange.bind(this);
@@ -82,9 +100,9 @@ export default class ReviewVenueChange<Props> extends React.Component<any, any, 
 					</Link>
 				</p>
 
-				<div className={`dashboard reviewVenueChange ${this.state.venueData.eventId ? "" : "newEvent"}`}>
+				<div className={`dashboard reviewVenueChange ${this.state.venueData.id ? "" : "newVenue"}`}>
 
-					<h1>{this.state.initialLoad ? `Review ${this.state.venueData.venueId ? "Venue Change" : "New Venue"}` : ""}</h1>
+					<h1>{this.state.initialLoad ? `Review ${this.state.venueData.id ? "Venue Change" : "New Venue"}` : ""}</h1>
 
 					{this.state.loading ?
 
@@ -102,7 +120,7 @@ export default class ReviewVenueChange<Props> extends React.Component<any, any, 
 
 					<React.Fragment>
 
-						{this.state.venueData.eventId ?
+						{this.state.venueData.id ?
 							<div className="callout">
 								<p className="header">KEY TO CHANGES</p>
 								<p>
@@ -120,7 +138,7 @@ export default class ReviewVenueChange<Props> extends React.Component<any, any, 
 								<dl className="changeDetails">
 
 									<CompareValues
-										label="name"
+										label="Name"
 										oldValue={this.state.venueData.name}
 										newValue={this.state.venueChanges.name}
 									/>
@@ -163,12 +181,12 @@ export default class ReviewVenueChange<Props> extends React.Component<any, any, 
 											</React.Fragment>
 										: ""}
 
-										{this.state.venueData.postalcode || this.state.venueChanges.postalcode ?
+										{this.state.venueData.postcode || this.state.venueChanges.postcode ?
 											<React.Fragment>
 												{" "}
 												<CompareValues
-													oldValue={this.state.venueData.postalcode}
-													newValue={this.state.venueChanges.postalcode}
+													oldValue={this.state.venueData.postcode}
+													newValue={this.state.venueChanges.postcode}
 													inline={true}
 												/>
 											</React.Fragment>
@@ -190,7 +208,7 @@ export default class ReviewVenueChange<Props> extends React.Component<any, any, 
 									/>
 
 									<CompareValues
-										label="description"
+										label="Description"
 										oldValue={this.state.venueData.description}
 										newValue={this.state.venueChanges.description}
 									/>
@@ -317,11 +335,15 @@ export default class ReviewVenueChange<Props> extends React.Component<any, any, 
 
 	}
 
-	handleInputChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
+	handleInputChange <T extends keyof IReviewVenueChangeState>(event: React.ChangeEvent<HTMLTextAreaElement>) {
 
-		this.setState({
-			[event.currentTarget.name]: event.currentTarget.value,
+		const fieldName: (keyof IReviewVenueChangeState) = event.currentTarget.name as (keyof IReviewVenueChangeState);
+
+		const newState = ({
+			[fieldName]: event.currentTarget.value,
 		});
+
+		this.setState(newState as { [P in T]: IReviewVenueChangeState[P]; });
 
 	}
 
@@ -369,7 +391,6 @@ export default class ReviewVenueChange<Props> extends React.Component<any, any, 
 	loadData() {
 
 		this.setState({
-			eventData: [],
 			loading: true,
 		});
 
@@ -398,34 +419,45 @@ export default class ReviewVenueChange<Props> extends React.Component<any, any, 
 			axios.get(`${this.props.apiLocation}venues/getChange/${this.props.match.params.changeId}`, { withCredentials: true })
 				.then((result: AxiosResponse) => {
 
-					const venueData = result.data.changed_item_id ?
-						{
-							address1: result.data.venue_address1,
-							address2: result.data.venue_address2,
-							city: result.data.venue_city,
-							country: result.data.country_name,
-							description: result.data.venue_description,
-							id: result.data.change_id,
-							link: result.data.venue_link,
-							name: result.data.venue_name,
-							postcode: result.data.venue_postcode,
-							region: result.data.region_abbreviation,
-							timezone: timeZones.filter((tz: ITimeZone) => tz.timezone_id === result.data.venue_timezone)[0].timezone_name,
-							venueId: result.data.venue_id,
-						}
-					: {};
+					const venueResult: IDBDerbyVenueChange = result.data;
 
-					const venueChanges: {[key: string]: any} = {
-						changeId: result.data.change_id,
-						submittedDuration: moment.duration(moment(result.data.change_submitted).diff(moment())).humanize(),
-						submittedTime: moment(result.data.change_submitted).format("MMM D, Y h:mm a"),
-						user: result.data.change_user,
-						username: result.data.change_user_name,
+					const venueData: IDerbyVenue = venueResult.changed_item_id ?
+						{
+							address1: venueResult.venue_address1,
+							address2: venueResult.venue_address2,
+							city: venueResult.venue_city,
+							country: venueResult.country_name,
+							description: venueResult.venue_description,
+							id: venueResult.venue_id,
+							link: venueResult.venue_link,
+							name: venueResult.venue_name,
+							postcode: venueResult.venue_postcode,
+							region: venueResult.region_abbreviation,
+							timezone: timeZones.filter((tz: ITimeZone) => tz.timezone_id === venueResult.venue_timezone)[0].timezone_name,
+						}
+					: {} as IDerbyVenue;
+
+					const venueChanges: IDerbyVenueChange = {
+						address1: undefined,
+						address2: undefined,
+						changeId: venueResult.change_id,
+						changedItemId: venueResult.venue_id,
+						city: undefined,
+						country: undefined,
+						id: venueResult.venue_id,
+						name: undefined,
+						postcode: undefined,
+						region: undefined,
+						submittedDuration: moment.duration(moment(venueResult.change_submitted).diff(moment())).humanize(),
+						submittedTime: moment(venueResult.change_submitted).format("MMM D, Y h:mm a"),
+						timezone: undefined,
+						user: venueResult.change_user,
+						username: venueResult.change_user_name,
 					};
 
-					if (result.data.change_object) {
+					if (venueResult.change_object) {
 
-						const changeObject = JSON.parse(result.data.change_object);
+						const changeObject = JSON.parse(venueResult.change_object);
 
 						for (const key in changeObject) {
 							if (changeObject.hasOwnProperty(key)) {
@@ -447,7 +479,13 @@ export default class ReviewVenueChange<Props> extends React.Component<any, any, 
 											(tz: ITimeZone) => tz.timezone_id === changeObject[key])[0].timezone_name;
 										break;
 
-									default:
+									case "address1":
+									case "address2":
+									case "city":
+									case "description":
+									case "link":
+									case "postcode":
+									case "name":
 
 										venueChanges[key] = changeObject[key];
 										break;

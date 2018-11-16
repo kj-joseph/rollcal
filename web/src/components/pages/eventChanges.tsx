@@ -22,7 +22,7 @@ interface IEventChangesState {
 
 export default class EventChanges extends React.Component<IProps, IEventChangesState> {
 
-	mounted: boolean;
+	mounted = false;
 
 	constructor(props: IProps) {
 		super(props);

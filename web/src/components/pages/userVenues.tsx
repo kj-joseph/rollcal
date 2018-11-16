@@ -1,7 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { IBoxListItem, IDBDerbyVenue } from "components/interfaces";
+import { IBoxListItem } from "interfaces/boxList";
+import { IProps } from "interfaces/redux";
+import { IDBDerbyVenue } from "interfaces/venue";
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 
@@ -11,15 +13,25 @@ import ReactSVG from "react-svg";
 
 import BoxList from "components/partials/boxList";
 
-export default class UserVenues<Props> extends React.Component<any, any, any> {
+interface IUserVenuesState {
+	isReviewer: boolean;
+	loading: boolean;
+	path: string;
+	showAll: boolean;
+	userId: number;
+	venueData: IBoxListItem[];
+}
 
-	constructor(props: Props) {
+export default class UserVenues extends React.Component<IProps, IUserVenuesState> {
+
+	constructor(props: IProps) {
 		super(props);
 
 		this.state = {
 			isReviewer: false,
 			loading: true,
-			path: "",
+			path: null,
+			showAll: false,
 			userId: null,
 			venueData: [],
 		};
@@ -167,7 +179,6 @@ export default class UserVenues<Props> extends React.Component<any, any, any> {
 	loadData(isReviewer = false) {
 
 		this.setState({
-			eventData: [],
 			loading: true,
 		});
 
@@ -193,11 +204,6 @@ export default class UserVenues<Props> extends React.Component<any, any, any> {
 
 			}).catch((error: AxiosError) => {
 				console.error(error);
-
-				this.setState({
-					dataError: true,
-				});
-
 			});
 
 	}

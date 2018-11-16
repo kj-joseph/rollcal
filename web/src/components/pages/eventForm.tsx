@@ -656,7 +656,6 @@ export default class EventForm<Props> extends React.Component<IProps, IEventForm
 																<FeatureIcon
 																	imageClass={this.state.selectedFeatures.indexOf("track-" + icon.track_id) > -1 ? "selected" : ""}
 																	abbreviation={icon.track_abbreviation}
-																	alt={icon.track_name}
 																	id={icon.track_id}
 																	key={icon.track_id}
 																	title={icon.title}
@@ -674,7 +673,6 @@ export default class EventForm<Props> extends React.Component<IProps, IEventForm
 																<FeatureIcon
 																	imageClass={this.state.selectedFeatures.indexOf("derbytype-" + icon.derbytype_id) > -1 ? "selected" : ""}
 																	abbreviation={icon.derbytype_abbreviation}
-																	alt={icon.derbytype_name}
 																	id={icon.derbytype_id}
 																	key={icon.derbytype_id}
 																	title={icon.title}
@@ -692,7 +690,6 @@ export default class EventForm<Props> extends React.Component<IProps, IEventForm
 																<FeatureIcon
 																	imageClass={this.state.selectedFeatures.indexOf("sanction-" + icon.sanction_id) > -1 ? "selected" : ""}
 																	abbreviation={icon.sanction_abbreviation}
-																	alt={icon.sanction_name}
 																	id={icon.sanction_id}
 																	key={icon.sanction_id}
 																	title={icon.title}
@@ -910,6 +907,7 @@ export default class EventForm<Props> extends React.Component<IProps, IEventForm
 		switch (event.currentTarget.getAttribute("data-handler")) {
 
 			case "eventData":
+
 				const eventData = this.state.eventData;
 				const inputField: (keyof IDerbyEvent) = event.currentTarget.name;
 
@@ -922,8 +920,8 @@ export default class EventForm<Props> extends React.Component<IProps, IEventForm
 				break;
 
 			case "newVenue":
-				const venueField: (keyof IEventFormState) = event.currentTarget.name;
 
+				const venueField: (keyof IEventFormState) = event.currentTarget.name;
 				const newState = {
 					[venueField]: event.currentTarget.value,
 				};

@@ -2,13 +2,9 @@ import React from "react";
 
 import { IProps } from "interfaces/redux";
 
-interface IFaqState {
-	TBD: any;
-}
+export default class Faq extends React.Component<IProps> {
 
-export default class Faq extends React.Component<IProps, IFaqState> {
-
-	mounted: boolean;
+	mounted = false;
 
 	constructor(props: IProps) {
 		super(props);

@@ -23,7 +23,7 @@ export interface IDBDerbyVenueChange extends IDBDerbyVenue {
 	change_object: string;
 	change_submitted: string;
 	change_user: number;
-	change_user_name: number;
+	change_user_name: string;
 	changed_item_id: number;
 }
 
@@ -38,7 +38,8 @@ export interface IDerbyVenue {
 	location?: string;
 	name: string;
 	postcode: string;
-	region: string;
+	region: number | string;
+	timezone: number | string;
 	user?: number;
 }
 
@@ -49,6 +50,20 @@ export interface IDerbyVenueChange extends IDerbyVenue {
 	submittedTime: string;
 	username: string;
 	userId?: number;
+}
+
+export interface IDerbyVenueChangeObject {
+	address1?: string;
+	address2?: string;
+	city?: string;
+	country?: string;
+	description?: string;
+	link?: string;
+	location?: string;
+	name?: string;
+	postcode?: string;
+	region?: number | string;
+	timezone?: number | string;
 }
 
 export interface INewDerbyVenue {

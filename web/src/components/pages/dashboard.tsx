@@ -15,7 +15,7 @@ interface IDashboardState {
 
 export default class Dashboard extends React.Component<IProps, IDashboardState> {
 
-	mounted: boolean;
+	mounted = false;
 
 	constructor(props: IProps) {
 		super(props);

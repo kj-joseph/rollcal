@@ -5,7 +5,7 @@ import ReactSVG from "react-svg";
 
 import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
 import { IGeoData, ITimeZone } from "interfaces/geo";
-import { IPropsRoot, IReduxActions, IReduxActionType, IReduxStore, IUserInfo } from "interfaces/redux";
+import { IProps, IReduxActions, IReduxActionType, IUserInfo } from "interfaces/redux";
 
 import { connect, Provider } from "react-redux";
 import { Dispatch } from "redux";
@@ -35,9 +35,9 @@ import HeaderLogo from "images/header-logo.svg";
 import LoginIconSolid from "images/menu/user-circle-solid.svg";
 import LoginIconOutline from "images/menu/user-circle.svg";
 
-class ConnectedSiteRouter extends React.Component<IPropsRoot, any> {
+class ConnectedSiteRouter extends React.Component<IProps> {
 
-	constructor(props: IPropsRoot) {
+	constructor(props: IProps) {
 		super(props);
 
 		this.openLoginModal = this.openLoginModal.bind(this);
@@ -190,7 +190,7 @@ class ConnectedSiteRouter extends React.Component<IPropsRoot, any> {
 
 }
 
-const mapStateToProps = (reduxState: IReduxStore) => {
+const mapStateToProps = (reduxState: IProps) => {
 	return reduxState;
 };
 

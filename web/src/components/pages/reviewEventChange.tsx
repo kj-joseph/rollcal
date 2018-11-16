@@ -527,11 +527,9 @@ export default class ReviewEventChange extends React.Component<IProps, IReviewEv
 	handleInputChange <T extends keyof IReviewEventChangeState>(event: React.ChangeEvent<HTMLTextAreaElement>) {
 
 		const fieldName: (keyof IReviewEventChangeState) = event.currentTarget.name as (keyof IReviewEventChangeState);
-
 		const newState = ({
 			[fieldName]: event.currentTarget.value,
 		});
-
 		this.setState(newState as { [P in T]: IReviewEventChangeState[P]; });
 
 	}

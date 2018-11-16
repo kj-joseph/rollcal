@@ -1,25 +1,33 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { IDBDerbyVenueChange } from "components/interfaces";
-
 import axios, { AxiosError, AxiosResponse } from "axios";
 
 import moment from "moment";
 
-import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList } from "components/interfaces";
-import { getGeography } from "components/lib/data";
+import { IBoxListItem } from "interfaces/boxList";
+import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList } from "interfaces/geo";
+import { IProps } from "interfaces/redux";
+import { IDBDerbyVenueChange, IDerbyVenueChange, IDerbyVenueChangeObject } from "interfaces/venue";
 
+import { getGeography } from "components/lib/data";
 import BoxList from "components/partials/boxList";
 
-export default class VenueChanges<Props> extends React.Component<any, any, any> {
+interface IVenueChangesState {
+	loading: boolean;
+	path: string;
+	userId: number;
+	venueChanges: IBoxListItem[];
+}
 
-	constructor(props: Props) {
+export default class VenueChanges extends React.Component<IProps, IVenueChangesState> {
+
+	constructor(props: IProps) {
 		super(props);
 
 		this.state = {
 			loading: true,
-			path: "",
+			path: null,
 			userId: null,
 			venueChanges: [],
 		};
@@ -123,7 +131,6 @@ export default class VenueChanges<Props> extends React.Component<any, any, any> 
 	loadData() {
 
 		this.setState({
-			eventData: [],
 			loading: true,
 		});
 
@@ -161,11 +168,21 @@ export default class VenueChanges<Props> extends React.Component<any, any, any> 
 
 						} else {
 
-							const changeObject: {[key: string]: any} = JSON.parse(change.change_object);
-							const venueChangeObject: {[key: string]: any} = {
+							const changeObject: IDerbyVenueChangeObject = JSON.parse(change.change_object);
+							const venueChangeObject: IDerbyVenueChange = {
+								address1: undefined,
+								address2: undefined,
 								changeId: change.change_id,
+								changedItemId: change.changed_item_id,
+								city: undefined,
+								country: undefined,
+								id: change.changed_item_id,
+								name: undefined,
+								postcode: undefined,
+								region: undefined,
 								submittedDuration: moment.duration(moment(change.change_submitted).diff(moment())).humanize(),
 								submittedTime: moment(change.change_submitted).format("MMM D, Y h:mm a"),
+								timezone: undefined,
 								user: change.change_user,
 								username: change.change_user_name,
 							};
@@ -216,11 +233,6 @@ export default class VenueChanges<Props> extends React.Component<any, any, any> 
 
 				}).catch((error: AxiosError) => {
 					console.error(error);
-
-					this.setState({
-						dataError: true,
-					});
-
 				});
 
 		});

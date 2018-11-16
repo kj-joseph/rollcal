@@ -1,9 +1,15 @@
 import React from "react";
 import ReactSVG from "react-svg";
 
-export default class EventIconImage<Props> extends React.Component<any, any, any> {
+import { IDerbyIcon } from "interfaces/feature";
 
-	constructor(props: Props) {
+interface IEventIconImageProps {
+	icon: IDerbyIcon;
+}
+
+export default class EventIconImage extends React.Component<IEventIconImageProps> {
+
+	constructor(props: IEventIconImageProps) {
 		super(props);
 	}
 

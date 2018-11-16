@@ -1,12 +1,17 @@
 import React from "react";
 
-import { IDerbyIcon, IDerbyIcons } from "components/interfaces";
+import { IDerbyIcon, IDerbyIcons } from "interfaces/feature";
 
 import EventIconImage from "components/partials/eventIconImage";
 
-export default class EventIcons extends React.Component<{icons: IDerbyIcons, showLabels?: boolean}> {
+interface IEventIconsProps {
+	icons: IDerbyIcons;
+	showLabels?: boolean;
+}
 
-	constructor(props: {icons: IDerbyIcons, showLabels?: boolean}) {
+export default class EventIcons extends React.Component<IEventIconsProps> {
+
+	constructor(props: IEventIconsProps) {
 		super(props);
 	}
 

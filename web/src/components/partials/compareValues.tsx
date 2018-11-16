@@ -1,20 +1,16 @@
 import React from "react";
 
-export default class CompareValues extends React.Component<{
-	inline?: boolean,
-	label?: string,
-	newValue: any,
-	oldValue: any,
-	omitIfEmpty?: boolean,
-}> {
+interface ICompareValuesProps {
+	inline?: boolean;
+	label?: string;
+	newValue: any;
+	oldValue: any;
+	omitIfEmpty?: boolean;
+}
 
-	constructor(props: {
-		inline?: boolean,
-		label?: string,
-		newValue: any,
-		oldValue: any,
-		omitIfEmpty?: boolean,
-	}) {
+export default class CompareValues extends React.Component<ICompareValuesProps> {
+
+	constructor(props: ICompareValuesProps) {
 		super(props);
 	}
 

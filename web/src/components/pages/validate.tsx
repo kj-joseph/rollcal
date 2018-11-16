@@ -3,9 +3,18 @@ import { NavLink } from "react-router-dom";
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 
-export default class Validate<Props> extends React.Component<any, any, any> {
+import { IProps } from "interfaces/redux";
 
-	constructor(props: Props) {
+interface IValidateState {
+	email: string;
+	status: string;
+	username: string;
+	validationCode: string;
+}
+
+export default class Validate extends React.Component<IProps, IValidateState> {
+
+	constructor(props: IProps) {
 		super(props);
 
 		const validationParts = decodeURIComponent(this.props.match.params.validationCode).split("||");

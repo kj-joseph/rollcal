@@ -1,45 +1,63 @@
 import React from "react";
 
-import { IDerbyDates, IDerbyFeatures, IDerbySanction, IDerbyTrack, IDerbyType,
-	IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList,
-	} from "components/interfaces";
-import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography } from "components/lib/data";
+import { IDerbyDates } from "interfaces/event";
+import { IDerbyFeatures, IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
+import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList } from "interfaces/geo";
+import { IProps } from "interfaces/redux";
 
-import { DayPickerRangeController } from "react-dates";
+import { DayPickerRangeController, FocusedInputShape } from "react-dates";
 import "react-dates/initialize";
 
 import moment from "moment";
 
 import Select from "react-select";
 
+import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography } from "components/lib/data";
 import FeatureIcon from "components/partials/featureIcon";
 import RemoveCountryButton from "components/partials/removeCountryButton";
 import RemoveRegionButton from "components/partials/removeRegionButton";
 
 import { formatDateRange } from "components/lib/dateTime";
 
-export default class Search<Props> extends React.Component<any, any, any> {
+interface ISearchState {
+	countryList: IGeoCountry[];
+	countrySelectValue: IGeoCountry;
+	dateRangeDisplay: string;
+	endDate: moment.Moment;
+	eventFeatures: IDerbyFeatures;
+	focusedInput: FocusedInputShape;
+	loading: boolean;
+	path: string;
+	regionLists: IGeoRegionList;
+	regionSelectValue: IGeoRegion;
+	selectedCountries: IGeoCountry[];
+	selectedEventFeatures: string[];
+	selectedRegions: IGeoRegionList;
+	startDate: moment.Moment;
+}
 
-	constructor(props: Props) {
+export default class Search extends React.Component<IProps, ISearchState> {
+
+	constructor(props: IProps) {
 		super(props);
 
 		this.state = {
-			countryList: [] as IGeoCountry[],
+			countryList: [],
 			countrySelectValue: {} as IGeoCountry,
 			dateRangeDisplay: formatDateRange({
 				firstDay: moment(),
 			}),
-			endDate: null as moment.Moment,
+			endDate: null,
 			eventFeatures: {} as IDerbyFeatures,
 			focusedInput: "startDate",
 			loading: true,
-			path: null as string,
-			regionLists: {} as IGeoRegionList,
+			path: null,
+			regionLists: {},
 			regionSelectValue: {} as IGeoRegion,
-			selectedCountries: [] as IGeoCountry[],
-			selectedEventFeatures: [] as string[],
+			selectedCountries: [],
+			selectedEventFeatures: [],
 			selectedRegions: {} as IGeoRegionList,
-			startDate: null as moment.Moment,
+			startDate: null,
 		};
 
 		this.addLocation = this.addLocation.bind(this);
@@ -101,7 +119,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 										<strong>Filter by Date:</strong>
 										{this.state.dateRangeDisplay}
 										{(this.state.dateRangeDisplay || this.state.startDate) && !this.state.endDate ? " – (all)" : ""}
-										{this.state.startDate && this.state.endDate && this.state.startDate._d === this.state.endDate._d ? " (only)" : ""}
+										{this.state.startDate && this.state.endDate && this.state.startDate.format("Y-MM-DD") === this.state.endDate.format("Y-MM-DD") ? " (only)" : ""}
 										{this.state.startDate ?
 											<React.Fragment>
 												<br />
@@ -151,7 +169,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 												className="smallButton"
 												disabled={!this.state.countrySelectValue
 													|| !this.state.countrySelectValue.country_name
-													|| this.state.selectedRegions[this.state.countrySelectValue.country_code]}
+													|| !!this.state.selectedRegions[this.state.countrySelectValue.country_code]}
 												onClick={this.addLocationCountry}
 											>
 												Add {this.state.countrySelectValue ? this.state.countrySelectValue.country_name : ""} to Location List
@@ -218,8 +236,8 @@ export default class Search<Props> extends React.Component<any, any, any> {
 													<li key={country.country_code}>
 														{country.country_name} <span title={country.country_name} className={"flag-icon flag-icon-" + country.country_flag} />
 														<RemoveCountryButton
-															className="smallButton"
-															country={country}
+															code={country.country_code}
+															name={country.country_name}
 															onButtonClick={this.removeLocation}
 														/>
 														{this.state.selectedRegions[country.country_code] ?
@@ -236,8 +254,9 @@ export default class Search<Props> extends React.Component<any, any, any> {
 																<li key={region.region_id}>
 																	{region.region_name}
 																	<RemoveRegionButton
-																		className="smallButton"
-																		region={region}
+																		country={region.region_country}
+																		id={region.region_id}
+																		name={region.region_name}
 																		onButtonClick={this.removeLocation}
 																	/>
 
@@ -257,6 +276,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 
 							{this.state.eventFeatures.tracks ?
 								<div className="derbyFeatures">
+
 									{(this.state.eventFeatures.tracks.length ?
 										<span className="eventIconGroup eventIconTracks">
 											<span className="label">Filter Tracks</span>
@@ -264,7 +284,6 @@ export default class Search<Props> extends React.Component<any, any, any> {
 												<FeatureIcon
 													imageClass={this.state.selectedEventFeatures.indexOf("track-" + icon.track_id) > -1 ? "selected" : ""}
 													abbreviation={icon.track_abbreviation}
-													alt={icon.track_name}
 													id={icon.track_id}
 													key={icon.track_id}
 													title={icon.title}
@@ -274,6 +293,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 											))}
 										</span>
 										: "" )}
+
 									{(this.state.eventFeatures.derbytypes.length ?
 										<span className="eventIconGroup eventIconDerbytypes">
 											<span className="label">Filter Derby Types</span>
@@ -281,7 +301,6 @@ export default class Search<Props> extends React.Component<any, any, any> {
 												<FeatureIcon
 													imageClass={this.state.selectedEventFeatures.indexOf("derbytype-" + icon.derbytype_id) > -1 ? "selected" : ""}
 													abbreviation={icon.derbytype_abbreviation}
-													alt={icon.derbytype_name}
 													id={icon.derbytype_id}
 													key={icon.derbytype_id}
 													title={icon.title}
@@ -291,6 +310,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 											))}
 										</span>
 										: "" )}
+
 									{(this.state.eventFeatures.sanctions.length ?
 										<span className="eventIconGroup eventIconSanctions">
 											<span className="label">Filter Sanctions</span>
@@ -298,7 +318,6 @@ export default class Search<Props> extends React.Component<any, any, any> {
 												<FeatureIcon
 													imageClass={this.state.selectedEventFeatures.indexOf("sanction-" + icon.sanction_id) > -1 ? "selected" : ""}
 													abbreviation={icon.sanction_abbreviation}
-													alt={icon.sanction_name}
 													id={icon.sanction_id}
 													key={icon.sanction_id}
 													title={icon.title}
@@ -505,7 +524,7 @@ export default class Search<Props> extends React.Component<any, any, any> {
 
 	}
 
-	handleFocusChange(focusedInput: string) {
+	handleFocusChange(focusedInput: FocusedInputShape) {
 
 		this.setState({ focusedInput });
 
@@ -550,7 +569,9 @@ export default class Search<Props> extends React.Component<any, any, any> {
 		let searchURL = "";
 		const queryParts = [];
 		const eventFeatures: {
-			[key: string]: any,
+			derbytypes: string[],
+			sanctions: string[],
+			tracks: string[],
 		} = {
 			derbytypes: [],
 			sanctions: [],
@@ -576,12 +597,21 @@ export default class Search<Props> extends React.Component<any, any, any> {
 		}
 
 		for (let feature = 0; feature < this.state.selectedEventFeatures.length; feature ++) {
+
 			const [label, value] = this.state.selectedEventFeatures[feature].split("-");
-			eventFeatures[`${label}s`].push(value);
+			const featureName: (keyof IDerbyFeatures) = `${label}s` as (keyof IDerbyFeatures);
+			eventFeatures[featureName].push(value);
+
 		}
+
 		for (const feature in eventFeatures) {
-			if (eventFeatures[feature].length) {
-				queryParts.push(`${feature}(${eventFeatures[feature].join(",")})`);
+			if (eventFeatures.hasOwnProperty(feature)) {
+
+				const featureName: (keyof IDerbyFeatures) = feature as (keyof IDerbyFeatures);
+				if (eventFeatures[featureName].length) {
+					queryParts.push(`${feature}(${eventFeatures[featureName].join(",")})`);
+				}
+
 			}
 		}
 

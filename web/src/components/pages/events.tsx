@@ -1,8 +1,9 @@
 import React from "react";
 
 import { IBoxListItem } from "interfaces/boxList";
+import { IDBDerbyEvent } from "interfaces/event";
 import { IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
-import { IGeoCountry, IGeoData, IGeoRegion} from "interfaces/geo";
+import { IGeoCountry, IGeoData, IGeoRegion } from "interfaces/geo";
 import { IProps } from "interfaces/redux";
 
 import axios, { AxiosError, AxiosResponse } from "axios";
@@ -365,11 +366,15 @@ export default class Events extends React.Component<IProps, IEventsState> {
 
 	}
 
-	loadAll() {
-		this.loadPage(true);
+	loadAll(event: React.MouseEvent<HTMLButtonElement>) {
+		event.preventDefault();
+		this.loadPage(null, true);
 	}
 
-	loadPage(loadAll = false) {
+	loadPage(event?: React.MouseEvent<HTMLButtonElement>, loadAll = false) {
+		if (event) {
+			event.preventDefault();
+		}
 
 		this.setState({
 			loadingMore: true,
@@ -379,6 +384,7 @@ export default class Events extends React.Component<IProps, IEventsState> {
 			{ withCredentials: true })
 			.then((result: AxiosResponse) => {
 
+				const eventResults: IDBDerbyEvent[] = result.data.events;
 				const eventList: IBoxListItem[] = this.state.eventList || [];
 				const eventPromises: Array<Promise<any>> = [];
 
@@ -390,7 +396,7 @@ export default class Events extends React.Component<IProps, IEventsState> {
 
 					Promise.all(eventPromises).then(() => {
 
-						for (const eventResult of result.data.events) {
+						for (const eventResult of eventResults) {
 
 							const icons: IDerbyIcons = {
 								derbytypes: [],

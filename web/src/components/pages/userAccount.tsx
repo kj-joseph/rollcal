@@ -5,9 +5,27 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 
 import * as auth from "components/lib/auth";
 
-export default class UserAccount<Props> extends React.Component<any, any, any> {
+import { IProps } from "interfaces/redux";
 
-	constructor(props: Props) {
+interface IUserAccountState {
+	accountCurrentPassword: string;
+	accountEmail: string;
+	accountId: number;
+	accountNewPassword: string;
+	accountNewPasswordConfirm: string;
+	accountUsername: string;
+	errorMessage: string;
+	initialAccountEmail: string;
+	initialAccountId: number;
+	initialAccountUsername: string;
+	path: string;
+	processing: boolean;
+	status: string;
+}
+
+export default class UserAccount extends React.Component<IProps, IUserAccountState> {
+
+	constructor(props: IProps) {
 		super(props);
 
 		this.state = {
@@ -17,7 +35,7 @@ export default class UserAccount<Props> extends React.Component<any, any, any> {
 			accountNewPassword: "",
 			accountNewPasswordConfirm: "",
 			accountUsername: this.props.loggedInUserName,
-			error: null,
+			errorMessage: null,
 			initialAccountEmail: this.props.loggedInUserEmail,
 			initialAccountId: this.props.loggedInUserId,
 			initialAccountUsername: this.props.loggedInUserName,
@@ -49,7 +67,7 @@ export default class UserAccount<Props> extends React.Component<any, any, any> {
 
 			<React.Fragment>
 
-				{this.state.loading || this.state.processing ?
+				{this.state.processing ?
 
 					<div className="loader" />
 
@@ -152,7 +170,7 @@ export default class UserAccount<Props> extends React.Component<any, any, any> {
 											/>
 										</div>
 
-										<p className="formError">{this.state.error}</p>
+										<p className="formError">{this.state.errorMessage}</p>
 
 										<div className="buttonRow">
 											<button type="submit" disabled={!formValid || this.state.processing} className="largeButton">Save</button>
@@ -191,11 +209,13 @@ export default class UserAccount<Props> extends React.Component<any, any, any> {
 
 	}
 
-	handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+	handleInputChange <T extends keyof IUserAccountState>(event: React.ChangeEvent<HTMLInputElement>) {
 
-		this.setState({
-			[event.currentTarget.name]: event.currentTarget.value,
+		const fieldName: (keyof IUserAccountState) = event.currentTarget.name as (keyof IUserAccountState);
+		const newState = ({
+			[fieldName]: event.currentTarget.value,
 		});
+		this.setState(newState as { [P in T]: IUserAccountState[P]; });
 
 	}
 
@@ -276,7 +296,7 @@ export default class UserAccount<Props> extends React.Component<any, any, any> {
 			}).catch((error: AxiosError) => {
 				console.error(error);
 				this.setState({
-					error: "Sorry, something went wrong.  Your current password may not have been correct.  Please try again.",
+					errorMessage: "Sorry, something went wrong.  Your current password may not have been correct.  Please try again.",
 					processing: false,
 				});
 			});

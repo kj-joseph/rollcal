@@ -8,7 +8,7 @@ interface IContactState {
 
 export default class Contact extends React.Component<IProps, IContactState> {
 
-	mounted: boolean;
+	mounted = false;
 
 	constructor(props: IProps) {
 		super(props);

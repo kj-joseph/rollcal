@@ -1,22 +1,42 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { IDerbyVenue,
-	IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList, ITimeZone,
-	} from "components/interfaces";
+import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList, ITimeZone } from "interfaces/geo";
+import { IProps } from "interfaces/redux";
+import { IDerbyVenue } from "interfaces/venue";
+
 import { getGeography, getTimeZones } from "components/lib/data";
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 
 import Select from "react-select";
 
-export default class VenueForm<Props> extends React.Component<any, any, any> {
+interface IVenueFormState {
+	countryList: IGeoCountry[];
+	dataError: boolean;
+	initialVenueData: IDerbyVenue;
+	loading: boolean;
+	pageFunction: string;
+	path: string;
+	processing: boolean;
+	regionLists: IGeoRegionList;
+	selectedCountry: IGeoCountry;
+	selectedRegion: IGeoRegion;
+	selectedTimeZone: ITimeZone;
+	submitError: string;
+	submitSuccess: boolean;
+	timeZoneList: ITimeZone[];
+	userId: number;
+	venueData: IDerbyVenue;
+}
 
-	constructor(props: Props) {
+export default class VenueForm extends React.Component<IProps, IVenueFormState> {
+
+	constructor(props: IProps) {
 		super(props);
 
 		this.state = {
-			countryList: [] as IGeoCountry[],
+			countryList: [],
 			dataError: false,
 			initialVenueData: {} as IDerbyVenue,
 			loading: true,
@@ -25,6 +45,7 @@ export default class VenueForm<Props> extends React.Component<any, any, any> {
 					&& this.props.match.params.venueId
 					&& this.props.match.params.venueId.match(/[0-9]+/)
 					? "Edit Venue" : "Error",
+			path: null,
 			processing: false,
 			regionLists: {} as IGeoRegionList,
 			selectedCountry: {} as IGeoCountry,
@@ -33,6 +54,7 @@ export default class VenueForm<Props> extends React.Component<any, any, any> {
 			submitError: null,
 			submitSuccess: false,
 			timeZoneList: [],
+			userId: null,
 			venueData: {} as IDerbyVenue,
 		};
 
@@ -372,7 +394,8 @@ export default class VenueForm<Props> extends React.Component<any, any, any> {
 	handleInputChange(event: React.ChangeEvent<any>) {
 
 		const venueData = this.state.venueData;
-		venueData[event.currentTarget.name] = event.currentTarget.value;
+		const fieldName: (keyof IDerbyVenue) = event.currentTarget.name;
+		venueData[fieldName] = event.currentTarget.value;
 
 		this.setState({
 			venueData,
@@ -391,12 +414,8 @@ export default class VenueForm<Props> extends React.Component<any, any, any> {
 		}
 
 		this.setState({
-			selectedTimeZone: timezone || {} as IGeoRegion,
+			selectedTimeZone: timezone || {} as ITimeZone,
 			venueData,
-		});
-
-		this.setState({
-			timezone: timezone || {},
 		});
 
 	}
@@ -461,7 +480,7 @@ export default class VenueForm<Props> extends React.Component<any, any, any> {
 											.filter((region: IGeoRegion) => region.region_id === result.data.venue_region)[0]
 										|| {} as IGeoRegion : {} as IGeoRegion,
 								selectedTimeZone: this.state.timeZoneList
-									.filter((timezone: ITimeZone) => timezone.timezone_id === result.data.venue_timezone)
+									.filter((timezone: ITimeZone) => timezone.timezone_id === result.data.venue_timezone)[0]
 									|| {} as ITimeZone,
 								venueData: {
 									address1: result.data.venue_address1 || "",
@@ -501,13 +520,13 @@ export default class VenueForm<Props> extends React.Component<any, any, any> {
 				} else {
 
 					this.setState({
-						editingDays: [],
 						initialVenueData: {
 							address1: "",
 							address2: "",
 							city: "",
 							country: null,
 							description: "",
+							id: undefined,
 							link: "",
 							name: "",
 							postcode: "",
@@ -521,6 +540,7 @@ export default class VenueForm<Props> extends React.Component<any, any, any> {
 							city: "",
 							country: null,
 							description: "",
+							id: undefined,
 							link: "",
 							name: "",
 							postcode: "",
@@ -549,8 +569,9 @@ export default class VenueForm<Props> extends React.Component<any, any, any> {
 			if (field === "id") {
 				continue;
 			}
-			const initialValue = this.state.initialVenueData[field] || null;
-			const value = this.state.venueData[field] || null;
+			const fieldName: (keyof IDerbyVenue) = field as (keyof IDerbyVenue);
+			const initialValue = this.state.initialVenueData[fieldName] || null;
+			const value = this.state.venueData[fieldName] || null;
 
 			if ((!this.state.venueData.id && value)
 				|| (this.state.venueData.id && value !== initialValue)) {

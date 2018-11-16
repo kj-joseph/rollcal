@@ -4,7 +4,9 @@ import { Link } from "react-router-dom";
 import Modal from "react-modal";
 Modal.setAppElement("#root");
 
-import { IBoxListItem, IDBDerbyEvent } from "components/interfaces";
+import { IBoxListItem } from "interfaces/boxList";
+import { IDBDerbyEvent } from "interfaces/event";
+import { IProps } from "interfaces/redux";
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 
@@ -19,9 +21,22 @@ import { formatDateRange } from "components/lib/dateTime";
 
 import BoxList from "components/partials/boxList";
 
-export default class UserEvents<Props> extends React.Component<any, any, any> {
+interface IUserEventsState {
+	deleteEventId: number;
+	deleteModalOpen: boolean;
+	eventData: IBoxListItem[];
+	isReviewer: boolean;
+	loading: boolean;
+	modalError: string;
+	modalProcessing: boolean;
+	path: string;
+	showAll: boolean;
+	userId: number;
+}
 
-	constructor(props: Props) {
+export default class UserEvents extends React.Component<IProps, IUserEventsState> {
+
+	constructor(props: IProps) {
 		super(props);
 
 		this.state = {
@@ -30,8 +45,9 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 			eventData: [],
 			isReviewer: false,
 			loading: true,
+			modalError: null,
 			modalProcessing: false,
-			path: "",
+			path: null,
 			showAll: false,
 			userId: null,
 		};
@@ -154,7 +170,7 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 
 								{ this.state.modalProcessing ?
 
-									<div className={"loader medium" + (this.state.processing ? "" : " disabled")} />
+									<div className="loader medium" />
 
 								:
 
@@ -256,7 +272,7 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 		event.preventDefault();
 
 		this.setState({
-			deleteEventId: event.currentTarget.getAttribute("data-item-id"),
+			deleteEventId: Number(event.currentTarget.getAttribute("data-item-id")),
 			deleteModalOpen: true,
 		});
 
@@ -310,11 +326,6 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 
 			}).catch((error: AxiosError) => {
 				console.error(error);
-
-				this.setState({
-					dataError: true,
-				});
-
 			});
 
 	}

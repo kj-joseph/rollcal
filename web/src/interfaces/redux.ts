@@ -9,9 +9,6 @@ interface IMatchParams {
 export interface IProps extends IReduxActions, IReduxStore, RouteComponentProps<IMatchParams> {
 }
 
-export interface IPropsRoot extends IReduxActions, IReduxStore {
-}
-
 export interface IReduxActions {
 	clearUserInfo: () => IReduxActionType;
 	saveDataDerbyTypes: (data: IDerbyType[]) => IReduxActionType;

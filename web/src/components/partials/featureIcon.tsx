@@ -1,9 +1,18 @@
 import React from "react";
 import ReactSVG from "react-svg";
 
-export default class FeatureIcon<Props> extends React.Component<any, any, any> {
+interface IFeatureIconProps {
+	abbreviation: string;
+	featureType: string;
+	id: number;
+	imageClass: string;
+	title: string;
+	toggleFunction: (icon: string) => void;
+}
 
-	constructor(props: Props) {
+export default class FeatureIcon extends React.Component<IFeatureIconProps> {
+
+	constructor(props: IFeatureIconProps) {
 		super(props);
 
 		this.toggleIcon = this.toggleIcon.bind(this);
@@ -21,8 +30,9 @@ export default class FeatureIcon<Props> extends React.Component<any, any, any> {
 
 			<ReactSVG
 				className={`featureIcon ${this.props.imageClass}`}
-				src={`/images/${this.props.featureType}-${this.props.abbreviation}.svg`}
 				onClick={this.toggleIcon}
+				src={`/images/${this.props.featureType}-${this.props.abbreviation}.svg`}
+				title={this.props.title}
 			/>
 
 		);

@@ -67,6 +67,26 @@
 					}
 
 				}
+
+				.removeGeoButton {
+					display: inline;
+					margin-left: .75em;
+
+					div {
+						display: inline;
+					}
+
+					svg {
+						fill: $blue;
+						height: 1.2em;
+						margin-bottom: .2em;
+						vertical-align: middle;
+
+						&:hover {
+							fill: $pink;
+						}
+					}
+				}
 			}
 		}
 
@@ -104,11 +124,6 @@
 	.featureIcon.selected svg {
 		opacity: 1;
 	}
-
-}
-
-
-.searchButtons {
 
 }
 
