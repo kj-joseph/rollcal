@@ -1,8 +1,20 @@
 import React from "react";
 
-export default class Contact<Props> extends React.Component<any, any, any> {
+import { IProps } from "interfaces/redux";
 
-	constructor(props: Props) {
+interface IContactState {
+	TBD: any;
+}
+
+export default class Contact extends React.Component<IProps> {
+
+	mounted = false;
+
+	state: IContactState = {
+		TBD: null,
+	};
+
+	constructor(props: IProps) {
 		super(props);
 	}
 
@@ -19,6 +31,7 @@ export default class Contact<Props> extends React.Component<any, any, any> {
 
 			<div>
 				<h1>Contact Us</h1>
+				<p>(missing)</p>
 			</div>
 		);
 

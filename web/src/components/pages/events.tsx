@@ -1,43 +1,62 @@
 import React from "react";
 
-import { IBoxListItem,
-	IDerbyEvent, IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType,
-	IGeoCountry, IGeoData, IGeoRegion,
-} from "components/interfaces";
-import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography } from "components/lib/data";
+import { IBoxListItem } from "interfaces/boxList";
+import { IDBDerbyEvent } from "interfaces/event";
+import { IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
+import { IGeoCountry, IGeoData, IGeoRegion } from "interfaces/geo";
+import { IProps } from "interfaces/redux";
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 
+import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography } from "components/lib/data";
 import { formatDateRange } from "components/lib/dateTime";
 import moment from "moment";
 
 import BoxList from "components/partials/boxList";
 
-export default class Events<Props> extends React.Component<any, any, any> {
-	constructor(props: Props) {
-		super(props);
+interface IEventsState {
+	dataError: boolean;
+	eventList: IBoxListItem[];
+	isSearch: string;
+	listItemsTotal: number;
+	listPageLength: number;
+	loading: boolean;
+	loadingMore: boolean;
+	path: string;
+	searchDisplayDates: string;
+	searchDisplayDerbyTypes: string;
+	searchDisplayLocations: string;
+	searchDisplaySanctions: string;
+	searchDisplayTracks: string;
+	searchURL: string;
 
-		this.state = {
-			dataError: false,
-			eventList: [] as IDerbyEvent[],
-			isSearch: (this.props.match.params.startDate || window.location.pathname !== "/"),
-			listItemsTotal: 0,
-			listPageLength: this.props.listPageLength,
-			loading: true,
-			loadingMore: false,
-			path: null as string,
-			searchDisplayDates: null,
-			searchDisplayDerbyTypes: null,
-			searchDisplayLocations: null,
-			searchDisplaySanctions: null,
-			searchDisplayTracks: null,
-			searchURL: null,
-		};
+}
+
+export default class Events extends React.Component<IProps> {
+
+	state: IEventsState = {
+		dataError: false,
+		eventList: [],
+		isSearch: (this.props.match.params.startDate || window.location.pathname !== "/"),
+		listItemsTotal: 0,
+		listPageLength: this.props.listPageLength,
+		loading: true,
+		loadingMore: false,
+		path: null,
+		searchDisplayDates: null,
+		searchDisplayDerbyTypes: null,
+		searchDisplayLocations: null,
+		searchDisplaySanctions: null,
+		searchDisplayTracks: null,
+		searchURL: null,
+	};
+
+	constructor(props: IProps) {
+		super(props);
 
 		this.initialLoad = this.initialLoad.bind(this);
 		this.loadAll = this.loadAll.bind(this);
 		this.loadPage = this.loadPage.bind(this);
-
 	}
 
 	componentDidMount() {
@@ -149,7 +168,6 @@ export default class Events<Props> extends React.Component<any, any, any> {
 					continue;
 				}
 
-
 				const [, label, values] = part.match(/([a-z]+)\((.*)\)/);
 
 				if (usedParts.indexOf(label) > -1) {
@@ -161,7 +179,10 @@ export default class Events<Props> extends React.Component<any, any, any> {
 				switch (label) {
 					case "locations":
 
-						promises.push(getGeography(this.props)
+						promises.push(getGeography(
+							this.props.apiLocation,
+							this.props.dataGeography,
+							this.props.saveDataGeography)
 							.then((dataResponse: IGeoData) => {
 
 								const geoDisplay: string[] = [];
@@ -218,7 +239,10 @@ export default class Events<Props> extends React.Component<any, any, any> {
 
 					case "derbytypes":
 
-						promises.push(getDerbyTypes(this.props)
+						promises.push(getDerbyTypes(
+							this.props.apiLocation,
+							this.props.dataDerbyTypes,
+							this.props.saveDataDerbyTypes)
 							.then((dataResponse: IDerbyType[]) => {
 
 								const validTypes = dataResponse
@@ -254,7 +278,10 @@ export default class Events<Props> extends React.Component<any, any, any> {
 
 					case "sanctions":
 
-						promises.push(getDerbySanctions(this.props)
+						promises.push(getDerbySanctions(
+							this.props.apiLocation,
+							this.props.dataSanctions,
+							this.props.saveDataSanctions)
 							.then((dataResponse: IDerbySanction[]) => {
 
 								const validSanctions = dataResponse
@@ -290,7 +317,10 @@ export default class Events<Props> extends React.Component<any, any, any> {
 
 					case "tracks":
 
-						promises.push(getDerbyTracks(this.props)
+						promises.push(getDerbyTracks(
+							this.props.apiLocation,
+							this.props.dataTracks,
+							this.props.saveDataTracks)
 							.then((dataResponse: IDerbyTrack[]) => {
 
 								const validTracks = dataResponse
@@ -343,16 +373,27 @@ export default class Events<Props> extends React.Component<any, any, any> {
 
 				this.loadPage();
 
+			}).catch(() => {
+
+				this.setState({
+					dataError: true,
+					loading: false,
+				});
+
 			});
 		}
 
 	}
 
-	loadAll() {
-		this.loadPage(true);
+	loadAll(event: React.MouseEvent<HTMLButtonElement>) {
+		event.preventDefault();
+		this.loadPage(null, true);
 	}
 
-	loadPage(loadAll = false) {
+	loadPage(event?: React.MouseEvent<HTMLButtonElement>, loadAll = false) {
+		if (event) {
+			event.preventDefault();
+		}
 
 		this.setState({
 			loadingMore: true,
@@ -362,18 +403,30 @@ export default class Events<Props> extends React.Component<any, any, any> {
 			{ withCredentials: true })
 			.then((result: AxiosResponse) => {
 
+				const eventResults: IDBDerbyEvent[] = result.data.events;
 				const eventList: IBoxListItem[] = this.state.eventList || [];
 				const eventPromises: Array<Promise<any>> = [];
 
-				eventPromises.push(getDerbySanctions(this.props));
-				eventPromises.push(getDerbyTracks(this.props));
-				eventPromises.push(getDerbyTypes(this.props));
+				eventPromises.push(getDerbySanctions(
+					this.props.apiLocation,
+					this.props.dataSanctions,
+					this.props.saveDataSanctions));
+
+				eventPromises.push(getDerbyTracks(
+					this.props.apiLocation,
+					this.props.dataTracks,
+					this.props.saveDataTracks));
+
+				eventPromises.push(getDerbyTypes(
+					this.props.apiLocation,
+					this.props.dataDerbyTypes,
+					this.props.saveDataDerbyTypes));
 
 				if (result.data.events.length) {
 
 					Promise.all(eventPromises).then(() => {
 
-						for (const eventResult of result.data.events) {
+						for (const eventResult of eventResults) {
 
 							const icons: IDerbyIcons = {
 								derbytypes: [],
@@ -444,8 +497,12 @@ export default class Events<Props> extends React.Component<any, any, any> {
 							loadingMore: false,
 						});
 
+					}).catch(() => {
+						this.setState({
+							dataError: true,
+							loading: false,
+						});
 					});
-
 
 				} else {
 
@@ -457,7 +514,6 @@ export default class Events<Props> extends React.Component<any, any, any> {
 
 				}
 
-
 			}).catch((error: AxiosError) => {
 				console.error(error);
 
@@ -466,7 +522,6 @@ export default class Events<Props> extends React.Component<any, any, any> {
 				});
 
 			});
-
 
 	}
 

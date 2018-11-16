@@ -3,29 +3,48 @@ import { Link } from "react-router-dom";
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 
-import * as auth from "components/lib/auth";
+import { logout } from "components/lib/auth";
 
-export default class UserAccount<Props> extends React.Component<any, any, any> {
+import { IProps } from "interfaces/redux";
 
-	constructor(props: Props) {
+interface IUserAccountState {
+	accountCurrentPassword: string;
+	accountEmail: string;
+	accountId: number;
+	accountNewPassword: string;
+	accountNewPasswordConfirm: string;
+	accountUsername: string;
+	errorMessage: string;
+	initialAccountEmail: string;
+	initialAccountId: number;
+	initialAccountUsername: string;
+	path: string;
+	processing: boolean;
+	status: string;
+}
+
+export default class UserAccount extends React.Component<IProps> {
+
+	state: IUserAccountState = {
+		accountCurrentPassword: "",
+		accountEmail: this.props.loggedInUserEmail,
+		accountId: this.props.loggedInUserId,
+		accountNewPassword: "",
+		accountNewPasswordConfirm: "",
+		accountUsername: this.props.loggedInUserName,
+		errorMessage: null,
+		initialAccountEmail: this.props.loggedInUserEmail,
+		initialAccountId: this.props.loggedInUserId,
+		initialAccountUsername: this.props.loggedInUserName,
+		path: window.location.pathname,
+		processing: false,
+		status: "form",
+	};
+
+	constructor(props: IProps) {
 		super(props);
 
-		this.state = {
-			accountCurrentPassword: "",
-			accountEmail: this.props.loggedInUserEmail,
-			accountId: this.props.loggedInUserId,
-			accountNewPassword: "",
-			accountNewPasswordConfirm: "",
-			accountUsername: this.props.loggedInUserName,
-			error: null,
-			initialAccountEmail: this.props.loggedInUserEmail,
-			initialAccountId: this.props.loggedInUserId,
-			initialAccountUsername: this.props.loggedInUserName,
-			path: window.location.pathname,
-			processing: false,
-			status: "form",
-		};
-
+		// TODO: Not sure why componentDidUpdate doesn't execute, forcing this into the constructor
 		if (!this.props.loggedIn && this.state.status !== "successLogout") {
 
 			this.props.history.push("/");
@@ -34,7 +53,6 @@ export default class UserAccount<Props> extends React.Component<any, any, any> {
 
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.submitAccountForm = this.submitAccountForm.bind(this);
-
 	}
 
 	render() {
@@ -49,7 +67,7 @@ export default class UserAccount<Props> extends React.Component<any, any, any> {
 
 			<React.Fragment>
 
-				{this.state.loading || this.state.processing ?
+				{this.state.processing ?
 
 					<div className="loader" />
 
@@ -152,7 +170,7 @@ export default class UserAccount<Props> extends React.Component<any, any, any> {
 											/>
 										</div>
 
-										<p className="formError">{this.state.error}</p>
+										<p className="formError">{this.state.errorMessage}</p>
 
 										<div className="buttonRow">
 											<button type="submit" disabled={!formValid || this.state.processing} className="largeButton">Save</button>
@@ -191,11 +209,13 @@ export default class UserAccount<Props> extends React.Component<any, any, any> {
 
 	}
 
-	handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+	handleInputChange <T extends keyof IUserAccountState>(event: React.ChangeEvent<HTMLInputElement>) {
 
-		this.setState({
-			[event.currentTarget.name]: event.currentTarget.value,
+		const fieldName: (keyof IUserAccountState) = event.currentTarget.name as (keyof IUserAccountState);
+		const newState = ({
+			[fieldName]: event.currentTarget.value,
 		});
+		this.setState(newState as { [P in T]: IUserAccountState[P]; });
 
 	}
 
@@ -276,7 +296,7 @@ export default class UserAccount<Props> extends React.Component<any, any, any> {
 			}).catch((error: AxiosError) => {
 				console.error(error);
 				this.setState({
-					error: "Sorry, something went wrong.  Your current password may not have been correct.  Please try again.",
+					errorMessage: "Sorry, something went wrong.  Your current password may not have been correct.  Please try again.",
 					processing: false,
 				});
 			});
@@ -286,7 +306,7 @@ export default class UserAccount<Props> extends React.Component<any, any, any> {
 
 	logout(event?: React.MouseEvent<HTMLButtonElement>) {
 
-		auth.logout(this.props, event, false);
+		logout(this.props.apiLocation, this.props.clearUserInfo, this.props.history, event, false);
 
 	}
 

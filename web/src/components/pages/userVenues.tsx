@@ -1,7 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { IBoxListItem, IDBDerbyVenue } from "components/interfaces";
+import { IBoxListItem } from "interfaces/boxList";
+import { IProps } from "interfaces/redux";
+import { IDBDerbyVenue } from "interfaces/venue";
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 
@@ -9,25 +11,35 @@ import CheckIcon from "images/check-circle.svg";
 import CircleIcon from "images/circle.svg";
 import ReactSVG from "react-svg";
 
+import { checkUserRole } from "components/lib/auth";
 import BoxList from "components/partials/boxList";
 
-export default class UserVenues<Props> extends React.Component<any, any, any> {
+interface IUserVenuesState {
+	isReviewer: boolean;
+	loading: boolean;
+	path: string;
+	showAll: boolean;
+	userId: number;
+	venueData: IBoxListItem[];
+}
 
-	constructor(props: Props) {
+export default class UserVenues extends React.Component<IProps, IUserVenuesState> {
+
+	state: IUserVenuesState = {
+		isReviewer: false,
+		loading: true,
+		path: null,
+		showAll: false,
+		userId: null,
+		venueData: [],
+	};
+
+	constructor(props: IProps) {
 		super(props);
-
-		this.state = {
-			isReviewer: false,
-			loading: true,
-			path: "",
-			userId: null,
-			venueData: [],
-		};
 
 		this.addVenue = this.addVenue.bind(this);
 		this.editVenue = this.editVenue.bind(this);
 		this.toggleShowAll = this.toggleShowAll.bind(this);
-
 	}
 
 	componentDidMount() {
@@ -45,11 +57,10 @@ export default class UserVenues<Props> extends React.Component<any, any, any> {
 
 		} else if (window.location.pathname !== this.state.path || this.props.loggedInUserId !== this.state.userId ) {
 
-			const isReviewer = (this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("reviewer") > -1);
+			const isReviewer = checkUserRole(this.props.loggedInUserRoles, "reviewer");
 
 			this.setState({
 				isReviewer,
-				isSearch: (this.props.match.params.startDate || window.location.pathname !== "/"),
 				path: window.location.pathname,
 				userId: this.props.loggedInUserId,
 			});
@@ -90,7 +101,7 @@ export default class UserVenues<Props> extends React.Component<any, any, any> {
 
 						<h1>Edit Venues</h1>
 
-						{this.state.isReviewer} {
+						{this.state.isReviewer ?
 
 							<div className="showAll">
 							<a href="" onClick={this.toggleShowAll}>
@@ -106,7 +117,7 @@ export default class UserVenues<Props> extends React.Component<any, any, any> {
 							</a>
 							</div>
 
-						}
+						: ""}
 
 						{this.state.venueData.length ?
 
@@ -168,7 +179,6 @@ export default class UserVenues<Props> extends React.Component<any, any, any> {
 	loadData(isReviewer = false) {
 
 		this.setState({
-			eventData: [],
 			loading: true,
 		});
 
@@ -194,11 +204,6 @@ export default class UserVenues<Props> extends React.Component<any, any, any> {
 
 			}).catch((error: AxiosError) => {
 				console.error(error);
-
-				this.setState({
-					dataError: true,
-				});
-
 			});
 
 	}

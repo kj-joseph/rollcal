@@ -1,20 +1,27 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+import { IProps } from "interfaces/redux";
+
 import Modal from "react-modal";
 Modal.setAppElement("#root");
 
-import * as auth from "components/lib/auth";
+import { logout } from "components/lib/auth";
 
-export default class Dashboard<Props> extends React.Component<any, any, any> {
+interface IDashboardState {
+	path: string;
+	userId: number;
+}
 
-	constructor(props: Props) {
+export default class Dashboard extends React.Component<IProps> {
+
+	state: IDashboardState = {
+		path: null,
+		userId: null,
+	};
+
+	constructor(props: IProps) {
 		super(props);
-
-		this.state = {
-			path: "",
-			userId: "",
-		};
 
 		this.logout = this.logout.bind(this);
 	}
@@ -33,7 +40,6 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 			this.props.history.push("/");
 
 		} else if (window.location.pathname !== this.state.path
-
 			|| this.props.loggedInUserId !== this.state.userId ) {
 
 			this.setState({
@@ -109,7 +115,7 @@ export default class Dashboard<Props> extends React.Component<any, any, any> {
 
 	logout(event: React.MouseEvent<HTMLButtonElement>) {
 
-		auth.logout(this.props, event);
+		logout(this.props.apiLocation, this.props.clearUserInfo, this.props.history, event);
 
 	}
 

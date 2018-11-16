@@ -1,4 +1,6 @@
-import { IDerbySanction, IDerbyTrack, IDerbyType, IGeoCountry, IReduxActionType, ITimeZone, IUserInfo} from "components/interfaces";
+import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
+import { IGeoData, ITimeZone } from "interfaces/geo";
+import { IReduxActionType, IUserInfo } from "interfaces/redux";
 
 export default {
 
@@ -12,7 +14,7 @@ export default {
 		type: "SAVE_DATA_DERBYTYPES",
 	}),
 
-	saveDataGeography: (data: IGeoCountry[]): IReduxActionType => ({
+	saveDataGeography: (data: IGeoData): IReduxActionType => ({
 		payload: data,
 		type: "SAVE_DATA_GEOGRAPHY",
 	}),
@@ -35,11 +37,6 @@ export default {
 	saveTimeZones: (data: ITimeZone[]): IReduxActionType => ({
 		payload: data,
 		type: "SAVE_TIME_ZONES",
-	}),
-
-	setAccountModalState: (accountModalState: boolean): IReduxActionType => ({
-		payload: accountModalState,
-		type: "SET_ACCOUNT_MODAL_STATE",
 	}),
 
 	setLoginModalState: (loginModalState: boolean): IReduxActionType => ({

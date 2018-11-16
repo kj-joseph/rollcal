@@ -1,8 +1,12 @@
 import React from "react";
 
-export default class Faq<Props> extends React.Component<any, any, any> {
+import { IProps } from "interfaces/redux";
 
-	constructor(props: Props) {
+export default class Faq extends React.Component<IProps> {
+
+	mounted = false;
+
+	constructor(props: IProps) {
 		super(props);
 	}
 
@@ -19,6 +23,7 @@ export default class Faq<Props> extends React.Component<any, any, any> {
 
 			<div>
 				<h1>Frequently Asked Stuff</h1>
+				<p>(missing)</p>
 			</div>
 		);
 

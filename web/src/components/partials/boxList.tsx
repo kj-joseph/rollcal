@@ -1,15 +1,41 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { IBoxListItem, IDerbyIcon } from "components/interfaces";
+import { IBoxListItem } from "interfaces/boxList";
+import { IDerbyIcon } from "interfaces/feature";
 
 import EventIconImage from "components/partials/eventIconImage";
 import MyEventIcon from "images/star.svg";
 import ReactSVG from "react-svg";
 
-export default class BoxList<Props> extends React.Component<any, any, any> {
+interface IBoxListDefaultProps {
+	noIcons: boolean;
+	paginate: boolean;
+}
 
-	constructor(props: Props) {
+interface IBoxListProps extends IBoxListDefaultProps {
+	className?: string;
+	data: IBoxListItem[];
+	deleteFunction?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+	editFunction?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+	itemType: "events" | "venues";
+	listType: "display" | "edit" | "review";
+	loadingMore?: boolean;
+	loadAllFunction?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+	loadMoreFunction?: (event?: React.MouseEvent<HTMLButtonElement>, loadAll?: boolean) => void;
+	loggedInUserId?: number;
+	reviewFunction?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+	totalItems?: number;
+}
+
+export default class BoxList extends React.Component<IBoxListProps> {
+
+	static defaultProps: IBoxListDefaultProps = {
+		noIcons: false,
+		paginate: false,
+	};
+
+	constructor(props: IBoxListProps) {
 		super(props);
 	}
 

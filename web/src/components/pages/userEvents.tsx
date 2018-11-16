@@ -4,7 +4,9 @@ import { Link } from "react-router-dom";
 import Modal from "react-modal";
 Modal.setAppElement("#root");
 
-import { IBoxListItem, IDBDerbyEvent } from "components/interfaces";
+import { IBoxListItem } from "interfaces/boxList";
+import { IDBDerbyEvent } from "interfaces/event";
+import { IProps } from "interfaces/redux";
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 
@@ -15,26 +17,40 @@ import CircleIcon from "images/circle.svg";
 import CloseIcon from "images/times-circle.svg";
 import ReactSVG from "react-svg";
 
+import { checkUserRole } from "components/lib/auth";
 import { formatDateRange } from "components/lib/dateTime";
-
 import BoxList from "components/partials/boxList";
 
-export default class UserEvents<Props> extends React.Component<any, any, any> {
+interface IUserEventsState {
+	deleteEventId: number;
+	deleteModalOpen: boolean;
+	eventData: IBoxListItem[];
+	isReviewer: boolean;
+	loading: boolean;
+	modalError: string;
+	modalProcessing: boolean;
+	path: string;
+	showAll: boolean;
+	userId: number;
+}
 
-	constructor(props: Props) {
+export default class UserEvents extends React.Component<IProps> {
+
+	state: IUserEventsState = {
+		deleteEventId: null,
+		deleteModalOpen: false,
+		eventData: [],
+		isReviewer: false,
+		loading: true,
+		modalError: null,
+		modalProcessing: false,
+		path: null,
+		showAll: false,
+		userId: null,
+	};
+
+	constructor(props: IProps) {
 		super(props);
-
-		this.state = {
-			deleteEventId: null,
-			deleteModalOpen: false,
-			eventData: [],
-			isReviewer: false,
-			loading: true,
-			modalProcessing: false,
-			path: "",
-			showAll: false,
-			userId: null,
-		};
 
 		this.addEvent = this.addEvent.bind(this);
 		this.closeDeleteModal = this.closeDeleteModal.bind(this);
@@ -42,7 +58,6 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 		this.deleteEvent = this.deleteEvent.bind(this);
 		this.editEvent = this.editEvent.bind(this);
 		this.toggleShowAll = this.toggleShowAll.bind(this);
-
 	}
 
 	componentDidMount() {
@@ -60,7 +75,7 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 
 		} else if (window.location.pathname !== this.state.path || this.props.loggedInUserId !== this.state.userId ) {
 
-			const isReviewer = (this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("reviewer") > -1);
+			const isReviewer = checkUserRole(this.props.loggedInUserRoles, "reviewer");
 
 			this.setState({
 				isReviewer,
@@ -104,7 +119,7 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 
 						<h1>Edit Events</h1>
 
-						{this.state.isReviewer} {
+						{this.state.isReviewer ?
 
 							<div className="showAll">
 							<a href="" onClick={this.toggleShowAll}>
@@ -120,7 +135,7 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 							</a>
 							</div>
 
-						}
+						: ""}
 
 						{this.state.eventData.length ?
 
@@ -154,7 +169,7 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 
 								{ this.state.modalProcessing ?
 
-									<div className={"loader medium" + (this.state.processing ? "" : " disabled")} />
+									<div className="loader medium" />
 
 								:
 
@@ -256,7 +271,7 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 		event.preventDefault();
 
 		this.setState({
-			deleteEventId: event.currentTarget.getAttribute("data-item-id"),
+			deleteEventId: Number(event.currentTarget.getAttribute("data-item-id")),
 			deleteModalOpen: true,
 		});
 
@@ -283,7 +298,6 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 	loadData(isReviewer = false) {
 
 		this.setState({
-			eventData: [],
 			loading: true,
 		});
 
@@ -310,11 +324,6 @@ export default class UserEvents<Props> extends React.Component<any, any, any> {
 
 			}).catch((error: AxiosError) => {
 				console.error(error);
-
-				this.setState({
-					dataError: true,
-				});
-
 			});
 
 	}

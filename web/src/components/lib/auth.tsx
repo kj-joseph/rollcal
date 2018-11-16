@@ -1,13 +1,19 @@
 import React from "react";
 
+import { History } from "history";
+import { IUserInfo } from "interfaces/redux";
+
 import axios, { AxiosError, AxiosResponse } from "axios";
 
-export const checkLoginStatus = (appState: any): Promise<void> => {
+export const checkLoginStatus = (
+	apiLocation: string,
+	setUserInfo: (userInfo: IUserInfo) => void,
+): Promise<void> => {
 
-	return axios.post(appState.apiLocation + "user/getSession", {}, { withCredentials: true })
+	return axios.post(apiLocation + "user/getSession", {}, { withCredentials: true })
 		.then((result: AxiosResponse) => {
 
-			appState.setUserInfo({
+			setUserInfo({
 				loggedIn: true,
 				userEmail: result.data.email,
 				userId: result.data.id,
@@ -23,20 +29,29 @@ export const checkLoginStatus = (appState: any): Promise<void> => {
 
 };
 
-export const logout = (appState: any, event?: React.MouseEvent<any>, redirect = true): Promise<void> => {
+export const checkUserRole = (userRoles: string[], role: string): boolean =>
+	userRoles && userRoles.indexOf(role) > -1;
+
+export const logout = (
+	apiLocation: string,
+	clearUserInfo: () => void,
+	history: History,
+	event?: React.MouseEvent<any>,
+	redirect = true,
+): Promise<void> => {
 
 	if (event) {
 		event.preventDefault();
 	}
 
-	return axios.get(appState.apiLocation + "user/logout", { withCredentials: true })
+	return axios.get(apiLocation + "user/logout", { withCredentials: true })
 		.then((result: AxiosResponse) => {
 
-			appState.clearUserInfo();
+			clearUserInfo();
 
 			if (window.location.pathname.match(/^\/dashboard/) && redirect) {
 
-				appState.history.push("/");
+				history.push("/");
 
 			}
 

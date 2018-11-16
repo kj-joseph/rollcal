@@ -9,26 +9,40 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import CloseIcon from "images/times-circle.svg";
 import ReactSVG from "react-svg";
 
-// import * as auth from "components/lib/auth";
+import { IProps } from "interfaces/redux";
 
-class Login<Props> extends React.Component<any, any, any> {
+interface ILoginState {
+	errorMessage: string;
+	formValid: boolean;
+	loading: boolean;
+	loginEmail: string;
+	loginPassword: string;
+	modalStatus: string;
+	path: string;
+	registerEmail: string;
+	registerPassword: string;
+	registerPasswordConfirm: string;
+	registerUsername: string;
+}
 
-	constructor(props: Props) {
+class Login extends React.Component<IProps> {
+
+	state: ILoginState = {
+		errorMessage: null,
+		formValid: false,
+		loading: false,
+		loginEmail: "",
+		loginPassword: "",
+		modalStatus: "login",
+		path: null,
+		registerEmail: "",
+		registerPassword: "",
+		registerPasswordConfirm: "",
+		registerUsername: "",
+	};
+
+	constructor(props: IProps) {
 		super(props);
-
-		this.state = {
-			errorMessage: "",
-			formValid: false,
-			loading: false,
-			loginEmail: "",
-			loginPassword: "",
-			modalStatus: "login",
-			path: "",
-			registerEmail: "",
-			registerPassword: "",
-			registerPasswordConfirm: "",
-			registerUsername: "",
-		};
 
 		this.closeLoginModal = this.closeLoginModal.bind(this);
 		this.changeStatusClearState = this.changeStatusClearState.bind(this);
@@ -37,7 +51,6 @@ class Login<Props> extends React.Component<any, any, any> {
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.submitLogin = this.submitLogin.bind(this);
 		this.submitRegistration = this.submitRegistration.bind(this);
-
 	}
 
 	componentDidUpdate() {
@@ -235,14 +248,19 @@ class Login<Props> extends React.Component<any, any, any> {
 
 	}
 
-	handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+	handleInputChange <T extends keyof ILoginState>(event: React.ChangeEvent<HTMLInputElement>) {
 
 		const formId: string = (this.state.modalStatus === "login" ? "loginForm" : this.state.modalStatus === "register" ? "registerForm" : null);
 
-		this.setState({
-			[event.currentTarget.name]: event.currentTarget.value,
+		const fieldName: (keyof ILoginState) = event.currentTarget.name as (keyof ILoginState);
+
+		const newState = {
+			[fieldName]: event.currentTarget.value,
 			formValid: (document.getElementById(formId) as HTMLFormElement).checkValidity(),
-		});
+		};
+
+		this.setState(newState as { [P in T]: ILoginState[P]; });
+
 	}
 
 	goToLogin(event: React.MouseEvent<HTMLAnchorElement>) {

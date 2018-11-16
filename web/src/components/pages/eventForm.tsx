@@ -1,17 +1,17 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { IDBDerbyEvent, IDBDerbyVenue,
-	IDerbyEvent, IDerbyEventDayFormatted,
-	IDerbySanction, IDerbyTrack, IDerbyType,
-	IDerbyVenue,
-	IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList, ITimeZone,
-	} from "components/interfaces";
+import { IDBDerbyEvent, IDerbyEvent, IDerbyEventChangeObject, IDerbyEventDayFormatted } from "interfaces/event";
+import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
+import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList, ITimeZone } from "interfaces/geo";
+import { IProps } from "interfaces/redux";
+import { IDBDerbyVenue, IDerbyVenue } from "interfaces/venue";
+
 import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography, getTimeZones } from "components/lib/data";
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 
-import { DayPickerSingleDateController  } from "react-dates";
+import { DayPickerSingleDateController } from "react-dates";
 import "react-dates/initialize";
 
 import moment from "moment";
@@ -20,49 +20,98 @@ import Select from "react-select";
 
 import FeatureIcon from "components/partials/featureIcon";
 
-export default class EventForm<Props> extends React.Component<any, any, any> {
+interface IEventFormState {
+	countryList: IGeoCountry[];
+	dataError: boolean;
+	editingDays: IDerbyEventDayFormatted[];
+	eventData: IDerbyEvent;
+	eventFeatures: {
+		derbytypes: IDerbyType[],
+		sanctions: IDerbySanction[],
+		tracks: IDerbyTrack[],
+	};
+	focused: boolean;
+	initialEventData: IDerbyEvent;
+	initialSelectedFeatures: string[];
+	loading: boolean;
+	newDayCounter: number;
+	newVenueAddress1: string;
+	newVenueAddress2: string;
+	newVenueCity: string;
+	newVenueCountry: IGeoCountry;
+	newVenueDescription: string;
+	newVenueLink: string;
+	newVenueName: string;
+	newVenuePostcode: string;
+	newVenueRegion: IGeoRegion;
+	newVenueTimeZone: ITimeZone;
+	pageFunction: string;
+	path: string;
+	processing: boolean;
+	regionLists: IGeoRegionList;
+	sectionOpenBasic: boolean;
+	sectionOpenDays: boolean;
+	sectionOpenFeatures: boolean;
+	sectionOpenVenue: boolean;
+	selectedFeatures: string[];
+	selectedVenue: IDerbyVenue;
+	submitError: string;
+	submitSuccess: boolean;
+	timeZoneList: ITimeZone[];
+	userId: number;
+	venueList: IDerbyVenue[];
+}
 
-	constructor(props: Props) {
+export default class EventForm<Props> extends React.Component<IProps> {
+
+	state: IEventFormState = {
+		countryList: [],
+		dataError: false,
+		editingDays: [],
+		eventData: {} as IDerbyEvent,
+		eventFeatures: {
+			derbytypes: [],
+			sanctions: [],
+			tracks: [],
+		},
+		focused: true,
+		initialEventData: {} as IDerbyEvent,
+		initialSelectedFeatures: [],
+		loading: true,
+		newDayCounter: -1,
+		newVenueAddress1: "",
+		newVenueAddress2: "",
+		newVenueCity: "",
+		newVenueCountry: {} as IGeoCountry,
+		newVenueDescription: "",
+		newVenueLink: "",
+		newVenueName: "",
+		newVenuePostcode: "",
+		newVenueRegion: {} as IGeoRegion,
+		newVenueTimeZone: {} as ITimeZone,
+		pageFunction: this.props.match.params.operation === "add" ? "Add New Event" :
+			this.props.match.params.operation === "edit"
+				&& this.props.match.params.eventId
+				&& this.props.match.params.eventId.match(/[0-9]+/)
+				? "Edit Event" : "Error",
+		path: null,
+		processing: false,
+		regionLists: {} as IGeoRegionList,
+		sectionOpenBasic: true,
+		sectionOpenDays: true,
+		sectionOpenFeatures: true,
+		sectionOpenVenue: true,
+		selectedFeatures: [],
+		selectedVenue: {} as IDerbyVenue,
+		submitError: null,
+		submitSuccess: false,
+		timeZoneList: [],
+		userId: null,
+		venueList: [],
+	};
+
+	constructor(props: IProps) {
 		super(props);
-
-		this.state = {
-			countryList: [] as IGeoCountry[],
-			dataError: false,
-			editingDays: [] as IDerbyEventDayFormatted[],
-			eventData: {} as IDerbyEvent,
-			focused: true,
-			initialEventData: {} as IDerbyEvent,
-			initialSelectedFeatures: [] as string[],
-			loading: true,
-			newDayCounter: -1,
-			newVenueAddress1: "",
-			newVenueAddress2: "",
-			newVenueCity: "",
-			newVenueCountry: {} as IGeoCountry,
-			newVenueDescription: "",
-			newVenueLink: "",
-			newVenueName: "",
-			newVenuePostcode: "",
-			newVenueRegion: {} as IGeoRegion,
-			newVenueTimeZone: {} as ITimeZone,
-			pageFunction: this.props.match.params.operation === "add" ? "Add New Event" :
-				this.props.match.params.operation === "edit"
-					&& this.props.match.params.eventId
-					&& this.props.match.params.eventId.match(/[0-9]+/)
-					? "Edit Event" : "Error",
-			processing: false,
-			regionLists: {} as IGeoRegionList,
-			sectionOpenBasic: true,
-			sectionOpenDays: true,
-			sectionOpenFeatures: true,
-			sectionOpenVenue: true,
-			selectedFeatures: [] as string[],
-			selectedVenue: {} as IDerbyVenue,
-			submitError: null,
-			submitSuccess: false,
-			timeZoneList: [],
-			venueList: [],
-		};
 
 		this.addDay = this.addDay.bind(this);
 		this.cancelDayEdit = this.cancelDayEdit.bind(this);
@@ -80,18 +129,18 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 		this.submitEventForm = this.submitEventForm.bind(this);
 		this.toggleFeatureIcon = this.toggleFeatureIcon.bind(this);
 		this.toggleSection = this.toggleSection.bind(this);
-
 	}
 
 	componentDidUpdate() {
 
 		if (!this.props.loggedIn) {
+
 			this.props.history.push("/");
+
 		} else if (window.location.pathname !== this.state.path
 			|| this.props.loggedInUserId !== this.state.userId ) {
 
 			this.setState({
-				isSearch: (this.props.match.params.startDate || window.location.pathname !== "/"),
 				path: window.location.pathname,
 				userId: this.props.loggedInUserId,
 			});
@@ -608,7 +657,6 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 																<FeatureIcon
 																	imageClass={this.state.selectedFeatures.indexOf("track-" + icon.track_id) > -1 ? "selected" : ""}
 																	abbreviation={icon.track_abbreviation}
-																	alt={icon.track_name}
 																	id={icon.track_id}
 																	key={icon.track_id}
 																	title={icon.title}
@@ -626,7 +674,6 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 																<FeatureIcon
 																	imageClass={this.state.selectedFeatures.indexOf("derbytype-" + icon.derbytype_id) > -1 ? "selected" : ""}
 																	abbreviation={icon.derbytype_abbreviation}
-																	alt={icon.derbytype_name}
 																	id={icon.derbytype_id}
 																	key={icon.derbytype_id}
 																	title={icon.title}
@@ -644,7 +691,6 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 																<FeatureIcon
 																	imageClass={this.state.selectedFeatures.indexOf("sanction-" + icon.sanction_id) > -1 ? "selected" : ""}
 																	abbreviation={icon.sanction_abbreviation}
-																	alt={icon.sanction_name}
 																	id={icon.sanction_id}
 																	key={icon.sanction_id}
 																	title={icon.title}
@@ -683,7 +729,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 											|| (!this.state.selectedFeatures.filter((feature: string) => feature.split("-")[0] === "derbytype").length
 												|| !this.state.selectedFeatures.filter((feature: string) => feature.split("-")[0] === "track").length
 												)
-											|| this.state.editingDays.filter((day: IDerbyEventDayFormatted) => day.editing).length
+											|| !!this.state.editingDays.filter((day: IDerbyEventDayFormatted) => day.editing).length
 										}
 										className="largeButton"
 									>
@@ -731,9 +777,11 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 			startTime: "",
 		});
 
+		const newCounter = this.state.newDayCounter - 1;
+
 		this.setState({
 			editingDays,
-			newDayCounter: this.state.newDayCounter - 1,
+			newDayCounter: newCounter,
 		});
 
 	}
@@ -855,14 +903,16 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 
 	}
 
-	handleInputChange(event: React.ChangeEvent<any>) {
+	handleInputChange <T extends keyof IEventFormState>(event: React.ChangeEvent<any>) {
 
 		switch (event.currentTarget.getAttribute("data-handler")) {
 
 			case "eventData":
-				const eventData = this.state.eventData;
 
-				eventData[event.currentTarget.name] = event.currentTarget.value;
+				const eventData = this.state.eventData;
+				const inputField: (keyof IDerbyEvent) = event.currentTarget.name;
+
+				eventData[inputField] = event.currentTarget.value;
 
 				this.setState({
 					eventData,
@@ -872,21 +922,24 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 
 			case "newVenue":
 
-				this.setState({
-					[event.currentTarget.name]: event.currentTarget.value,
-				});
+				const venueField: (keyof IEventFormState) = event.currentTarget.name;
+				const newState = {
+					[venueField]: event.currentTarget.value,
+				};
+
+				this.setState(newState as { [P in T]: IEventFormState[P]; });
 
 				break;
 
 			case "eventDay":
 
 				const id = Number(event.currentTarget.getAttribute("data-day-id"));
-				const field = event.currentTarget.getAttribute("id").split("_")[0];
+				const dayField: (keyof IDerbyEventDayFormatted) = event.currentTarget.getAttribute("id").split("_")[0];
 
 				const editingDays = this.state.editingDays.filter((day: IDerbyEventDayFormatted) => day.id !== id);
 				const thisDay = this.state.editingDays.filter((day: IDerbyEventDayFormatted) => day.id === id)[0];
 
-				thisDay[field] = event.currentTarget.value;
+				thisDay[dayField] = event.currentTarget.value;
 
 				editingDays.push(thisDay);
 
@@ -903,7 +956,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 	handleTimeZoneChange(timezone: ITimeZone) {
 
 		this.setState({
-			newVenueTimeZone: timezone || {},
+			newVenueTimeZone: timezone || {} as ITimeZone,
 		});
 
 	}
@@ -916,8 +969,8 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 
 		this.setState({
 			eventData,
-			newVenueTimeZone: {},
-			selectedVenue: venue || {},
+			newVenueTimeZone: {} as ITimeZone,
+			selectedVenue: venue || {} as IDerbyVenue,
 		});
 
 	}
@@ -1007,13 +1060,19 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 
 	}
 
-	toggleSection(event: React.MouseEvent<HTMLHeadingElement>) {
+	toggleSection <T extends keyof IEventFormState>(event: React.MouseEvent<HTMLHeadingElement>) {
 
 		event.preventDefault();
 
-		this.setState({
-			[`sectionOpen${event.currentTarget.getAttribute("data-section")}`]: !this.state[`sectionOpen${event.currentTarget.getAttribute("data-section")}`],
-		});
+		const sectionToggle: (keyof IEventFormState) = `sectionOpen${event.currentTarget.getAttribute("data-section")}` as (keyof IEventFormState);
+
+		const currentState = this.state[sectionToggle];
+
+		const newState = {
+			[sectionToggle]: !currentState,
+		};
+
+		this.setState(newState as { [P in T]: IEventFormState[P]; });
 
 	}
 
@@ -1029,7 +1088,10 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 		let selectedVenue = {} as IDerbyVenue;
 		let timeZones: ITimeZone[] = [];
 
-		promises.push(getGeography(this.props)
+		promises.push(getGeography(
+			this.props.apiLocation,
+			this.props.dataGeography,
+			this.props.saveDataGeography)
 			.then((dataResponse: IGeoData) => {
 				countryList = dataResponse.countries;
 				regionLists = dataResponse.regions;
@@ -1037,28 +1099,40 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 				console.error(err);
 			}));
 
-		promises.push(getTimeZones(this.props)
+		promises.push(getTimeZones(
+			this.props.apiLocation,
+			this.props.timeZones,
+			this.props.saveTimeZones)
 			.then((dataResponse: ITimeZone[]) => {
 				timeZones = dataResponse;
 			}).catch((err: ErrorEventHandler) => {
 				console.error(err);
 			}));
 
-		promises.push(getDerbySanctions(this.props)
+		promises.push(getDerbySanctions(
+			this.props.apiLocation,
+			this.props.dataSanctions,
+			this.props.saveDataSanctions)
 			.then((dataResponse: IDerbySanction[]) => {
 				eventSanctions = dataResponse;
 			}).catch((err: ErrorEventHandler) => {
 				console.error(err);
 			}));
 
-		promises.push(getDerbyTracks(this.props)
+		promises.push(getDerbyTracks(
+			this.props.apiLocation,
+			this.props.dataTracks,
+			this.props.saveDataTracks)
 			.then((dataResponse: IDerbyTrack[]) => {
 				eventTracks = dataResponse;
 			}).catch((err: ErrorEventHandler) => {
 				console.error(err);
 			}));
 
-		promises.push(getDerbyTypes(this.props)
+		promises.push(getDerbyTypes(
+			this.props.apiLocation,
+			this.props.dataDerbyTypes,
+			this.props.saveDataDerbyTypes)
 			.then((dataResponse: IDerbyType[]) => {
 				eventTypes = dataResponse;
 			}).catch((err: ErrorEventHandler) => {
@@ -1256,6 +1330,7 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 							days: [] as IDerbyEventDayFormatted[],
 							description: "",
 							host: "",
+							id: 0,
 							link: "",
 							name: "",
 							venue: null as number,
@@ -1277,28 +1352,16 @@ export default class EventForm<Props> extends React.Component<any, any, any> {
 			processing: true,
 		});
 
-		const dataChanges = {
+		const dataChanges: IDerbyEventChangeObject = {
 			data: [],
 			days: [],
 			features: {
 				add: [],
 				delete: [],
 			},
-		} as {
-			data: Array<{field: string, value: string}>,
-			days: Array<{id: number, operation: string, value: {
-				[key: string]: any,
-			}}>,
-			features: {
-				add: string[],
-				delete: string[],
-			}
-			newVenueData?: {
-				[key: string]: any,
-			},
 		};
 
-		const checkDataChange = (field: string) => {
+		const checkDataChange = (field: keyof IDerbyEvent) => {
 
 			const initialValue = this.state.initialEventData[field] || null;
 			const value = this.state.eventData[field] || null;

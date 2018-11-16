@@ -10,28 +10,15 @@ import SearchIcon from "images/menu/search.svg";
 import LoginIconSolid from "images/menu/user-circle-solid.svg";
 import LoginIconOutline from "images/menu/user-circle.svg";
 
-export default class SiteMenu<Props> extends React.Component<any, any, any> {
+import { IProps } from "interfaces/redux";
 
-	constructor(props: Props) {
+export default class SiteMenu extends React.Component<IProps> {
+
+	constructor(props: IProps) {
 		super(props);
 
 		this.openLoginModal = this.openLoginModal.bind(this);
 
-	}
-
-	openLoginModal(event?: React.MouseEvent<HTMLAnchorElement>) {
-
-		if (event) {
-			event.preventDefault();
-		}
-
-		this.props.setLoginModalState(true);
-
-	}
-
-	isEventsCurrentPage(path: any, match: any, location: any) {
-
-		return match && !match.pathname.match(/\/(?:search|faq|contact|dashboard|validate)/);
 	}
 
 	render() {
@@ -105,6 +92,21 @@ export default class SiteMenu<Props> extends React.Component<any, any, any> {
 			</React.Fragment>
 		);
 
+	}
+
+	openLoginModal(event?: React.MouseEvent<HTMLAnchorElement>) {
+
+		if (event) {
+			event.preventDefault();
+		}
+
+		this.props.setLoginModalState(true);
+
+	}
+
+	isEventsCurrentPage(path: any, match: any, location: any) {
+
+		return match && !match.pathname.match(/\/(?:search|faq|contact|dashboard|validate)/);
 	}
 
 }

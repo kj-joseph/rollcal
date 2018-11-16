@@ -1,31 +1,39 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { IDBDerbyVenueChange } from "components/interfaces";
-
 import axios, { AxiosError, AxiosResponse } from "axios";
 
 import moment from "moment";
 
-import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList } from "components/interfaces";
-import { getGeography } from "components/lib/data";
+import { IBoxListItem } from "interfaces/boxList";
+import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList } from "interfaces/geo";
+import { IProps } from "interfaces/redux";
+import { IDBDerbyVenueChange, IDerbyVenueChange, IDerbyVenueChangeObject } from "interfaces/venue";
 
+import { checkUserRole } from "components/lib/auth";
+import { getGeography } from "components/lib/data";
 import BoxList from "components/partials/boxList";
 
-export default class VenueChanges<Props> extends React.Component<any, any, any> {
+interface IVenueChangesState {
+	loading: boolean;
+	path: string;
+	userId: number;
+	venueChanges: IBoxListItem[];
+}
 
-	constructor(props: Props) {
+export default class VenueChanges extends React.Component<IProps> {
+
+	state: IVenueChangesState = {
+		loading: true,
+		path: null,
+		userId: null,
+		venueChanges: [],
+	};
+
+	constructor(props: IProps) {
 		super(props);
 
-		this.state = {
-			loading: true,
-			path: "",
-			userId: null,
-			venueChanges: [],
-		};
-
 		this.reviewChange = this.reviewChange.bind(this);
-
 	}
 
 	componentDidMount() {
@@ -41,10 +49,14 @@ export default class VenueChanges<Props> extends React.Component<any, any, any> 
 
 			this.props.history.push("/");
 
-		} else if (window.location.pathname !== this.state.path || this.props.loggedInUserId !== this.state.userId ) {
+		} else if (!checkUserRole(this.props.loggedInUserRoles, "reviewer")) {
+
+			this.props.history.push("/dashboard");
+
+		} else if (window.location.pathname !== this.state.path
+			|| this.props.loggedInUserId !== this.state.userId ) {
 
 			this.setState({
-				isSearch: (this.props.match.params.startDate || window.location.pathname !== "/"),
 				path: window.location.pathname,
 				userId: this.props.loggedInUserId,
 			});
@@ -124,7 +136,6 @@ export default class VenueChanges<Props> extends React.Component<any, any, any> 
 	loadData() {
 
 		this.setState({
-			eventData: [],
 			loading: true,
 		});
 
@@ -132,7 +143,10 @@ export default class VenueChanges<Props> extends React.Component<any, any, any> 
 		const promises: Array<Promise<any>> = [];
 		let regionLists = {} as IGeoRegionList;
 
-		promises.push(getGeography(this.props)
+		promises.push(getGeography(
+			this.props.apiLocation,
+			this.props.dataGeography,
+			this.props.saveDataGeography)
 			.then((dataResponse: IGeoData) => {
 				countryList = dataResponse.countries;
 				regionLists = dataResponse.regions;
@@ -162,11 +176,21 @@ export default class VenueChanges<Props> extends React.Component<any, any, any> 
 
 						} else {
 
-							const changeObject: {[key: string]: any} = JSON.parse(change.change_object);
-							const venueChangeObject: {[key: string]: any} = {
+							const changeObject: IDerbyVenueChangeObject = JSON.parse(change.change_object);
+							const venueChangeObject: IDerbyVenueChange = {
+								address1: undefined,
+								address2: undefined,
 								changeId: change.change_id,
+								changedItemId: change.changed_item_id,
+								city: undefined,
+								country: undefined,
+								id: change.changed_item_id,
+								name: undefined,
+								postcode: undefined,
+								region: undefined,
 								submittedDuration: moment.duration(moment(change.change_submitted).diff(moment())).humanize(),
 								submittedTime: moment(change.change_submitted).format("MMM D, Y h:mm a"),
+								timezone: undefined,
 								user: change.change_user,
 								username: change.change_user_name,
 							};
@@ -217,11 +241,6 @@ export default class VenueChanges<Props> extends React.Component<any, any, any> 
 
 				}).catch((error: AxiosError) => {
 					console.error(error);
-
-					this.setState({
-						dataError: true,
-					});
-
 				});
 
 		});
