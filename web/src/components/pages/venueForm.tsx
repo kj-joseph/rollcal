@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList, ITimeZone } from "interfaces/geo";
 import { IProps } from "interfaces/redux";
-import { IDerbyVenue } from "interfaces/venue";
+import { IDerbyVenue, IDerbyVenueChangeObject } from "interfaces/venue";
 
 import { getGeography, getTimeZones } from "components/lib/data";
 
@@ -569,19 +569,19 @@ export default class VenueForm extends React.Component<IProps, IVenueFormState> 
 			processing: true,
 		});
 
-		const dataChanges = {} as {[key: string]: any};
+		const dataChanges: IDerbyVenueChangeObject = {};
 
 		for (const field in this.state.venueData) {
 			if (field === "id") {
 				continue;
 			}
-			const fieldName: (keyof IDerbyVenue) = field as (keyof IDerbyVenue);
+			const fieldName: (keyof IDerbyVenueChangeObject) = field as (keyof IDerbyVenueChangeObject);
 			const initialValue = this.state.initialVenueData[fieldName] || null;
 			const value = this.state.venueData[fieldName] || null;
 
 			if ((!this.state.venueData.id && value)
 				|| (this.state.venueData.id && value !== initialValue)) {
-				dataChanges[field] = value;
+				dataChanges[fieldName] = value;
 			}
 		}
 

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import axios, { AxiosError, AxiosResponse } from "axios";
 
 import { getGeography } from "components/lib/data";
-import { IDBDerbyEventChange } from "interfaces/event";
+import { IDBDerbyEventChange, IDerbyEventChange, IDerbyEventChangeObject } from "interfaces/event";
 import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList } from "interfaces/geo";
 import { IProps } from "interfaces/redux";
 
@@ -199,9 +199,12 @@ export default class EventChanges extends React.Component<IProps, IEventChangesS
 
 									} else {
 
-										const changeObject: {[key: string]: any} = JSON.parse(change.change_object);
-										const eventChangeObject: {[key: string]: any} = {
+										const changeObject: IDerbyEventChangeObject = JSON.parse(change.change_object);
+										const eventChangeObject: IDerbyEventChange = {
 											changeId: change.change_id,
+											dayChanges: [],
+											id: change.changed_item_id,
+											name: undefined,
 											submittedDuration: moment.duration(moment(change.change_submitted).diff(moment())).humanize(),
 											submittedTime: moment(change.change_submitted).format("MMM D, Y h:mm a"),
 											user: change.change_user,
@@ -209,9 +212,9 @@ export default class EventChanges extends React.Component<IProps, IEventChangesS
 										};
 
 										const name = changeObject.data.filter(
-											(item: {field: string, venue: string}) => item.field === "name")[0];
+											(item) => item.field === "name")[0];
 										const host = changeObject.data.filter(
-											(item: {field: string, venue: string}) => item.field === "host")[0];
+											(item) => item.field === "host")[0];
 
 										if (name) {
 											eventChangeObject.name = name.value;

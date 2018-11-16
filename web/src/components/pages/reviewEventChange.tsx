@@ -789,7 +789,7 @@ export default class ReviewEventChange extends React.Component<IProps, IReviewEv
 									status: "unchanged",
 								};
 
-								const newDay = changeObject.days.filter((d: {[key: string]: any}) => d.id === day.id);
+								const newDay = changeObject.days.filter((d) => d.id === day.id);
 
 								if (newDay.length) {
 									dayData.status = newDay[0].operation;
