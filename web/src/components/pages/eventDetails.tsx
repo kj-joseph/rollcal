@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios from "axios";
 
 import EventIcons from "components/partials/eventIcons";
 import { IDBDerbyEvent, IDerbyEvent, IDerbyEventDayFormatted } from "interfaces/event";
@@ -28,6 +28,8 @@ export default class EventDetails extends React.Component<IProps> {
 		path: null,
 	};
 
+	axiosSignal = axios.CancelToken.source();
+
 	constructor(props: IProps) {
 		super(props);
 
@@ -51,6 +53,10 @@ export default class EventDetails extends React.Component<IProps> {
 		window.scrollTo(0, 0);
 		this.props.setSessionState(this.props.sessionInitialized);
 
+	}
+
+	componentWillUnmount() {
+		this.axiosSignal.cancel();
 	}
 
 	render() {
@@ -214,18 +220,22 @@ export default class EventDetails extends React.Component<IProps> {
 
 	loadData() {
 
-		axios.get(`${this.props.apiLocation}events/getEventDetails/${this.props.match.params.eventId}`, { withCredentials: true })
-			.then((result: AxiosResponse) => {
+		axios.get(`${this.props.apiLocation}events/getEventDetails/${this.props.match.params.eventId}`,
+			{
+				cancelToken: this.axiosSignal.token,
+				withCredentials: true,
+			})
+			.then((result) => {
 
 				if (result.data) {
 
 					const eventResult: IDBDerbyEvent = result.data;
-
 					const icons: IDerbyIcons = {
 						derbytypes: [],
 						sanctions: [],
 						tracks: [],
 					};
+					let promiseError = false;
 					const promises: Array<Promise<void>> = [];
 
 					if (eventResult.derbytypes) {
@@ -233,7 +243,8 @@ export default class EventDetails extends React.Component<IProps> {
 						promises.push(getDerbyTypes(
 							this.props.apiLocation,
 							this.props.dataDerbyTypes,
-							this.props.saveDataDerbyTypes)
+							this.props.saveDataDerbyTypes,
+							this.axiosSignal)
 							.then((dataResponse: IDerbyType[]) => {
 								icons.derbytypes =
 									dataResponse.filter((dt: IDerbyType) =>
@@ -242,6 +253,8 @@ export default class EventDetails extends React.Component<IProps> {
 												filename: `derbytype-${dt.derbytype_abbreviation}`,
 												title: dt.derbytype_name,
 											}));
+							}).catch(() => {
+								promiseError = true;
 							}));
 
 					}
@@ -251,7 +264,8 @@ export default class EventDetails extends React.Component<IProps> {
 						promises.push(getDerbySanctions(
 							this.props.apiLocation,
 							this.props.dataSanctions,
-							this.props.saveDataSanctions)
+							this.props.saveDataSanctions,
+							this.axiosSignal)
 							.then((dataResponse: IDerbySanction[]) => {
 								icons.sanctions =
 									dataResponse.filter((s: IDerbySanction) =>
@@ -260,6 +274,8 @@ export default class EventDetails extends React.Component<IProps> {
 												filename: `sanction-${s.sanction_abbreviation}`,
 												title: `${s.sanction_name} (${s.sanction_abbreviation})`,
 											}));
+							}).catch(() => {
+								promiseError = true;
 							}));
 
 					}
@@ -269,7 +285,8 @@ export default class EventDetails extends React.Component<IProps> {
 						promises.push(getDerbyTracks(
 							this.props.apiLocation,
 							this.props.dataTracks,
-							this.props.saveDataTracks)
+							this.props.saveDataTracks,
+							this.axiosSignal)
 							.then((dataResponse: IDerbyTrack[]) => {
 								icons.tracks =
 									dataResponse.filter((t: IDerbyTrack) =>
@@ -278,56 +295,63 @@ export default class EventDetails extends React.Component<IProps> {
 												filename: `track-${t.track_abbreviation}`,
 												title: t.track_name,
 											}));
+							}).catch(() => {
+								promiseError = true;
 							}));
 
 					}
 
 					Promise.all(promises).then(() => {
 
-						this.setState({
-							eventData: {
-								address1: eventResult.venue_address1,
-								address2: eventResult.venue_address2,
-								country: eventResult.country_name,
-								datesVenue: formatDateRange({
-										firstDay: moment.utc(eventResult.days[0].eventday_start_venue),
-										lastDay: moment.utc(eventResult.days[eventResult.days.length - 1].eventday_start_venue),
-									}, "long"),
-								days: eventResult.days.map((day) => ({
-									date: moment.utc(day.eventday_start_venue).format("MMM D"),
-									description: day.eventday_description,
-									doorsTime: day.eventday_doors_venue
-										&& day.eventday_doors_venue < day.eventday_start_venue
-										? moment.utc(day.eventday_doors_venue).format("h:mm a")
-										: "",
-									startTime: moment.utc(day.eventday_start_venue).format("h:mm a"),
-								})),
-								description: eventResult.event_description,
-								flag: eventResult.country_flag ? <span title={eventResult.country_name} className={`flag-icon flag-icon-${eventResult.country_flag}`} /> : null,
-								host: eventResult.event_name ? eventResult.event_host : null,
-								icons,
-								id: eventResult.event_id,
-								link: eventResult.event_link,
-								location: `${eventResult.venue_city}${eventResult.region_abbreviation ?
-									`, ${eventResult.region_abbreviation}` : ""}`,
-								multiDay: eventResult.days.length > 1,
-								name: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
-								postcode: eventResult.venue_postcode,
-								user: eventResult.user_id,
-								username: eventResult.user_name,
-								venueDescription: eventResult.venue_description,
-								venueLink: eventResult.venue_link,
-								venueName: eventResult.venue_name,
-							},
-							loading: false,
-						});
+						if (!promiseError) {
+
+							this.setState({
+								eventData: {
+									address1: eventResult.venue_address1,
+									address2: eventResult.venue_address2,
+									country: eventResult.country_name,
+									datesVenue: formatDateRange({
+											firstDay: moment.utc(eventResult.days[0].eventday_start_venue),
+											lastDay: moment.utc(eventResult.days[eventResult.days.length - 1].eventday_start_venue),
+										}, "long"),
+									days: eventResult.days.map((day) => ({
+										date: moment.utc(day.eventday_start_venue).format("MMM D"),
+										description: day.eventday_description,
+										doorsTime: day.eventday_doors_venue
+											&& day.eventday_doors_venue < day.eventday_start_venue
+											? moment.utc(day.eventday_doors_venue).format("h:mm a")
+											: "",
+										startTime: moment.utc(day.eventday_start_venue).format("h:mm a"),
+									})),
+									description: eventResult.event_description,
+									flag: eventResult.country_flag ? <span title={eventResult.country_name} className={`flag-icon flag-icon-${eventResult.country_flag}`} /> : null,
+									host: eventResult.event_name ? eventResult.event_host : null,
+									icons,
+									id: eventResult.event_id,
+									link: eventResult.event_link,
+									location: `${eventResult.venue_city}${eventResult.region_abbreviation ?
+										`, ${eventResult.region_abbreviation}` : ""}`,
+									multiDay: eventResult.days.length > 1,
+									name: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
+									postcode: eventResult.venue_postcode,
+									user: eventResult.user_id,
+									username: eventResult.user_name,
+									venueDescription: eventResult.venue_description,
+									venueLink: eventResult.venue_link,
+									venueName: eventResult.venue_name,
+								},
+								loading: false,
+							});
+						}
 
 					}).catch(() => {
 
-						this.setState({
-							dataError: true,
-							loading: false,
-						});
+						if (!promiseError) {
+							this.setState({
+								dataError: true,
+								loading: false,
+							});
+						}
 
 					});
 
@@ -341,13 +365,15 @@ export default class EventDetails extends React.Component<IProps> {
 
 				}
 
-			}).catch((error: AxiosError) => {
-				console.error(error);
+			}).catch((error) => {
 
-				this.setState({
-					dataError: true,
-					loading: false,
-				});
+				if (!axios.isCancel(error)) {
+					console.error(error);
+					this.setState({
+						dataError: true,
+						loading: false,
+					});
+				}
 
 			});
 

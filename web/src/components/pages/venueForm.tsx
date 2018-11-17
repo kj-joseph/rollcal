@@ -7,7 +7,7 @@ import { IDerbyVenue, IDerbyVenueChangeObject } from "interfaces/venue";
 
 import { getGeography, getTimeZones } from "components/lib/data";
 
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios from "axios";
 
 import Select from "react-select";
 
@@ -55,6 +55,8 @@ export default class VenueForm extends React.Component<IProps> {
 		venueData: {} as IDerbyVenue,
 	};
 
+	axiosSignal = axios.CancelToken.source();
+
 	constructor(props: IProps) {
 		super(props);
 
@@ -95,6 +97,10 @@ export default class VenueForm extends React.Component<IProps> {
 		window.scrollTo(0, 0);
 		this.props.setSessionState(this.props.sessionInitialized);
 
+	}
+
+	componentWillUnmount() {
+		this.axiosSignal.cancel();
 	}
 
 	render() {
@@ -422,6 +428,7 @@ export default class VenueForm extends React.Component<IProps> {
 	loadData() {
 
 		let countryList: IGeoCountry[] = [];
+		let promiseError = false;
 		const promises: Array<Promise<any>> = [];
 		let regionLists: IGeoRegionList = {};
 		let timeZones: ITimeZone[] = [];
@@ -429,25 +436,31 @@ export default class VenueForm extends React.Component<IProps> {
 		promises.push(getGeography(
 			this.props.apiLocation,
 			this.props.dataGeography,
-			this.props.saveDataGeography)
+			this.props.saveDataGeography,
+			this.axiosSignal)
 			.then((dataResponse: IGeoData) => {
 				countryList = dataResponse.countries;
 				regionLists = dataResponse.regions;
-			}).catch((err: ErrorEventHandler) => {
-				console.error(err);
+			}).catch((error) => {
+				console.error(error);
+				promiseError = true;
 			}));
 
 		promises.push(getTimeZones(
 			this.props.apiLocation,
 			this.props.timeZones,
-			this.props.saveTimeZones)
+			this.props.saveTimeZones,
+			this.axiosSignal)
 			.then((dataResponse: ITimeZone[]) => {
 				timeZones = dataResponse;
-			}).catch((err: ErrorEventHandler) => {
-				console.error(err);
+			}).catch((error) => {
+				console.error(error);
+				promiseError = true;
 			}));
 
 		Promise.all(promises).then(() => {
+
+			if (!promiseError) {
 
 			this.setState({
 				countryList,
@@ -457,8 +470,12 @@ export default class VenueForm extends React.Component<IProps> {
 
 			if (this.props.match.params.venueId) {
 
-				axios.get(`${this.props.apiLocation}venues/getVenueDetails/${this.props.match.params.venueId}`, { withCredentials: true })
-					.then((result: AxiosResponse) => {
+				axios.get(`${this.props.apiLocation}venues/getVenueDetails/${this.props.match.params.venueId}`,
+					{
+						cancelToken: this.axiosSignal.token,
+						withCredentials: true,
+					})
+					.then((result) => {
 
 						if (result.data && result.data.venue_user === this.props.loggedInUserId) {
 
@@ -512,13 +529,15 @@ export default class VenueForm extends React.Component<IProps> {
 
 						}
 
-					}).catch((error: AxiosError) => {
+					}).catch((error) => {
 						console.error(error);
 
-						this.setState({
-							dataError: true,
-							loading: false,
-						});
+						if (!axios.isCancel(error)) {
+							this.setState({
+								dataError: true,
+								loading: false,
+							});
+						}
 
 					});
 
@@ -555,6 +574,7 @@ export default class VenueForm extends React.Component<IProps> {
 					});
 
 				}
+			}
 
 		});
 
@@ -589,9 +609,13 @@ export default class VenueForm extends React.Component<IProps> {
 			axios.put(`${this.props.apiLocation}venues/saveChanges`, {
 				changeObject: JSON.stringify(dataChanges),
 				id: this.state.venueData.id || 0,
-			}, { withCredentials: true })
+			},
+			{
+				cancelToken: this.axiosSignal.token,
+				withCredentials: true,
+			})
 
-			.then((result: AxiosResponse) => {
+			.then((result) => {
 
 				this.setState({
 					processing: false,
@@ -599,12 +623,14 @@ export default class VenueForm extends React.Component<IProps> {
 				});
 
 
-			}).catch((error: AxiosError) => {
+			}).catch((error) => {
 
-				this.setState({
-					processing: false,
-					submitError: "There was an error submitting your changes. Please try again.",
-				});
+				if (!axios.isCancel(error)) {
+					this.setState({
+						processing: false,
+						submitError: "There was an error submitting your changes. Please try again.",
+					});
+				}
 
 			});
 

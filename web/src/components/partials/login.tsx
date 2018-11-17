@@ -4,7 +4,7 @@ import { withRouter } from "react-router";
 import Modal from "react-modal";
 Modal.setAppElement("#root");
 
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios from "axios";
 
 import CloseIcon from "images/times-circle.svg";
 import ReactSVG from "react-svg";
@@ -41,6 +41,8 @@ class Login extends React.Component<IProps> {
 		registerUsername: "",
 	};
 
+	axiosSignal = axios.CancelToken.source();
+
 	constructor(props: IProps) {
 		super(props);
 
@@ -62,6 +64,10 @@ class Login extends React.Component<IProps> {
 			});
 
 		}
+	}
+
+	componentWillUnmount() {
+		this.axiosSignal.cancel();
 	}
 
 	render() {
@@ -285,30 +291,38 @@ class Login extends React.Component<IProps> {
 		});
 
 		axios.post(this.props.apiLocation + "user/login", {
-			email: this.state.loginEmail,
-			password: this.state.loginPassword,
-		}, { withCredentials: true })
-		.then((result: AxiosResponse) => {
+				email: this.state.loginEmail,
+				password: this.state.loginPassword,
+			},
+			{
+				cancelToken: this.axiosSignal.token,
+				withCredentials: true,
+			})
+			.then((result) => {
 
-			this.props.setUserInfo({
-				loggedIn: true,
-				userEmail: result.data.email,
-				userId: result.data.id,
-				userName: result.data.username,
-				userRoles: result.data.roles,
+				this.props.setUserInfo({
+					loggedIn: true,
+					userEmail: result.data.email,
+					userId: result.data.id,
+					userName: result.data.username,
+					userRoles: result.data.roles,
+				});
+
+				this.changeStatusClearState("login");
+
+				this.props.setLoginModalState(false);
+
+			}).catch((error) => {
+				console.error(error);
+
+				if (!axios.isCancel(error)) {
+					this.setState({
+						errorMessage: "Sorry, that login wasn't right.  Try again.",
+						loading: false,
+					});
+				}
+
 			});
-
-			this.changeStatusClearState("login");
-
-			this.props.setLoginModalState(false);
-
-		}).catch((error: AxiosError) => {
-			console.error(error);
-			this.setState({
-				errorMessage: "Sorry, that login wasn't right.  Try again.",
-				loading: false,
-			});
-		});
 
 	}
 
@@ -319,8 +333,11 @@ class Login extends React.Component<IProps> {
 		});
 
 		axios.get(`${this.props.apiLocation}user/register/checkEmail?email=${this.state.registerEmail}`,
-			{ withCredentials: true })
-			.then((result: AxiosResponse) => {
+			{
+				cancelToken: this.axiosSignal.token,
+				withCredentials: true,
+			})
+			.then((result) => {
 				if (result.data) {
 
 					this.setState({
@@ -334,29 +351,39 @@ class Login extends React.Component<IProps> {
 						email: this.state.registerEmail,
 						password: this.state.registerPassword,
 						username: this.state.registerUsername,
-						}, { withCredentials: true })
-						.then((registerResult: AxiosResponse) => {
+						},
+						{
+							cancelToken: this.axiosSignal.token,
+							withCredentials: true,
+						})
+						.then((registerResult) => {
 
 							this.changeStatusClearState("regComplete");
 
-						}).catch((error: AxiosError) => {
+						}).catch((error) => {
 							console.error(error);
 
-							this.setState({
-								errorMessage: "Sorry, something went wrong.  Try again.",
-								loading: false,
-							});
+							if (!axios.isCancel(error)) {
+								this.setState({
+									errorMessage: "Sorry, something went wrong.  Try again.",
+									loading: false,
+								});
+							}
+
 						});
 
 				}
 
-			}).catch((error: AxiosError) => {
+			}).catch((error) => {
 				console.error(error);
 
-				this.setState({
-					errorMessage: "Sorry, something went wrong.  Try again.",
-					loading: false,
-				});
+				if (!axios.isCancel(error)) {
+					this.setState({
+						errorMessage: "Sorry, something went wrong.  Try again.",
+						loading: false,
+					});
+				}
+
 			});
 
 	}

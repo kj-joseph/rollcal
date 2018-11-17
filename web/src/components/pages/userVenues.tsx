@@ -5,7 +5,7 @@ import { IBoxListItem } from "interfaces/boxList";
 import { IProps } from "interfaces/redux";
 import { IDBDerbyVenue } from "interfaces/venue";
 
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios from "axios";
 
 import CheckIcon from "images/check-circle.svg";
 import CircleIcon from "images/circle.svg";
@@ -33,6 +33,8 @@ export default class UserVenues extends React.Component<IProps, IUserVenuesState
 		userId: null,
 		venueData: [],
 	};
+
+	axiosSignal = axios.CancelToken.source();
 
 	constructor(props: IProps) {
 		super(props);
@@ -71,6 +73,10 @@ export default class UserVenues extends React.Component<IProps, IUserVenuesState
 
 		}
 
+	}
+
+	componentWillUnmount() {
+		this.axiosSignal.cancel();
 	}
 
 	render() {
@@ -185,8 +191,12 @@ export default class UserVenues extends React.Component<IProps, IUserVenuesState
 		axios.get(`${this.props.apiLocation}venues/${
 			isReviewer ? "getAllVenues"
 				: `getVenuesByUser/${this.props.loggedInUserId}`
-		}`, { withCredentials: true })
-			.then((result: AxiosResponse) => {
+			}`,
+			{
+				cancelToken: this.axiosSignal.token,
+				withCredentials: true,
+			})
+			.then((result) => {
 
 				const venueData = result.data.map((venue: IDBDerbyVenue) => ({
 					city: venue.venue_city,
@@ -202,8 +212,15 @@ export default class UserVenues extends React.Component<IProps, IUserVenuesState
 					venueData,
 				});
 
-			}).catch((error: AxiosError) => {
+			}).catch((error) => {
 				console.error(error);
+
+				if (!axios.isCancel(error)) {
+					this.setState({
+						loading: false,
+					});
+				}
+
 			});
 
 	}

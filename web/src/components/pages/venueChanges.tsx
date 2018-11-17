@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios from "axios";
 
 import moment from "moment";
 
@@ -29,6 +29,8 @@ export default class VenueChanges extends React.Component<IProps> {
 		userId: null,
 		venueChanges: [],
 	};
+
+	axiosSignal = axios.CancelToken.source();
 
 	constructor(props: IProps) {
 		super(props);
@@ -67,6 +69,10 @@ export default class VenueChanges extends React.Component<IProps> {
 
 		}
 
+	}
+
+	componentWillUnmount() {
+		this.axiosSignal.cancel();
 	}
 
 	render() {
@@ -140,108 +146,125 @@ export default class VenueChanges extends React.Component<IProps> {
 		});
 
 		let countryList = [] as IGeoCountry[];
+		let promiseError = false;
 		const promises: Array<Promise<any>> = [];
 		let regionLists = {} as IGeoRegionList;
 
 		promises.push(getGeography(
 			this.props.apiLocation,
 			this.props.dataGeography,
-			this.props.saveDataGeography)
+			this.props.saveDataGeography,
+			this.axiosSignal)
 			.then((dataResponse: IGeoData) => {
 				countryList = dataResponse.countries;
 				regionLists = dataResponse.regions;
-			}).catch((err: ErrorEventHandler) => {
-				console.error(err);
+			}).catch((error) => {
+				console.error(error);
+				promiseError = true;
 			}));
 
 		Promise.all(promises).then(() => {
 
-			axios.get(`${this.props.apiLocation}venues/getChangeList`, { withCredentials: true })
-				.then((result: AxiosResponse) => {
+			if (!promiseError) {
 
-					const venueChanges = result.data.map((change: IDBDerbyVenueChange) => {
+				axios.get(`${this.props.apiLocation}venues/getChangeList`,
+					{
+						cancelToken: this.axiosSignal.token,
+						withCredentials: true,
+					})
+					.then((result) => {
 
-						if (change.changed_item_id) {
+						const venueChanges = result.data.map((change: IDBDerbyVenueChange) => {
 
-							return {
-								changeId: change.change_id,
-								id: change.changed_item_id,
-								location: `${change.venue_city}${change.region_abbreviation ? ", " + change.region_abbreviation : ""}, ${change.country_code}`,
-								name: change.venue_name,
-								submittedDuration: moment.duration(moment(change.change_submitted).diff(moment())).humanize(),
-								submittedTime: moment(change.change_submitted).format("MMM D, Y h:mm a"),
-								user: change.change_user,
-								username: change.change_user_name,
-							};
+							if (change.changed_item_id) {
 
-						} else {
+								return {
+									changeId: change.change_id,
+									id: change.changed_item_id,
+									location: `${change.venue_city}${change.region_abbreviation ? ", " + change.region_abbreviation : ""}, ${change.country_code}`,
+									name: change.venue_name,
+									submittedDuration: moment.duration(moment(change.change_submitted).diff(moment())).humanize(),
+									submittedTime: moment(change.change_submitted).format("MMM D, Y h:mm a"),
+									user: change.change_user,
+									username: change.change_user_name,
+								};
 
-							const changeObject: IDerbyVenueChangeObject = JSON.parse(change.change_object);
-							const venueChangeObject: IDerbyVenueChange = {
-								address1: undefined,
-								address2: undefined,
-								changeId: change.change_id,
-								changedItemId: change.changed_item_id,
-								city: undefined,
-								country: undefined,
-								id: change.changed_item_id,
-								name: undefined,
-								postcode: undefined,
-								region: undefined,
-								submittedDuration: moment.duration(moment(change.change_submitted).diff(moment())).humanize(),
-								submittedTime: moment(change.change_submitted).format("MMM D, Y h:mm a"),
-								timezone: undefined,
-								user: change.change_user,
-								username: change.change_user_name,
-							};
+							} else {
 
-							let cityString: string;
-							let countryCode: string;
-							let regionAbbr: string;
+								const changeObject: IDerbyVenueChangeObject = JSON.parse(change.change_object);
+								const venueChangeObject: IDerbyVenueChange = {
+									address1: undefined,
+									address2: undefined,
+									changeId: change.change_id,
+									changedItemId: change.changed_item_id,
+									city: undefined,
+									country: undefined,
+									id: change.changed_item_id,
+									name: undefined,
+									postcode: undefined,
+									region: undefined,
+									submittedDuration: moment.duration(moment(change.change_submitted).diff(moment())).humanize(),
+									submittedTime: moment(change.change_submitted).format("MMM D, Y h:mm a"),
+									timezone: undefined,
+									user: change.change_user,
+									username: change.change_user_name,
+								};
 
-							for (const key in changeObject) {
-								if (changeObject.hasOwnProperty(key)) {
+								let cityString: string;
+								let countryCode: string;
+								let regionAbbr: string;
 
-									switch (key) {
+								for (const key in changeObject) {
+									if (changeObject.hasOwnProperty(key)) {
 
-										case "city":
-											cityString = changeObject[key];
-											break;
+										switch (key) {
 
-										case "country":
-											countryCode = countryList.filter(
-												(country: IGeoCountry) => country.country_code === changeObject[key])[0].country_code;
-											break;
+											case "city":
+												cityString = changeObject[key];
+												break;
 
-										case "name":
-											venueChangeObject[key] = changeObject[key];
-											break;
+											case "country":
+												countryCode = countryList.filter(
+													(country: IGeoCountry) => country.country_code === changeObject[key])[0].country_code;
+												break;
 
-										case "region":
-											regionAbbr = regionLists[changeObject.country].filter(
-												(region: IGeoRegion) => region.region_id === changeObject[key])[0].region_abbreviation;
-											break;
+											case "name":
+												venueChangeObject[key] = changeObject[key];
+												break;
 
+											case "region":
+												regionAbbr = regionLists[changeObject.country].filter(
+													(region: IGeoRegion) => region.region_id === changeObject[key])[0].region_abbreviation;
+												break;
+
+										}
 									}
 								}
+
+								venueChangeObject.location = `${cityString}${regionAbbr ? ", " + regionAbbr : ""}, ${countryCode}`;
+
+								return venueChangeObject;
+
 							}
 
-							venueChangeObject.location = `${cityString}${regionAbbr ? ", " + regionAbbr : ""}, ${countryCode}`;
+						});
 
-							return venueChangeObject;
+						this.setState({
+							loading: false,
+							venueChanges,
+						});
 
+					}).catch((error) => {
+						console.error(error);
+
+						if (!axios.isCancel(error)) {
+							this.setState({
+								loading: false,
+							});
 						}
 
 					});
-
-					this.setState({
-						loading: false,
-						venueChanges,
-					});
-
-				}).catch((error: AxiosError) => {
-					console.error(error);
-				});
+				}
 
 		});
 	}

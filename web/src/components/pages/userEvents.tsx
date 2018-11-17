@@ -8,7 +8,7 @@ import { IBoxListItem } from "interfaces/boxList";
 import { IDBDerbyEvent } from "interfaces/event";
 import { IProps } from "interfaces/redux";
 
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios from "axios";
 
 import moment from "moment";
 
@@ -48,6 +48,8 @@ export default class UserEvents extends React.Component<IProps> {
 		showAll: false,
 		userId: null,
 	};
+
+	axiosSignal = axios.CancelToken.source();
 
 	constructor(props: IProps) {
 		super(props);
@@ -89,6 +91,10 @@ export default class UserEvents extends React.Component<IProps> {
 
 		}
 
+	}
+
+	componentWillUnmount() {
+		this.axiosSignal.cancel();
 	}
 
 	render() {
@@ -245,8 +251,11 @@ export default class UserEvents extends React.Component<IProps> {
 		});
 
 		axios.delete(`${this.props.apiLocation}events/deleteEvent/${this.state.deleteEventId}`,
-			{ withCredentials: true })
-			.then((result: AxiosResponse) => {
+			{
+				cancelToken: this.axiosSignal.token,
+				withCredentials: true,
+			})
+			.then((result) => {
 
 				this.loadData();
 
@@ -255,12 +264,14 @@ export default class UserEvents extends React.Component<IProps> {
 					modalProcessing: false,
 				});
 
-			}).catch((result: AxiosError) => {
+			}).catch((error) => {
 
-				this.setState({
-					modalError: "There was a problem trying to delete the event.",
-					modalProcessing: false,
-				});
+				if (!axios.isCancel(error)) {
+					this.setState({
+						modalError: "There was a problem trying to delete the event.",
+						modalProcessing: false,
+					});
+				}
 
 			});
 
@@ -302,8 +313,12 @@ export default class UserEvents extends React.Component<IProps> {
 		});
 
 		axios.get(`${this.props.apiLocation}events/search${isReviewer ? "" : `?user=${this.props.loggedInUserId}`}`
-			+ `${isReviewer ? "?" : "&"}startDate=${moment().format("Y-MM-DD")}`, { withCredentials: true })
-			.then((result: AxiosResponse) => {
+			+ `${isReviewer ? "?" : "&"}startDate=${moment().format("Y-MM-DD")}`,
+			{
+				cancelToken: this.axiosSignal.token,
+				withCredentials: true,
+			})
+			.then((result) => {
 
 				const eventData = result.data.events.map((event: IDBDerbyEvent) => ({
 						datesVenue: formatDateRange({
@@ -322,8 +337,15 @@ export default class UserEvents extends React.Component<IProps> {
 					loading: false,
 				});
 
-			}).catch((error: AxiosError) => {
+			}).catch((error) => {
 				console.error(error);
+
+				if (!axios.isCancel(error)) {
+					this.setState({
+						loading: false,
+					});
+				}
+
 			});
 
 	}

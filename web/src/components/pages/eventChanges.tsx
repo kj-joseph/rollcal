@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios from "axios";
 
 import { getGeography } from "components/lib/data";
 import { IDBDerbyEventChange, IDerbyEventChange, IDerbyEventChangeObject } from "interfaces/event";
@@ -30,6 +30,8 @@ export default class EventChanges extends React.Component<IProps> {
 		path: null,
 		userId: null,
 	};
+
+	axiosSignal = axios.CancelToken.source();
 
 	constructor(props: IProps) {
 		super(props);
@@ -68,6 +70,10 @@ export default class EventChanges extends React.Component<IProps> {
 
 		}
 
+	}
+
+	componentWillUnmount() {
+		this.axiosSignal.cancel();
 	}
 
 	render() {
@@ -137,7 +143,6 @@ export default class EventChanges extends React.Component<IProps> {
 	loadData() {
 
 			this.setState({
-				eventChanges: [],
 				loading: true,
 			});
 
@@ -148,18 +153,23 @@ export default class EventChanges extends React.Component<IProps> {
 			promises.push(getGeography(
 				this.props.apiLocation,
 				this.props.dataGeography,
-				this.props.saveDataGeography)
+				this.props.saveDataGeography,
+				this.axiosSignal)
 				.then((dataResponse: IGeoData) => {
 					countryList = dataResponse.countries;
 					regionLists = dataResponse.regions;
-				}).catch((err: ErrorEventHandler) => {
-					console.error(err);
+				}).catch((error) => {
+					console.error(error);
 				}));
 
 			Promise.all(promises).then(() => {
 
-				axios.get(`${this.props.apiLocation}events/getChangeList`, { withCredentials: true })
-					.then((result: AxiosResponse) => {
+				axios.get(`${this.props.apiLocation}events/getChangeList`,
+					{
+						cancelToken: this.axiosSignal.token,
+						withCredentials: true,
+					})
+					.then((result) => {
 
 						const eventChanges = result.data.map((change: IDBDerbyEventChange) => {
 
@@ -247,12 +257,14 @@ export default class EventChanges extends React.Component<IProps> {
 							loading: false,
 						});
 
-					}).catch((error: AxiosError) => {
+					}).catch((error) => {
 						console.error(error);
 
-						this.setState({
-							dataError: true,
-						});
+						if (!axios.isCancel(error)) {
+							this.setState({
+								dataError: true,
+							});
+						}
 
 					});
 

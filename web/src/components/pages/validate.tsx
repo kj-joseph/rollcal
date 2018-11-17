@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios from "axios";
 
 import { IProps } from "interfaces/redux";
 
@@ -23,6 +23,8 @@ export default class Validate extends React.Component<IProps> {
 		validationCode: this.validationParts[0],
 	};
 
+	axiosSignal = axios.CancelToken.source();
+
 	constructor(props: IProps) {
 		super(props);
 
@@ -36,23 +38,37 @@ export default class Validate extends React.Component<IProps> {
 
 	}
 
+	componentWillUnmount() {
+		this.axiosSignal.cancel();
+	}
+
 	loadData() {
 
 		axios.post(this.props.apiLocation + "user/account/validate", {
-			email: this.state.email,
-			username: this.state.username,
-			validationCode: this.state.validationCode,
-		}, { withCredentials: true })
-		.then((result: AxiosResponse) => {
-			this.setState({
-				status: "valid",
+				email: this.state.email,
+				username: this.state.username,
+				validationCode: this.state.validationCode,
+			},
+			{
+				cancelToken: this.axiosSignal.token,
+				withCredentials: true,
+			})
+			.then((result) => {
+
+				this.setState({
+					status: "valid",
+				});
+
+			}).catch((error) => {
+				console.error(error);
+
+				if (!axios.isCancel(error)) {
+					this.setState({
+						status: "error",
+					});
+				}
+
 			});
-		}).catch((error: AxiosError) => {
-			console.error(error);
-			this.setState({
-				status: "error",
-			});
-		});
 
 	}
 
