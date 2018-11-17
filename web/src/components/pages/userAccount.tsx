@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios from "axios";
 
 import { logout } from "components/lib/auth";
 
@@ -41,6 +41,8 @@ export default class UserAccount extends React.Component<IProps> {
 		status: "form",
 	};
 
+	axiosSignal = axios.CancelToken.source();
+
 	constructor(props: IProps) {
 		super(props);
 
@@ -53,6 +55,10 @@ export default class UserAccount extends React.Component<IProps> {
 
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.submitAccountForm = this.submitAccountForm.bind(this);
+	}
+
+	componentWillUnmount() {
+		this.axiosSignal.cancel();
 	}
 
 	render() {
@@ -264,8 +270,12 @@ export default class UserAccount extends React.Component<IProps> {
 					? this.state.accountNewPassword : "",
 				username: this.state.accountUsername !== this.state.initialAccountUsername
 					? this.state.accountUsername : "",
-				}, { withCredentials: true })
-			.then((result: AxiosResponse) => {
+				},
+				{
+					cancelToken: this.axiosSignal.token,
+					withCredentials: true,
+				})
+			.then((result) => {
 
 				if (result.data.validationCode) {
 
@@ -293,12 +303,16 @@ export default class UserAccount extends React.Component<IProps> {
 
 				}
 
-			}).catch((error: AxiosError) => {
+			}).catch((error) => {
 				console.error(error);
-				this.setState({
-					errorMessage: "Sorry, something went wrong.  Your current password may not have been correct.  Please try again.",
-					processing: false,
-				});
+
+				if (!axios.isCancel(error)) {
+					this.setState({
+						errorMessage: "Sorry, something went wrong.  Your current password may not have been correct.  Please try again.",
+						processing: false,
+					});
+				}
+
 			});
 
 		}

@@ -3,7 +3,7 @@ import React from "react";
 import { History } from "history";
 import { IUserInfo } from "interfaces/redux";
 
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios from "axios";
 
 export const checkLoginStatus = (
 	apiLocation: string,
@@ -11,7 +11,7 @@ export const checkLoginStatus = (
 ): Promise<void> => {
 
 	return axios.post(apiLocation + "user/getSession", {}, { withCredentials: true })
-		.then((result: AxiosResponse) => {
+		.then((result) => {
 
 			setUserInfo({
 				loggedIn: true,
@@ -21,7 +21,7 @@ export const checkLoginStatus = (
 				userRoles: result.data.roles,
 			});
 
-		}).catch((error: AxiosError) => {
+		}).catch((error) => {
 
 			// Not logged in and that's ok.
 
@@ -45,7 +45,7 @@ export const logout = (
 	}
 
 	return axios.get(apiLocation + "user/logout", { withCredentials: true })
-		.then((result: AxiosResponse) => {
+		.then((result) => {
 
 			clearUserInfo();
 
@@ -55,7 +55,7 @@ export const logout = (
 
 			}
 
-		}).catch((error: AxiosError) => {
+		}).catch((error) => {
 
 			console.error(error);
 

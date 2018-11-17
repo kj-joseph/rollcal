@@ -1,5 +1,7 @@
 import React from "react";
 
+import axios from "axios";
+
 import { IDerbyDates } from "interfaces/event";
 import { IDerbyFeatures, IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
 import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList } from "interfaces/geo";
@@ -57,6 +59,8 @@ export default class Search extends React.Component<IProps> {
 		startDate: null,
 	};
 
+	axiosSignal = axios.CancelToken.source();
+
 	constructor(props: IProps) {
 		super(props);
 
@@ -98,6 +102,10 @@ export default class Search extends React.Component<IProps> {
 			this.loadData();
 
 		}
+	}
+
+	componentWillUnmount() {
+		this.axiosSignal.cancel();
 	}
 
 	render() {
@@ -625,147 +633,160 @@ export default class Search extends React.Component<IProps> {
 		let eventSanctions: IDerbySanction[] = [];
 		let eventTracks: IDerbyTrack[] = [];
 		let eventTypes: IDerbyType[] = [];
+		let promiseError = false;
 		const promises: Array<Promise<any>> = [];
 		let regionLists: IGeoRegionList = {};
 
 		promises.push(getGeography(
 			this.props.apiLocation,
 			this.props.dataGeography,
-			this.props.saveDataGeography)
+			this.props.saveDataGeography,
+			this.axiosSignal)
 			.then((dataResponse: IGeoData) => {
 				countryList = dataResponse.countries;
 				regionLists = dataResponse.regions;
-			}).catch((err: ErrorEventHandler) => {
-				console.error(err);
+			}).catch((error) => {
+				console.error(error);
+				promiseError = true;
 			}));
 
 		promises.push(getDerbySanctions(
 			this.props.apiLocation,
 			this.props.dataSanctions,
-			this.props.saveDataSanctions)
+			this.props.saveDataSanctions,
+			this.axiosSignal)
 			.then((dataResponse: IDerbySanction[]) => {
 				eventSanctions = dataResponse;
-			}).catch((err: ErrorEventHandler) => {
-				console.error(err);
+			}).catch((error) => {
+				console.error(error);
+				promiseError = true;
 			}));
 
 		promises.push(getDerbyTracks(
 			this.props.apiLocation,
 			this.props.dataTracks,
-			this.props.saveDataTracks)
+			this.props.saveDataTracks,
+			this.axiosSignal)
 			.then((dataResponse: IDerbyTrack[]) => {
 				eventTracks = dataResponse;
-			}).catch((err: ErrorEventHandler) => {
-				console.error(err);
+			}).catch((error) => {
+				console.error(error);
+				promiseError = true;
 			}));
 
 		promises.push(getDerbyTypes(
 			this.props.apiLocation,
 			this.props.dataDerbyTypes,
-			this.props.saveDataDerbyTypes)
+			this.props.saveDataDerbyTypes,
+			this.axiosSignal)
 			.then((dataResponse: IDerbyType[]) => {
 				eventTypes = dataResponse;
-			}).catch((err: ErrorEventHandler) => {
-				console.error(err);
+			}).catch((error) => {
+				console.error(error);
+				promiseError = true;
 			}));
 
 		Promise.all(promises).then(() => {
 
-			this.setState({
-				countryList,
-				eventFeatures: {
-					derbytypes: eventTypes,
-					sanctions: eventSanctions,
-					tracks: eventTracks,
-				},
-				regionLists,
-			});
+			if (!promiseError) {
 
-			let startState: {
-				dateRangeDisplay: string,
-				endDate: moment.Moment,
-				loading: false,
-				startDate: moment.Moment,
-				selectedEventFeatures: string[],
-			};
+				this.setState({
+					countryList,
+					eventFeatures: {
+						derbytypes: eventTypes,
+						sanctions: eventSanctions,
+						tracks: eventTracks,
+					},
+					regionLists,
+				});
 
-			startState = {
-				loading: false,
-			} as typeof startState;
+				let startState: {
+					dateRangeDisplay: string,
+					endDate: moment.Moment,
+					loading: false,
+					startDate: moment.Moment,
+					selectedEventFeatures: string[],
+				};
 
-			if (this.props.lastSearch) {
+				startState = {
+					loading: false,
+				} as typeof startState;
 
-				const searchParts = this.props.lastSearch.match(/\/((?:\/?[0-9]{4}-[0-9]{2}-[0-9]{2}){0,2})\/?(.*)$/);
+				if (this.props.lastSearch) {
 
-				if (searchParts[1]) {
-					const [startDate, endDate] = searchParts[1].split("/");
+					const searchParts = this.props.lastSearch.match(/\/((?:\/?[0-9]{4}-[0-9]{2}-[0-9]{2}){0,2})\/?(.*)$/);
 
-					startState.dateRangeDisplay = formatDateRange({
-						firstDay: moment(startDate) || null,
-						lastDay: moment(endDate) || null,
-					});
+					if (searchParts[1]) {
+						const [startDate, endDate] = searchParts[1].split("/");
 
-					if (startDate) {
-						startState.startDate = moment(startDate);
+						startState.dateRangeDisplay = formatDateRange({
+							firstDay: moment(startDate) || null,
+							lastDay: moment(endDate) || null,
+						});
+
+						if (startDate) {
+							startState.startDate = moment(startDate);
+						}
+
+						if (endDate) {
+							startState.endDate = moment(endDate);
+						}
+
 					}
 
-					if (endDate) {
-						startState.endDate = moment(endDate);
-					}
+					if (searchParts[2]) {
+						const features = [];
 
-				}
+						for (const searchPart of searchParts[2].split("/")) {
+							const [, label, value] = searchPart.match(/([a-z]+)\((.*)\)/);
 
-				if (searchParts[2]) {
-					const features = [];
+							switch (label) {
+								case "locations":
 
-					for (const searchPart of searchParts[2].split("/")) {
-						const [, label, value] = searchPart.match(/([a-z]+)\((.*)\)/);
+									for (const countryItem of value.split(",")) {
+										const [country, regions] = countryItem.split("-");
 
-						switch (label) {
-							case "locations":
+										if (regions) {
 
-								for (const countryItem of value.split(",")) {
-									const [country, regions] = countryItem.split("-");
+											for (const region of regions.split("+")) {
 
-									if (regions) {
+												this.addLocation(
+													countryList.filter((c: IGeoCountry) => c.country_code === country)[0],
+													regionLists[country].filter((r: IGeoRegion) => r.region_id === Number(region))[0]);
 
-										for (const region of regions.split("+")) {
+											}
+
+											// test
+
+										} else {
 
 											this.addLocation(
-												countryList.filter((c: IGeoCountry) => c.country_code === country)[0],
-												regionLists[country].filter((r: IGeoRegion) => r.region_id === Number(region))[0]);
+												countryList.filter((c: IGeoCountry) => c.country_code === country)[0]);
 
 										}
 
-										// test
-
-									} else {
-
-										this.addLocation(
-											countryList.filter((c: IGeoCountry) => c.country_code === country)[0]);
-
 									}
 
-								}
+									break;
 
-								break;
+								case "tracks":
+								case "derbytypes":
+								case "sanctions":
 
-							case "tracks":
-							case "derbytypes":
-							case "sanctions":
-
-								for (const item of value.split(",")) {
-									features.push(`${label.slice(0, -1)}-${item.trim()}`);
-								}
-								break;
+									for (const item of value.split(",")) {
+										features.push(`${label.slice(0, -1)}-${item.trim()}`);
+									}
+									break;
+							}
 						}
+
+						startState.selectedEventFeatures = features;
 					}
-
-					startState.selectedEventFeatures = features;
 				}
-			}
 
-			this.setState(startState);
+				this.setState(startState);
+
+			}
 
 		});
 

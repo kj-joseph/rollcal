@@ -6,7 +6,7 @@ import { IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces
 import { IGeoCountry, IGeoData, IGeoRegion } from "interfaces/geo";
 import { IProps } from "interfaces/redux";
 
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios from "axios";
 
 import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography } from "components/lib/data";
 import { formatDateRange } from "components/lib/dateTime";
@@ -51,6 +51,8 @@ export default class Events extends React.Component<IProps> {
 		searchURL: null,
 	};
 
+	axiosSignal = axios.CancelToken.source();
+
 	constructor(props: IProps) {
 		super(props);
 
@@ -77,6 +79,10 @@ export default class Events extends React.Component<IProps> {
 			this.initialLoad();
 
 		}
+	}
+
+	componentWillUnmount() {
+		this.axiosSignal.cancel();
 	}
 
 	render() {
@@ -182,7 +188,8 @@ export default class Events extends React.Component<IProps> {
 						promises.push(getGeography(
 							this.props.apiLocation,
 							this.props.dataGeography,
-							this.props.saveDataGeography)
+							this.props.saveDataGeography,
+							this.axiosSignal)
 							.then((dataResponse: IGeoData) => {
 
 								const geoDisplay: string[] = [];
@@ -231,8 +238,8 @@ export default class Events extends React.Component<IProps> {
 									saveSearchParts.push(`locations(${locationString})`);
 								}
 
-							}).catch((err: ErrorEventHandler) => {
-								console.error(err);
+							}).catch((error) => {
+								console.error(error);
 							}));
 
 						break;
@@ -242,7 +249,8 @@ export default class Events extends React.Component<IProps> {
 						promises.push(getDerbyTypes(
 							this.props.apiLocation,
 							this.props.dataDerbyTypes,
-							this.props.saveDataDerbyTypes)
+							this.props.saveDataDerbyTypes,
+							this.axiosSignal)
 							.then((dataResponse: IDerbyType[]) => {
 
 								const validTypes = dataResponse
@@ -270,8 +278,8 @@ export default class Events extends React.Component<IProps> {
 											.join(",") + ")");
 								}
 
-							}).catch((err: ErrorEventHandler) => {
-								console.error(err);
+							}).catch((error) => {
+								console.error(error);
 							}));
 
 						break;
@@ -281,7 +289,8 @@ export default class Events extends React.Component<IProps> {
 						promises.push(getDerbySanctions(
 							this.props.apiLocation,
 							this.props.dataSanctions,
-							this.props.saveDataSanctions)
+							this.props.saveDataSanctions,
+							this.axiosSignal)
 							.then((dataResponse: IDerbySanction[]) => {
 
 								const validSanctions = dataResponse
@@ -309,8 +318,8 @@ export default class Events extends React.Component<IProps> {
 											.join(",") + ")");
 								}
 
-							}).catch((err: ErrorEventHandler) => {
-								console.error(err);
+							}).catch((error) => {
+								console.error(error);
 							}));
 
 						break;
@@ -320,7 +329,8 @@ export default class Events extends React.Component<IProps> {
 						promises.push(getDerbyTracks(
 							this.props.apiLocation,
 							this.props.dataTracks,
-							this.props.saveDataTracks)
+							this.props.saveDataTracks,
+							this.axiosSignal)
 							.then((dataResponse: IDerbyTrack[]) => {
 
 								const validTracks = dataResponse
@@ -349,8 +359,8 @@ export default class Events extends React.Component<IProps> {
 
 								}
 
-							}).catch((err: ErrorEventHandler) => {
-								console.error(err);
+							}).catch((error) => {
+								console.error(error);
 							}));
 
 						break;
@@ -400,108 +410,129 @@ export default class Events extends React.Component<IProps> {
 		});
 
 		axios.get(`${this.state.searchURL}&count=${loadAll ? "all" : this.state.listPageLength}&start=${this.state.eventList.length}`,
-			{ withCredentials: true })
-			.then((result: AxiosResponse) => {
+			{
+				cancelToken: this.axiosSignal.token,
+				withCredentials: true,
+			})
+			.then((result) => {
 
 				const eventResults: IDBDerbyEvent[] = result.data.events;
 				const eventList: IBoxListItem[] = this.state.eventList || [];
 				const eventPromises: Array<Promise<any>> = [];
+				let promiseError = false;
 
 				eventPromises.push(getDerbySanctions(
 					this.props.apiLocation,
 					this.props.dataSanctions,
-					this.props.saveDataSanctions));
+					this.props.saveDataSanctions,
+					this.axiosSignal).catch(() => {
+						promiseError = true;
+					}));
 
 				eventPromises.push(getDerbyTracks(
 					this.props.apiLocation,
 					this.props.dataTracks,
-					this.props.saveDataTracks));
+					this.props.saveDataTracks,
+					this.axiosSignal).catch(() => {
+						promiseError = true;
+					}));
 
 				eventPromises.push(getDerbyTypes(
 					this.props.apiLocation,
 					this.props.dataDerbyTypes,
-					this.props.saveDataDerbyTypes));
+					this.props.saveDataDerbyTypes,
+					this.axiosSignal).catch(() => {
+						promiseError = true;
+					}));
 
 				if (result.data.events.length) {
 
 					Promise.all(eventPromises).then(() => {
 
-						for (const eventResult of eventResults) {
+						if (!promiseError) {
 
-							const icons: IDerbyIcons = {
-								derbytypes: [],
-								sanctions: [],
-								tracks: [],
-							};
+							for (const eventResult of eventResults) {
 
-							if (eventResult.derbytypes) {
+								const icons: IDerbyIcons = {
+									derbytypes: [],
+									sanctions: [],
+									tracks: [],
+								};
 
-								icons.derbytypes =
-									this.props.dataDerbyTypes.filter((dt: IDerbyType) =>
-										eventResult.derbytypes.split(",").indexOf(dt.derbytype_id.toString()) > -1 )
-											.map((dt: IDerbyType) => ({
-												filename: `derbytype-${dt.derbytype_abbreviation}`,
-												title: dt.derbytype_name,
-											}));
+								if (eventResult.derbytypes) {
+
+									icons.derbytypes =
+										this.props.dataDerbyTypes.filter((dt: IDerbyType) =>
+											eventResult.derbytypes.split(",").indexOf(dt.derbytype_id.toString()) > -1 )
+												.map((dt: IDerbyType) => ({
+													filename: `derbytype-${dt.derbytype_abbreviation}`,
+													title: dt.derbytype_name,
+												}));
+
+								}
+
+								if (eventResult.sanctions) {
+
+									icons.sanctions =
+										this.props.dataSanctions.filter((s: IDerbySanction) =>
+											eventResult.sanctions.split(",").indexOf(s.sanction_id.toString()) > -1 )
+												.map((s: IDerbySanction) => ({
+													filename: `sanction-${s.sanction_abbreviation}`,
+													title: `${s.sanction_name} (${s.sanction_abbreviation})`,
+												}));
+
+								}
+
+								if (eventResult.tracks) {
+
+									icons.tracks =
+										this.props.dataTracks.filter((t: IDerbyTrack) =>
+											eventResult.tracks.split(",").indexOf(t.track_id.toString()) > -1 )
+												.map((t: IDerbyTrack) => ({
+													filename: `track-${t.track_abbreviation}`,
+													title: t.track_name,
+												}));
+
+								}
+
+								eventList.push({
+									address1: eventResult.venue_address1,
+									address2: eventResult.venue_address2,
+									countryFlag: eventResult.country_flag,
+									datesVenue: formatDateRange({
+											firstDay: moment.utc(eventResult.event_first_day),
+											lastDay: moment.utc(eventResult.event_last_day),
+										}, "long"),
+									days: null,
+									host: eventResult.event_name ? eventResult.event_host : null,
+									icons,
+									id: eventResult.event_id,
+									location: `${eventResult.venue_city}${eventResult.region_abbreviation ? ", " + eventResult.region_abbreviation : ""}, ${eventResult.country_code}`,
+									multiDay: eventResult.event_first_day.substring(0, 10) !== eventResult.event_last_day.substring(0, 10),
+									name: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
+									user: eventResult.event_user,
+								});
 
 							}
 
-							if (eventResult.sanctions) {
-
-								icons.sanctions =
-									this.props.dataSanctions.filter((s: IDerbySanction) =>
-										eventResult.sanctions.split(",").indexOf(s.sanction_id.toString()) > -1 )
-											.map((s: IDerbySanction) => ({
-												filename: `sanction-${s.sanction_abbreviation}`,
-												title: `${s.sanction_name} (${s.sanction_abbreviation})`,
-											}));
-
-							}
-
-							if (eventResult.tracks) {
-
-								icons.tracks =
-									this.props.dataTracks.filter((t: IDerbyTrack) =>
-										eventResult.tracks.split(",").indexOf(t.track_id.toString()) > -1 )
-											.map((t: IDerbyTrack) => ({
-												filename: `track-${t.track_abbreviation}`,
-												title: t.track_name,
-											}));
-
-							}
-
-							eventList.push({
-								address1: eventResult.venue_address1,
-								address2: eventResult.venue_address2,
-								countryFlag: eventResult.country_flag,
-								datesVenue: formatDateRange({
-										firstDay: moment.utc(eventResult.event_first_day),
-										lastDay: moment.utc(eventResult.event_last_day),
-									}, "long"),
-								days: null,
-								host: eventResult.event_name ? eventResult.event_host : null,
-								icons,
-								id: eventResult.event_id,
-								location: `${eventResult.venue_city}${eventResult.region_abbreviation ? ", " + eventResult.region_abbreviation : ""}, ${eventResult.country_code}`,
-								multiDay: eventResult.event_first_day.substring(0, 10) !== eventResult.event_last_day.substring(0, 10),
-								name: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
-								user: eventResult.event_user,
+							this.setState({
+								eventList,
+								listItemsTotal: result.data.total,
+								loading: false,
+								loadingMore: false,
 							});
 
 						}
 
-						this.setState({
-							eventList,
-							listItemsTotal: result.data.total,
-							loading: false,
-							loadingMore: false,
-						});
+					}).catch((error) => {
 
-					}).catch(() => {
-						this.setState({
-							dataError: true,
-							loading: false,
-						});
+						if (!axios.isCancel(error)) {
+							console.error(error);
+							this.setState({
+								dataError: true,
+							});
+						}
+
 					});
 
 				} else {
@@ -514,12 +545,14 @@ export default class Events extends React.Component<IProps> {
 
 				}
 
-			}).catch((error: AxiosError) => {
-				console.error(error);
+			}).catch((error) => {
 
-				this.setState({
-					dataError: true,
-				});
+				if (!axios.isCancel(error)) {
+					console.error(error);
+					this.setState({
+						dataError: true,
+					});
+				}
 
 			});
 
