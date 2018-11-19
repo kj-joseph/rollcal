@@ -93,16 +93,15 @@ export const sendChangeRejectionEmail =
 
 export const sendEmailChangeEmail = (email: string, username: string, validationCode: string) => {
 
-	const validationUrl = `http://www.roll-cal.com/validate/${validationCode}`
-	+ `||${encodeURIComponent(email.replace(/\./g, "%2E"))}`
-	+ `||${encodeURIComponent(username.replace(/\./g, "%2E"))}`;
+	const validationUrl = `https://www.roll-cal.com/validate/${validationCode}`;
 
 	return emailTransport.sendMail({
 		from: "Roll-Cal.com <feedback@roll-cal.com>",
 		html: `
 		<p><img src="https://www.roll-cal.com/images/header-logo.png" alt="Roll-Cal.com" width="305" height="100" /></p>
 		<p>Hey there, ${username}!</p>
-		<p>You recently changed your email address on Roll-Cal.com.  If you meant to do this, click the link below to validate your email:</p>
+		<p>You recently changed your email address on Roll-Cal.com.  If you meant to do this, <a href="${validationUrl}">click here to validate your email</a>.</p>
+		If the link isn't working, copy and paste this URL into your browser:</p>
 		<p>${validationUrl}</p>
 		<p>If you didn't mean to do this, please reply to this email so we can look into the issue.</p>
 		`,
@@ -113,11 +112,32 @@ export const sendEmailChangeEmail = (email: string, username: string, validation
 };
 
 
+export const sendForgotPasswordEmail = (email: string, username: string, validationCode: string) => {
+
+	const validationUrl = `https://www.roll-cal.com/forgotPassword/${validationCode}`;
+
+	return emailTransport.sendMail({
+		from: "Roll-Cal.com <noreply@roll-cal.com>",
+		html: `
+		<p><img src="https://www.roll-cal.com/images/header-logo.png" alt="Roll-Cal.com" width="305" height="100" /></p>
+		<p>Hey there, ${username}!</p>
+		<p>Someone requested help logging into your Roll-Cal account.  If that was you, hooray!  <a href="${validationUrl}">Click here to set a new password</a>.
+		This link will expire in 24 hours.</p>
+		If the link isn't working, copy and paste this URL into your browser:</p>
+		<p>${validationUrl}</p>
+		<p>If you didn't request this, you can ignore this email.
+		If you get these messages a lot, please reply to this email so we can look into the issue.</p>
+		`,
+		subject: "Reset your Roll-Cal password",
+		to: `${username} <${email}>`,
+	}, null);
+
+};
+
+
 export const sendValidationEmail = (email: string, username: string, validationCode: string) => {
 
-	const validationUrl = `http://www.roll-cal.com/validate/${validationCode}`
-	+ `||${encodeURIComponent(email.replace(/\./g, "%2E"))}`
-	+ `||${encodeURIComponent(username.replace(/\./g, "%2E"))}`;
+	const validationUrl = `https://www.roll-cal.com/validate/${validationCode}`;
 
 	return emailTransport.sendMail({
 		from: "Roll-Cal.com <noreply@roll-cal.com>",
@@ -125,7 +145,8 @@ export const sendValidationEmail = (email: string, username: string, validationC
 		<p><img src="https://www.roll-cal.com/images/header-logo.png" alt="Roll-Cal.com" width="305" height="100" /></p>
 		<p>Hey there, ${username}!</p>
 		<p>Thanks for signing up to add events on Roll-Cal.com!  Your help creating a resource for the roller derby community is greatly appreciated.</p>
-		<p>If you meant to sign up, click the link below to validate your email:</p>
+		<p>If you meant to sign up, <a href="${validationUrl}">click here to validate your email</a>.
+		If the link isn't working, copy and paste this URL into your browser:</p>
 		<p>${validationUrl}</p>
 		`,
 		subject: "Validate your Roll-Cal account",
