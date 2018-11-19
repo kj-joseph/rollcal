@@ -2,6 +2,8 @@ import { Request, Response, Router } from "express";
 import multer from "multer";
 import { MysqlError } from "mysql";
 
+import crypto from "crypto";
+
 import { checkSession } from "checkSession";
 import { IRequestWithSession } from "interfaces";
 
@@ -10,12 +12,17 @@ import { sendEmailChangeEmail, sendValidationEmail } from "lib/email";
 const router = Router();
 const upload = multer();
 
-const generateHash = (str: string) => {
+const secret = process.env.ROLLCAL_DEV_SECRET || process.env.ROLLCAL_PROD_SECRET;
+const cipher = crypto.createCipher("aes192", secret);
+const decipher = crypto.createDecipher("aes192", secret);
+
+const generateValidation = (obj: {
+	email: string,
+	username: string,
+}) => {
 	let hash = 0;
 
-	if (str.length === 0) {
-		return hash;
-	}
+	const str = obj.username + obj.email + new Date().toString();
 
 	for (let i = 0; i < str.length; i++) {
 		const chr = str.charCodeAt(i);
@@ -23,7 +30,19 @@ const generateHash = (str: string) => {
 		hash |= 0;
 	}
 
-	return Math.abs(hash);
+	hash = Math.abs(hash);
+
+	let encrypted = cipher.update(JSON.stringify({
+		email: obj.email,
+		hash: hash,
+		username: obj.username,
+	}), "utf8", "hex");
+	encrypted += cipher.final("hex");
+
+	return {
+		encrypted,
+		hash,
+	};
 };
 
 router.post("/getSession", upload.array(), checkSession("user"), (req: IRequestWithSession, res: Response) => {
@@ -101,14 +120,17 @@ router.get("/logout", (req: IRequestWithSession, res: Response) => {
 
 router.post("/register", upload.array(), (req: Request, res: Response) => {
 
-	const validationCode = generateHash(req.body.username + req.body.email + new Date()).toString();
+	const validation = generateValidation({
+		email: req.body.email,
+		username: req.body.username,
+	});
 
 	res.locals.connection
 		.query(`call registerUser
 			(${res.locals.connection.escape(req.body.username)},
 			${res.locals.connection.escape(req.body.email)},
 			${res.locals.connection.escape(req.body.password)},
-			${res.locals.connection.escape(validationCode)})`,
+			${res.locals.connection.escape(validation.hash)})`,
 
 		(error: MysqlError, results: any) => {
 
@@ -118,7 +140,7 @@ router.post("/register", upload.array(), (req: Request, res: Response) => {
 
 			} else {
 
-				sendValidationEmail(req.body.email, req.body.username, validationCode)
+				sendValidationEmail(req.body.email, req.body.username, validation.encrypted)
 					.then(() => {
 
 						res.status(200).send();
@@ -183,7 +205,10 @@ router.put("/account/update", checkSession("user"), upload.array(), (req: IReque
 	const changes = [] as string[];
 	let error = false;
 	let needAuth = false;
-	let validationCode = null as string;
+	let validation = {
+		encrypted: null as string,
+		hash: null as number,
+	};
 
 	if (req.body.username) {
 		changes.push(`user_name = ${res.locals.connection.escape(req.body.username)}`);
@@ -193,11 +218,14 @@ router.put("/account/update", checkSession("user"), upload.array(), (req: IReque
 		if (!req.body.currentPassword) {
 			error = true;
 		} else {
-			validationCode = generateHash(req.body.username + req.body.email + new Date()).toString();
+			validation = generateValidation({
+				email: req.body.email,
+				username: req.body.username,
+			});
 			needAuth = true;
 			changes.push(`user_email = ${res.locals.connection.escape(req.body.email)}`);
 			changes.push(`user_status = ${res.locals.connection.escape("unvalidated")}`);
-			changes.push(`user_validation_code = ${validationCode}`);
+			changes.push(`user_validation_code = ${validation.hash}`);
 		}
 	}
 
@@ -231,13 +259,13 @@ router.put("/account/update", checkSession("user"), upload.array(), (req: IReque
 
 				} else {
 
-					if (validationCode) {
+					if (validation.hash && validation.encrypted) {
 
-						sendEmailChangeEmail(req.body.email, req.body.username || req.session.user.username, validationCode)
+						sendEmailChangeEmail(req.body.email, req.body.username || req.session.user.username, validation.encrypted)
 							.then(() => {
 
 								res.status(200).json({
-									validationCode,
+									validationCode: validation.hash,
 								});
 
 							}).catch((mailError: ErrorEventHandler) => {
@@ -278,10 +306,15 @@ router.put("/account/update", checkSession("user"), upload.array(), (req: IReque
 
 router.post("/account/validate", upload.array(), (req: Request, res: Response) => {
 
+	let decrypted = decipher.update(req.body.validationCode, "hex", "utf8");
+	decrypted += decipher.final("utf8");
+
+	const vObj = JSON.parse(decrypted);
+
 	res.locals.connection
-		.query(`call validateUser(${res.locals.connection.escape(req.body.email)},
-			${res.locals.connection.escape(req.body.username)},
-			${res.locals.connection.escape(req.body.validationCode)})`,
+		.query(`call validateUser(${res.locals.connection.escape(vObj.email)},
+			${res.locals.connection.escape(vObj.username)},
+			${res.locals.connection.escape(vObj.hash)})`,
 
 		(error: MysqlError, results: any) => {
 
