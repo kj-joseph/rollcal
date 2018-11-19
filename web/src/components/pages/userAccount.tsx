@@ -28,7 +28,7 @@ interface IUserAccountState {
 	initialAccountUsername: string;
 	path: string;
 	processing: boolean;
-	status: string;
+	status: "form" | "success" | "successLogout";
 }
 
 export default class UserAccount extends React.Component<IProps> {

@@ -17,7 +17,7 @@ interface ILoginState {
 	loading: boolean;
 	loginEmail: string;
 	loginPassword: string;
-	modalStatus: string;
+	modalStatus: "login" | "register" | "regComplete";
 	path: string;
 	registerEmail: string;
 	registerEmailChecked: boolean;

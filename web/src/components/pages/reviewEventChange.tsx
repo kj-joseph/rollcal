@@ -32,7 +32,7 @@ interface IReviewEventChangeState {
 	modalOpen: boolean;
 	path: string;
 	rejectComment: string;
-	status: string;
+	status: null | "approved" | "rejected";
 	userId: number;
 }
 

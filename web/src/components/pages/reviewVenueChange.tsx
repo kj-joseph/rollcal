@@ -28,7 +28,7 @@ interface IReviewVenueChangeState {
 	modalOpen: boolean;
 	path: string;
 	rejectComment: string;
-	status: string;
+	status: null | "approved" | "rejected";
 	userId: number;
 	venueChanges: IDerbyVenueChange;
 	venueData: IDerbyVenue;
