@@ -34,7 +34,7 @@ const generateValidation = (obj: {
 
 	let encrypted = cipher.update(JSON.stringify({
 		email: obj.email,
-		hash: hash,
+		hash,
 		username: obj.username,
 	}), "utf8", "hex");
 	encrypted += cipher.final("hex");
