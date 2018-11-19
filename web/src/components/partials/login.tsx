@@ -13,11 +13,12 @@ import { IProps } from "interfaces/redux";
 
 interface ILoginState {
 	errorMessage: string;
+	forgotEmail: string;
 	formValid: boolean;
 	loading: boolean;
 	loginEmail: string;
 	loginPassword: string;
-	modalStatus: "login" | "register" | "regComplete";
+	modalStatus: "forgot" | "forgotSuccess" |  "login" | "register" | "registrationSuccess";
 	path: string;
 	registerEmail: string;
 	registerEmailChecked: boolean;
@@ -37,6 +38,7 @@ class Login extends React.Component<IProps> {
 
 	state: ILoginState = {
 		errorMessage: null,
+		forgotEmail: "",
 		formValid: false,
 		loading: false,
 		loginEmail: "",
@@ -66,9 +68,11 @@ class Login extends React.Component<IProps> {
 		this.checkUsername = this.checkUsername.bind(this);
 		this.closeLoginModal = this.closeLoginModal.bind(this);
 		this.changeStatusClearState = this.changeStatusClearState.bind(this);
+		this.goToForgot = this.goToForgot.bind(this);
 		this.goToLogin = this.goToLogin.bind(this);
 		this.goToRegister = this.goToRegister.bind(this);
 		this.handleInputChange = this.handleInputChange.bind(this);
+		this.submitForgot = this.submitForgot.bind(this);
 		this.submitLogin = this.submitLogin.bind(this);
 		this.submitRegistration = this.submitRegistration.bind(this);
 	}
@@ -148,6 +152,41 @@ class Login extends React.Component<IProps> {
 							</div>
 
 							<div className="formFooter right">
+								<p><strong><a href="" onClick={this.goToForgot}>Forgot your password?</a></strong></p>
+								<p><strong>Don't have an account yet? <a href="" onClick={this.goToRegister}>Create one now!</a></strong></p>
+							</div>
+
+						</form>
+
+					: this.state.modalStatus === "forgot" ?
+
+						<form id="forgotForm" onSubmit={this.submitForgot} className={this.state.loading ? "disabled" : ""}>
+
+							<h2>Forgot Password</h2>
+
+							<p>Enter your email and we'll send you a link to set a new password.</p>
+
+							<div className="inputGroup">
+								<label htmlFor="forgotEmail">Email address</label>
+								<input
+									id="forgotEmail"
+									name="forgotEmail"
+									type="email"
+									required={true}
+									disabled={this.state.loading}
+									value={this.state.forgotEmail}
+									onChange={this.handleInputChange}
+								/>
+							</div>
+
+							<p className="formError">{this.state.errorMessage}</p>
+
+							<div className="buttonRow">
+								<button type="submit" disabled={!this.state.formValid || this.state.loading} className="largeButton">Submit</button>
+							</div>
+
+							<div className="formFooter right">
+								<p><strong>Just remembered your password? <a href="" onClick={this.goToLogin}>Try to log in</a></strong></p>
 								<p><strong>Don't have an account yet? <a href="" onClick={this.goToRegister}>Create one now!</a></strong></p>
 							</div>
 
@@ -240,9 +279,21 @@ class Login extends React.Component<IProps> {
 
 						</form>
 
-					: this.state.modalStatus === "regComplete" ?
+					: this.state.modalStatus === "forgotSuccess" ?
 
-						<div className="registrationComplete">
+						<div>
+
+							<p>An email has been sent to the email address you specified; click the link in that email to set a new password.</p>
+
+							<div className="buttonRow">
+								<button type="button" onClick={this.closeLoginModal} disabled={this.state.loading} className="largeButton">Close</button>
+							</div>
+
+						</div>
+
+					: this.state.modalStatus === "registrationSuccess" ?
+
+						<div>
 
 							<p>Your registration has been submitted.
 								An email has been sent to the email address you specified; follow the instructions to validate your account.</p>
@@ -264,6 +315,22 @@ class Login extends React.Component<IProps> {
 			</Modal>
 
 		);
+
+	}
+
+	changeStatusClearState(page: string) {
+
+		this.setState({
+			errorMessage: "",
+			loading: false,
+			loginEmail: "",
+			loginPassword: "",
+			modalStatus: page,
+			registerEmail: "",
+			registerPassword: "",
+			registerPasswordConfirm: "",
+			registerUsername: "",
+		});
 
 	}
 
@@ -374,7 +441,11 @@ class Login extends React.Component<IProps> {
 
 	handleInputChange <T extends keyof ILoginState>(event: React.ChangeEvent<HTMLInputElement>) {
 
-		const formId: string = (this.state.modalStatus === "login" ? "loginForm" : this.state.modalStatus === "register" ? "registerForm" : null);
+		const formId: string = (
+			this.state.modalStatus === "login" ? "loginForm"
+			: this.state.modalStatus === "register" ? "registerForm"
+			: this.state.modalStatus === "forgot" ? "forgotForm"
+			: null);
 
 		const fieldName: (keyof ILoginState) = event.currentTarget.name as (keyof ILoginState);
 
@@ -423,6 +494,13 @@ class Login extends React.Component<IProps> {
 
 	}
 
+	goToForgot(event: React.MouseEvent<HTMLAnchorElement>) {
+		event.preventDefault();
+
+		this.changeStatusClearState("forgot");
+
+	}
+
 	goToLogin(event: React.MouseEvent<HTMLAnchorElement>) {
 		event.preventDefault();
 
@@ -434,6 +512,57 @@ class Login extends React.Component<IProps> {
 		event.preventDefault();
 
 		this.changeStatusClearState("register");
+
+	}
+
+	submitForgot(event: React.MouseEvent<HTMLFormElement>) {
+		event.preventDefault();
+
+		this.setState({
+			loading: true,
+		});
+
+		axios.post(this.props.apiLocation + "user/submitForgotPassword", {
+				email: this.state.forgotEmail,
+			},
+			{
+				cancelToken: this.axiosSignal.token,
+				withCredentials: true,
+			})
+			.then((result) => {
+
+					this.changeStatusClearState("forgotSuccess");
+					this.props.setLoginModalState(false);
+
+			}).catch((error) => {
+
+				if (!axios.isCancel(error)) {
+
+					let errorMessage = "";
+
+					switch (error.response.data.errorCode) {
+
+						case "notFound":
+							errorMessage = "Sorry, we couldn't find an account using that email address.  Please try again.";
+							break;
+
+						case "email":
+							errorMessage = "Sorry, there was a problem sending the email.  Please try again.";
+							break;
+
+						default:
+							errorMessage = "Sorry, something went wrong on our end.  Please try again.";
+							break;
+
+					}
+
+					this.setState({
+						errorMessage,
+						loading: false,
+					});
+				}
+
+			});
 
 	}
 
@@ -463,7 +592,6 @@ class Login extends React.Component<IProps> {
 				});
 
 				this.changeStatusClearState("login");
-
 				this.props.setLoginModalState(false);
 
 			}).catch((error) => {
@@ -498,7 +626,7 @@ class Login extends React.Component<IProps> {
 			})
 			.then((registerResult) => {
 
-				this.changeStatusClearState("regComplete");
+				this.changeStatusClearState("registrationSuccess");
 
 			}).catch((error) => {
 				console.error(error);
@@ -511,22 +639,6 @@ class Login extends React.Component<IProps> {
 				}
 
 			});
-
-	}
-
-	changeStatusClearState(page: string) {
-
-		this.setState({
-			errorMessage: "",
-			loading: false,
-			loginEmail: "",
-			loginPassword: "",
-			modalStatus: page,
-			registerEmail: "",
-			registerPassword: "",
-			registerPasswordConfirm: "",
-			registerUsername: "",
-		});
 
 	}
 

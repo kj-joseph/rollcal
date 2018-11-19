@@ -112,6 +112,29 @@ export const sendEmailChangeEmail = (email: string, username: string, validation
 };
 
 
+export const sendForgotPasswordEmail = (email: string, username: string, validationCode: string) => {
+
+	const validationUrl = `https://www.roll-cal.com/forgotPassword/${validationCode}`;
+
+	return emailTransport.sendMail({
+		from: "Roll-Cal.com <noreply@roll-cal.com>",
+		html: `
+		<p><img src="https://www.roll-cal.com/images/header-logo.png" alt="Roll-Cal.com" width="305" height="100" /></p>
+		<p>Hey there, ${username}!</p>
+		<p>Someone requested help logging into your Roll-Cal account.  If that was you, hooray!  <a href="${validationUrl}">Click here to set a new password</a>.
+		This link will expire in 24 hours.</p>
+		If the link isn't working, copy and paste this URL into your browser:</p>
+		<p>${validationUrl}</p>
+		<p>If you didn't request this, you can ignore this email.
+		If you get these messages a lot, please reply to this email so we can look into the issue.</p>
+		`,
+		subject: "Reset your Roll-Cal password",
+		to: `${username} <${email}>`,
+	}, null);
+
+};
+
+
 export const sendValidationEmail = (email: string, username: string, validationCode: string) => {
 
 	const validationUrl = `https://www.roll-cal.com/validate/${validationCode}`;

@@ -7,14 +7,27 @@ import crypto from "crypto";
 import { checkSession } from "checkSession";
 import { IRequestWithSession } from "interfaces";
 
-import { sendEmailChangeEmail, sendValidationEmail } from "lib/email";
+import { sendEmailChangeEmail, sendForgotPasswordEmail, sendValidationEmail } from "lib/email";
 
 const router = Router();
 const upload = multer();
 
 const secret = process.env.ROLLCAL_DEV_SECRET || process.env.ROLLCAL_PROD_SECRET;
-const cipher = crypto.createCipher("aes192", secret);
-const decipher = crypto.createDecipher("aes192", secret);
+
+const decryptCode = (vcode: string) => {
+
+	const decipher = crypto.createDecipher("aes192", secret);
+	let decrypted = decipher.update(vcode, "hex", "utf8");
+	decrypted += decipher.final("utf8");
+
+	try {
+		const vObj = JSON.parse(decrypted);
+		return vObj;
+	} catch {
+		return {};
+	}
+
+};
 
 const generateValidation = (obj: {
 	email: string,
@@ -22,6 +35,7 @@ const generateValidation = (obj: {
 }) => {
 	let hash = 0;
 
+	const cipher = crypto.createCipher("aes192", secret);
 	const str = obj.username + obj.email + new Date().toString();
 
 	for (let i = 0; i < str.length; i++) {
@@ -44,6 +58,90 @@ const generateValidation = (obj: {
 		hash,
 	};
 };
+
+router.get("/checkEmail", upload.array(), (req: Request, res: Response) => {
+
+	res.locals.connection
+		.query(`call checkEmail(${res.locals.connection.escape(req.query.email)},
+			${res.locals.connection.escape(req.query.id) || null})`,
+		(error: MysqlError, results: any) => {
+
+			if (error) {
+				console.error(error);
+				res.status(500).send();
+
+			} else {
+
+				res.status(200).json(!!results[0].map((row: {}) => ({...row}))[0].count);
+
+			}
+
+		});
+
+});
+
+router.post("/checkForgotPassword", upload.array(), (req: Request, res: Response) => {
+
+	const vObj = decryptCode(req.body.validationCode);
+
+	if (vObj.hash) {
+
+		res.locals.connection
+			.query(`call checkForgotPassword(${res.locals.connection.escape(vObj.email)},
+				${res.locals.connection.escape(vObj.hash)})`,
+			(error: MysqlError, results: any) => {
+
+				if (error) {
+					console.error(error);
+					res.status(500).send();
+
+				} else {
+
+					const userData = results[0].map((row: {}) => ({...row}))[0];
+
+					if (userData) {
+
+						res.status(200).json(userData);
+
+					} else {
+
+						res.status(403).send();
+
+					}
+
+				}
+
+			});
+
+	} else {
+
+		res.status(403).send();
+
+	}
+
+
+});
+
+router.get("/checkUsername", upload.array(), (req: Request, res: Response) => {
+
+	res.locals.connection
+		.query(`call checkUsername(${res.locals.connection.escape(req.query.username)},
+			${res.locals.connection.escape(req.query.id) || null})`,
+		(error: MysqlError, results: any) => {
+
+			if (error) {
+				console.error(error);
+				res.status(500).send();
+
+			} else {
+
+				res.status(200).json(!!results[0].map((row: {}) => ({...row}))[0].count);
+
+			}
+
+		});
+
+});
 
 router.post("/getSession", upload.array(), checkSession("user"), (req: IRequestWithSession, res: Response) => {
 
@@ -145,9 +243,9 @@ router.post("/register", upload.array(), (req: Request, res: Response) => {
 
 						res.status(200).send();
 
-					}).catch(() => {
+					}).catch((emailError) => {
 
-						console.error(error);
+						console.error(emailError);
 						res.status(500).send();
 
 					});
@@ -158,45 +256,112 @@ router.post("/register", upload.array(), (req: Request, res: Response) => {
 
 });
 
-router.get("/checkEmail", upload.array(), (req: Request, res: Response) => {
+
+router.post("/submitForgotPassword", upload.array(), (req: Request, res: Response) => {
 
 	res.locals.connection
-		.query(`call checkEmail(${res.locals.connection.escape(req.query.email)},
-			${res.locals.connection.escape(req.query.id) || null})`,
-		(error: MysqlError, results: any) => {
+		.query(`call getUserDetailsFromEmail(${res.locals.connection.escape(req.body.email)})`,
 
-			if (error) {
-				console.error(error);
-				res.status(500).send();
+			(detailError: MysqlError, detailResults: any) => {
 
-			} else {
+				const userDetails = detailResults[0].map((row: {}) => ({...row}))[0];
 
-				res.status(200).json(!!results[0].map((row: {}) => ({...row}))[0].count);
+				if (detailError || !userDetails) {
 
-			}
+					res.status(403).json({
+						errorCode: "notFound",
+					});
 
-		});
+				} else {
 
-});
+					const validation = generateValidation({
+						email: req.body.email,
+						username: userDetails.user_name,
+					});
 
-router.get("/checkUsername", upload.array(), (req: Request, res: Response) => {
+					res.locals.connection
+						.query(`call insertForgotPassword(
+							${res.locals.connection.escape(userDetails.user_id)},
+							${res.locals.connection.escape(validation.hash)}
+							)`,
 
-	res.locals.connection
-		.query(`call checkUsername(${res.locals.connection.escape(req.query.username)},
-			${res.locals.connection.escape(req.query.id) || null})`,
-		(error: MysqlError, results: any) => {
+							(insertError: MysqlError, insertResults: any) => {
 
-			if (error) {
-				console.error(error);
-				res.status(500).send();
+								if (insertError) {
+									console.error(insertError);
+									res.status(500).json({
+										errorCode: "insert",
+									});
 
-			} else {
+								} else {
 
-				res.status(200).json(!!results[0].map((row: {}) => ({...row}))[0].count);
+									sendForgotPasswordEmail(req.body.email, userDetails.user_name, validation.encrypted)
+										.then(() => {
 
-			}
+											res.status(200).send();
 
-		});
+										}).catch((emailError) => {
+
+											console.error(emailError);
+											res.status(500).json({
+												errorCode: "email",
+											});
+
+										});
+
+								}
+
+							});
+
+				}
+
+			});
+
+
+ });
+
+
+router.post("/account/setNewPassword", upload.array(), (req: Request, res: Response) => {
+
+	const vObj = decryptCode(req.body.validationCode);
+
+	if (req.body.id && req.body.password && vObj.hash) {
+
+		res.locals.connection
+			.query(`call setNewPassword(
+				${res.locals.connection.escape(vObj.email)},
+				${res.locals.connection.escape(req.body.id)},
+				${res.locals.connection.escape(vObj.hash)},
+				${res.locals.connection.escape(req.body.password)}
+				)`,
+			(error: MysqlError, results: any) => {
+
+				if (error) {
+					console.error(error);
+					res.status(500).send();
+
+				} else {
+
+					if (results[0].map((row: {}) => ({...row}))[0].success) {
+
+						res.status(200).send();
+
+					} else {
+
+						res.status(403).send();
+
+					}
+
+
+				}
+
+			});
+
+	} else {
+
+		res.status(403).send();
+
+	}
 
 });
 
@@ -268,7 +433,7 @@ router.put("/account/update", checkSession("user"), upload.array(), (req: IReque
 									validationCode: validation.hash,
 								});
 
-							}).catch((mailError: ErrorEventHandler) => {
+							}).catch((mailError) => {
 
 								console.error(mailError);
 								res.status(500).send();
@@ -306,10 +471,7 @@ router.put("/account/update", checkSession("user"), upload.array(), (req: IReque
 
 router.post("/account/validate", upload.array(), (req: Request, res: Response) => {
 
-	let decrypted = decipher.update(req.body.validationCode, "hex", "utf8");
-	decrypted += decipher.final("utf8");
-
-	const vObj = JSON.parse(decrypted);
+	const vObj = decryptCode(req.body.validationCode);
 
 	res.locals.connection
 		.query(`call validateUser(${res.locals.connection.escape(vObj.email)},

@@ -25,6 +25,11 @@ form h2 {
 		margin-right: 1em;
 	}
 
+	.error {
+		font-size: .9em;
+		margin-top: -.8em;
+	}
+
 }
 
 label {
@@ -150,8 +155,14 @@ form.disabled {
 
 .formFooter {
 
+	margin-bottom: 1em;
+
 	&.right {
 		text-align: right;
+	}
+
+	p {
+		margin-bottom: .2em;
 	}
 
 }
@@ -233,7 +244,9 @@ input[type="time"] {
 		top: 75px;
 	}
 
-
+	#passwordForm {
+		max-width: 710px;
+	}
 }
 
 @include respond-to("tiny") {

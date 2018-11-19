@@ -6,7 +6,7 @@ import axios from "axios";
 import { IProps } from "interfaces/redux";
 
 interface IValidateState {
-	status: string;
+	status: "error" | "valid" | "validating";
 	validationCode: string;
 }
 
@@ -38,6 +38,30 @@ export default class Validate extends React.Component<IProps> {
 		this.axiosSignal.cancel();
 	}
 
+	render() {
+
+		return (
+			<React.Fragment>
+				<h1>Account Validation</h1>
+				{ this.state.status === "validating" ?
+					<div className="loader" />
+
+				: this.state.status === "valid" ?
+					<p>It's all good; we've validated your account!  You can now log in and add events to the site.  Thanks for joining!</p>
+
+				: this.state.status === "error" ?
+					<p>
+						Sorry, something went wrong.  Give it another try;
+						if it doesn't work, <NavLink exact={true} to="/contact" title="Contact">give us a shout</NavLink>.
+					</p>
+
+				: ""
+				}
+			</React.Fragment>
+		);
+
+	}
+
 	loadData() {
 
 		axios.post(this.props.apiLocation + "user/account/validate", {
@@ -63,30 +87,6 @@ export default class Validate extends React.Component<IProps> {
 				}
 
 			});
-
-	}
-
-	render() {
-
-		return (
-			<React.Fragment>
-				<h1>Account Validation</h1>
-				{ this.state.status === "validating" ?
-					<div className="loader" />
-
-				: this.state.status === "valid" ?
-					<p>It's all good; we've validated your account!  You can now log in and add events to the site.  Thanks for joining!</p>
-
-				: this.state.status === "error" ?
-					<p>
-						Sorry, something went wrong.  Give it another try;
-						if it doesn't work, <NavLink exact={true} to="/contact" title="Contact">give us a shout</NavLink>.
-					</p>
-
-				: ""
-				}
-			</React.Fragment>
-		);
 
 	}
 
