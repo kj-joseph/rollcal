@@ -10,10 +10,18 @@ import { IProps } from "interfaces/redux";
 interface IUserAccountState {
 	accountCurrentPassword: string;
 	accountEmail: string;
+	accountEmailChecked: boolean;
+	accountEmailChecking: boolean;
+	accountEmailError: string;
+	accountEmailOk: boolean;
 	accountId: number;
 	accountNewPassword: string;
 	accountNewPasswordConfirm: string;
 	accountUsername: string;
+	accountUsernameChecked: boolean;
+	accountUsernameChecking: boolean;
+	accountUsernameError: string;
+	accountUsernameOk: boolean;
 	errorMessage: string;
 	initialAccountEmail: string;
 	initialAccountId: number;
@@ -28,10 +36,18 @@ export default class UserAccount extends React.Component<IProps> {
 	state: IUserAccountState = {
 		accountCurrentPassword: "",
 		accountEmail: this.props.loggedInUserEmail,
+		accountEmailChecked: false,
+		accountEmailChecking: false,
+		accountEmailError: null,
+		accountEmailOk: true,
 		accountId: this.props.loggedInUserId,
 		accountNewPassword: "",
 		accountNewPasswordConfirm: "",
 		accountUsername: this.props.loggedInUserName,
+		accountUsernameChecked: false,
+		accountUsernameChecking: false,
+		accountUsernameError: null,
+		accountUsernameOk: true,
 		errorMessage: null,
 		initialAccountEmail: this.props.loggedInUserEmail,
 		initialAccountId: this.props.loggedInUserId,
@@ -116,6 +132,7 @@ export default class UserAccount extends React.Component<IProps> {
 												value={this.state.accountEmail}
 												onChange={this.handleInputChange}
 											/>
+											<p className="error" id="emailError">{this.state.accountEmailError}</p>
 										</div>
 
 										<div className="inputGroup">
@@ -131,6 +148,7 @@ export default class UserAccount extends React.Component<IProps> {
 												value={this.state.accountUsername}
 												onChange={this.handleInputChange}
 											/>
+											<p className="error" id="emailError">{this.state.accountUsernameError}</p>
 										</div>
 
 										<div className="inputGroup">
@@ -140,6 +158,7 @@ export default class UserAccount extends React.Component<IProps> {
 												name="accountNewPassword"
 												type="password"
 												required={false}
+												pattern=".{8}.*"
 												disabled={this.state.processing}
 												value={this.state.accountNewPassword}
 												onChange={this.handleInputChange}
@@ -166,6 +185,7 @@ export default class UserAccount extends React.Component<IProps> {
 												id="accountCurrentPassword"
 												name="accountCurrentPassword"
 												type="password"
+												pattern=".{8}.*"
 												required={this.state.accountEmail !== this.state.initialAccountEmail
 													|| !!this.state.accountNewPassword}
 												disabled={this.state.processing ||
@@ -215,19 +235,11 @@ export default class UserAccount extends React.Component<IProps> {
 
 	}
 
-	handleInputChange <T extends keyof IUserAccountState>(event: React.ChangeEvent<HTMLInputElement>) {
-
-		const fieldName: (keyof IUserAccountState) = event.currentTarget.name as (keyof IUserAccountState);
-		const newState = ({
-			[fieldName]: event.currentTarget.value,
-		});
-		this.setState(newState as { [P in T]: IUserAccountState[P]; });
-
-	}
-
 	checkFormValidity() {
 
 		const formValidates = (document.getElementById("accountForm") as HTMLFormElement).checkValidity();
+
+		const fieldsChecked = this.state.accountEmailOk && this.state.accountUsernameOk;
 
 		const hasChanges = this.state.accountEmail !== this.state.initialAccountEmail
 				|| this.state.accountUsername !== this.state.initialAccountUsername
@@ -241,7 +253,147 @@ export default class UserAccount extends React.Component<IProps> {
 		const newPasswordsMatch = !this.state.accountNewPassword
 			|| this.state.accountNewPassword === this.state.accountNewPasswordConfirm;
 
-		return formValidates && hasChanges && passwordOk && newPasswordsMatch;
+		return formValidates && fieldsChecked && hasChanges && passwordOk && newPasswordsMatch;
+	}
+
+	checkEmail(email: string) {
+
+		this.setState({
+			accountEmailChecking: true,
+			accountEmailOk: false,
+		});
+
+		axios.get(`${this.props.apiLocation}user/checkEmail?email=${email}&id=${this.props.loggedInUserId}`,
+			{
+				cancelToken: this.axiosSignal.token,
+				withCredentials: true,
+			})
+			.then((result) => {
+
+				if (result.data) {
+
+					this.setState({
+						accountEmailChecked: true,
+						accountEmailChecking: false,
+						accountEmailError: "That email has already been accounted.",
+						accountEmailOk: false,
+					});
+
+				} else {
+
+					this.setState({
+						accountEmailChecked: true,
+						accountEmailChecking: false,
+						accountEmailError: null,
+						accountEmailOk: true,
+					});
+
+				}
+
+			}).catch((error) => {
+
+				this.setState({
+					accountEmailChecked: true,
+					accountEmailChecking: false,
+					accountEmailError: "An error occurred.",
+					accountEmailOk: false,
+				});
+
+			});
+
+	}
+
+	checkUsername(username: string) {
+
+		this.setState({
+			accountUsernameChecking: true,
+			accountUsernameOk: false,
+		});
+
+		axios.get(`${this.props.apiLocation}user/checkUsername?username=${username}&id=${this.props.loggedInUserId}`,
+			{
+				cancelToken: this.axiosSignal.token,
+				withCredentials: true,
+			})
+			.then((result) => {
+
+				if (result.data) {
+
+					this.setState({
+						accountUsernameChecked: true,
+						accountUsernameChecking: false,
+						accountUsernameError: "That display name is already in use.",
+						accountUsernameOk: false,
+					});
+
+				} else {
+
+					this.setState({
+						accountUsernameChecked: true,
+						accountUsernameChecking: false,
+						accountUsernameError: null,
+						accountUsernameOk: true,
+					});
+
+				}
+
+			}).catch((error) => {
+
+				this.setState({
+					accountUsernameChecked: true,
+					accountUsernameChecking: false,
+					accountUsernameError: "An error occurred.",
+					accountUsernameOk: false,
+				});
+
+			});
+
+	}
+
+	handleInputChange <T extends keyof IUserAccountState>(event: React.ChangeEvent<HTMLInputElement>) {
+
+		const fieldName: (keyof IUserAccountState) = event.currentTarget.name as (keyof IUserAccountState);
+		const newState = ({
+			[fieldName]: event.currentTarget.value,
+		});
+		this.setState(newState as { [P in T]: IUserAccountState[P]; });
+
+		if (fieldName === "accountUsername") {
+
+			if (event.currentTarget.validity.valid) {
+
+				this.checkUsername(event.currentTarget.value);
+
+			} else {
+
+				this.setState({
+					accountUsernameChecked: false,
+					accountUsernameChecking: false,
+					accountUsernameError: null,
+					accountUsernameOk: false,
+				});
+
+			}
+
+		} else if (fieldName === "accountEmail") {
+
+			if (event.currentTarget.validity.valid) {
+
+				this.checkEmail(event.currentTarget.value);
+
+			} else {
+
+				this.setState({
+					accountEmailChecked: false,
+					accountEmailChecking: false,
+					accountEmailError: null,
+					accountEmailOk: false,
+				});
+
+			}
+
+		}
+
 	}
 
 	submitAccountForm(event: React.MouseEvent<HTMLFormElement>) {

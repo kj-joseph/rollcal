@@ -20,9 +20,17 @@ interface ILoginState {
 	modalStatus: string;
 	path: string;
 	registerEmail: string;
+	registerEmailChecked: boolean;
+	registerEmailChecking: boolean;
+	registerEmailError: string;
+	registerEmailOk: boolean;
 	registerPassword: string;
 	registerPasswordConfirm: string;
 	registerUsername: string;
+	registerUsernameChecked: boolean;
+	registerUsernameChecking: boolean;
+	registerUsernameError: string;
+	registerUsernameOk: boolean;
 }
 
 class Login extends React.Component<IProps> {
@@ -36,9 +44,17 @@ class Login extends React.Component<IProps> {
 		modalStatus: "login",
 		path: null,
 		registerEmail: "",
+		registerEmailChecked: false,
+		registerEmailChecking: false,
+		registerEmailError: null,
+		registerEmailOk: false,
 		registerPassword: "",
 		registerPasswordConfirm: "",
 		registerUsername: "",
+		registerUsernameChecked: false,
+		registerUsernameChecking: false,
+		registerUsernameError: null,
+		registerUsernameOk: false,
 	};
 
 	axiosSignal = axios.CancelToken.source();
@@ -46,6 +62,8 @@ class Login extends React.Component<IProps> {
 	constructor(props: IProps) {
 		super(props);
 
+		this.checkEmail = this.checkEmail.bind(this);
+		this.checkUsername = this.checkUsername.bind(this);
 		this.closeLoginModal = this.closeLoginModal.bind(this);
 		this.changeStatusClearState = this.changeStatusClearState.bind(this);
 		this.goToLogin = this.goToLogin.bind(this);
@@ -116,6 +134,7 @@ class Login extends React.Component<IProps> {
 									name="loginPassword"
 									type="password"
 									required={true}
+									pattern=".{8}.*"
 									disabled={this.state.loading}
 									value={this.state.loginPassword}
 									onChange={this.handleInputChange}
@@ -151,6 +170,7 @@ class Login extends React.Component<IProps> {
 									value={this.state.registerEmail}
 									onChange={this.handleInputChange}
 								/>
+								<p className="error" id="emailError">{this.state.registerEmailError}</p>
 							</div>
 
 							<div className="inputGroup">
@@ -166,6 +186,7 @@ class Login extends React.Component<IProps> {
 									value={this.state.registerUsername}
 									onChange={this.handleInputChange}
 								/>
+								<p className="error" id="emailError">{this.state.registerUsernameError}</p>
 							</div>
 
 							<div className="inputGroup">
@@ -189,6 +210,7 @@ class Login extends React.Component<IProps> {
 									name="registerPasswordConfirm"
 									type="password"
 									required={true}
+									pattern=".{8}.*"
 									disabled={this.state.loading}
 									value={this.state.registerPasswordConfirm}
 									onChange={this.handleInputChange}
@@ -203,6 +225,8 @@ class Login extends React.Component<IProps> {
 									disabled={!this.state.formValid
 										|| this.state.registerPassword !== this.state.registerPasswordConfirm
 										|| this.state.registerPassword.length < 8
+										|| !this.state.registerEmailOk
+										|| !this.state.registerUsernameOk
 										|| this.state.loading}
 									className="largeButton"
 								>
@@ -243,6 +267,100 @@ class Login extends React.Component<IProps> {
 
 	}
 
+	checkEmail(email: string) {
+
+		this.setState({
+			registerEmailChecking: true,
+			registerEmailOk: false,
+		});
+
+		axios.get(`${this.props.apiLocation}user/checkEmail?email=${email}`,
+			{
+				cancelToken: this.axiosSignal.token,
+				withCredentials: true,
+			})
+			.then((result) => {
+
+				if (result.data) {
+
+					this.setState({
+						registerEmailChecked: true,
+						registerEmailChecking: false,
+						registerEmailError: "That email has already been registered.",
+						registerEmailOk: false,
+					});
+
+				} else {
+
+					this.setState({
+						registerEmailChecked: true,
+						registerEmailChecking: false,
+						registerEmailError: null,
+						registerEmailOk: true,
+					});
+
+				}
+
+			}).catch((error) => {
+
+				this.setState({
+					registerEmailChecked: true,
+					registerEmailChecking: false,
+					registerEmailError: "An error occurred.",
+					registerEmailOk: false,
+				});
+
+			});
+
+	}
+
+	checkUsername(username: string) {
+
+		this.setState({
+			registerUsernameChecking: true,
+			registerUsernameOk: false,
+		});
+
+		axios.get(`${this.props.apiLocation}user/checkUsername?username=${username}`,
+			{
+				cancelToken: this.axiosSignal.token,
+				withCredentials: true,
+			})
+			.then((result) => {
+
+				if (result.data) {
+
+					this.setState({
+						registerUsernameChecked: true,
+						registerUsernameChecking: false,
+						registerUsernameError: "That display name is already in use.",
+						registerUsernameOk: false,
+					});
+
+				} else {
+
+					this.setState({
+						registerUsernameChecked: true,
+						registerUsernameChecking: false,
+						registerUsernameError: null,
+						registerUsernameOk: true,
+					});
+
+				}
+
+			}).catch((error) => {
+
+				this.setState({
+					registerUsernameChecked: true,
+					registerUsernameChecking: false,
+					registerUsernameError: "An error occurred.",
+					registerUsernameOk: false,
+				});
+
+			});
+
+	}
+
 	closeLoginModal(event?: React.MouseEvent<any>) {
 
 		if (event) {
@@ -266,6 +384,42 @@ class Login extends React.Component<IProps> {
 		};
 
 		this.setState(newState as { [P in T]: ILoginState[P]; });
+
+		if (fieldName === "registerUsername") {
+
+			if (event.currentTarget.validity.valid) {
+
+				this.checkUsername(event.currentTarget.value);
+
+			} else {
+
+				this.setState({
+					registerUsernameChecked: false,
+					registerUsernameChecking: false,
+					registerUsernameError: null,
+					registerUsernameOk: false,
+				});
+
+			}
+
+		} else if (fieldName === "registerEmail") {
+
+			if (event.currentTarget.validity.valid) {
+
+				this.checkEmail(event.currentTarget.value);
+
+			} else {
+
+				this.setState({
+					registerEmailChecked: false,
+					registerEmailChecking: false,
+					registerEmailError: null,
+					registerEmailOk: false,
+				});
+
+			}
+
+		}
 
 	}
 
@@ -328,51 +482,23 @@ class Login extends React.Component<IProps> {
 
 	submitRegistration(event: React.MouseEvent<HTMLFormElement>) {
 		event.preventDefault();
+
 		this.setState({
 			loading: true,
 		});
 
-		axios.get(`${this.props.apiLocation}user/register/checkEmail?email=${this.state.registerEmail}`,
+		axios.post(this.props.apiLocation + "user/register", {
+			email: this.state.registerEmail,
+			password: this.state.registerPassword,
+			username: this.state.registerUsername,
+			},
 			{
 				cancelToken: this.axiosSignal.token,
 				withCredentials: true,
 			})
-			.then((result) => {
-				if (result.data) {
+			.then((registerResult) => {
 
-					this.setState({
-						errorMessage: "Someone's already signed up with that email address.  Try another one.",
-						loading: false,
-					});
-
-				} else {
-
-					axios.post(this.props.apiLocation + "user/register", {
-						email: this.state.registerEmail,
-						password: this.state.registerPassword,
-						username: this.state.registerUsername,
-						},
-						{
-							cancelToken: this.axiosSignal.token,
-							withCredentials: true,
-						})
-						.then((registerResult) => {
-
-							this.changeStatusClearState("regComplete");
-
-						}).catch((error) => {
-							console.error(error);
-
-							if (!axios.isCancel(error)) {
-								this.setState({
-									errorMessage: "Sorry, something went wrong.  Try again.",
-									loading: false,
-								});
-							}
-
-						});
-
-				}
+				this.changeStatusClearState("regComplete");
 
 			}).catch((error) => {
 				console.error(error);

@@ -136,10 +136,32 @@ router.post("/register", upload.array(), (req: Request, res: Response) => {
 
 });
 
-router.get("/register/checkEmail", upload.array(), (req: Request, res: Response) => {
+router.get("/checkEmail", upload.array(), (req: Request, res: Response) => {
 
 	res.locals.connection
-		.query(`call checkEmail(${res.locals.connection.escape(req.query.email)})`,
+		.query(`call checkEmail(${res.locals.connection.escape(req.query.email)},
+			${res.locals.connection.escape(req.query.id) || null})`,
+		(error: MysqlError, results: any) => {
+
+			if (error) {
+				console.error(error);
+				res.status(500).send();
+
+			} else {
+
+				res.status(200).json(!!results[0].map((row: {}) => ({...row}))[0].count);
+
+			}
+
+		});
+
+});
+
+router.get("/checkUsername", upload.array(), (req: Request, res: Response) => {
+
+	res.locals.connection
+		.query(`call checkUsername(${res.locals.connection.escape(req.query.username)},
+			${res.locals.connection.escape(req.query.id) || null})`,
 		(error: MysqlError, results: any) => {
 
 			if (error) {
