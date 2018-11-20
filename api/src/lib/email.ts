@@ -37,7 +37,7 @@ export const sendChangeApprovalEmail =
 	}
 
 	return emailTransport.sendMail({
-		from: "Roll-Cal.com <feedback@roll-cal.com>",
+		from: `Roll-Cal.com <${process.env.FEEDBACK_EMAIL}>`,
 		html: `
 		<p><img src="https://www.roll-cal.com/images/header-logo.png" alt="Roll-Cal.com" width="305" height="100" /></p>
 		<p>Hey there, ${username}!</p>
@@ -71,7 +71,7 @@ export const sendChangeRejectionEmail =
 	}
 
 	return emailTransport.sendMail({
-		from: "Roll-Cal.com <feedback@roll-cal.com>",
+		from: `Roll-Cal.com <${process.env.FEEDBACK_EMAIL}>`,
 		html: `
 		<p><img src="https://www.roll-cal.com/images/header-logo.png" alt="Roll-Cal.com" width="305" height="100" /></p>
 		<p>Hey there, ${username}!</p>
@@ -91,12 +91,25 @@ export const sendChangeRejectionEmail =
 };
 
 
+export const sendContactEmail =
+	(email: string, name: string, message: string) => {
+
+	return emailTransport.sendMail({
+		from: `${name} <${email}>`,
+		html: message,
+		subject: "Roll-Cal contact form submission",
+		to: `Roll-Cal.com <${process.env.FEEDBACK_EMAIL}>`,
+	}, null);
+
+};
+
+
 export const sendEmailChangeEmail = (email: string, username: string, validationCode: string) => {
 
 	const validationUrl = `https://www.roll-cal.com/validate/${validationCode}`;
 
 	return emailTransport.sendMail({
-		from: "Roll-Cal.com <feedback@roll-cal.com>",
+		from: `Roll-Cal.com <${process.env.FEEDBACK_EMAIL}>`,
 		html: `
 		<p><img src="https://www.roll-cal.com/images/header-logo.png" alt="Roll-Cal.com" width="305" height="100" /></p>
 		<p>Hey there, ${username}!</p>

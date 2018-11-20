@@ -1,10 +1,5 @@
 #loginModal {
 
-	#loginForm,
-	#registerForm {
-
-	}
-
 	.loader {
 		position: absolute;
 		top: calc(50% - 60px);
@@ -18,11 +13,6 @@
 	#loginModal {
 		width: 500px;
 		height: auto;
-	}
-
-	#loginForm,
-	#registerForm {
-
 	}
 
 }
