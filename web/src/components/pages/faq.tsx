@@ -5,8 +5,6 @@ import { IProps } from "interfaces/redux";
 
 export default class Faq extends React.Component<IProps> {
 
-	mounted = false;
-
 	constructor(props: IProps) {
 		super(props);
 	}

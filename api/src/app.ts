@@ -8,6 +8,7 @@ import cors from "cors";
 const logger = require("morgan");
 const path = require("path");
 
+import contactRouter from "routes/contact";
 import eventFeaturesRouter from "routes/eventFeatures";
 import eventsRouter from "routes/events";
 import geographyRouter from "routes/geography";
@@ -78,6 +79,7 @@ if ((process.env.ROLLCAL_DEV_DBHOST || process.env.ROLLCAL_DBHOST)
 		store: sessionStore,
 	}));
 
+	app.use("/contact", contactRouter);
 	app.use("/eventFeatures", eventFeaturesRouter);
 	app.use("/events", eventsRouter);
 	app.use("/geography", geographyRouter);
