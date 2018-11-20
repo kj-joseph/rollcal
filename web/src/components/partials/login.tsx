@@ -283,6 +283,8 @@ class Login extends React.Component<IProps> {
 
 						<div>
 
+							<h2>Forgot Password</h2>
+
 							<p>An email has been sent to the email address you specified; click the link in that email to set a new password.</p>
 
 							<div className="buttonRow">
@@ -294,6 +296,8 @@ class Login extends React.Component<IProps> {
 					: this.state.modalStatus === "registrationSuccess" ?
 
 						<div>
+
+							<h2>Create an Account</h2>
 
 							<p>Your registration has been submitted.
 								An email has been sent to the email address you specified; follow the instructions to validate your account.</p>
@@ -531,8 +535,7 @@ class Login extends React.Component<IProps> {
 			})
 			.then((result) => {
 
-					this.changeStatusClearState("forgotSuccess");
-					this.props.setLoginModalState(false);
+				this.changeStatusClearState("forgotSuccess");
 
 			}).catch((error) => {
 
