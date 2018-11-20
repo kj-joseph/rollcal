@@ -8,8 +8,6 @@ interface IContactState {
 
 export default class Contact extends React.Component<IProps> {
 
-	mounted = false;
-
 	state: IContactState = {
 		TBD: null,
 	};
