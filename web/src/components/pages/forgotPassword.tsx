@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import axios from "axios";
 
@@ -64,7 +64,7 @@ export default class ForgotPassword extends React.Component<IProps> {
 
 					<p>
 						Sorry, something went wrong.  Give it another try;
-						if it doesn't work, <NavLink exact={true} to="/contact" title="Contact">give us a shout</NavLink>.
+						if it doesn't work, <Link to="/contact" title="Contact">give us a shout</Link>.
 					</p>
 
 				: this.state.status === "form" ?
