@@ -72,8 +72,6 @@ export default class Faq extends React.Component<IProps> {
 							Do you have web skills to pay the bills?  Roll-Cal is an open-source project.
 							{" "}<a href="https://github.com/kj-joseph/rollcal" target="_blank" rel="noopener noreferrer">Roll on over to GitHub</a> to find out more.
 						</p>
-						<p></p>
-
 					</dd>
 
 				</dl>
