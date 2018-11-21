@@ -1,7 +1,7 @@
 branches:
   only:
   - dev
-  - /release\/.*/
+  - /release\/[0-9]{2}\.[0-9]{2}\.[0-9]{2}/
   - master
 matrix:
   include:
@@ -29,6 +29,13 @@ matrix:
         fi
       on:
         branch: dev
+    - provider: script
+      skip_cleanup: true
+      script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/* kj@server.bykev.in:/var/www/roll-cal/stage;
+        rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/.htaccess kj@server.bykev.in:/var/www/roll-cal/stage;
+        fi
+      on:
+        branch: /release\/[0-9]{2}\.[0-9]{2}\.[0-9]{2}/
     - provider: script
       skip_cleanup: true
       script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/* kj@server.bykev.in:/var/www/roll-cal/prod;
@@ -69,6 +76,12 @@ matrix:
         fi
       on:
         branch: dev
+    - provider: script
+      skip_cleanup: true
+      script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/api/build/rollcal-api-stage.js kj@server.bykev.in:/var/www/roll-cal/api;
+        fi
+      on:
+        branch: /release\/[0-9]{2}\.[0-9]{2}\.[0-9]{2}/
     - provider: script
       skip_cleanup: true
       script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/api/build/rollcal-api.js kj@server.bykev.in:/var/www/roll-cal/api;
