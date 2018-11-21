@@ -4,13 +4,16 @@
   "description": "Roll-Cal.com",
   "main": "index.tsx",
   "scripts": {
-    "build": "mkdir -p build && rm -rf build/* && webpack --config webpack.local.js --mode development",
-    "deploy:prod": "webpack --config webpack.prod.js --mode production",
-    "deploy:dev": "webpack --config webpack.dev.js --mode development",
-    "start": "mkdir -p build && rm -rf build/* && webpack-dev-server --progress --config webpack.local.js --mode development",
+    "build": "npm-run-all lint clearBuildDir webpack:local",
+    "build:dev": "npm-run-all lint webpack:dev",
+    "build:prod": "npm-run-all lint webpack:prod",
+    "clearBuildDir": "mkdir -p build && rm -rf build/*",
     "lint": "tslint -p ./jsconfig.json",
-    "pretest": "npm-run-all lint",
-    "test": "echo \"Error: no test specified\" && exit 0"
+    "start": "webpack-dev-server --progress --config webpack.local.js --mode development",
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "webpack:dev": "webpack --config webpack.dev.js --mode development",
+    "webpack:local": "webpack --config webpack.local.js --mode development",
+    "webpack:prod": "webpack --config webpack.prod.js --mode production"
   },
   "author": "",
   "license": "ISC",
