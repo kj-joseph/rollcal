@@ -1,8 +1,8 @@
-var WebpackShellPlugin = require("webpack-shell-plugin-next");
-
-const webpack = require("webpack");
-const merge = require("webpack-merge");
 const commonConfig = require("./webpack.common.js");
+const merge = require("webpack-merge");
+const webpack = require("webpack");
+const WebpackShellPlugin = require("webpack-shell-plugin-next");
+
 const path = require("path");
 const build_dir = path.resolve(__dirname, "build");
 
@@ -10,7 +10,7 @@ const common = commonConfig();
 
 common.output.filename = "rollcal-api-dev.js";
 
-module.exports = merge(common, {
+let localPlugins = {
 
 	plugins: [
 		new webpack.DefinePlugin({
@@ -25,12 +25,19 @@ module.exports = merge(common, {
 			"process.env.TEST_EMAIL_HOST": JSON.stringify(""),
 			"process.env.TEST_EMAIL_PASS": JSON.stringify(""),
 			"process.env.TEST_EMAIL_USER": JSON.stringify("")
-		}),
-		new WebpackShellPlugin({
-			onBuildEnd: {
-				scripts: ["nodemon build/rollcal-api-dev.js --watch build"]
-			}
 		})
 	]
 
+};
+
+let nodemonPlugin =	new WebpackShellPlugin({
+	onBuildEnd: {
+		scripts: ["nodemon build/rollcal-api-dev.js --watch build"]
+	}
 });
+
+if (!process.env.NOSTART) {
+	localPlugins.plugins.push(nodemonPlugin);
+}
+
+module.exports = merge(common, localPlugins);
