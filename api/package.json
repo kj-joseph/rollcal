@@ -5,6 +5,7 @@
   "scripts": {
     "build": "npm-run-all lint clearBuildDir webpack:local",
     "build:dev": "npm-run-all lint webpack:dev",
+    "build:stage": "npm-run-all lint webpack:stage",
     "build:prod": "npm-run-all lint webpack:prod",
     "clearBuildDir": "mkdir -p build && rm -rf build/*",
     "lint": "tslint -p ./jsconfig.json",

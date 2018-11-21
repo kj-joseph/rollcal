@@ -90,6 +90,7 @@ module.exports = {
 				]
 			},
 			{
+				exclude: /flag-icon-css/,
 				test: /\.(gif|png|jpe?g|svg)$/i,
 				use: [
 					{
@@ -97,6 +98,32 @@ module.exports = {
 						options: {
 							name: "[name].[ext]",
 							outputPath: "images/",
+						}
+					}
+				],
+			},
+			{
+				include: /4x3/,
+				test: /\.(gif|png|jpe?g|svg)$/i,
+				use: [
+					{
+						loader: "file-loader",
+						options: {
+							name: "[name].[ext]",
+							outputPath: "images/flags/4x3",
+						}
+					}
+				],
+			},
+			{
+				include: /1x1/,
+				test: /\.(gif|png|jpe?g|svg)$/i,
+				use: [
+					{
+						loader: "file-loader",
+						options: {
+							name: "[name].[ext]",
+							outputPath: "images/flags/1x1",
 						}
 					}
 				],
