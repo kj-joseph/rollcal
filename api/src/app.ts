@@ -19,11 +19,11 @@ import { createPool } from "mysql";
 
 let app: express.Application;
 
-if ((process.env.ROLLCAL_DEV_DBHOST || process.env.ROLLCAL_DBHOST)
-	&& (process.env.ROLLCAL_DEV_DBNAME || process.env.ROLLCAL_DBNAME)
-	&& (process.env.ROLLCAL_DEV_DBPASS || process.env.ROLLCAL_DBPASS)
-	&& (process.env.ROLLCAL_DEV_DBUSER || process.env.ROLLCAL_DBUSER)
-	&& (process.env.ROLLCAL_DEV_SECRET || process.env.ROLLCAL_SECRET)
+if ((process.env.ROLLCAL_DEV_DBHOST || process.env.ROLLCAL_STAGE_DBHOST || process.env.ROLLCAL_DBHOST)
+	&& (process.env.ROLLCAL_DEV_DBNAME || process.env.ROLLCAL_STAGE_DBNAME || process.env.ROLLCAL_DBNAME)
+	&& (process.env.ROLLCAL_DEV_DBPASS || process.env.ROLLCAL_STAGE_DBPASS || process.env.ROLLCAL_DBPASS)
+	&& (process.env.ROLLCAL_DEV_DBUSER || process.env.ROLLCAL_STAGE_DBUSER || process.env.ROLLCAL_DBUSER)
+	&& (process.env.ROLLCAL_DEV_SECRET || process.env.ROLLCAL_STAGE_SECRET || process.env.ROLLCAL_SECRET)
 	&& process.env.ROLLCAL_ALLOW_ORIGIN
 	) {
 
@@ -53,12 +53,12 @@ if ((process.env.ROLLCAL_DEV_DBHOST || process.env.ROLLCAL_DBHOST)
 
 	const dbSettings = {
 		connectionLimit: 50,
-		database: process.env.ROLLCAL_DEV_DBNAME || process.env.ROLLCAL_PROD_DBNAME,
-		host: process.env.ROLLCAL_DEV_DBHOST || process.env.ROLLCAL_PROD_DBHOST,
+		database: process.env.ROLLCAL_DEV_DBNAME || process.env.ROLLCAL_STAGE_DBNAME || process.env.ROLLCAL_PROD_DBNAME,
+		host: process.env.ROLLCAL_DEV_DBHOST || process.env.ROLLCAL_STAGE_DBHOST || process.env.ROLLCAL_PROD_DBHOST,
 		multipleStatements: true,
-		password: process.env.ROLLCAL_DEV_DBPASS || process.env.ROLLCAL_PROD_DBPASS,
+		password: process.env.ROLLCAL_DEV_DBPASS || process.env.ROLLCAL_STAGE_DBPASS || process.env.ROLLCAL_PROD_DBPASS,
 		timezone: "utc",
-		user: process.env.ROLLCAL_DEV_DBUSER || process.env.ROLLCAL_PROD_DBUSER,
+		user: process.env.ROLLCAL_DEV_DBUSER || process.env.ROLLCAL_STAGE_DBUSER || process.env.ROLLCAL_PROD_DBUSER,
 	};
 
 	const dbPool = createPool(dbSettings);
@@ -75,7 +75,7 @@ if ((process.env.ROLLCAL_DEV_DBHOST || process.env.ROLLCAL_DBHOST)
 		key: "rollCalAuthCookie",
 		resave: false,
 		saveUninitialized: true,
-		secret: process.env.ROLLCAL_DEV_SECRET || process.env.ROLLCAL_PROD_SECRET,
+		secret: process.env.ROLLCAL_DEV_SECRET || process.env.ROLLCAL_STAGE_SECRET || process.env.ROLLCAL_PROD_SECRET,
 		store: sessionStore,
 	}));
 
