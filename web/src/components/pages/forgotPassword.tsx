@@ -116,7 +116,8 @@ export default class ForgotPassword extends React.Component<IProps> {
 										&& (!((document.getElementById("passwordForm") as HTMLFormElement).checkValidity())
 											|| this.state.password !== this.state.passwordConfirm))
 								}
-								className="largeButton">
+								className="largeButton"
+							>
 								Submit
 							</button>
 						</div>

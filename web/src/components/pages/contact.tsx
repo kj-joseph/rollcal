@@ -114,7 +114,8 @@ export default class Contact extends React.Component<IProps> {
 							<button
 								type="submit"
 								disabled={!this.state.contactEmail || !this.state.contactMessage || !this.state.contactName}
-								className="largeButton">
+								className="largeButton"
+							>
 								Send
 							</button>
 						</div>

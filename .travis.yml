@@ -1,6 +1,8 @@
 branches:
   only:
   - dev
+  - /release\/.*/
+  - master
 matrix:
   include:
   - name: "web"
@@ -15,7 +17,10 @@ matrix:
       - dev
     script:
     - cd web
-    - if [ "$TRAVIS_BRANCH" = "dev" ]; then npm install; npm run deploy:dev; fi
+    - npm install
+    - if [ "$TRAVIS_BRANCH" == "dev" ]; then npm run build:dev; fi
+    - if [ "$TRAVIS_BRANCH" =~ /release\/.*/ ]; then npm run build:prod; fi
+    - if [ "$TRAVIS_BRANCH" == "master" ]; then npm run build:prod; fi
     deploy:
     - provider: script
       skip_cleanup: true
@@ -24,6 +29,20 @@ matrix:
         fi
       on:
         branch: dev
+    - provider: script
+      skip_cleanup: true
+      script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/* kj@server.bykev.in:/var/www/roll-cal/stage;
+        rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/.htaccess kj@server.bykev.in:/var/www/roll-cal/stage;
+        fi
+      on:
+        branch: /release\/.*/
+    - provider: script
+      skip_cleanup: true
+      script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/* kj@server.bykev.in:/var/www/roll-cal/prod;
+        rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/.htaccess kj@server.bykev.in:/var/www/roll-cal/prod;
+        fi
+      on:
+        branch: master
     before_install:
     - openssl aes-256-cbc -K $encrypted_0b0c4b85a4ad_key -iv $encrypted_0b0c4b85a4ad_iv
       -in deploy_rsa.enc -out /tmp/deploy_rsa -d
@@ -46,14 +65,29 @@ matrix:
       - dev
     script:
     - cd api
-    - if [ "$TRAVIS_BRANCH" = "dev" ]; then npm install; npm run build:dev; fi
+    - npm install
+    - if [ "$TRAVIS_BRANCH" == "dev" ]; then npm run build:dev; fi
+    - if [ "$TRAVIS_BRANCH" =~ /release\/.*/ ]; then npm run build:prod; fi
+    - if [ "$TRAVIS_BRANCH" == "prod" ]; then npm run build:dev; fi
     deploy:
     - provider: script
       skip_cleanup: true
-      script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/api/build/* kj@server.bykev.in:/var/www/roll-cal/api;
+      script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/api/build/rollcal-api-dev.js kj@server.bykev.in:/var/www/roll-cal/api;
         fi
       on:
         branch: dev
+    - provider: script
+      skip_cleanup: true
+      script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/api/build/rollcal-api-stage.js kj@server.bykev.in:/var/www/roll-cal/api;
+        fi
+      on:
+        branch: release\/.*
+    - provider: script
+      skip_cleanup: true
+      script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/api/build/rollcal-api.js kj@server.bykev.in:/var/www/roll-cal/api;
+        fi
+      on:
+        branch: master
     before_install:
     - openssl aes-256-cbc -K $encrypted_0b0c4b85a4ad_key -iv $encrypted_0b0c4b85a4ad_iv
       -in deploy_rsa.enc -out /tmp/deploy_rsa -d
