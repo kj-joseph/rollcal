@@ -7,13 +7,13 @@ const build_dir = path.resolve(__dirname, "build");
 
 module.exports = merge(common, {
 	plugins: [
-	new MinifyPlugin({},{}),
-	new webpack.DefinePlugin({
-			sourceMap: true,
-			"process.env.NODE_ENV": JSON.stringify("production")
-		}),
+		new MinifyPlugin({},{}),
+		new webpack.DefinePlugin({
+				sourceMap: true,
+				"process.env.NODE_ENV": JSON.stringify("production")
+			}),
 		new webpack.DefinePlugin({
 			"process.env.API_URL": JSON.stringify("/api/"),
-		})
+		}),
 	]
 });
