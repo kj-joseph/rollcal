@@ -20,7 +20,7 @@ matrix:
     - cd web
     - npm install
     - if [[ "$BRANCH" == "dev" ]]; then npm run build:dev; fi
-    - if [[ "$BRANCH" =~ /^release\/.*$/ ]]; then npm run build:prod; fi
+    - if [[ "$BRANCH" =~ ^release\/.*$ ]]; then npm run build:prod; fi
     - if [[ "$BRANCH" == "master" ]]; then npm run build:prod; fi
     deploy:
     - provider: script
@@ -37,7 +37,7 @@ matrix:
         fi
       on:
         all_branches: true
-        condition: $BRANCH =~ /^release\/.*$/
+        condition: $BRANCH =~ ^release\/.*$
     - provider: script
       skip_cleanup: true
       script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/* kj@server.bykev.in:/var/www/roll-cal/prod;
@@ -68,7 +68,7 @@ matrix:
     - cd api
     - npm install
     - if [[ "$BRANCH" == "dev" ]]; then npm run build:dev; fi
-    - if [[ "$BRANCH" =~ /release\/[0-9]{2}\.[0-9]{2}\.[0-9]{2}/ ]]; then npm run build:prod; fi
+    - if [[ "$BRANCH" =~ ^release\/.*$ ]]; then npm run build:prod; fi
     - if [[ "$BRANCH" == "master" ]]; then npm run build:dev; fi
     deploy:
     - provider: script
@@ -83,7 +83,7 @@ matrix:
         fi
       on:
         all_branches: true
-        condition: $BRANCH =~ /^release\/.*$/
+        condition: $BRANCH =~ ^release\/.*$
     - provider: script
       skip_cleanup: true
       script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/api/build/rollcal-api.js kj@server.bykev.in:/var/www/roll-cal/api;
