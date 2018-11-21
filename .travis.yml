@@ -17,9 +17,10 @@ matrix:
       - dev
     script:
     - cd web
-    - if [ "$TRAVIS_BRANCH" == "dev" ]; then npm install; npm run build:dev; fi
-    - if [ "$TRAVIS_BRANCH" =~ release\/.* ]; then npm install; npm run build:prod; fi
-    - if [ "$TRAVIS_BRANCH" == "master" ]; then npm install; npm run build:prod; fi
+    - npm install
+    - if [ "$TRAVIS_BRANCH" == "dev" ]; then npm run build:dev; fi
+    - if [ "$TRAVIS_BRANCH" =~ /release\/.*/ ]; then npm run build:prod; fi
+    - if [ "$TRAVIS_BRANCH" == "master" ]; then npm run build:prod; fi
     deploy:
     - provider: script
       skip_cleanup: true
@@ -64,9 +65,10 @@ matrix:
       - dev
     script:
     - cd api
-    - if [ "$TRAVIS_BRANCH" == "dev" ]; then npm install; npm run build:dev; fi
-    - if [ "$TRAVIS_BRANCH" =~ release\/.* ]; then npm install; npm run build:prod; fi
-    - if [ "$TRAVIS_BRANCH" == "prod" ]; then npm install; npm run build:dev; fi
+    - npm install
+    - if [ "$TRAVIS_BRANCH" == "dev" ]; then npm run build:dev; fi
+    - if [ "$TRAVIS_BRANCH" =~ /release\/.*/ ]; then npm run build:prod; fi
+    - if [ "$TRAVIS_BRANCH" == "prod" ]; then npm run build:dev; fi
     deploy:
     - provider: script
       skip_cleanup: true
