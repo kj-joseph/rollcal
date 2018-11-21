@@ -12,7 +12,7 @@ import { sendEmailChangeEmail, sendForgotPasswordEmail, sendValidationEmail } fr
 const router = Router();
 const upload = multer();
 
-const secret = process.env.ROLLCAL_DEV_SECRET || process.env.ROLLCAL_PROD_SECRET;
+const secret = process.env.ROLLCAL_DEV_SECRET || process.env.ROLLCAL_STAGE_SECRET || process.env.ROLLCAL_PROD_SECRET;
 
 const decryptCode = (vcode: string) => {
 
