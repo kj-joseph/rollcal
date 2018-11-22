@@ -204,8 +204,8 @@ const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>): IReduxActions
 		saveDataTracks: (data: IDerbyTrack[]) => dispatch(reduxActions.saveDataTracks(data)),
 		saveLastSearch: (search: string) => dispatch(reduxActions.saveLastSearch(search)),
 		saveTimeZones: (data: ITimeZone[]) => dispatch(reduxActions.saveTimeZones(data)),
-		setPageTitle: (data: IPageTitle) => dispatch(reduxActions.setPageTitle(data)),
 		setLoginModalState: (loginModalState: boolean) => dispatch(reduxActions.setLoginModalState(loginModalState)),
+		setPageTitle: (data: IPageTitle) => dispatch(reduxActions.setPageTitle(data)),
 		setSessionState: (sessionInitialized: boolean) => dispatch(reduxActions.setSessionState(sessionInitialized)),
 		setUserInfo: (userState: IUserInfo) => dispatch(reduxActions.setUserInfo(userState)),
 	};
