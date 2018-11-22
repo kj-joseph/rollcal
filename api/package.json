@@ -27,9 +27,6 @@
 		"webpack:prod": "webpack --config webpack.prod.js --mode production",
 		"webpack:stage": "webpack --config webpack.stage.js --mode production"
 	},
-	"pre-commit": [
-		"lint"
-	],
 	"dependencies": {
 		"axios": "^0.18.0",
 		"babel-polyfill": "^6.26.0",
