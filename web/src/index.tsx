@@ -201,13 +201,13 @@ const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>): IReduxActions
 		saveDataDerbyTypes: (data: IDerbyType[]) => dispatch(reduxActions.saveDataDerbyTypes(data)),
 		saveDataGeography: (data: IGeoData) => dispatch(reduxActions.saveDataGeography(data)),
 		saveDataSanctions: (data: IDerbySanction[]) => dispatch(reduxActions.saveDataSanctions(data)),
+		setUserInfo: (userState: IUserInfo) => dispatch(reduxActions.setUserInfo(userState)),
 		saveDataTracks: (data: IDerbyTrack[]) => dispatch(reduxActions.saveDataTracks(data)),
 		saveLastSearch: (search: string) => dispatch(reduxActions.saveLastSearch(search)),
 		saveTimeZones: (data: ITimeZone[]) => dispatch(reduxActions.saveTimeZones(data)),
 		setPageTitle: (data: IPageTitle) => dispatch(reduxActions.setPageTitle(data)),
 		setLoginModalState: (loginModalState: boolean) => dispatch(reduxActions.setLoginModalState(loginModalState)),
 		setSessionState: (sessionInitialized: boolean) => dispatch(reduxActions.setSessionState(sessionInitialized)),
-		setUserInfo: (userState: IUserInfo) => dispatch(reduxActions.setUserInfo(userState)),
 	};
 };
 

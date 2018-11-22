@@ -11,7 +11,7 @@
 	"homepage": "http://www.roll-cal.com/",
 	"repository": "github:kj-joseph/rollcal",
 	"bugs": {
-		"url" : "https://github.com/kj-joseph/rollcal/issues"
+		"url": "https://github.com/kj-joseph/rollcal/issues"
 	},
 	"scripts": {
 		"build": "npm-run-all lint clearBuildDir 'webpack:local -- --env.NOSTART'",
@@ -27,7 +27,9 @@
 		"webpack:prod": "webpack --config webpack.prod.js --mode production",
 		"webpack:stage": "webpack --config webpack.stage.js --mode production"
 	},
-	"pre-commit": [ "lint" ],
+	"pre-commit": [
+		"lint"
+	],
 	"dependencies": {
 		"axios": "^0.18.0",
 		"babel-polyfill": "^6.26.0",
