@@ -16,13 +16,11 @@ matrix:
       only:
       - dev
     script:
-    - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
-    - env | grep BRANCH
     - cd web
     - npm install
-    - if [[ "$BRANCH" == "dev" ]]; then npm run build:dev; fi
-    - if [[ "$BRANCH" =~ ^release\/.*$ ]]; then npm run build:prod; fi
-    - if [[ "$BRANCH" == "master" ]]; then npm run build:prod; fi
+    - if [[ "$TRAVIS_BRANCH" == "dev" ]]; then npm run build:dev; fi
+    - if [[ "$TRAVIS_BRANCH" =~ ^release\/.*$ ]]; then npm run build:prod; fi
+    - if [[ "$TRAVIS_BRANCH" == "master" ]]; then npm run build:prod; fi
     deploy:
     - provider: script
       skip_cleanup: true
@@ -38,7 +36,7 @@ matrix:
         fi
       on:
         all_branches: true
-        condition: $BRANCH =~ ^release\/.*$
+        condition: $TRAVIS_BRANCH =~ ^release\/.*$
     - provider: script
       skip_cleanup: true
       script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/* kj@server.bykev.in:/var/www/roll-cal/prod;
@@ -65,12 +63,11 @@ matrix:
       only:
       - dev
     script:
-    - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
     - cd api
     - npm install
-    - if [[ "$BRANCH" == "dev" ]]; then npm run build:dev; fi
-    - if [[ "$BRANCH" =~ ^release\/.*$ ]]; then npm run build:stage; fi
-    - if [[ "$BRANCH" == "master" ]]; then npm run build:dev; fi
+    - if [[ "$TRAVIS_BRANCH" == "dev" ]]; then npm run build:dev; fi
+    - if [[ "$TRAVIS_BRANCH" =~ ^release\/.*$ ]]; then npm run build:stage; fi
+    - if [[ "$TRAVIS_BRANCH" == "master" ]]; then npm run build:dev; fi
     deploy:
     - provider: script
       skip_cleanup: true
@@ -84,7 +81,7 @@ matrix:
         fi
       on:
         all_branches: true
-        condition: $BRANCH =~ ^release\/.*$
+        condition: $TRAVIS_BRANCH =~ ^release\/.*$
     - provider: script
       skip_cleanup: true
       script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/api/build/rollcal-api.js kj@server.bykev.in:/var/www/roll-cal/api;
