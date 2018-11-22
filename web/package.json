@@ -19,13 +19,14 @@
 		"build:prod": "npm-run-all lint webpack:prod",
 		"clearBuildDir": "mkdir -p build && rm -rf build/*",
 		"lint": "tslint -p ./jsconfig.json",
+		"precommit-msg": "echo 'Pre-commit checks...' && exit 0",
 		"start": "webpack-dev-server --progress --config webpack.local.js --mode development",
 		"test": "echo \"Error: no test specified\" && exit 0",
 		"webpack:dev": "webpack --config webpack.dev.js --mode development",
 		"webpack:local": "webpack --config webpack.local.js --mode development",
 		"webpack:prod": "webpack --config webpack.prod.js --mode production"
 	},
-	"pre-commit": [ "lint" ],
+	"pre-commit": [ "precommit-msg", "lint" ],
 	"dependencies": {
 		"@babel/polyfill": "^7.0.0",
 		"react": "^16.5.2",

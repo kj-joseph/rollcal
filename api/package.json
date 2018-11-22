@@ -20,6 +20,7 @@
 		"build:prod": "npm-run-all lint webpack:prod",
 		"clearBuildDir": "mkdir -p build && rm -rf build/*",
 		"lint": "tslint -p ./jsconfig.json",
+		"precommit-msg": "echo 'Pre-commit checks...' && exit 0",
 		"start": "npm run webpack:local -- --watch",
 		"webpack:dev": "webpack --config webpack.dev.js --mode development",
 		"webpack:local": "webpack --config webpack.local.js --mode development",
