@@ -44,6 +44,11 @@ export default class EventChanges extends React.Component<IProps> {
 		window.scrollTo(0, 0);
 		this.props.setSessionState(this.props.sessionInitialized);
 
+		this.props.setPageTitle({
+			detail: "Review Event Changes",
+			page: "User Dashboard",
+		});
+
 	}
 
 	componentDidUpdate() {

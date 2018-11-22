@@ -32,6 +32,11 @@ export default class Validate extends React.Component<IProps> {
 		this.props.setSessionState(this.props.sessionInitialized);
 		this.loadData();
 
+		this.props.setPageTitle({
+			detail: "Account Validation",
+			page: "User Dashboard",
+		});
+
 	}
 
 	componentWillUnmount() {

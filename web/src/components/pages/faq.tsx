@@ -14,6 +14,10 @@ export default class Faq extends React.Component<IProps> {
 		window.scrollTo(0, 0);
 		this.props.setSessionState(this.props.sessionInitialized);
 
+		this.props.setPageTitle({
+			page: "Frequently Asked Stuff",
+		});
+
 	}
 
 	render() {

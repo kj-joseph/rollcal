@@ -31,6 +31,10 @@ export default class Dashboard extends React.Component<IProps> {
 		window.scrollTo(0, 0);
 		this.props.setSessionState(this.props.sessionInitialized);
 
+		this.props.setPageTitle({
+			page: "User Dashboard",
+		});
+
 	}
 
 	componentDidUpdate() {
@@ -55,7 +59,7 @@ export default class Dashboard extends React.Component<IProps> {
 
 		return (
 
-			<div className="dashboard">
+			<div className="dashboard mainDashboard">
 
 				<div className="buttonRow cornerButton">
 					<button type="button" onClick={this.logout} className="largeButton">Log out</button>
@@ -73,17 +77,25 @@ export default class Dashboard extends React.Component<IProps> {
 						<Link to="/dashboard/account">Your Account</Link>
 					</li>
 
-					<li>
-						<Link to="/dashboard/events">Edit/Add Events</Link>
+					<li className="separatorBefore">
+						<Link to="/dashboard/events/add">Add New Event</Link>
 					</li>
 
 					<li>
-						<Link to="/dashboard/venues">Edit/Add Venues</Link>
+						<Link to="/dashboard/events">Edit Events</Link>
+					</li>
+
+					<li className="separatorBefore">
+						<Link to="/dashboard/venues/add">Add New Venue</Link>
+					</li>
+
+					<li>
+						<Link to="/dashboard/venues">Edit Venues</Link>
 					</li>
 
 					{this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("reviewer") > -1 ?
 
-						<li>
+						<li className="separatorBefore">
 							<Link to="/dashboard/events/changes">Review Event Changes</Link>
 						</li>
 
@@ -99,7 +111,7 @@ export default class Dashboard extends React.Component<IProps> {
 
 					{this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("admin") > -1 ?
 
-						<li>
+						<li className="separatorBefore">
 							<Link to="/dashboard/admin">User Admin</Link>
 						</li>
 

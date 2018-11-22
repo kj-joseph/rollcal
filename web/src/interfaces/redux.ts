@@ -6,6 +6,11 @@ interface IMatchParams {
 	[key: string]: any;
 }
 
+export interface IPageTitle {
+	detail?: string;
+	page?: string;
+}
+
 export interface IProps extends IReduxActions, IReduxStore, RouteComponentProps<IMatchParams> {
 }
 
@@ -18,6 +23,7 @@ export interface IReduxActions {
 	saveLastSearch: (search: string) => IReduxActionType;
 	saveTimeZones: (data: ITimeZone[]) => IReduxActionType;
 	setLoginModalState: (loginModalState: boolean) => IReduxActionType;
+	setPageTitle: (pageTitle: IPageTitle) => IReduxActionType;
 	setSessionState: (sessionInitialized: boolean) => IReduxActionType;
 	setUserInfo: (userInfo: IUserInfo) => IReduxActionType;
 }
@@ -42,6 +48,7 @@ export interface IReduxStore {
 	loggedInUserRoles: string[];
 	loginModalOpen: false;
 	page: "home";
+	pageTitle: IPageTitle;
 	sessionInitialized: false;
 	timeZones: ITimeZone[];
 }

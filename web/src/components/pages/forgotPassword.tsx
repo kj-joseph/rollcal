@@ -44,6 +44,10 @@ export default class ForgotPassword extends React.Component<IProps> {
 		this.props.setSessionState(this.props.sessionInitialized);
 		this.loadData();
 
+		this.props.setPageTitle({
+			page: "Set New Password",
+		});
+
 	}
 
 	componentWillUnmount() {
@@ -54,7 +58,7 @@ export default class ForgotPassword extends React.Component<IProps> {
 
 		return (
 			<React.Fragment>
-				<h1>Account Validation</h1>
+				<h1>Set New Password</h1>
 
 				{ this.state.status === "loading" || this.state.status === "submitting" ?
 
@@ -70,8 +74,6 @@ export default class ForgotPassword extends React.Component<IProps> {
 				: this.state.status === "form" ?
 
 					<form id="passwordForm" onSubmit={this.submitPassword}>
-
-						<h2>Set New Password</h2>
 
 						<p>Hi, {this.state.userName}!  Please set a new password for your account.</p>
 

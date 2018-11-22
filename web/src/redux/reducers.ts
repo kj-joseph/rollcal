@@ -20,20 +20,24 @@ const initialState: IReduxStore = {
 	loggedInUserRoles: null as string[],
 	loginModalOpen: false,
 	page: "home",
+	pageTitle: {
+		detail: null,
+		page: null,
+	},
 	sessionInitialized: false,
 	timeZones: [] as ITimeZone[],
 };
 
 const rootReducer = (state = initialState, action: IReduxActionType) => {
 
-	const newState = JSON.parse(JSON.stringify(state));
+	const newState: IReduxStore = JSON.parse(JSON.stringify(state));
 
 	switch (action.type) {
 
 		case "CLEAR_USER_INFO":
 			newState.loggedIn = false;
 			newState.loggedInUserEmail = "",
-			newState.loggedInUserId = "";
+			newState.loggedInUserId = null;
 			newState.loggedInUserName = "";
 			newState.loggedInUserRoles = null;
 			return newState;
@@ -77,6 +81,29 @@ const rootReducer = (state = initialState, action: IReduxActionType) => {
 			} else {
 				document.getElementsByTagName("html")[0].classList.remove("noscroll");
 			}
+			return newState;
+
+			break;
+
+		case "SET_PAGE_TITLE":
+
+			if (action.payload.hasOwnProperty("page")) {
+				newState.pageTitle.page = action.payload.page;
+
+				if (!action.payload.hasOwnProperty("detail")) {
+					newState.pageTitle.detail = null;
+				}
+
+			}
+
+			if (action.payload.hasOwnProperty("detail")) {
+				newState.pageTitle.detail = action.payload.detail;
+			}
+
+			document.title = (newState.pageTitle.detail ? `${newState.pageTitle.detail} | ` : "")
+				+ (newState.pageTitle.page ? `${newState.pageTitle.page} | ` : "")
+				+ "Roll-Cal - Roller derby event calendar";
+
 			return newState;
 			break;
 

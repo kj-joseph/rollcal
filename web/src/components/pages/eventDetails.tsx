@@ -52,6 +52,9 @@ export default class EventDetails extends React.Component<IProps> {
 
 		window.scrollTo(0, 0);
 		this.props.setSessionState(this.props.sessionInitialized);
+		this.props.setPageTitle({
+			page: "Event Details",
+		});
 
 	}
 
@@ -342,6 +345,11 @@ export default class EventDetails extends React.Component<IProps> {
 								},
 								loading: false,
 							});
+
+							this.props.setPageTitle({
+								detail: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
+							});
+
 						}
 
 					}).catch(() => {

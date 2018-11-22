@@ -67,6 +67,10 @@ export default class UserEvents extends React.Component<IProps> {
 		window.scrollTo(0, 0);
 		this.props.setSessionState(this.props.sessionInitialized);
 
+		this.props.setPageTitle({
+			detail: "Add/Edit Events",
+			page: "User Dashboard",
+		});
 	}
 
 	componentDidUpdate() {

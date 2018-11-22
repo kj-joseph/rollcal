@@ -66,6 +66,10 @@ export default class Events extends React.Component<IProps> {
 		window.scrollTo(0, 0);
 		this.props.setSessionState(this.props.sessionInitialized);
 
+		this.props.setPageTitle({
+			page: this.state.isSearch ? "Search Results" : "Upcoming Events",
+		});
+
 	}
 
 	componentDidUpdate() {

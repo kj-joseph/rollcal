@@ -49,6 +49,11 @@ export default class UserVenues extends React.Component<IProps, IUserVenuesState
 		window.scrollTo(0, 0);
 		this.props.setSessionState(this.props.sessionInitialized);
 
+		this.props.setPageTitle({
+			detail: "Add/Edit Venues",
+			page: "User Dashboard",
+		});
+
 	}
 
 	componentDidUpdate() {

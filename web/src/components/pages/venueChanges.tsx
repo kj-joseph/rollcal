@@ -43,6 +43,11 @@ export default class VenueChanges extends React.Component<IProps> {
 		window.scrollTo(0, 0);
 		this.props.setSessionState(this.props.sessionInitialized);
 
+		this.props.setPageTitle({
+			detail: "Review Venue Changes",
+			page: "User Dashboard",
+		});
+
 	}
 
 	componentDidUpdate() {
