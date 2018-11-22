@@ -169,6 +169,15 @@ export default class EventForm<Props> extends React.Component<IProps> {
 		window.scrollTo(0, 0);
 		this.props.setSessionState(this.props.sessionInitialized);
 
+		this.props.setPageTitle({
+			detail: this.props.match.params.operation === "add" ? "Add New Event" :
+				this.props.match.params.operation === "edit"
+					&& this.props.match.params.eventId
+					&& this.props.match.params.eventId.match(/[0-9]+/)
+					? "Edit Event" : "",
+			page: "User Dashboard",
+		});
+
 	}
 
 	componentWillUnmount() {
@@ -1327,6 +1336,10 @@ export default class EventForm<Props> extends React.Component<IProps> {
 									loading: false,
 									selectedFeatures,
 									selectedVenue,
+								});
+
+								this.props.setPageTitle({
+									detail: `Edit Event: ${eventResult.event_name ? eventResult.event_name : eventResult.event_host}`,
 								});
 
 							} else {

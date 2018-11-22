@@ -73,6 +73,15 @@ export default class UserAccount extends React.Component<IProps> {
 		this.submitAccountForm = this.submitAccountForm.bind(this);
 	}
 
+	componentDidMount() {
+
+		this.props.setPageTitle({
+			detail: "Your Account",
+			page: "User Dashboard",
+		});
+
+	}
+
 	componentWillUnmount() {
 		this.axiosSignal.cancel();
 	}

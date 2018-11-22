@@ -97,6 +97,15 @@ export default class VenueForm extends React.Component<IProps> {
 		window.scrollTo(0, 0);
 		this.props.setSessionState(this.props.sessionInitialized);
 
+		this.props.setPageTitle({
+			detail: this.props.match.params.operation === "add" ? "Add New Venue" :
+				this.props.match.params.operation === "edit"
+					&& this.props.match.params.eventId
+					&& this.props.match.params.eventId.match(/[0-9]+/)
+					? "Edit Venue" : "",
+			page: "User Dashboard",
+		});
+
 	}
 
 	componentWillUnmount() {
@@ -517,6 +526,10 @@ export default class VenueForm extends React.Component<IProps> {
 									region: result.data.venue_region || null,
 									timezone: result.data.venue_timezone || null,
 								},
+							});
+
+							this.props.setPageTitle({
+								detail: `Edit Venue: ${result.data.venue_name}`,
 							});
 
 						} else {

@@ -1,6 +1,6 @@
 import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
 import { IGeoData, ITimeZone } from "interfaces/geo";
-import { IReduxActionType, IUserInfo } from "interfaces/redux";
+import { IPageTitle, IReduxActionType, IUserInfo } from "interfaces/redux";
 
 export default {
 
@@ -42,6 +42,11 @@ export default {
 	setLoginModalState: (loginModalState: boolean): IReduxActionType => ({
 		payload: loginModalState,
 		type: "SET_LOGIN_MODAL_STATE",
+	}),
+
+	setPageTitle: (pageTitle: IPageTitle): IReduxActionType => ({
+		payload: pageTitle,
+		type: "SET_PAGE_TITLE",
 	}),
 
 	setSessionState: (sessionInitialized: boolean): IReduxActionType => ({

@@ -5,6 +5,12 @@
 
 		li {
 			margin-bottom: .5em;
+
+			&.separatorBefore {
+				padding-top: .5em;
+				margin-top: .8em;
+				border-top: 2px solid $gray;
+			}
 		}
 
 	}
@@ -91,7 +97,9 @@ dl.changeDetails {
 
 	.dashboard {
 
-		&.reviewVenueChange {
+		&.mainDashboard,
+		&.reviewVenueChange
+		{
 			max-width: 710px;
 		}
 

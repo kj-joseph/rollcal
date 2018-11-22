@@ -90,6 +90,10 @@ export default class Search extends React.Component<IProps> {
 		window.scrollTo(0, 0);
 		this.props.setSessionState(this.props.sessionInitialized);
 
+		this.props.setPageTitle({
+			page: "Search Events",
+		});
+
 	}
 
 	componentDidUpdate() {
