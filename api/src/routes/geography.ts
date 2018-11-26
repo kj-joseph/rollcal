@@ -9,12 +9,14 @@ router.get("/getAllCountries", (req: Request, res: Response) => {
 		.query("call getAllCountries()",
 		(error: MysqlError, results: any) => {
 
-			res.locals.connection.end();
-
 			if (error) {
 				console.error(error);
+
+				res.locals.connection.end();
 				res.status(500).send();
 			} else {
+
+				res.locals.connection.end();
 				res.status(200).json(results[0].map((row: {}) => ({...row})));
 			}
 		});
@@ -26,14 +28,17 @@ router.get("/getRegionsByCountry/:countryId", (req: Request, res: Response) => {
 		.query(`call getRegionsByCountry(${res.locals.connection.escape(req.params.countryId)})`,
 		(error: MysqlError, results: any) => {
 
-			res.locals.connection.end();
-
 			if (error) {
 				console.error(error);
+
+				res.locals.connection.end();
 				res.status(500).send();
 
 			} else {
+
+				res.locals.connection.end();
 				res.status(200).json(results[0].map((row: {}) => ({...row})));
+
 			}
 
 		});
@@ -45,13 +50,17 @@ router.get("/getTimeZones", (req: Request, res: Response) => {
 		.query("call getTimeZones()",
 		(error: MysqlError, results: any) => {
 
-			res.locals.connection.end();
-
 			if (error) {
 				console.error(error);
+
+				res.locals.connection.end();
 				res.status(500).send();
+
 			} else {
+
+				res.locals.connection.end();
 				res.status(200).json(results[0].map((row: {}) => ({...row})));
+
 			}
 		});
 });

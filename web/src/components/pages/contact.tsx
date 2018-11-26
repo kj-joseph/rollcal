@@ -159,7 +159,7 @@ export default class Contact extends React.Component<IProps> {
 			submitting: true,
 		});
 
-		axios.post(this.props.apiLocation + "contact/", {
+		axios.post(this.props.apiLocation + "contact/sendContactForm", {
 				email: this.state.contactEmail,
 				message: this.state.contactMessage,
 				name: this.state.contactName,

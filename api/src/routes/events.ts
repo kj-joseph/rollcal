@@ -87,8 +87,8 @@ router.put("/saveChanges", upload.array(), checkSession("user"), (req: IRequestW
 				${res.locals.connection.escape(req.body.id)},
 				${res.locals.connection.escape(req.body.changeObject)}
 			)`,
-
 			(error: MysqlError, results: any) => {
+
 				if (error) {
 					res.locals.connection.end();
 					console.error(error);
@@ -96,6 +96,7 @@ router.put("/saveChanges", upload.array(), checkSession("user"), (req: IRequestW
 
 				} else {
 
+					res.locals.connection.end();
 					res.status(200).send();
 
 				}
@@ -111,8 +112,8 @@ router.delete("/deleteEvent/:id", upload.array(), checkSession("user"), (req: IR
 				${res.locals.connection.escape(req.params.id)},
 				${res.locals.connection.escape(req.session.user.id)}
 			)`,
-
 			(error: MysqlError, results: any) => {
+
 				if (error) {
 					res.locals.connection.end();
 					console.error(error);
@@ -120,9 +121,11 @@ router.delete("/deleteEvent/:id", upload.array(), checkSession("user"), (req: IR
 
 				} else {
 
+					res.locals.connection.end();
 					res.status(200).send();
 
 				}
+
 			});
 
 });
@@ -237,14 +240,16 @@ router.post("/approveChange/:changeId", checkSession("reviewer"), (req: IRequest
 						(returnedData.email, returnedData.username, req.params.changeId, "event", returnedData.isNew, returnedData.event_name)
 						.then(() => {
 
+							res.locals.connection.end();
 							res.status(200).send({
 								eventId: returnedData.event_id,
 								success: true,
 							});
 
 						}).catch((mailError: ErrorEventHandler) => {
-
 							console.error(mailError);
+
+							res.locals.connection.end();
 							res.status(500).send();
 
 						});
@@ -268,8 +273,9 @@ router.post("/rejectChange/:changeId", upload.array(), checkSession("reviewer"),
 		(error: MysqlError, results: any) => {
 
 			if (error) {
-				res.locals.connection.end();
 				console.error(error);
+
+				res.locals.connection.end();
 				res.status(500).send();
 
 			} else {
@@ -277,8 +283,9 @@ router.post("/rejectChange/:changeId", upload.array(), checkSession("reviewer"),
 				const returnedData = results[0].map((row: {}) => ({...row}))[0];
 
 				if (returnedData.error) {
-					res.locals.connection.end();
 					console.error(returnedData.error);
+
+					res.locals.connection.end();
 					res.status(500).send();
 
 				} else {
@@ -287,14 +294,16 @@ router.post("/rejectChange/:changeId", upload.array(), checkSession("reviewer"),
 						(returnedData.email, returnedData.username, req.params.changeId, "event", returnedData.isNew, returnedData.event_name, req.body.comment)
 						.then(() => {
 
+							res.locals.connection.end();
 							res.status(200).send({
 								eventId: returnedData.event_id,
 								success: true,
 							});
 
 						}).catch((mailError: ErrorEventHandler) => {
-
 							console.error(mailError);
+
+							res.locals.connection.end();
 							res.status(500).send();
 
 						});
