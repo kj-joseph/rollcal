@@ -4,8 +4,8 @@ import { MysqlError } from "mysql";
 
 import crypto from "crypto";
 
-import { checkSession } from "checkSession";
 import { IRequestWithSession } from "interfaces";
+import { checkSession } from "lib/checkSession";
 
 import { sendEmailChangeEmail, sendForgotPasswordEmail, sendValidationEmail } from "lib/email";
 

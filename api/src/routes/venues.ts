@@ -2,8 +2,8 @@ import { Request, Response, Router } from "express";
 import multer from "multer";
 import { MysqlError } from "mysql";
 
-import { checkSession } from "checkSession";
 import { IRequestWithSession } from "interfaces";
+import { checkSession } from "lib/checkSession";
 
 import { sendChangeApprovalEmail, sendChangeRejectionEmail } from "lib/email";
 
