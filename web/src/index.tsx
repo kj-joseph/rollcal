@@ -14,6 +14,11 @@ import store from "redux/store";
 
 import { checkLoginStatus } from "components/lib/auth";
 
+// Google Analytics
+import ReactGA from "react-ga";
+ReactGA.initialize("UA-2467744-6");
+
+
 // load css for modules
 import "flag-icon-css/sass/flag-icon.scss";
 import "react-dates/lib/css/_datepicker.css";
@@ -35,13 +40,20 @@ import HeaderLogo from "images/header-logo.svg";
 import LoginIconSolid from "images/menu/user-circle-solid.svg";
 import LoginIconOutline from "images/menu/user-circle.svg";
 
+interface ISiteState {
+	url: string;
+}
+
 class ConnectedSiteRouter extends React.Component<IProps> {
+
+	state: ISiteState = {
+		url: null,
+	};
 
 	constructor(props: IProps) {
 		super(props);
 
 		this.openLoginModal = this.openLoginModal.bind(this);
-
 	}
 
 	componentDidMount() {
@@ -54,6 +66,17 @@ class ConnectedSiteRouter extends React.Component<IProps> {
 
 		}
 
+	}
+
+	componentDidUpdate() {
+		if (window.location.pathname + window.location.search !== this.state.url) {
+
+			this.setState({
+				url: window.location.pathname + window.location.search,
+			});
+			ReactGA.pageview(window.location.pathname + window.location.search);
+
+		}
 	}
 
 	openLoginModal(event?: React.MouseEvent<HTMLAnchorElement>) {
