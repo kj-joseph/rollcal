@@ -67,16 +67,53 @@ class ConnectedSiteRouter extends React.Component<IProps> {
 	}
 
 	componentDidUpdate() {
-		if (window.location.pathname + window.location.search !== this.state.url) {
+		if (window.location.pathname !== this.state.url) {
 
 			this.setState({
-				url: window.location.pathname + window.location.search,
+				url: window.location.pathname,
 			});
 
-			Analytics.set({
-				location: window.location.pathname + window.location.search,
-			});
-			Analytics.pageview(window.location.pathname + window.location.search);
+			if (!!(window.location.pathname.match(/^\/(?:[0-9]{4}-[0-9]{2}-[0-9]{2}|derbytypes|sanctions|tracks|locations)/g))) {
+
+				const urlSearchParts = window.location.pathname.split("/");
+
+				const searchURL: string[] = [];
+				let hasStart = false;
+
+				for (const part of urlSearchParts) {
+
+					if (part.match(/^[0-9]/)) {
+
+						if (hasStart) {
+							searchURL.push(`endDate=${part}`);
+						} else {
+							searchURL.push(`startDate=${part}`);
+							hasStart = true;
+						}
+
+					} else if (part) {
+
+						const values = part.match(/^(derbytypes|sanctions|tracks|locations)\(([^\)]+)\)/);
+						searchURL.push(`${values[1]}=${values[2]}`);
+
+					}
+
+				}
+
+				Analytics.set({
+					location: `${window.location.origin}/searchResults?${searchURL.join("&")}`,
+				});
+				Analytics.pageview(`/searchResults?${searchURL.join("&")}`);
+
+			} else {
+
+				Analytics.set({
+					location: window.location.origin + window.location.pathname,
+				});
+				Analytics.pageview(window.location.pathname);
+
+			}
+
 
 		}
 	}
