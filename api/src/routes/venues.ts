@@ -17,14 +17,17 @@ router.get("/getAllVenues", (req: Request, res: Response) => {
 		.query("call getAllVenues()",
 		(error: MysqlError, results: any) => {
 
-			res.locals.connection.end();
-
 			if (error) {
 				console.error(error);
+
+				res.locals.connection.end();
 				res.status(500).send();
 
 			} else {
+
+				res.locals.connection.end();
 				res.status(200).json(results[0].map((row: {}) => ({...row})));
+
 			}
 
 		});
@@ -37,14 +40,17 @@ router.get("/getVenuesByUser/:userId", (req: Request, res: Response) => {
 		.query(`call getVenuesByUser(${res.locals.connection.escape(req.params.userId)})`,
 		(error: MysqlError, results: any) => {
 
-			res.locals.connection.end();
-
 			if (error) {
 				console.error(error);
+
+				res.locals.connection.end();
 				res.status(500).send();
 
 			} else {
+
+				res.locals.connection.end();
 				res.status(200).json(results[0].map((row: {}) => ({...row})));
+
 			}
 
 		});
@@ -57,14 +63,17 @@ router.get("/getVenueDetails/:id", (req: Request, res: Response) => {
 		.query(`call getVenueDetails(${res.locals.connection.escape(req.params.id)})`,
 		(error: MysqlError, results: any) => {
 
-			res.locals.connection.end();
-
 			if (error) {
 				console.error(error);
+
+				res.locals.connection.end();
 				res.status(500).send();
 
 			} else {
+
+				res.locals.connection.end();
 				res.status(200).json(results[0].map((row: {}) => ({...row}))[0]);
+
 			}
 
 		});
@@ -82,12 +91,14 @@ router.put("/saveChanges", upload.array(), checkSession("user"), (req: IRequestW
 
 			(error: MysqlError, results: any) => {
 				if (error) {
-					res.locals.connection.end();
 					console.error(error);
+
+					res.locals.connection.end();
 					res.status(500).send();
 
 				} else {
 
+					res.locals.connection.end();
 					res.status(200).send();
 
 				}
@@ -104,8 +115,9 @@ router.get("/getChangeList", checkSession("reviewer"), (req: IRequestWithSession
 		(error: MysqlError, results: any) => {
 
 			if (error) {
-				res.locals.connection.end();
 				console.error(error);
+
+				res.locals.connection.end();
 				res.status(500).send();
 
 			} else {
@@ -130,8 +142,9 @@ router.get("/getChange/:changeId", checkSession("reviewer"), (req: IRequestWithS
 		(error: MysqlError, results: any) => {
 
 			if (error) {
-				res.locals.connection.end();
 				console.error(error);
+
+				res.locals.connection.end();
 				res.status(500).send();
 
 			} else {
@@ -156,8 +169,9 @@ router.post("/approveChange/:changeId", checkSession("reviewer"), (req: IRequest
 		(error: MysqlError, results: any) => {
 
 			if (error) {
-				res.locals.connection.end();
 				console.error(error);
+
+				res.locals.connection.end();
 				res.status(500).send();
 
 			} else {
@@ -165,8 +179,9 @@ router.post("/approveChange/:changeId", checkSession("reviewer"), (req: IRequest
 				const returnedData = results[0].map((row: {}) => ({...row}))[0];
 
 				if (returnedData.error) {
-					res.locals.connection.end();
 					console.error(returnedData.error);
+
+					res.locals.connection.end();
 					res.status(500).send();
 
 				} else {
@@ -175,14 +190,16 @@ router.post("/approveChange/:changeId", checkSession("reviewer"), (req: IRequest
 						(returnedData.email, returnedData.username, req.params.changeId, "venue", returnedData.isNew, returnedData.venue_name)
 						.then(() => {
 
+							res.locals.connection.end();
 							res.status(200).send({
 								success: true,
 								venueId: returnedData.venue_id,
 							});
 
 						}).catch((mailError: ErrorEventHandler) => {
-
 							console.error(mailError);
+
+							res.locals.connection.end();
 							res.status(500).send();
 
 						});
@@ -206,8 +223,9 @@ router.post("/rejectChange/:changeId", upload.array(), checkSession("reviewer"),
 		(error: MysqlError, results: any) => {
 
 			if (error) {
-				res.locals.connection.end();
 				console.error(error);
+
+				res.locals.connection.end();
 				res.status(500).send();
 
 			} else {
@@ -215,8 +233,9 @@ router.post("/rejectChange/:changeId", upload.array(), checkSession("reviewer"),
 				const returnedData = results[0].map((row: {}) => ({...row}))[0];
 
 				if (returnedData.error) {
-					res.locals.connection.end();
 					console.error(returnedData.error);
+
+					res.locals.connection.end();
 					res.status(500).send();
 
 				} else {
@@ -225,14 +244,16 @@ router.post("/rejectChange/:changeId", upload.array(), checkSession("reviewer"),
 						(returnedData.email, returnedData.username, req.params.changeId, "venue", returnedData.isNew, returnedData.venue_name, req.body.comment)
 						.then(() => {
 
+							res.locals.connection.end();
 							res.status(200).send({
 								success: true,
 								venueId: returnedData.venue_id,
 							});
 
 						}).catch((mailError: ErrorEventHandler) => {
-
 							console.error(mailError);
+
+							res.locals.connection.end();
 							res.status(500).send();
 
 						});

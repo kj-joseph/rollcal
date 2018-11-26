@@ -68,10 +68,13 @@ router.get("/checkEmail", upload.array(), (req: Request, res: Response) => {
 
 			if (error) {
 				console.error(error);
+
+				res.locals.connection.end();
 				res.status(500).send();
 
 			} else {
 
+				res.locals.connection.end();
 				res.status(200).json(!!results[0].map((row: {}) => ({...row}))[0].count);
 
 			}
@@ -93,6 +96,8 @@ router.post("/checkForgotPassword", upload.array(), (req: Request, res: Response
 
 				if (error) {
 					console.error(error);
+
+					res.locals.connection.end();
 					res.status(500).send();
 
 				} else {
@@ -101,10 +106,12 @@ router.post("/checkForgotPassword", upload.array(), (req: Request, res: Response
 
 					if (userData) {
 
+						res.locals.connection.end();
 						res.status(200).json(userData);
 
 					} else {
 
+						res.locals.connection.end();
 						res.status(403).send();
 
 					}
@@ -131,10 +138,13 @@ router.get("/checkUsername", upload.array(), (req: Request, res: Response) => {
 
 			if (error) {
 				console.error(error);
+
+				res.locals.connection.end();
 				res.status(500).send();
 
 			} else {
 
+				res.locals.connection.end();
 				res.status(200).json(!!results[0].map((row: {}) => ({...row}))[0].count);
 
 			}
@@ -164,11 +174,13 @@ router.post("/login", upload.array(), (req: IRequestWithSession, res: Response) 
 			(error: MysqlError, results: any) => {
 
 				if (error) {
-					res.locals.connection.end();
 					console.error(error);
+
+					res.locals.connection.end();
 					res.status(500).send();
 
 				} else if (results[0].length !== 1) {
+
 					res.locals.connection.end();
 					res.status(403).json(
 						{
@@ -188,6 +200,7 @@ router.post("/login", upload.array(), (req: IRequestWithSession, res: Response) 
 						username: loginResult.user_name,
 					};
 
+					res.locals.connection.end();
 					res.status(200).json({
 						email: loginResult.user_email,
 						id: loginResult.user_id,
@@ -200,8 +213,9 @@ router.post("/login", upload.array(), (req: IRequestWithSession, res: Response) 
 		});
 
 	} else {
-		res.locals.connection.end();
+
 		res.status(401).send();
+
 	}
 
 });
@@ -234,6 +248,8 @@ router.post("/register", upload.array(), (req: Request, res: Response) => {
 
 			if (error) {
 				console.error(error);
+
+				res.locals.connection.end();
 				res.status(500).send();
 
 			} else {
@@ -241,11 +257,13 @@ router.post("/register", upload.array(), (req: Request, res: Response) => {
 				sendValidationEmail(req.body.email, req.body.username, validation.encrypted)
 					.then(() => {
 
+						res.locals.connection.end();
 						res.status(200).send();
 
 					}).catch((emailError) => {
-
 						console.error(emailError);
+
+						res.locals.connection.end();
 						res.status(500).send();
 
 					});
@@ -268,6 +286,7 @@ router.post("/submitForgotPassword", upload.array(), (req: Request, res: Respons
 
 				if (detailError || !userDetails) {
 
+					res.locals.connection.end();
 					res.status(403).json({
 						errorCode: "notFound",
 					});
@@ -289,6 +308,8 @@ router.post("/submitForgotPassword", upload.array(), (req: Request, res: Respons
 
 								if (insertError) {
 									console.error(insertError);
+
+									res.locals.connection.end();
 									res.status(500).json({
 										errorCode: "insert",
 									});
@@ -298,11 +319,13 @@ router.post("/submitForgotPassword", upload.array(), (req: Request, res: Respons
 									sendForgotPasswordEmail(req.body.email, userDetails.user_name, validation.encrypted)
 										.then(() => {
 
+											res.locals.connection.end();
 											res.status(200).send();
 
 										}).catch((emailError) => {
-
 											console.error(emailError);
+
+											res.locals.connection.end();
 											res.status(500).json({
 												errorCode: "email",
 											});
@@ -338,16 +361,20 @@ router.post("/account/setNewPassword", upload.array(), (req: Request, res: Respo
 
 				if (error) {
 					console.error(error);
+
+					res.locals.connection.end();
 					res.status(500).send();
 
 				} else {
 
 					if (results[0].map((row: {}) => ({...row}))[0].success) {
 
+						res.locals.connection.end();
 						res.status(200).send();
 
 					} else {
 
+						res.locals.connection.end();
 						res.status(403).send();
 
 					}
@@ -417,9 +444,9 @@ router.put("/account/update", checkSession("user"), upload.array(), (req: IReque
 			(saveError: MysqlError, results: any) => {
 
 				if (saveError) {
+					console.error(saveError);
 
 					res.locals.connection.end();
-					console.error(saveError);
 					res.status(403).send();
 
 				} else {
@@ -429,13 +456,15 @@ router.put("/account/update", checkSession("user"), upload.array(), (req: IReque
 						sendEmailChangeEmail(req.body.email, req.body.username || req.session.user.username, validation.encrypted)
 							.then(() => {
 
+								res.locals.connection.end();
 								res.status(200).json({
 									validationCode: validation.hash,
 								});
 
 							}).catch((mailError) => {
-
 								console.error(mailError);
+
+								res.locals.connection.end();
 								res.status(500).send();
 
 							});
@@ -449,6 +478,7 @@ router.put("/account/update", checkSession("user"), upload.array(), (req: IReque
 							username: req.body.username || req.session.user.username,
 						};
 
+						res.locals.connection.end();
 						res.status(200).json({
 							email: req.body.email || req.session.user.email,
 							id: req.body.id,
@@ -463,7 +493,6 @@ router.put("/account/update", checkSession("user"), upload.array(), (req: IReque
 
 	} else {
 
-		res.locals.connection.end();
 		res.status(403).send();
 
 	}
@@ -482,18 +511,22 @@ router.post("/account/validate", upload.array(), (req: Request, res: Response) =
 
 			if (error) {
 				console.error(error);
+
+				res.locals.connection.end();
 				res.status(500).send();
 
 			} else {
 
 				if (results[0].map((row: {}) => ({...row}))[0].validated) {
 
+					res.locals.connection.end();
 					res.status(200).json({
 						validated: true,
 					});
 
 				} else {
 
+					res.locals.connection.end();
 					res.status(403).send();
 
 				}

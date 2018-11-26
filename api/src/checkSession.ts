@@ -11,6 +11,7 @@ export const checkSession = (role: string) => {
 			|| !req.session.user.roles
 			|| req.session.user.roles.indexOf(role) === -1) {
 
+				res.locals.connection.end();
 				res.status(403).send({
 					error: "Unauthorized",
 				});
