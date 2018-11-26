@@ -14,10 +14,8 @@ import store from "redux/store";
 
 import { checkLoginStatus } from "components/lib/auth";
 
-// Google Analytics
-import ReactGA from "react-ga";
-ReactGA.initialize("UA-2467744-6");
-
+import Analytics from "react-ga";
+Analytics.initialize("UA-2467744-6");
 
 // load css for modules
 import "flag-icon-css/sass/flag-icon.scss";
@@ -69,12 +67,53 @@ class ConnectedSiteRouter extends React.Component<IProps> {
 	}
 
 	componentDidUpdate() {
-		if (window.location.pathname + window.location.search !== this.state.url) {
+		if (window.location.pathname !== this.state.url) {
 
 			this.setState({
-				url: window.location.pathname + window.location.search,
+				url: window.location.pathname,
 			});
-			ReactGA.pageview(window.location.pathname + window.location.search);
+
+			if (!!(window.location.pathname.match(/^\/(?:[0-9]{4}-[0-9]{2}-[0-9]{2}|derbytypes|sanctions|tracks|locations)/g))) {
+
+				const urlSearchParts = window.location.pathname.split("/");
+
+				const searchURL: string[] = [];
+				let hasStart = false;
+
+				for (const part of urlSearchParts) {
+
+					if (part.match(/^[0-9]/)) {
+
+						if (hasStart) {
+							searchURL.push(`endDate=${part}`);
+						} else {
+							searchURL.push(`startDate=${part}`);
+							hasStart = true;
+						}
+
+					} else if (part) {
+
+						const values = part.match(/^(derbytypes|sanctions|tracks|locations)\(([^\)]+)\)/);
+						searchURL.push(`${values[1]}=${values[2]}`);
+
+					}
+
+				}
+
+				Analytics.set({
+					location: `${window.location.origin}/searchResults?${searchURL.join("&")}`,
+				});
+				Analytics.pageview(`/searchResults?${searchURL.join("&")}`);
+
+			} else {
+
+				Analytics.set({
+					location: window.location.origin + window.location.pathname,
+				});
+				Analytics.pageview(window.location.pathname);
+
+			}
+
 
 		}
 	}
@@ -86,6 +125,7 @@ class ConnectedSiteRouter extends React.Component<IProps> {
 		}
 
 		this.props.setLoginModalState(true);
+		Analytics.modalview("Login");
 
 	}
 
