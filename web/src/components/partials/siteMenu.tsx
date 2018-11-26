@@ -12,6 +12,8 @@ import LoginIconOutline from "images/menu/user-circle.svg";
 
 import { IProps } from "interfaces/redux";
 
+import Analytics from "react-ga";
+
 export default class SiteMenu extends React.Component<IProps> {
 
 	constructor(props: IProps) {
@@ -101,6 +103,7 @@ export default class SiteMenu extends React.Component<IProps> {
 		}
 
 		this.props.setLoginModalState(true);
+		Analytics.modalview("Login");
 
 	}
 

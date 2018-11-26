@@ -14,10 +14,8 @@ import store from "redux/store";
 
 import { checkLoginStatus } from "components/lib/auth";
 
-// Google Analytics
-import ReactGA from "react-ga";
-ReactGA.initialize("UA-2467744-6");
-
+import Analytics from "react-ga";
+Analytics.initialize("UA-2467744-6");
 
 // load css for modules
 import "flag-icon-css/sass/flag-icon.scss";
@@ -74,7 +72,11 @@ class ConnectedSiteRouter extends React.Component<IProps> {
 			this.setState({
 				url: window.location.pathname + window.location.search,
 			});
-			ReactGA.pageview(window.location.pathname + window.location.search);
+
+			Analytics.set({
+				location: window.location.pathname + window.location.search,
+			});
+			Analytics.pageview(window.location.pathname + window.location.search);
 
 		}
 	}
@@ -86,6 +88,7 @@ class ConnectedSiteRouter extends React.Component<IProps> {
 		}
 
 		this.props.setLoginModalState(true);
+		Analytics.modalview("Login");
 
 	}
 
