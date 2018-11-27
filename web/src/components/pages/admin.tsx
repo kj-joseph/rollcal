@@ -84,96 +84,106 @@ export default class AdminDashboard extends React.Component<IProps> {
 
 		return (
 
-			<div className="dashboard admin">
+			<React.Fragment>
 
-				<h1>Admin Dashboard</h1>
+				<p className="backToLink">
+					<Link to="/dashboard">
+						&laquo; Back to dashboard
+					</Link>
+				</p>
 
-				<form
-					id="userSearchForm"
-					onSubmit={this.submitSearch}
-				>
+				<div className="dashboard admin">
 
-					<div className="inputGroup">
-						<label htmlFor="searchTerm">Search Users</label>
-						<input
-							id="searchTerm"
-							name="searchTerm"
-							type="text"
-							pattern=".{2}.*"
-							required={true}
-							value={this.state.searchTerm}
-							onChange={this.handleInputChange}
-						/>
-					</div>
+					<h1>Admin Dashboard</h1>
 
-					<div className="buttonRow">
-						<button
-							className="largeButton"
-							type="submit"
-							disabled={this.state.searchTerm.length < 2}
-						>
-							Search
-						</button>
-					</div>
+					<form
+						id="userSearchForm"
+						onSubmit={this.submitSearch}
+					>
 
-				</form>
+						<div className="inputGroup">
+							<label htmlFor="searchTerm">Search Users</label>
+							<input
+								id="searchTerm"
+								name="searchTerm"
+								type="text"
+								pattern=".{2}.*"
+								required={true}
+								value={this.state.searchTerm}
+								onChange={this.handleInputChange}
+							/>
+						</div>
 
-				{this.state.searchComplete ?
+						<div className="buttonRow">
+							<button
+								className="largeButton"
+								type="submit"
+								disabled={this.state.searchTerm.length < 2}
+							>
+								Search
+							</button>
+						</div>
 
-					this.state.searchResults.length ?
+					</form>
 
-						<table className="userTable">
+					{this.state.searchComplete ?
 
-							<thead>
-								<tr>
-									<th>Name</th>
-									<th>Email</th>
-									<th>Status</th>
-								</tr>
-							</thead>
+						this.state.searchResults.length ?
 
-							<tbody>
-								{this.state.searchResults.map((user) => (
-									<tr key={user.userId}>
-										<td>
-											{ user.userId === this.props.loggedInUserId
-												|| (checkUserRole(user.userRoles, "admin")
-													&& !checkUserRole(this.props.loggedInUserRoles, "superadmin")) ?
-												user.userName
-											:
-												<Link to={`/dashboard/admin/user/${user.userId}`}>{user.userName}</Link>
-											}
-										</td>
-										<td>
-											{user.userEmail}
-										</td>
-										<td>
-											{user.userStatus}
-										</td>
+							<table className="userTable">
+
+								<thead>
+									<tr>
+										<th>Name</th>
+										<th>Email</th>
+										<th>Status</th>
 									</tr>
-								))}
+								</thead>
+
+								<tbody>
+									{this.state.searchResults.map((user) => (
+										<tr key={user.userId}>
+											<td>
+												{ user.userId === this.props.loggedInUserId
+													|| (checkUserRole(user.userRoles, "admin")
+														&& !checkUserRole(this.props.loggedInUserRoles, "superadmin")) ?
+													user.userName
+												:
+													<Link to={`/dashboard/admin/user/${user.userId}`}>{user.userName}</Link>
+												}
+											</td>
+											<td>
+												{user.userEmail}
+											</td>
+											<td>
+												{user.userStatus}
+											</td>
+										</tr>
+									))}
 
 
-							</tbody>
+								</tbody>
 
-						</table>
+							</table>
 
-					:
+						:
 
-						<p>No matches found.</p>
+							<p>No matches found.</p>
 
-				: this.state.searchError ?
+					: this.state.searchError ?
 
-					<p className="error">There was an error.  Please try again.</p>
+						<p className="error">There was an error.  Please try again.</p>
 
-				: this.state.searching ?
+					: this.state.searching ?
 
-					<div className="loader medium" />
+						<div className="loader medium" />
 
-				: ""}
+					: ""}
 
 
-			</div>
+				</div>
+
+			</React.Fragment>
 
 		);
 
