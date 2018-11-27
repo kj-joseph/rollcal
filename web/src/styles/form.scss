@@ -1,0 +1,261 @@
+h1 + form {
+	margin-top: 1.5em;
+}
+
+form h2 {
+	margin-bottom: .5em;
+
+	.modalOverlay & {
+		margin-bottom: 1.2em;
+	}
+}
+
+.inputGroup {
+	display: inline-block;
+	width: 100%;
+	margin-bottom: 1em;
+
+	&.half {
+		width: calc(50% - 1em);
+		margin-right: 1em;
+	}
+
+	&.third {
+		width: calc(33% - 1em);
+		margin-right: 1em;
+	}
+
+	.error {
+		font-size: .9em;
+		margin-top: -.8em;
+	}
+
+}
+
+label {
+	display: block;
+	font-size: .95em;
+	color: $blue;
+	margin-bottom: .4em;
+
+	em {
+		font-size: .85em;
+		color: $pink;
+	}
+}
+
+input, textarea {
+	display: inline-block;
+	width: calc(100% - 12px);
+	margin-bottom: .8em;
+	border: 1px solid $blue;
+	padding: 5px;
+
+}
+
+textarea {
+	height: 7em;
+	resize: vertical;
+}
+
+.buttonRow {
+	margin: 1.5em 0 1em;
+
+	&.cornerButton {
+		position: absolute;
+		right: -3px;
+		top: 65px;
+		margin-top: 0;
+	}
+
+	button {
+		margin: 0 .5em;
+	}
+
+	button:first-child {
+		margin-left: 0;
+	}
+
+	button:last-child {
+		margin-right: 0;
+	}
+
+	form & {
+		text-align: right;
+	}
+
+	&.left {
+		text-align: left;
+	}
+
+	&.right {
+		text-align: right;
+	}
+
+	&.center {
+		text-align: center;
+	}
+
+}
+
+.smallButton {
+	font-size: 1.7rem;
+	font-weight: bold;
+	line-height: 2.3rem;
+	color: $white;
+	margin: 0 0 0 1em;
+	padding: 0 10px;
+	background: $blue;
+	border: none;
+	outline: none;
+
+	&:hover {
+		background: $pink;
+	}
+
+	&:disabled {
+		background: $gray;
+	}
+}
+
+.largeButton {
+	font-family: $stratum-black;
+	font-size: 2rem;
+	font-weight: bold;
+	line-height: 2.4rem;
+	vertical-align: top;
+	color: $white;
+	padding: 4px 15px;
+	background: $blue;
+	border: none;
+	outline: none;
+
+	&:hover {
+		background: $pink;
+	}
+
+	&:disabled {
+		background: $gray;
+	}
+
+}
+
+.pinkButton {
+	background: $pink;
+}
+
+.formError {
+	margin-top: .8em;
+	color: $pink;
+}
+
+form.disabled {
+	opacity: .3;
+}
+
+.formFooter {
+
+	margin-bottom: 1em;
+
+	&.right {
+		text-align: right;
+	}
+
+	p {
+		margin-bottom: .2em;
+	}
+
+}
+
+.Select {
+	z-index: 55;
+	border: 1px solid $blue;
+	border-radius: 0;
+
+	&.is-disabled {
+		border-color: $gray;
+	}
+
+	.Select__control, input {
+		border: none;
+		border-radius: 0;
+		outline: none;
+	}
+
+	.Select__single-value {
+		line-height: 1.4em;
+	}
+
+	.Select.is-focused:not(.is-open) > .Select-control .Select__dropdown-indicator,
+	&.is-open .Select__dropdown-indicator {
+		border-color: $blue transparent transparent;
+	}
+
+	.Select__clear-indicator {
+		color: $pink;
+		font-weight: bold;
+		cursor: pointer;
+	}
+
+	.Select__menu-outer {
+		border-color: $gray;
+		border-top-color: $blue;
+	}
+
+	.Select__option {
+		color: $black;
+		background-color: $white;
+
+		&:hover {
+			background-color: $lightBlue;
+		}
+
+		&:last-child {
+			border-bottom-right-radius: 0;
+			border-bottom-left-radius: 0;
+		}
+	}
+
+	.Select__option--is-disabled,
+	.Select__option--is-disabled:hover {
+		color: $gray;
+		font-style: italic;
+		background-color: $white;
+	}
+
+	.Select__input input {
+		margin-bottom: 0;
+	}
+
+	.Select__dropdown-indicator {
+		color: $blue;
+	}
+
+}
+
+input[type="time"] {
+	background: $white;
+}
+
+@include respond-to("small") {
+
+	.buttonRow.cornerButton {
+		right: 6px;
+		top: 75px;
+	}
+
+	#passwordForm {
+		max-width: 710px;
+	}
+}
+
+@include respond-to("tiny") {
+
+	.buttonRow.cornerButton {
+		text-align: right;
+		position: static;
+		margin: 0 0 1em;
+	}
+
+
+}

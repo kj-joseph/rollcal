@@ -1,0 +1,217 @@
+$headerHeightDesktop: 80px;
+$headerHeightMobile: 65px;
+
+#siteHeader {
+	display: flex;
+    justify-content: space-between;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 500;
+	width: 100%;
+	height: $headerHeightMobile;
+	color: $black;
+	background: $white;
+	border-bottom: 5px solid $pink;
+
+	#siteLogo {
+		margin: 10px 5px 10px 10px;
+
+		svg {
+			height: 45px;
+		}
+	}
+
+	.siteMenu {
+		display: none;
+	}
+
+	#loginUserIconMobile {
+
+		margin: 13px 10px 0 0;
+
+		a {
+			padding: 4px 5px;
+			text-decoration: none;
+
+			div {
+
+				display: inline-block;
+
+			}
+
+			svg {
+				vertical-align: middle;
+				width: 40px;
+
+				.hidden & {
+					opacity: 0;
+				}
+
+			}
+
+					&.activeIcon svg {
+						fill: $pink;
+					}
+
+		}
+
+	}
+
+}
+
+#siteMenuMobile {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	z-index: 450;
+	width: 100%;
+	height: 63px;
+	padding-top: 2px;
+	background: $white;
+
+	.siteMenu {
+		border-top: 5px solid $pink;
+
+		ul {
+			display: flex;
+			flex-basis: 0;
+
+
+			li {
+				flex-grow: 1;
+				font-size: 1.5rem;
+				font-weight: bold;
+				text-align: center;
+				vertical-align: middle;
+				display: inline;
+				margin: 0 10px;
+
+				.mobileNavIcon {
+
+					div {
+						display: inline;
+
+						svg {
+							font-weight: normal;
+							fill: $blue;
+							height: 25px;
+							margin: 5px 0;
+						}
+
+					}
+
+				}
+
+				&.desktopOnly {
+					display: none;
+				}
+
+				a {
+					text-decoration: none;
+
+					&:hover svg,
+					&.active svg {
+						fill: $pink;
+					}
+
+					&.active {
+						color: $pink;
+					}
+				}
+
+			}
+		}
+	}
+
+}
+
+@include respond-to("xsmall") {
+
+	/* inherit from mobile */
+
+}
+
+@include respond-to("small") {
+
+	#siteMenuMobile {
+		display: none;
+	}
+
+	#siteHeader {
+		left: 50px;
+		width: calc(100% - 100px);
+		height: $headerHeightDesktop;
+		border-bottom: 10px solid $pink;
+
+		#siteLogo svg {
+			height: 60px;
+		}
+
+		.siteMenu {
+			display: block;
+			margin: 0 10px 0 0;
+
+			li {
+				font-size: 1.8rem;
+				font-weight: bold;
+				line-height: $headerHeightDesktop;
+				vertical-align: middle;
+				display: inline-block;
+				margin: 0 10px;
+
+				&.desktopOnly {
+					display: inline-block;
+					width: 50px;
+				}
+
+				.mobileNavIcon {
+					display: none;
+				}
+
+				a {
+					padding: 4px 5px;
+					text-decoration: none;
+
+					div {
+
+						display: inline;
+
+						&.hidden {
+							opacity: 0;
+						}
+
+					}
+
+					svg {
+						vertical-align: middle;
+						width: 40px;
+
+					}
+
+					&.activeIcon svg {
+						fill: $pink;
+					}
+
+					&:hover {
+						svg {
+							fill: $pink;
+						}
+					}
+
+				}
+
+				a.active {
+					border-bottom: 4px solid $pink;
+				}
+
+			}
+		}
+
+	}
+
+	#loginUserIconMobile {
+		display: none;
+	}
+
+}

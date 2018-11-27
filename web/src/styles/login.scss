@@ -1,0 +1,18 @@
+#loginModal {
+
+	.loader {
+		position: absolute;
+		top: calc(50% - 60px);
+		left: calc(50% - 40px);
+	}
+
+}
+
+@include respond-to("small") {
+
+	#loginModal {
+		width: 500px;
+		height: auto;
+	}
+
+}

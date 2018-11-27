@@ -1,0 +1,194 @@
+.dashboard {
+
+	ul.dashboardMenu {
+		font-size: 3rem;
+
+		li {
+			margin-bottom: .5em;
+
+			&.separatorBefore {
+				padding-top: .5em;
+				margin-top: .8em;
+				border-top: 2px solid $gray;
+			}
+		}
+
+	}
+
+	.submittedTime {
+		font-size: 1.6rem;
+		color: $pink;
+		margin: 0;
+	}
+
+
+	&.admin {
+
+		.buttonRow {
+			margin-top: 0;
+		}
+
+		.userTable {
+			width: 100%;
+
+			td, th {
+				padding: 5px 10px 5px 5px;
+				border-left: 1px solid $white;
+
+				&:first-child {
+					border-left: none;
+				}
+			}
+
+			thead tr {
+				background: $gray;
+
+				th {
+					font-weight: bold;
+					text-align: left;
+				}
+
+			}
+
+			tbody tr:nth-child(even) {
+				background: $mediumPink;
+			}
+
+		}
+
+	}
+
+	&.editUser {
+
+		.selectRoles .Select {
+			z-index: 52;
+		}
+
+		.Select__multi-value {
+			font-size: 2rem;
+			background: $mediumPink;
+
+			&:nth-last-child(2) {
+				padding-right: 4px;
+
+				.Select__multi-value__remove {
+					display: none;
+				}
+			}
+
+		}
+
+		.Select__multi-value__remove:hover {
+			color: $white;
+			background: $pink;
+		}
+
+	}
+
+}
+
+dl.changeDetails {
+	line-height: 1.2em;
+
+	dt {
+		font-weight: bold;
+		margin-bottom: .2em;
+	}
+
+	dd {
+		margin-bottom: 1em;
+	}
+
+}
+
+.showAll {
+	font-size: 1.8rem;
+	font-weight: bold;
+	vertical-align: middle;
+	margin-bottom: 1.2em;
+
+	div {
+		display: inline-block;
+		height: 25px;
+		width: 25px;
+		margin-right: .5em;
+
+		div {
+			margin-right: 0;
+		}
+
+		svg {
+			height: 25px;
+			width: 25px;
+			fill: $blue;
+			vertical-align: middle;
+		}
+	}
+
+	a {
+		text-decoration: none;
+
+		&:hover svg {
+			fill: $pink;
+		};
+	}
+
+	.hidden {
+		display: none;
+	}
+
+}
+
+.removed {
+	color: $gray;
+	text-decoration: line-through;
+}
+
+.nodata {
+	font-size: .9em;
+	color: $gray;
+}
+
+.new {
+	color: $green;
+}
+
+.newEvent .new {
+	color: inherit;
+}
+
+@include respond-to("small") {
+
+	.dashboard {
+
+		&.mainDashboard,
+		&.reviewVenueChange,
+		&.admin,
+		&.editUser,
+		{
+			max-width: 710px;
+		}
+
+	}
+
+	dl.changeDetails {
+		display: flex;
+		flex-flow: row wrap;
+		max-width: 710px;
+
+		dt {
+			width: 130px;
+			vertical-align: top;
+			margin-bottom: 1em;
+		}
+
+		dd {
+			width: calc(100% - 145px);
+			vertical-align: top;
+			margin: 0 0 1em 15px;
+
+		}
+
+	}
+
+}

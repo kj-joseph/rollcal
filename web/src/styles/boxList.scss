@@ -1,0 +1,167 @@
+ul.boxList {
+
+	h1 + & {
+		margin-top: 1.5em;
+	}
+
+	h2 {
+		margin-bottom: .1em;
+	}
+
+	display: flex;
+	flex-flow: row wrap;
+	margin-bottom: 20px;
+
+	li {
+		position: relative;
+		width: calc(100% - 20px);
+		margin: 0 0 20px;
+		padding: 10px 10px 50px;
+		border: 2px solid $blue;
+
+		> * {
+			position: relative;
+			z-index: 11;
+		}
+
+		.myEventIcon {
+			position: absolute;
+			right: 6px;
+			top: 8px;
+			width: 36px;
+			z-index: 9;
+
+			svg {
+				fill: $mediumPink;
+			}
+
+		}
+
+		&.myEvent {
+			background: $palePink;
+		}
+
+		.listDate {
+			margin-bottom: 0;
+		}
+
+		.listLocation {
+			margin-bottom: .5em;
+		}
+
+		.listIcons {
+
+			position: absolute;
+			bottom: 8px;
+			left: 10px;
+
+			.listIconGroup {
+				margin-right: 20px;
+
+				&:last-child {
+					margin-right: 0;
+				}
+			}
+
+			.icon, .icon div {
+				display: inline;
+			}
+
+			svg {
+				height: 35px;
+			}
+		}
+
+		.buttonRow {
+			text-align: left;
+			margin: .4em 0 .6em;
+		}
+
+	}
+
+	&.noIcons li {
+		padding-bottom: 10px;
+	}
+
+	> .buttonRow {
+		margin-top: -.7em;
+	}
+
+}
+
+.loader.loadingMore {
+	height: 2em;
+	width: 2em;
+	margin-top: -.5em;
+	border-width: 7px;
+}
+
+@include respond-to("tiny") {
+
+	ul.boxList {
+
+		li {
+			padding-bottom: 40px;
+
+			.listIcons {
+				bottom: 7px;
+
+				svg {
+					height: 28px;
+				}
+			}
+
+		}
+
+	}
+
+}
+
+@include respond-to("small") {
+
+	ul.boxList {
+
+		li {
+			width: calc(45% - 34px);
+			margin: 0 20px 20px 0;
+		}
+
+	}
+
+}
+
+@include respond-to("large") {
+
+	ul.boxList {
+
+		li {
+			width: calc(30% - 34px);
+		}
+
+	}
+
+}
+
+@include respond-to("huge") {
+
+	ul.boxList {
+
+		li {
+			width: calc(22% - 34px);
+		}
+
+	}
+
+}
+
+@include respond-to("mega") {
+
+	ul.boxList {
+
+		li {
+			width: calc(18% - 34px);
+		}
+
+	}
+
+}

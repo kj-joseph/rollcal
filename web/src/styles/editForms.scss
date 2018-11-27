@@ -1,0 +1,271 @@
+.entryForm {
+
+	.inputGroup {
+		input, textarea {
+			margin-bottom: 0;
+		}
+
+	}
+
+	.derbyFeatures {
+		width: auto;
+
+		.eventIconGroup .label {
+			font-weight: normal;
+		}
+	}
+
+}
+
+h3.formSectionHeader {
+	display: inline-block;
+	position: relative;
+	font-size: 2rem;
+	cursor: pointer;
+	margin-bottom: 1em;
+	padding-left: 25px;
+
+	span {
+		text-decoration: underline;
+	}
+
+	&.noOpener {
+		cursor: auto;
+		padding-left: 0;
+	}
+
+	&.closed::before {
+		position: absolute;
+		top: 0;
+		left: 4px;
+		width: 0;
+		height: 0;
+		border-top: 9px solid transparent;
+		border-bottom: 9px solid transparent;
+		border-left: 9px solid $blue;
+		content: "";
+		margin-right: .5em;
+	}
+
+	&.open::before {
+		position: absolute;
+		top: .35em;
+		left: 0;
+		width: 0;
+		height: 0;
+		border-left: 9px solid transparent;
+		border-right: 9px solid transparent;
+		border-top: 9px solid $blue;
+		content: "";
+		margin-right: .5em;
+	}
+
+	&.ok::after {
+		content: "\2713";
+		color: $pink;
+		margin-left: .5em;
+	}
+
+}
+
+.formSection {
+
+	&.closed {
+		display: none;
+	}
+
+	margin-bottom: 1.5em;
+
+	.Select {
+		margin-bottom: 1.5em;
+	}
+
+	.inputGroup .Select {
+		margin-bottom: 0;
+	}
+
+	.selectRegion .Select {
+		z-index: 52;
+	}
+
+	.selectTimeZone .Select {
+		z-index: 50;
+	}
+
+	.inputGroup:last-child {
+		margin-bottom: 0;
+	}
+
+	.eventDays {
+
+		ul.eventDayList {
+			margin: 0 0 1.5em;
+
+			&.empty {
+				display: none;
+			}
+
+			> li {
+
+				margin-bottom: 1em;
+				padding-top: .5em;
+				border: 2px solid $blue;
+
+				dl {
+					width: calc(100% - 1em);
+					margin: 0 auto;
+
+					dt {
+						display: inline-block;
+						float: left;
+						clear: both;
+						width: 6em;
+						font-weight: bold;
+						text-align: right;
+						margin-bottom: .3px;
+					}
+
+					dd {
+						margin-left: 7em;
+					}
+
+				}
+
+				.dayForm {
+					display: none;
+				}
+
+				.buttonRow {
+
+					text-align: left;
+					margin: .7em 0 0 0;
+					padding: .5em .5em .5em 7.5em;
+					border-top: 1px solid $blue;
+
+					&.editingButtons {
+						padding-left: .5em;
+						text-align: right;
+						display: none;
+					}
+
+					&.operationButtons {
+						display: block;
+					}
+
+				}
+
+				&.editing {
+
+					border-color: $pink;
+
+					dl {
+						display: none;
+					}
+
+					.dayForm {
+						display: block;
+					}
+
+					.buttonRow {
+						border-color: $pink;
+
+						&.editingButtons {
+							display: block;
+						}
+
+						&.operationButtons {
+							display: none;
+						}
+
+					}
+
+				}
+
+			}
+
+		}
+
+		> .buttonRow {
+			margin-top: 0;
+		}
+
+	}
+
+	.dayForm {
+
+		width: calc(100% - 1em);
+		margin: 0 auto;
+
+		.calendarContainer {
+			margin-bottom: 1em;
+			border-bottom: 1px solid $gray;
+
+			.DayPicker {
+				margin: 0 -.5em;
+			}
+		}
+
+	}
+
+	.derbyFeatures {
+		margin-top: 0;
+	}
+
+}
+
+@include respond-to("medium") {
+
+	.venueForm {
+		max-width: 710px;
+	}
+
+	.entryForm .formContainer {
+		display: flex;
+		flex-flow: row wrap;
+
+		> div {
+
+			width: calc(50% - 30px);
+			margin-right: 30px;
+
+		}
+	}
+
+	h3.formSectionHeader {
+		cursor: auto;
+		padding-left: 0;
+
+		&.closed::before {
+			content: none;
+		}
+
+		&.open::before {
+			content: none;
+		}
+
+		&.ok::after {
+			content: "\2713";
+			color: $pink;
+			margin-left: .5em;
+		}
+
+	}
+
+	.formSection {
+		margin-bottom: 1.5em;
+
+		&.closed {
+			display: none;
+		}
+
+		.Select {
+
+			&:first-child {
+				margin-top: 1.3em;
+			}
+
+		}
+
+	}
+
+}

@@ -1,0 +1,37 @@
+$breakpoints: (
+  "tiny": 340px,
+  "xsmall": 470px,
+  "small": 768px,
+  "medium": 992px,
+  "large": 1200px,
+  "huge": 1600px,
+  "mega": 2000px
+);
+
+@mixin respond-to($breakpoint) {
+
+  $value: map-get($breakpoints, $breakpoint);
+
+  @if $value != null {
+
+    @if $breakpoint == "tiny" {
+
+      @media (max-width: $value) {
+        @content;
+      }
+
+    } @else {
+
+      @media (min-width: $value) {
+        @content;
+      }
+
+    }
+  }
+
+  @else {
+    @warn "Unfortunately, no value could be retrieved from `#{$breakpoint}`. "
+        + "Please make sure it is defined in `$breakpoints` map.";
+  }
+
+}

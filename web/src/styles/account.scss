@@ -1,0 +1,8 @@
+
+@include respond-to("small") {
+
+	.userAccount {
+		max-width: 710px;
+	}
+
+}

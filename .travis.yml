@@ -1,28 +1,98 @@
-language: node_js
-node_js:
-- stable
-cache:
-  directories:
-  - node_modules
 branches:
   only:
   - dev
-script:
-  - if [ "$TRAVIS_BRANCH" = "dev" ]; then npm run deploy:dev; fi
-deploy:
-  - provider: script
-    skip_cleanup: true
-    script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/build/* kj@server.bykev.in:/var/www/roll-cal/dev; fi
-    on:
-      branch: dev
-before_install:
-- openssl aes-256-cbc -K $encrypted_0b0c4b85a4ad_key -iv $encrypted_0b0c4b85a4ad_iv
-  -in deploy_rsa.enc -out /tmp/deploy_rsa -d
-- eval "$(ssh-agent -s)"
-- chmod 600 /tmp/deploy_rsa
-- ssh-add /tmp/deploy_rsa
-- sudo apt-get update
-- sudo apt-get install nasm
-addons:
-  ssh_known_hosts: server.bykev.in
-
+  - /^release\/.*$/
+  - master
+matrix:
+  include:
+  - name: "web"
+    language: node_js
+    node_js:
+    - stable
+    cache:
+      directories:
+      - web/node_modules
+    branches:
+      only:
+      - dev
+    script:
+    - cd web
+    - npm install
+    - if [[ "$TRAVIS_BRANCH" == "dev" ]]; then npm run build:dev; fi
+    - if [[ "$TRAVIS_BRANCH" =~ ^release\/.*$ ]]; then npm run build:prod; fi
+    - if [[ "$TRAVIS_BRANCH" == "master" ]]; then npm run build:prod; fi
+    deploy:
+    - provider: script
+      skip_cleanup: true
+      script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/* kj@server.bykev.in:/var/www/roll-cal/dev;
+        rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/.htaccess kj@server.bykev.in:/var/www/roll-cal/dev;
+        fi
+      on:
+        branch: dev
+    - provider: script
+      skip_cleanup: true
+      script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/* kj@server.bykev.in:/var/www/roll-cal/stage;
+        rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/.htaccess kj@server.bykev.in:/var/www/roll-cal/stage;
+        fi
+      on:
+        all_branches: true
+        condition: $TRAVIS_BRANCH =~ ^release\/.*$
+    - provider: script
+      skip_cleanup: true
+      script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/* kj@server.bykev.in:/var/www/roll-cal/prod;
+        rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/.htaccess kj@server.bykev.in:/var/www/roll-cal/prod;
+        fi
+      on:
+        branch: master
+    before_install:
+    - openssl aes-256-cbc -K $encrypted_0b0c4b85a4ad_key -iv $encrypted_0b0c4b85a4ad_iv
+      -in deploy_rsa.enc -out /tmp/deploy_rsa -d
+    - eval "$(ssh-agent -s)"
+    - chmod 600 /tmp/deploy_rsa
+    - ssh-add /tmp/deploy_rsa
+    addons:
+      ssh_known_hosts: server.bykev.in
+  - name: "api"
+    language: node_js
+    node_js:
+    - stable
+    cache:
+      directories:
+      - api/node_modules
+    branches:
+      only:
+      - dev
+    script:
+    - cd api
+    - npm install
+    - if [[ "$TRAVIS_BRANCH" == "dev" ]]; then npm run build:dev; fi
+    - if [[ "$TRAVIS_BRANCH" =~ ^release\/.*$ ]]; then npm run build:stage; fi
+    - if [[ "$TRAVIS_BRANCH" == "master" ]]; then npm run build:prod; fi
+    deploy:
+    - provider: script
+      skip_cleanup: true
+      script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/api/build/rollcal-api-dev.js kj@server.bykev.in:/var/www/roll-cal/api;
+        fi
+      on:
+        branch: dev
+    - provider: script
+      skip_cleanup: true
+      script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/api/build/rollcal-api-stage.js kj@server.bykev.in:/var/www/roll-cal/api;
+        fi
+      on:
+        all_branches: true
+        condition: $TRAVIS_BRANCH =~ ^release\/.*$
+    - provider: script
+      skip_cleanup: true
+      script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/api/build/rollcal-api.js kj@server.bykev.in:/var/www/roll-cal/api;
+        fi
+      on:
+        branch: master
+    before_install:
+    - openssl aes-256-cbc -K $encrypted_0b0c4b85a4ad_key -iv $encrypted_0b0c4b85a4ad_iv
+      -in deploy_rsa.enc -out /tmp/deploy_rsa -d
+    - eval "$(ssh-agent -s)"
+    - chmod 600 /tmp/deploy_rsa
+    - ssh-add /tmp/deploy_rsa
+    addons:
+      ssh_known_hosts: server.bykev.in
