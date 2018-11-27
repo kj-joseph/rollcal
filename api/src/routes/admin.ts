@@ -53,7 +53,7 @@ router.get("/getUserDetailsById/:id", checkSession("admin"), (req: Request, res:
 					user_email: row.user_email,
 					user_id: row.user_id,
 					user_name: row.user_name,
-					user_roles: row.user_roles.split(","),
+					user_roles: row.user_roles ? row.user_roles.split(",") : [],
 					user_status: row.user_status,
 				}))[0]);
 
