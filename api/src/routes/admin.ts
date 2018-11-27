@@ -64,4 +64,35 @@ router.get("/getUserDetailsById/:id", checkSession("admin"), (req: Request, res:
 });
 
 
+router.put("/updateUser/:id", checkSession("admin"), upload.array(), (req: Request, res: Response) => {
+
+	res.locals.connection
+		.query(`call updateUser(
+			${res.locals.connection.escape(req.params.id)},
+			${res.locals.connection.escape(req.body.userName)},
+			${res.locals.connection.escape(req.body.userStatus)},
+			${res.locals.connection.escape(req.body.userEmail)},
+			${res.locals.connection.escape(req.body.userRoles)}
+			)`,
+
+		(error: MysqlError, results: any) => {
+
+			if (error) {
+				console.error(error);
+
+				res.locals.connection.end();
+				res.status(500).send();
+
+			} else {
+
+				res.locals.connection.end();
+				res.status(200).send();
+
+			}
+
+		});
+
+
+});
+
 export default router;

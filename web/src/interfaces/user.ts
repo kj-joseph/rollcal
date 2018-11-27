@@ -14,3 +14,9 @@ export interface IUserInfo {
 	userRoles?: string[];
 	userStatus?: string;
 }
+
+export interface IUserRole {
+	id: number;
+	name: string;
+	order: number;
+}

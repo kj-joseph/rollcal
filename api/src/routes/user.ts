@@ -167,7 +167,15 @@ router.get("/getRolesList", (req: Request, res: Response) => {
 			} else {
 
 				res.locals.connection.end();
-				res.status(200).json(results[0].map((row: {}) => row.role_name));
+				res.status(200).json(results[0].map((row: {
+					role_id: number,
+					role_name: string,
+					role_order: number,
+				}) => ({
+					id: row.role_id,
+					name: row.role_name,
+					order: row.role_order,
+				})));
 
 			}
 		});

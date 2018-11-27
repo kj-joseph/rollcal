@@ -64,6 +64,25 @@
 			z-index: 52;
 		}
 
+		.Select__multi-value {
+			font-size: 2rem;
+			background: $mediumPink;
+
+			&:nth-last-child(2) {
+				padding-right: 4px;
+
+				.Select__multi-value__remove {
+					display: none;
+				}
+			}
+
+		}
+
+		.Select__multi-value__remove:hover {
+			color: $white;
+			background: $pink;
+		}
+
 	}
 
 }

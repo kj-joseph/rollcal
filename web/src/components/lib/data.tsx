@@ -2,6 +2,7 @@ import axios, { CancelTokenSource } from "axios";
 
 import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
 import { IGeoCountry, IGeoData, IGeoRegionList, ITimeZone } from "interfaces/geo";
+import { IUserRole } from "interfaces/user";
 
 export const getDerbySanctions = (
 	apiLocation: string,
@@ -220,10 +221,10 @@ export const getTimeZones = (
 
 export const getUserRoles = (
 	apiLocation: string,
-	dataRolesList: string[],
-	saveRolesList: (data: string[]) => void,
+	dataRolesList: IUserRole[],
+	saveRolesList: (data: IUserRole[]) => void,
 	axiosSignal: CancelTokenSource,
-): Promise<string[]> => {
+): Promise<IUserRole[]> => {
 
 	return new Promise((resolve, reject) => {
 
@@ -239,8 +240,8 @@ export const getUserRoles = (
 					withCredentials: true,
 				})
 				.then((result) => {
-					saveRolesList(result.data.filter((role: string) => role !== "superadmin") as string[]);
-					resolve(result.data.filter((role: string) => role !== "superadmin") as string[]);
+					saveRolesList(result.data.filter((role: IUserRole) => role.name !== "superadmin") as IUserRole[]);
+					resolve(result.data.filter((role: IUserRole) => role.name !== "superadmin") as IUserRole[]);
 				}).catch((error) => {
 					reject(error);
 				});

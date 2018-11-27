@@ -6,7 +6,7 @@ import ReactSVG from "react-svg";
 import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
 import { IGeoData, ITimeZone } from "interfaces/geo";
 import { IPageTitle, IProps, IReduxActions, IReduxActionType } from "interfaces/redux";
-import { IUserInfo } from "interfaces/user";
+import { IUserInfo, IUserRole } from "interfaces/user";
 
 import { connect, Provider } from "react-redux";
 import { Dispatch } from "redux";
@@ -269,7 +269,7 @@ const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>): IReduxActions
 		saveDataSanctions: (data: IDerbySanction[]) => dispatch(reduxActions.saveDataSanctions(data)),
 		saveDataTracks: (data: IDerbyTrack[]) => dispatch(reduxActions.saveDataTracks(data)),
 		saveLastSearch: (search: string) => dispatch(reduxActions.saveLastSearch(search)),
-		saveRolesList: (data: string[]) => dispatch(reduxActions.saveRolesList(data)),
+		saveRolesList: (data: IUserRole[]) => dispatch(reduxActions.saveRolesList(data)),
 		saveTimeZones: (data: ITimeZone[]) => dispatch(reduxActions.saveTimeZones(data)),
 		setLoginModalState: (loginModalState: boolean) => dispatch(reduxActions.setLoginModalState(loginModalState)),
 		setPageTitle: (data: IPageTitle) => dispatch(reduxActions.setPageTitle(data)),

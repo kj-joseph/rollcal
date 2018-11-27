@@ -1,6 +1,6 @@
 BEGIN
 
-select role_name
+select *
 from roles
 order by role_order;
 

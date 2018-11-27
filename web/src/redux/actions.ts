@@ -1,7 +1,7 @@
 import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
 import { IGeoData, ITimeZone } from "interfaces/geo";
 import { IPageTitle, IReduxActionType } from "interfaces/redux";
-import { IUserInfo } from "interfaces/user";
+import { IUserInfo, IUserRole } from "interfaces/user";
 
 export default {
 
@@ -35,7 +35,7 @@ export default {
 		type: "SAVE_LAST_SEARCH",
 	}),
 
-	saveRolesList: (roles: string[]): IReduxActionType => ({
+	saveRolesList: (roles: IUserRole[]): IReduxActionType => ({
 		payload: roles,
 		type: "SAVE_ROLES_LIST",
 	}),

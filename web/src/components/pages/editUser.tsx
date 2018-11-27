@@ -1,7 +1,8 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 import { IProps } from "interfaces/redux";
-import { IUserInfo } from "interfaces/user";
+import { IUserInfo, IUserRole } from "interfaces/user";
 
 import Modal from "react-modal";
 Modal.setAppElement("#root");
@@ -23,11 +24,13 @@ interface IAdminDashboardState {
 	editUserEmail: string;
 	editUserId: number;
 	editUserName: string;
-	editUserRoles: string[];
+	editUserRoles: IUserRole[];
 	editUserStatus: IUserStatus;
 	loading: boolean;
-	rolesList: string[];
 	path: string;
+	rolesList: IUserRole[];
+	saveError: boolean;
+	saveSuccess: boolean;
 	userId: number;
 	userInfo: IUserInfo;
 }
@@ -46,6 +49,8 @@ export default class EditUser extends React.Component<IProps> {
 		loading: true,
 		path: null,
 		rolesList: [],
+		saveError: false,
+		saveSuccess: false,
 		userId: null,
 		userInfo: {} as IUserInfo,
 	};
@@ -104,115 +109,137 @@ export default class EditUser extends React.Component<IProps> {
 
 		return (
 
-			<div className="dashboard editUser">
+			<React.Fragment>
 
-				<h1>Edit User</h1>
+				<p className="backToLink">
+					<Link to="/dashboard/admin">
+						&laquo; Back to admin dashboard
+					</Link>
+				</p>
 
-				{ this.state.loading ?
+				<div className="dashboard editUser">
 
-					<div className="loader" />
+					<h1>Edit User</h1>
 
-				: this.state.dataError ?
+					{ this.state.loading ?
 
-					<div>
-						<p>Sorry, there was an error. Please try again.</p>
-					</div>
+						<div className="loader" />
 
-				:
+					: this.state.dataError ?
 
-					<form
-						id="editUserForm"
-						onSubmit={this.submitForm}
-					>
-
-						<div className="inputGroup">
-							<label htmlFor="editUserName">Display Name</label>
-							<input
-								id="editUserName"
-								name="editUserName"
-								type="text"
-								pattern=".{2}.*"
-								required={true}
-								value={this.state.editUserName}
-								onChange={this.handleInputChange}
-							/>
+						<div>
+							<p>Sorry, there was an error. Please try again.</p>
 						</div>
 
-						<div className="inputGroup">
-							<label htmlFor="editUserEmail">Email Address</label>
-							<input
-								id="editUserEmail"
-								name="editUserEmail"
-								type="email"
-								required={true}
-								value={this.state.editUserEmail}
-								onChange={this.handleInputChange}
-							/>
+					: this.state.saveSuccess ?
+
+						<div>
+							<p>Changes have been saved.</p>
 						</div>
 
-						<div className="inputGroup selectStatus">
-							<label htmlFor="editUserStatus">Status</label>
-							<Select
-								id="editUserStatus"
-								name="editUserStatus"
-								className="Select"
-								classNamePrefix="Select"
-								value={this.state.editUserStatus}
-								onChange={this.handleStatusChange}
-								options={this.props.userStatusList.map((status: string) => ({
-									label: status,
-									value: status,
-								}))}
-								isSearchable={true}
-								isClearable={false}
-							/>
-						</div>
+					:
 
-						<div className="inputGroup selectRoles">
-							<label htmlFor="editUserRoles">User Roles</label>
-							<Select
-								isMulti={true}
-								id="editUserRoles"
-								name="editUserRoles"
-								className="Select"
-								classNamePrefix="Select"
-								value={this.state.editUserRoles}
-								onChange={this.handleRoleChange}
-								options={this.state.rolesList}
-								getOptionLabel={this.getOptionLabel}
-								getOptionValue={this.getOptionValue}
-								isSearchable={true}
-								isClearable={true}
-							/>
-						</div>
+						<form
+							id="editUserForm"
+							onSubmit={this.submitForm}
+						>
 
-						<div className="buttonRow">
-							<button
-								className="largeButton"
-								type="submit"
-								disabled={document.getElementById("editUserForm")
-									&& !(document.getElementById("editUserForm") as HTMLFormElement).checkValidity()
-								}
-							>
-								Save
-							</button>
-						</div>
+							<p>User ID: {this.state.editUserId}</p>
 
-					</form>
+							<div className="inputGroup">
+								<label htmlFor="editUserName">Display Name</label>
+								<input
+									id="editUserName"
+									name="editUserName"
+									type="text"
+									pattern=".{2}.*"
+									required={true}
+									value={this.state.editUserName}
+									onChange={this.handleInputChange}
+								/>
+							</div>
 
-				}
+							<div className="inputGroup">
+								<label htmlFor="editUserEmail">Email Address</label>
+								<input
+									id="editUserEmail"
+									name="editUserEmail"
+									type="email"
+									required={true}
+									value={this.state.editUserEmail}
+									onChange={this.handleInputChange}
+								/>
+							</div>
 
-			</div>
+							<div className="inputGroup selectStatus">
+								<label htmlFor="editUserStatus">Status</label>
+								<Select
+									id="editUserStatus"
+									name="editUserStatus"
+									className="Select"
+									classNamePrefix="Select"
+									value={this.state.editUserStatus}
+									onChange={this.handleStatusChange}
+									options={this.props.userStatusList.map((status: string) => ({
+										label: status,
+										value: status,
+									}))}
+									isSearchable={true}
+									isClearable={false}
+								/>
+							</div>
+
+							<div className="inputGroup selectRoles">
+								<label htmlFor="editUserRoles">User Roles</label>
+								<Select
+									isMulti={true}
+									id="editUserRoles"
+									name="editUserRoles"
+									className="Select"
+									classNamePrefix="Select"
+									value={this.state.editUserRoles}
+									onChange={this.handleRoleChange}
+									options={this.state.rolesList}
+									getOptionLabel={this.getRoleLabel}
+									getOptionValue={this.getRoleValue}
+									isSearchable={true}
+									isClearable={true}
+								/>
+							</div>
+
+							<div className="buttonRow">
+								{ this.state.saveError ?
+									<p className="error">There was an error while saving.  Please try again.</p>
+								: ""}
+								<button
+									className="largeButton"
+									type="submit"
+									disabled={document.getElementById("editUserForm")
+										&& !(document.getElementById("editUserForm") as HTMLFormElement).checkValidity()
+									}
+								>
+									Save
+								</button>
+							</div>
+
+						</form>
+
+					}
+
+				</div>
+
+			</React.Fragment>
+
 		);
 
 	}
 
-	getOptionLabel = (label: string) => {
-	  return label;
+	getRoleLabel = (role: IUserRole) => {
+	  return role.name;
 	}
 
-	getOptionValue = (value: string) => {
-	  return value;
+	getRoleValue = (role: IUserRole) => {
+	  return role.id.toString();
 	}
 
 	handleInputChange <T extends keyof IAdminDashboardState>(event: React.ChangeEvent<HTMLInputElement>) {
@@ -225,15 +252,15 @@ export default class EditUser extends React.Component<IProps> {
 
 	}
 
-	handleRoleChange(selected: string[]) {
+	handleRoleChange(selected: IUserRole[]) {
 
 		// user role is required
-		if (selected.indexOf("user") === -1) {
-			selected.unshift("user");
+		if (!selected.filter((role) => role.name === "user").length) {
+			selected.unshift(this.props.rolesList.filter((role) => role.name === "user")[0]);
 		}
 
 		this.setState({
-			editUserRoles: selected,
+			editUserRoles: selected.sort((a, b) => a.order > b.order ? 1 : a.order < b.order ? -1 : 0),
 		});
 
 	}
@@ -247,7 +274,41 @@ export default class EditUser extends React.Component<IProps> {
 	}
 
 	submitForm(event: React.MouseEvent<HTMLFormElement>) {
-// x
+
+		event.preventDefault();
+
+		this.setState({
+			loading: true,
+			saveError: false,
+		});
+
+		axios.put(`${this.props.apiLocation}admin/updateUser/${this.state.editUserId}`, {
+			userEmail: this.state.editUserEmail,
+			userName: this.state.editUserName,
+			userRoles: this.state.editUserRoles
+				.map((role) => role.id).join(","),
+			userStatus: this.state.editUserStatus.value,
+		},
+		{
+			cancelToken: this.axiosSignal.token,
+			withCredentials: true,
+		})
+			.then((result) => {
+
+				this.setState({
+					loading: false,
+					saveSuccess: true,
+				});
+
+			}).catch((error) => {
+
+				this.setState({
+					loading: false,
+					saveError: true,
+				});
+
+			});
+
 	}
 
 	loadData() {
@@ -273,11 +334,15 @@ export default class EditUser extends React.Component<IProps> {
 						})
 						.then((result) => {
 
+							const userRoles = this.props.rolesList
+								.filter((role) => result.data.user_roles.indexOf(role.id.toString()) > -1)
+								.sort((a, b) => a.order > b.order ? 1 : a.order < b.order ? -1 : 0);
+
 							this.setState({
 								editUserEmail: result.data.user_email,
 								editUserId: result.data.user_id,
 								editUserName: result.data.user_name,
-								editUserRoles: result.data.user_roles,
+								editUserRoles: userRoles,
 								editUserStatus: {
 									label: result.data.user_status,
 									value: result.data.user_status,
