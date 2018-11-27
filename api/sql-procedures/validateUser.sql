@@ -16,6 +16,12 @@ else
 	set @validated = false;
 end if;
 
+if @validated then
+	insert into user_roles (user, role)
+	values (@id, 1);
+end if;
+
+
 select @validated as validated;
 
 END

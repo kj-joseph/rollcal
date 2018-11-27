@@ -5,7 +5,8 @@ import ReactSVG from "react-svg";
 
 import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
 import { IGeoData, ITimeZone } from "interfaces/geo";
-import { IPageTitle, IProps, IReduxActions, IReduxActionType, IUserInfo } from "interfaces/redux";
+import { IPageTitle, IProps, IReduxActions, IReduxActionType } from "interfaces/redux";
+import { IUserInfo, IUserRole } from "interfaces/user";
 
 import { connect, Provider } from "react-redux";
 import { Dispatch } from "redux";
@@ -173,6 +174,8 @@ class ConnectedSiteRouter extends React.Component<IProps> {
 								<Route path="/dashboard/events/:all(all)?" component={UserEventsPage} exact={true} />
 								<Route path="/dashboard/venues/:all(all)?" component={UserVenuesPage} exact={true} />
 								<Route path="/dashboard/account" component={UserAccountPage} exact={true} />
+								<Route path="/dashboard/admin/user/:id" component={EditUserPage} exact={true} />
+								<Route path="/dashboard/admin" component={AdminDashboardPage} exact={true} />
 								<Route path="/dashboard" component={DashboardPage} exact={true} />
 								<Route path="/search" component={SearchPage} exact={true} />
 								<Route path="/faq" component={FaqPage} exact={true} />
@@ -266,6 +269,7 @@ const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>): IReduxActions
 		saveDataSanctions: (data: IDerbySanction[]) => dispatch(reduxActions.saveDataSanctions(data)),
 		saveDataTracks: (data: IDerbyTrack[]) => dispatch(reduxActions.saveDataTracks(data)),
 		saveLastSearch: (search: string) => dispatch(reduxActions.saveLastSearch(search)),
+		saveRolesList: (data: IUserRole[]) => dispatch(reduxActions.saveRolesList(data)),
 		saveTimeZones: (data: ITimeZone[]) => dispatch(reduxActions.saveTimeZones(data)),
 		setLoginModalState: (loginModalState: boolean) => dispatch(reduxActions.setLoginModalState(loginModalState)),
 		setPageTitle: (data: IPageTitle) => dispatch(reduxActions.setPageTitle(data)),
@@ -276,11 +280,17 @@ const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>): IReduxActions
 
 const SiteRouter = connect(mapStateToProps, mapDispatchToProps)(ConnectedSiteRouter);
 
+import AdminDashboard from "components/pages/admin";
+const AdminDashboardPage = connect(mapStateToProps, mapDispatchToProps)(AdminDashboard);
+
 import Contact from "components/pages/contact";
 const ContactPage = connect(mapStateToProps, mapDispatchToProps)(Contact);
 
 import Dashboard from "components/pages/dashboard";
 const DashboardPage = connect(mapStateToProps, mapDispatchToProps)(Dashboard);
+
+import EditUser from "components/pages/editUser";
+const EditUserPage = connect(mapStateToProps, mapDispatchToProps)(EditUser);
 
 import EventDetails from "components/pages/eventDetails";
 const EventDetailsPage = connect(mapStateToProps, mapDispatchToProps)(EventDetails);

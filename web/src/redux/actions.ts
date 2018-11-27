@@ -1,6 +1,7 @@
 import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
 import { IGeoData, ITimeZone } from "interfaces/geo";
-import { IPageTitle, IReduxActionType, IUserInfo } from "interfaces/redux";
+import { IPageTitle, IReduxActionType } from "interfaces/redux";
+import { IUserInfo, IUserRole } from "interfaces/user";
 
 export default {
 
@@ -32,6 +33,11 @@ export default {
 	saveLastSearch: (search: string): IReduxActionType => ({
 		payload: search,
 		type: "SAVE_LAST_SEARCH",
+	}),
+
+	saveRolesList: (roles: IUserRole[]): IReduxActionType => ({
+		payload: roles,
+		type: "SAVE_ROLES_LIST",
 	}),
 
 	saveTimeZones: (data: ITimeZone[]): IReduxActionType => ({

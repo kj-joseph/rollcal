@@ -4,8 +4,8 @@ import { MysqlError } from "mysql";
 
 import crypto from "crypto";
 
-import { checkSession } from "checkSession";
 import { IRequestWithSession } from "interfaces";
+import { checkSession } from "lib/checkSession";
 
 import { sendEmailChangeEmail, sendForgotPasswordEmail, sendValidationEmail } from "lib/email";
 
@@ -151,6 +151,34 @@ router.get("/checkUsername", upload.array(), (req: Request, res: Response) => {
 
 		});
 
+});
+
+router.get("/getRolesList", (req: Request, res: Response) => {
+
+	res.locals.connection.query("call getRolesList()",
+		(error: MysqlError, results: any) => {
+
+			if (error) {
+				console.error(error);
+
+				res.locals.connection.end();
+				res.status(500).send();
+
+			} else {
+
+				res.locals.connection.end();
+				res.status(200).json(results[0].map((row: {
+					role_id: number,
+					role_name: string,
+					role_order: number,
+				}) => ({
+					id: row.role_id,
+					name: row.role_name,
+					order: row.role_order,
+				})));
+
+			}
+		});
 });
 
 router.post("/getSession", upload.array(), checkSession("user"), (req: IRequestWithSession, res: Response) => {

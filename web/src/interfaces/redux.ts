@@ -1,5 +1,7 @@
 import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
 import { IGeoData, ITimeZone } from "interfaces/geo";
+import { IUserInfo, IUserRole } from "interfaces/user";
+
 import { RouteComponentProps } from "react-router";
 
 interface IMatchParams {
@@ -21,6 +23,7 @@ export interface IReduxActions {
 	saveDataSanctions: (data: IDerbySanction[]) => IReduxActionType;
 	saveDataTracks: (data: IDerbyTrack[]) => IReduxActionType;
 	saveLastSearch: (search: string) => IReduxActionType;
+	saveRolesList: (roles: IUserRole[]) => IReduxActionType;
 	saveTimeZones: (data: ITimeZone[]) => IReduxActionType;
 	setLoginModalState: (loginModalState: boolean) => IReduxActionType;
 	setPageTitle: (pageTitle: IPageTitle) => IReduxActionType;
@@ -49,14 +52,8 @@ export interface IReduxStore {
 	loginModalOpen: false;
 	page: "home";
 	pageTitle: IPageTitle;
+	rolesList: IUserRole[];
 	sessionInitialized: false;
 	timeZones: ITimeZone[];
-}
-
-export interface IUserInfo {
-	loggedIn: boolean;
-	userEmail?: string;
-	userId?: number;
-	userName?: string;
-	userRoles?: string[];
+	userStatusList: string[];
 }
