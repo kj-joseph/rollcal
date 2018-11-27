@@ -188,17 +188,7 @@ export default class EventDetails extends React.Component<IProps> {
 								<p><em>All times shown are local to the venue.</em></p>
 
 								<p className="eventUser">
-									Event added by {
-
-										checkUserRole(this.props.loggedInUserRoles, "admin") ?
-
-											<Link to={`/dashboard/admin/user/${this.state.eventData.user}`}>{this.state.eventData.username}</Link>
-
-										:
-
-											this.state.eventData.username
-
-									}{this.state.eventData.user === this.props.loggedInUserId ? " (thank you!)" : ""}
+									Event added by {this.state.eventData.username}{this.state.eventData.user === this.props.loggedInUserId ? " (thank you!)" : ""}
 								</p>
 
 							</div>
