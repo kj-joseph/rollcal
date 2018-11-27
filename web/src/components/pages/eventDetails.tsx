@@ -12,8 +12,6 @@ import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "components/lib
 import { formatDateRange } from "components/lib/dateTime";
 import moment from "moment";
 
-import { checkUserRole } from "components/lib/auth";
-
 interface IEventDetailsState {
 	dataError: boolean;
 	eventData: IDerbyEvent;
