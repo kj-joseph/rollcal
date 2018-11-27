@@ -71,7 +71,7 @@ export default class EditUser extends React.Component<IProps> {
 		this.props.setSessionState(this.props.sessionInitialized);
 
 		this.props.setPageTitle({
-			detail: "Admin Dashboard",
+			detail: "Admin Dashboard: Edit User",
 			page: "User Dashboard",
 		});
 
@@ -334,31 +334,44 @@ export default class EditUser extends React.Component<IProps> {
 						})
 						.then((result) => {
 
-							const userRoles = this.props.rolesList
-								.filter((role) => result.data.user_roles.indexOf(role.id.toString()) > -1)
-								.sort((a, b) => a.order > b.order ? 1 : a.order < b.order ? -1 : 0);
+							if (result.data.user_id === this.props.loggedInUserId
+								|| (checkUserRole(this.props.rolesList.map((role) => role.name), "admin")
+									&& !checkUserRole(this.props.loggedInUserRoles, "superadmin"))
 
-							this.setState({
-								editUserEmail: result.data.user_email,
-								editUserId: result.data.user_id,
-								editUserName: result.data.user_name,
-								editUserRoles: userRoles,
-								editUserStatus: {
-									label: result.data.user_status,
-									value: result.data.user_status,
-								},
-								loading: false,
-								rolesList,
-							});
+								) {
+
+								this.setState({
+									dataError: true,
+									loading: false,
+								});
+
+							} else {
+
+								const userRoles = this.props.rolesList
+									.filter((role) => result.data.user_roles.indexOf(role.id.toString()) > -1)
+									.sort((a, b) => a.order > b.order ? 1 : a.order < b.order ? -1 : 0);
+
+								this.setState({
+									editUserEmail: result.data.user_email,
+									editUserId: result.data.user_id,
+									editUserName: result.data.user_name,
+									editUserRoles: userRoles,
+									editUserStatus: {
+										label: result.data.user_status,
+										value: result.data.user_status,
+									},
+									loading: false,
+									rolesList,
+								});
+							}
 
 						}).catch((error) => {
 
 							if (!axios.isCancel(error)) {
 								console.error(error);
 								this.setState({
-									searchComplete: false,
-									searchError: true,
-									searching: false,
+									dataError: true,
+									loading: false,
 								});
 							}
 
