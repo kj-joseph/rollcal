@@ -79,7 +79,7 @@ export default class EditUser extends React.Component<IProps> {
 
 	componentDidUpdate() {
 
-		if (!this.props.loggedIn) {
+		if (!this.props.loggedIn || !checkUserRole(this.props.loggedInUserRoles, "user")) {
 
 			this.props.history.push("/");
 
@@ -333,6 +333,10 @@ export default class EditUser extends React.Component<IProps> {
 							withCredentials: true,
 						})
 						.then((result) => {
+
+							if (!result.data) {
+								throw new Error("User not found.");
+							}
 
 							if (result.data.user_id === this.props.loggedInUserId
 								|| (checkUserRole(this.props.rolesList.map((role) => role.name), "admin")

@@ -224,7 +224,7 @@ router.post("/login", upload.array(), (req: IRequestWithSession, res: Response) 
 					req.session.user = {
 						email: loginResult.user_email,
 						id: loginResult.user_id,
-						roles: loginResult.user_roles.split(","),
+						roles: loginResult.user_roles ? loginResult.user_roles.split(",") : [],
 						username: loginResult.user_name,
 					};
 
@@ -232,7 +232,7 @@ router.post("/login", upload.array(), (req: IRequestWithSession, res: Response) 
 					res.status(200).json({
 						email: loginResult.user_email,
 						id: loginResult.user_id,
-						roles: loginResult.user_roles.split(","),
+						roles: loginResult.user_roles ? loginResult.user_roles.split(",") : [],
 						username: loginResult.user_name,
 					});
 

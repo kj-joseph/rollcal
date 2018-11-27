@@ -5,6 +5,7 @@ import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList, ITimeZone } from "in
 import { IProps } from "interfaces/redux";
 import { IDerbyVenue, IDerbyVenueChangeObject } from "interfaces/venue";
 
+import { checkUserRole } from "components/lib/auth";
 import { getGeography, getTimeZones } from "components/lib/data";
 
 import axios from "axios";
@@ -69,7 +70,7 @@ export default class VenueForm extends React.Component<IProps> {
 
 	componentDidUpdate() {
 
-		if (!this.props.loggedIn) {
+		if (!this.props.loggedIn || !checkUserRole(this.props.loggedInUserRoles, "user")) {
 			this.props.history.push("/");
 		} else if (window.location.pathname !== this.state.path
 			|| this.props.loggedInUserId !== this.state.userId ) {
