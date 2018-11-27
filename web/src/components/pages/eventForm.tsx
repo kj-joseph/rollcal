@@ -7,6 +7,7 @@ import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList, ITimeZone } from "in
 import { IProps } from "interfaces/redux";
 import { IDBDerbyVenue, IDerbyVenue } from "interfaces/venue";
 
+import { checkUserRole } from "components/lib/auth";
 import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography, getTimeZones } from "components/lib/data";
 
 import axios from "axios";
@@ -135,7 +136,7 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 	componentDidUpdate() {
 
-		if (!this.props.loggedIn) {
+		if (!this.props.loggedIn || !checkUserRole(this.props.loggedInUserRoles, "user")) {
 
 			this.props.history.push("/");
 

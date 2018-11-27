@@ -6,7 +6,7 @@ import { IProps } from "interfaces/redux";
 import Modal from "react-modal";
 Modal.setAppElement("#root");
 
-import { logout } from "components/lib/auth";
+import { checkUserRole, logout } from "components/lib/auth";
 
 interface IDashboardState {
 	path: string;
@@ -39,7 +39,7 @@ export default class Dashboard extends React.Component<IProps> {
 
 	componentDidUpdate() {
 
-		if (!this.props.loggedIn) {
+		if (!this.props.loggedIn || !checkUserRole(this.props.loggedInUserRoles, "user")) {
 
 			this.props.history.push("/");
 

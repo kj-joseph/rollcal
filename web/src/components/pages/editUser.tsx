@@ -79,7 +79,7 @@ export default class EditUser extends React.Component<IProps> {
 
 	componentDidUpdate() {
 
-		if (!this.props.loggedIn) {
+		if (!this.props.loggedIn || !checkUserRole(this.props.loggedInUserRoles, "user")) {
 
 			this.props.history.push("/");
 
