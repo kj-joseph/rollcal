@@ -217,3 +217,34 @@ export const getTimeZones = (
 
 	});
 };
+
+export const getUserRoles = (
+	apiLocation: string,
+	dataRolesList: string[],
+	saveRolesList: (data: string[]) => void,
+	axiosSignal: CancelTokenSource,
+): Promise<string[]> => {
+
+	return new Promise((resolve, reject) => {
+
+		if (dataRolesList && dataRolesList.length) {
+
+			resolve(dataRolesList);
+
+		} else {
+
+			axios.get(`${apiLocation}user/getRolesList`,
+				{
+					cancelToken: axiosSignal.token,
+					withCredentials: true,
+				})
+				.then((result) => {
+					saveRolesList(result.data.filter((role: string) => role !== "superadmin") as string[]);
+					resolve(result.data.filter((role: string) => role !== "superadmin") as string[]);
+				}).catch((error) => {
+					reject(error);
+				});
+		}
+
+	});
+};

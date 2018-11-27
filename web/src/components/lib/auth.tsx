@@ -1,7 +1,7 @@
 import React from "react";
 
 import { History } from "history";
-import { IUserInfo } from "interfaces/redux";
+import { IUserInfo } from "interfaces/user";
 
 import axios from "axios";
 

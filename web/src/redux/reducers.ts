@@ -1,31 +1,38 @@
-import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
 import { IGeoData, ITimeZone } from "interfaces/geo";
 import { IReduxActionType, IReduxStore } from "interfaces/redux";
 
 const initialState: IReduxStore = {
 	apiLocation: process.env.API_URL,
-	dataDerbyTypes: [] as IDerbyType[],
+	dataDerbyTypes: [],
 	dataGeography: {
 		countries: [],
 		regions: {},
 	} as IGeoData,
-	dataSanctions: [] as IDerbySanction[],
-	dataTracks: [] as IDerbyTrack[],
+	dataSanctions: [],
+	dataTracks: [],
 	lastSearch: "",
 	listPageLength: 9,
 	loggedIn: false,
 	loggedInUserEmail: "",
 	loggedInUserId: null,
 	loggedInUserName: "",
-	loggedInUserRoles: null as string[],
+	loggedInUserRoles: null,
 	loginModalOpen: false,
 	page: "home",
 	pageTitle: {
 		detail: null,
 		page: null,
 	},
+	rolesList: [],
 	sessionInitialized: false,
 	timeZones: [] as ITimeZone[],
+	userStatusList: [
+		"active",
+		"unvalidated",
+		"deactivated",
+		"suspended",
+		"banned",
+	],
 };
 
 const rootReducer = (state = initialState, action: IReduxActionType) => {
@@ -104,6 +111,11 @@ const rootReducer = (state = initialState, action: IReduxActionType) => {
 				+ (newState.pageTitle.page ? `${newState.pageTitle.page} | ` : "")
 				+ "Roll-Cal - Roller derby event calendar";
 
+			return newState;
+			break;
+
+		case "SAVE_ROLES_LIST":
+			newState.rolesList = action.payload;
 			return newState;
 			break;
 

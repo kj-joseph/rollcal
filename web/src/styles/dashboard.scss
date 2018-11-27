@@ -21,6 +21,51 @@
 		margin: 0;
 	}
 
+
+	&.admin {
+
+		.buttonRow {
+			margin-top: 0;
+		}
+
+		.userTable {
+			width: 100%;
+
+			td, th {
+				padding: 5px 10px 5px 5px;
+				border-left: 1px solid $white;
+
+				&:first-child {
+					border-left: none;
+				}
+			}
+
+			thead tr {
+				background: $gray;
+
+				th {
+					font-weight: bold;
+					text-align: left;
+				}
+
+			}
+
+			tbody tr:nth-child(even) {
+				background: $mediumPink;
+			}
+
+		}
+
+	}
+
+	&.editUser {
+
+		.selectRoles .Select {
+			z-index: 52;
+		}
+
+	}
+
 }
 
 dl.changeDetails {
@@ -98,7 +143,9 @@ dl.changeDetails {
 	.dashboard {
 
 		&.mainDashboard,
-		&.reviewVenueChange
+		&.reviewVenueChange,
+		&.admin,
+		&.editUser,
 		{
 			max-width: 710px;
 		}

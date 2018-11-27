@@ -153,6 +153,26 @@ router.get("/checkUsername", upload.array(), (req: Request, res: Response) => {
 
 });
 
+router.get("/getRolesList", (req: Request, res: Response) => {
+
+	res.locals.connection.query("call getRolesList()",
+		(error: MysqlError, results: any) => {
+
+			if (error) {
+				console.error(error);
+
+				res.locals.connection.end();
+				res.status(500).send();
+
+			} else {
+
+				res.locals.connection.end();
+				res.status(200).json(results[0].map((row: {}) => row.role_name));
+
+			}
+		});
+});
+
 router.post("/getSession", upload.array(), checkSession("user"), (req: IRequestWithSession, res: Response) => {
 
 	res.status(200).json({
