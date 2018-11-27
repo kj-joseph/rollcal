@@ -88,6 +88,8 @@ if ((process.env.ROLLCAL_DEV_DBHOST || process.env.ROLLCAL_STAGE_DBHOST || proce
 	app.use("/user", userRouter);
 	app.use("/venues", venuesRouter);
 
+} else {
+	console.error("ERROR: Environment variables missing.");
 }
 
 export default app;
