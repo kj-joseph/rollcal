@@ -20,11 +20,11 @@ import { createPool } from "mysql";
 
 let app: express.Application;
 
-if ((process.env.ROLLCAL_DEV_DBHOST || process.env.ROLLCAL_STAGE_DBHOST || process.env.ROLLCAL_DBHOST)
-	&& (process.env.ROLLCAL_DEV_DBNAME || process.env.ROLLCAL_STAGE_DBNAME || process.env.ROLLCAL_DBNAME)
-	&& (process.env.ROLLCAL_DEV_DBPASS || process.env.ROLLCAL_STAGE_DBPASS || process.env.ROLLCAL_DBPASS)
-	&& (process.env.ROLLCAL_DEV_DBUSER || process.env.ROLLCAL_STAGE_DBUSER || process.env.ROLLCAL_DBUSER)
-	&& (process.env.ROLLCAL_DEV_SECRET || process.env.ROLLCAL_STAGE_SECRET || process.env.ROLLCAL_SECRET)
+if ((process.env.ROLLCAL_DEV_DBHOST || process.env.ROLLCAL_STAGE_DBHOST || process.env.ROLLCAL_PROD_DBHOST)
+	&& (process.env.ROLLCAL_DEV_DBNAME || process.env.ROLLCAL_STAGE_DBNAME || process.env.ROLLCAL_PROD_DBNAME)
+	&& (process.env.ROLLCAL_DEV_DBPASS || process.env.ROLLCAL_STAGE_DBPASS || process.env.ROLLCAL_PROD_DBPASS)
+	&& (process.env.ROLLCAL_DEV_DBUSER || process.env.ROLLCAL_STAGE_DBUSER || process.env.ROLLCAL_PROD_DBUSER)
+	&& (process.env.ROLLCAL_DEV_SECRET || process.env.ROLLCAL_STAGE_SECRET || process.env.ROLLCAL_PROD_SECRET)
 	&& process.env.ROLLCAL_ALLOW_ORIGIN
 	) {
 
