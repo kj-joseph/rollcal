@@ -776,8 +776,10 @@ export default class ReviewEventChange extends React.Component<IProps> {
 												break;
 
 											case "region":
-												newVenue[key] = regionLists[changeObject.newVenueData.country || eventData.country].filter(
-													(region) => region.region_id === changeObject.newVenueData[key])[0].region_abbreviation;
+												if (changeObject.newVenueData[key] ) {
+													newVenue[key] = regionLists[changeObject.newVenueData.country || eventData.country].filter(
+														(region) => region.region_id === changeObject.newVenueData[key])[0].region_abbreviation;
+												}
 												break;
 
 											case "timezone":
