@@ -147,40 +147,45 @@ export default class EventChanges extends React.Component<IProps> {
 
 	loadData() {
 
-			this.setState({
-				loading: true,
-			});
+		this.setState({
+			loading: true,
+		});
 
-			let countryList = [] as IGeoCountry[];
-			const promises: Array<Promise<any>> = [];
-			let regionLists = {} as IGeoRegionList;
+		let countryList = [] as IGeoCountry[];
+		const promises: Array<Promise<any>> = [];
+		let regionLists = {} as IGeoRegionList;
 
-			promises.push(getGeography(
-				this.props.apiLocation,
-				this.props.dataGeography,
-				this.props.saveDataGeography,
-				this.axiosSignal)
-				.then((dataResponse: IGeoData) => {
-					countryList = dataResponse.countries;
-					regionLists = dataResponse.regions;
-				}).catch((error) => {
-					console.error(error);
-				}));
+		promises.push(getGeography(
+			this.props.apiLocation,
+			this.props.dataGeography,
+			this.props.saveDataGeography,
+			this.axiosSignal)
+			.then((dataResponse: IGeoData) => {
+				countryList = dataResponse.countries;
+				regionLists = dataResponse.regions;
+			}).catch((error) => {
+				console.error(error);
+			}));
 
-			Promise.all(promises).then(() => {
+		Promise.all(promises).then(() => {
 
-				axios.get(`${this.props.apiLocation}events/getChangeList`,
-					{
-						cancelToken: this.axiosSignal.token,
-						withCredentials: true,
-					})
-					.then((result) => {
+			axios.get(`${this.props.apiLocation}events/getChangeList`,
+				{
+					cancelToken: this.axiosSignal.token,
+					withCredentials: true,
+				})
+				.then((result) => {
 
-						const eventChanges = result.data.map((change: IDBDerbyEventChange) => {
+					const eventChangeData: IDBDerbyEventChange[] = result.data;
+					const eventPromises: Array<Promise<any>> = [];
+
+					for (const change of eventChangeData) {
+
+						eventPromises.push(new Promise((resolve, reject) => {
 
 							if (change.changed_item_id) {
 
-								return {
+								resolve({
 									changeId: change.change_id,
 									changedItemId: change.changed_item_id,
 									datesVenue: formatDateRange({
@@ -195,7 +200,7 @@ export default class EventChanges extends React.Component<IProps> {
 									submittedTime: moment(change.change_submitted).format("MMM D, Y h:mm a"),
 									user: change.change_user,
 									username: change.change_user_name,
-								};
+								});
 
 							} else {
 
@@ -227,42 +232,79 @@ export default class EventChanges extends React.Component<IProps> {
 								let countryCode: string;
 								let regionAbbr: string;
 
-								for (const key in changeObject.newVenueData) {
-									if (changeObject.newVenueData.hasOwnProperty(key)) {
+								if (changeObject.newVenueData) {
 
-										switch (key) {
+									for (const key in changeObject.newVenueData) {
+										if (changeObject.newVenueData.hasOwnProperty(key)) {
 
-											case "city":
-												cityString = changeObject.newVenueData[key];
-												break;
+											switch (key) {
 
-											case "country":
-												countryCode = countryList.filter(
-													(country: IGeoCountry) => country.country_code === changeObject.newVenueData[key])[0].country_code;
-												break;
+												case "city":
+													cityString = changeObject.newVenueData[key];
+													break;
 
-											case "region":
-												if (changeObject.newVenueData[key]) {
-													regionAbbr = regionLists[changeObject.newVenueData.country].filter(
-														(region: IGeoRegion) => region.region_id === changeObject.newVenueData[key])[0].region_abbreviation;
-												}
-												break;
+												case "country":
+													countryCode = countryList.filter(
+														(country: IGeoCountry) => country.country_code === changeObject.newVenueData[key])[0].country_code;
+													break;
 
+												case "region":
+													if (changeObject.newVenueData[key]) {
+														regionAbbr = regionLists[changeObject.newVenueData.country].filter(
+															(region: IGeoRegion) => region.region_id === changeObject.newVenueData[key])[0].region_abbreviation;
+													}
+													break;
+
+											}
 										}
 									}
+
+									eventChangeObject.location = `${cityString}${regionAbbr ? ", " + regionAbbr : ""}, ${countryCode}`;
+
+									resolve(eventChangeObject);
+
+								} else {
+
+									const venueId = changeObject.data.filter(
+										(item) => item.field === "venue")[0].value;
+
+									if (venueId) {
+
+										axios.get(`${this.props.apiLocation}venues/getVenueDetails/${venueId}`,
+											{
+												cancelToken: this.axiosSignal.token,
+												withCredentials: true,
+											})
+											.then((venueResult) => {
+
+												eventChangeObject.location = `${venueResult.data.venue_city}${
+													venueResult.data.region_abbreviation ? ", " + venueResult.data.region_abbreviation : ""}, ${venueResult.data.venue_country}`;
+
+												resolve(eventChangeObject);
+
+											}).catch((venueError) => {
+												console.error(venueError);
+											});
+
+									} else {
+										resolve(eventChangeObject);
+									}
+
 								}
 
-								eventChangeObject.location = `${cityString}${regionAbbr ? ", " + regionAbbr : ""}, ${countryCode}`;
-
-								return eventChangeObject;
 							}
 
-						});
+						}));
 
-						this.setState({
-							eventChanges,
-							loading: false,
-						});
+					}
+
+					Promise.all(eventPromises)
+						.then((eventChanges: IDerbyEventChange[]) => {
+
+							this.setState({
+								eventChanges,
+								loading: false,
+							});
 
 					}).catch((error) => {
 						console.error(error);
@@ -276,7 +318,19 @@ export default class EventChanges extends React.Component<IProps> {
 					});
 
 
-			});
+				}).catch((error) => {
+					console.error(error);
+
+					if (!axios.isCancel(error)) {
+						this.setState({
+							dataError: true,
+						});
+					}
+
+				});
+
+
+		});
 
 	}
 
