@@ -30,6 +30,7 @@
 		"react": "^16.5.2",
 		"react-dates": "^18.1.1",
 		"react-dom": "^16.5.2",
+		"react-format-text": "^1.1.1",
 		"react-ga": "^2.5.5-0",
 		"react-modal": "^3.6.1",
 		"react-redux": "^5.0.7",

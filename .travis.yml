@@ -1,7 +1,7 @@
 branches:
   only:
   - dev
-  - /^release\/.*$/
+  - /^(release|hotfix)\/.*$/
   - master
 matrix:
   include:
@@ -19,7 +19,7 @@ matrix:
     - cd web
     - npm install
     - if [[ "$TRAVIS_BRANCH" == "dev" ]]; then npm run build:dev; fi
-    - if [[ "$TRAVIS_BRANCH" =~ ^release\/.*$ ]]; then npm run build:prod; fi
+    - if [[ "$TRAVIS_BRANCH" =~ ^(release|hotfix)\/.*$ ]]; then npm run build:prod; fi
     - if [[ "$TRAVIS_BRANCH" == "master" ]]; then npm run build:prod; fi
     deploy:
     - provider: script
@@ -36,7 +36,7 @@ matrix:
         fi
       on:
         all_branches: true
-        condition: $TRAVIS_BRANCH =~ ^release\/.*$
+        condition: $TRAVIS_BRANCH =~ ^(release|hotfix)\/.*$
     - provider: script
       skip_cleanup: true
       script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/* kj@server.bykev.in:/var/www/roll-cal/prod;
@@ -66,7 +66,7 @@ matrix:
     - cd api
     - npm install
     - if [[ "$TRAVIS_BRANCH" == "dev" ]]; then npm run build:dev; fi
-    - if [[ "$TRAVIS_BRANCH" =~ ^release\/.*$ ]]; then npm run build:stage; fi
+    - if [[ "$TRAVIS_BRANCH" =~ ^(release|hotfix)\/.*$ ]]; then npm run build:stage; fi
     - if [[ "$TRAVIS_BRANCH" == "master" ]]; then npm run build:prod; fi
     deploy:
     - provider: script
@@ -81,7 +81,7 @@ matrix:
         fi
       on:
         all_branches: true
-        condition: $TRAVIS_BRANCH =~ ^release\/.*$
+        condition: $TRAVIS_BRANCH =~ ^(release|hotfix)\/.*$
     - provider: script
       skip_cleanup: true
       script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/api/build/rollcal-api.js kj@server.bykev.in:/var/www/roll-cal/api;

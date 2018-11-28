@@ -63,7 +63,7 @@ export default class BoxList extends React.Component<IBoxListProps> {
 							{item.submittedDuration && item.submittedTime ?
 								<React.Fragment>
 									<p className="submittedTime">
-										<strong>{item.id ? "Change" : "New venue"}</strong>
+										<strong>{item.id ? "Change" : `New ${this.props.itemType.substring(0, this.props.itemType.length - 1)}`}</strong>
 										<br />
 										<span title={item.submittedTime}>{item.submittedDuration} ago</span>{" "}
 										by <strong>{item.username}</strong>
