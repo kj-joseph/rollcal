@@ -224,6 +224,7 @@ export default class ReviewVenueChange extends React.Component<IProps> {
 									/>
 
 									<CompareValues
+										addFormatting
 										label="Description"
 										oldValue={this.state.venueData.description}
 										newValue={this.state.venueChanges.description}
