@@ -182,7 +182,7 @@ export default class ReviewEventChange extends React.Component<IProps> {
 													/>
 
 													<CompareValues
-														addFormatting
+														addFormatting={true}
 														label="Description"
 														oldValue={this.state.eventData.description}
 														newValue={this.state.eventChanges.description}
@@ -346,7 +346,7 @@ export default class ReviewEventChange extends React.Component<IProps> {
 																<em>Description:</em><br />
 																{day.old.description || day.new.description ?
 																	<CompareValues
-																		addFormatting
+																		addFormatting={true}
 																		inline={true}
 																		oldValue={day.old.description}
 																		newValue={day.new.description}
