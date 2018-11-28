@@ -2,10 +2,11 @@ import { Request, Response, Router } from "express";
 import multer from "multer";
 import { MysqlError } from "mysql";
 
-import { IRequestWithSession } from "interfaces";
+import { IGeocode, IRequestWithSession } from "interfaces";
 import { checkSession } from "lib/checkSession";
 
 import { sendChangeApprovalEmail, sendChangeRejectionEmail } from "lib/email";
+import { getGeocode } from "lib/googleMaps";
 
 const router = Router();
 const upload = multer();
@@ -185,6 +186,22 @@ router.post("/approveChange/:changeId", checkSession("reviewer"), (req: IRequest
 					res.status(500).send();
 
 				} else {
+
+					getGeocode(results[1].map((row: {}) => ({...row}))[0])
+					.then((geocode: IGeocode) => {
+
+						if (geocode) {
+
+							res.locals.connection
+								.query(`call saveVenueGeocode(
+									${res.locals.connection.escape(returnedData.venue_id)},
+									${res.locals.connection.escape(geocode.lat)},
+									${res.locals.connection.escape(geocode.lng)}
+									)`);
+
+						}
+
+					});
 
 					sendChangeApprovalEmail
 						(returnedData.email, returnedData.username, req.params.changeId, "venue", returnedData.isNew, returnedData.venue_name)
