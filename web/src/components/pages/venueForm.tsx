@@ -487,7 +487,10 @@ export default class VenueForm extends React.Component<IProps> {
 					})
 					.then((result) => {
 
-						if (result.data && result.data.venue_user === this.props.loggedInUserId) {
+						if (result.data &&
+							(result.data.venue_user === this.props.loggedInUserId
+								|| checkUserRole(this.props.loggedInUserRoles, "reviewer"))
+							) {
 
 							this.setState({
 								initialVenueData: {

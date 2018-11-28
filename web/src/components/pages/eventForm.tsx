@@ -1230,7 +1230,10 @@ export default class EventForm<Props> extends React.Component<IProps> {
 						})
 						.then((result) => {
 
-							if (result.data) {
+							if (result.data &&
+								(result.data.event_user === this.props.loggedInUserId
+									|| checkUserRole(this.props.loggedInUserRoles, "reviewer"))
+								) {
 
 								const eventResult: IDBDerbyEvent = result.data;
 
