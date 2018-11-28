@@ -1,4 +1,5 @@
 import React from "react";
+import FormatText from "react-format-text";
 import { Link } from "react-router-dom";
 
 import axios from "axios";
@@ -181,6 +182,7 @@ export default class ReviewEventChange extends React.Component<IProps> {
 													/>
 
 													<CompareValues
+														addFormatting={true}
 														label="Description"
 														oldValue={this.state.eventData.description}
 														newValue={this.state.eventChanges.description}
@@ -244,7 +246,7 @@ export default class ReviewEventChange extends React.Component<IProps> {
 																<React.Fragment>
 																	<dt>New Venue Description:</dt>
 																	<dd><span className="new">
-																		{this.state.eventChanges.newVenue.description}
+																		<FormatText>{this.state.eventChanges.newVenue.description}</FormatText>
 																	</span></dd>
 																</React.Fragment>
 															: ""}
@@ -344,6 +346,7 @@ export default class ReviewEventChange extends React.Component<IProps> {
 																<em>Description:</em><br />
 																{day.old.description || day.new.description ?
 																	<CompareValues
+																		addFormatting={true}
 																		inline={true}
 																		oldValue={day.old.description}
 																		newValue={day.new.description}
@@ -776,8 +779,10 @@ export default class ReviewEventChange extends React.Component<IProps> {
 												break;
 
 											case "region":
-												newVenue[key] = regionLists[changeObject.newVenueData.country || eventData.country].filter(
-													(region) => region.region_id === changeObject.newVenueData[key])[0].region_abbreviation;
+												if (changeObject.newVenueData[key] ) {
+													newVenue[key] = regionLists[changeObject.newVenueData.country || eventData.country].filter(
+														(region) => region.region_id === changeObject.newVenueData[key])[0].region_abbreviation;
+												}
 												break;
 
 											case "timezone":

@@ -238,8 +238,10 @@ export default class VenueChanges extends React.Component<IProps> {
 												break;
 
 											case "region":
-												regionAbbr = regionLists[changeObject.country].filter(
-													(region: IGeoRegion) => region.region_id === changeObject[key])[0].region_abbreviation;
+												if (changeObject[key] ) {
+													regionAbbr = regionLists[changeObject.country].filter(
+														(region: IGeoRegion) => region.region_id === changeObject[key])[0].region_abbreviation;
+												}
 												break;
 
 										}

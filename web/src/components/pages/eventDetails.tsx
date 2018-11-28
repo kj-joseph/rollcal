@@ -1,4 +1,5 @@
 import React from "react";
+import FormatText from "react-format-text";
 import { Link } from "react-router-dom";
 
 import axios from "axios";
@@ -124,7 +125,7 @@ export default class EventDetails extends React.Component<IProps> {
 
 
 								{(this.state.eventData.description) ?
-									<p>{this.state.eventData.description}</p>
+									<p><FormatText>{this.state.eventData.description}</FormatText></p>
 									: ""
 								}
 
@@ -168,7 +169,7 @@ export default class EventDetails extends React.Component<IProps> {
 												<dt><strong>{day.date}:</strong>{day.startTime}
 													{day.doorsTime ? ` (Doors: ${day.doorsTime})` : ""}
 												</dt>
-												<dd>{day.description}</dd>
+												<dd><FormatText>{day.description}</FormatText></dd>
 											</React.Fragment>
 										))}
 										</dl>
