@@ -857,14 +857,22 @@ export default class Search extends React.Component<IProps> {
 			searchURL += `/${this.state.endDate.format("Y-MM-DD")}`;
 		}
 
-		if (this.state.selectedCountries.length) {
+		if (this.state.locationTab === "locations" && this.state.selectedCountries.length) {
 
-			queryParts.push("locations(" + this.state.selectedCountries.map((c: IGeoCountry) =>
+			queryParts.push(`locations(${
+				this.state.selectedCountries.map((c: IGeoCountry) =>
 				c.country_code
 				+ (this.state.selectedRegions[c.country_code] ?
 					"-" + this.state.selectedRegions[c.country_code]
 							.map((reg: IGeoRegion) => (reg.region_id)).join("+")
-					: "")).join(",") + ")");
+					: "")).join(",")
+				})`);
+
+		} else if (this.state.locationTab === "distance") {
+
+			queryParts.push(`distance(${this.state.address1}~${this.state.addressCity}~${this.state.addressCountry.country_code
+				}~${this.state.addressRegion.region_abbreviation || ""}|${this.state.addressPostal || ""
+				}~${this.state.searchDistance}~${this.state.distanceUnits})`);
 
 		}
 
