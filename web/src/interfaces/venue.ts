@@ -12,7 +12,7 @@ export interface IDBDerbyVenue {
 	venue_id: number;
 	venue_lat?: number;
 	venue_link?: string;
-	venue_lon?: number;
+	venue_lng?: number;
 	venue_name: string;
 	venue_postcode?: string;
 	venue_region?: number;
@@ -37,10 +37,8 @@ export interface IDerbyVenue {
 	countryName?: string;
 	description?: string;
 	id: number;
-	lat?: number;
 	link?: string;
 	location?: string;
-	lon?: number;
 	name: string;
 	postcode: string;
 	region: number | string;

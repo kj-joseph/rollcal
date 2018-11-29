@@ -37,8 +37,11 @@ export interface IDBDerbyEvent {
 	venue_city: string;
 	venue_country: string;
 	venue_description?: string;
+	venue_distance: number;
 	venue_id: number;
+	venue_lat?: number;
 	venue_link?: string;
+	venue_lng?: number;
 	venue_name: string;
 	venue_postcode: string;
 	venue_region: number;
@@ -79,6 +82,7 @@ export interface IDerbyEvent {
 	username?: string;
 	venue?: number;
 	venueDescription?: string;
+	venueDistance?: string;
 	venueLink?: string;
 	venueLocation?: string;
 	venueName?: string;
@@ -167,4 +171,12 @@ export interface IDerbyEventDayFormatted {
 	sortValue?: string;
 	startTime: string;
 	description?: string;
+}
+
+export interface ISearchAddress {
+	address1: string;
+	city: string;
+	country: string;
+	postcode?: string;
+	region?: string;
 }

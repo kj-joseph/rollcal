@@ -2,6 +2,21 @@
 
 	.searchDatesLocations {
 		min-width: 240px;
+		margin-bottom: 3em;
+
+		.locationTabs {
+
+			span {
+				margin-left: 1em;
+				cursor: pointer;
+
+				&.activeTab {
+					color: $pink;
+					font-weight: bold;
+				}
+			}
+
+		}
 
 		.searchDates {
 			min-width: 240px;
@@ -22,72 +37,83 @@
 
 		}
 
+		.locationButton {
+			margin: .2em 0 .8em;
+
+			button:disabled {
+				opacity: 0;
+			}
+		}
+
+		.searchSelectCountries {
+			z-index: 65
+		}
+
+		.searchSelectRegions {
+			z-index: 62
+		}
+
 		.searchLocations {
 			min-width: 240px;
 			max-width: 400px;
-			margin-bottom: 2em;
 
-			.searchSelectCountries {
-				z-index: 65
-			}
+			.selectedLocationsContainer {
+				margin-top: 1em;
+				padding-bottom: 10px;
+				border: 1px solid $blue;
 
-			.searchSelectRegions {
-				z-index: 62
-			}
-
-			.selectedLocationsHeader {
-				font-size: 1.4rem;
-				margin: 1.5em 0 .5em;
-			}
-
-			.selectChoiceText {
-				font-size: 1.4rem;
-				margin-bottom: .3em;
-			}
-
-			.locationButton {
-				margin: .2em 0 .8em;
-
-				button:disabled {
-					opacity: 0;
+				.selectedLocationsHeader {
+					font-size: 1.4rem;
+					color: $white;
+					font-weight: bold;
+					margin-bottom: 10px;
+					padding: 3px 10px;
+					background: $blue;
 				}
-			}
 
-			ul.selectedLocations {
+				ul.selectedLocations {
+					margin: 0 10px;
 
-				li {
-					margin-bottom: .6em;
+					li {
+						margin-bottom: .6em;
 
-					ul {
-						margin: .2em 0 0 1em;
-
-						li {
-							margin-bottom: .2em;
+						&:last-child {
+							margin-bottom: 0;
 						}
+
+						ul {
+							margin: .2em 0 0 1em;
+
+							li {
+								margin-bottom: .2em;
+							}
+						}
+
 					}
 
-				}
-
-				.removeGeoButton {
-					display: inline;
-					margin-left: .75em;
-
-					div {
+					.removeGeoButton {
 						display: inline;
-					}
+						margin-left: .75em;
 
-					svg {
-						fill: $blue;
-						height: 1.2em;
-						margin-bottom: .2em;
-						vertical-align: middle;
+						div {
+							display: inline;
+						}
 
-						&:hover {
-							fill: $pink;
+						svg {
+							fill: $blue;
+							height: 1.2em;
+							margin-bottom: .2em;
+							vertical-align: middle;
+
+							&:hover {
+								fill: $pink;
+							}
 						}
 					}
 				}
 			}
+
+
 		}
 
 	}
@@ -103,7 +129,6 @@
 
 		.label {
 			display: block;
-			color: $blue;
 			font-weight: bold;
 			margin-bottom: .5em;
 		}

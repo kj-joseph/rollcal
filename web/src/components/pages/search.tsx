@@ -22,6 +22,11 @@ import RemoveRegionButton from "components/partials/removeRegionButton";
 import { formatDateRange } from "components/lib/dateTime";
 
 interface ISearchState {
+	address1: string;
+	addressCity: string;
+	addressCountry: IGeoCountry;
+	addressPostal: string;
+	addressRegion: IGeoRegion;
 	countryList: IGeoCountry[];
 	countrySelectValue: IGeoCountry;
 	dateRangeDisplay: string;
@@ -29,9 +34,11 @@ interface ISearchState {
 	eventFeatures: IDerbyFeatures;
 	focusedInput: FocusedInputShape;
 	loading: boolean;
+	locationTab: "distance" | "locations" | "none";
 	path: string;
 	regionLists: IGeoRegionList;
 	regionSelectValue: IGeoRegion;
+	searchDistance: number;
 	selectedCountries: IGeoCountry[];
 	selectedEventFeatures: string[];
 	selectedRegions: IGeoRegionList;
@@ -41,6 +48,11 @@ interface ISearchState {
 export default class Search extends React.Component<IProps> {
 
 	state: ISearchState = {
+		address1: "",
+		addressCity: "",
+		addressCountry: {} as IGeoCountry,
+		addressPostal: "",
+		addressRegion: {} as IGeoRegion,
 		countryList: [],
 		countrySelectValue: {} as IGeoCountry,
 		dateRangeDisplay: formatDateRange({
@@ -50,9 +62,11 @@ export default class Search extends React.Component<IProps> {
 		eventFeatures: {} as IDerbyFeatures,
 		focusedInput: "startDate",
 		loading: true,
+		locationTab: "none",
 		path: null,
 		regionLists: {},
 		regionSelectValue: {} as IGeoRegion,
+		searchDistance: 0,
 		selectedCountries: [],
 		selectedEventFeatures: [],
 		selectedRegions: {} as IGeoRegionList,
@@ -68,12 +82,16 @@ export default class Search extends React.Component<IProps> {
 		this.addLocationCountry = this.addLocationCountry.bind(this);
 		this.addLocationRegion = this.addLocationRegion.bind(this);
 		this.changeCountrySelect = this.changeCountrySelect.bind(this);
+		this.changeLocationTab = this.changeLocationTab.bind(this);
 		this.changeRegionSelect = this.changeRegionSelect.bind(this);
 		this.clearDates = this.clearDates.bind(this);
 		this.determineStartMonth = this.determineStartMonth.bind(this);
 		this.getCountryOptionLabel = this.getCountryOptionLabel.bind(this);
 		this.getRegionOptionLabel = this.getRegionOptionLabel.bind(this);
+		this.handleAddressCountryChange = this.handleAddressCountryChange.bind(this);
+		this.handleAddressRegionChange = this.handleAddressRegionChange.bind(this);
 		this.handleFocusChange = this.handleFocusChange.bind(this);
+		this.handleInputChange = this.handleInputChange.bind(this);
 		this.isBeforeToday = this.isBeforeToday.bind(this);
 		this.isCountryOptionDisabled = this.isCountryOptionDisabled.bind(this);
 		this.isRegionOptionDisabled = this.isRegionOptionDisabled.bind(this);
@@ -125,6 +143,7 @@ export default class Search extends React.Component<IProps> {
 					<React.Fragment>
 						<div className="searchForm">
 							<div className="searchDatesLocations">
+
 								<div className="searchDates">
 									<p className="dateRange">
 										<strong>Filter by Date:</strong>
@@ -158,139 +177,288 @@ export default class Search extends React.Component<IProps> {
 
 								</div>
 
-								<div className="searchLocations">
-									<p><strong>Filter by Location</strong></p>
+								<p className="locationTabs">
+									<strong>Filter Location by:</strong><br />
+									<span
+										className={this.state.locationTab === "locations" ? "activeTab" : ""}
+										data-tab="locations"
+										onClick={this.changeLocationTab}
+									>
+										Country/Region
+									</span>
+									<span
+										className={this.state.locationTab === "distance" ? "activeTab" : ""}
+										data-tab="distance"
+										onClick={this.changeLocationTab}
+									>
+										Distance
+									</span>
+									<span
+										className={this.state.locationTab === "none" ? "activeTab" : ""}
+										data-tab="none"
+										onClick={this.changeLocationTab}
+									>
+										None
+									</span>
+								</p>
 
-									<Select
-										className="Select searchSelectCountries"
-										classNamePrefix="Select"
-										name="search-countries"
-										value={this.state.countrySelectValue}
-										onChange={this.changeCountrySelect}
-										options={this.state.countryList}
-										isOptionDisabled={this.isCountryOptionDisabled}
-										getOptionLabel={this.getCountryOptionLabel}
-										isSearchable={true}
-										isClearable={true}
-									/>
+								{this.state.locationTab === "locations" ?
 
-									{true || this.state.countrySelectValue ?
-										<div className="locationButton">
-											<button
-												className="smallButton"
-												disabled={!this.state.countrySelectValue
-													|| !this.state.countrySelectValue.country_name
-													|| !!this.state.selectedRegions[this.state.countrySelectValue.country_code]}
-												onClick={this.addLocationCountry}
-											>
-												Add {this.state.countrySelectValue ? this.state.countrySelectValue.country_name : ""} to Location List
-											</button>
-										</div>
-									: ""
-									}
+									<div className="searchLocations">
 
-									{(this.state.countrySelectValue && this.state.regionLists[this.state.countrySelectValue.country_code]) ?
+										<p className="info">
+											To search events by country or region (e.g., state or province), search below then click the button to add to your filter list.
+										</p>
 
-										<React.Fragment>
-											<p className="selectChoiceText">or select a {this.state.countrySelectValue.country_region_type}:</p>
+										<div className="formInput">
+											<label htmlFor="searchSelectCountries">Select a country:</label>
 											<Select
-												className="Select searchSelectRegions"
+												className="Select searchSelectCountries"
 												classNamePrefix="Select"
-												name="search-countries"
-												value={this.state.regionSelectValue}
-												isDisabled={!(this.state.countrySelectValue && this.state.regionLists[this.state.countrySelectValue.country_code])}
-												onChange={this.changeRegionSelect}
-												options={this.state.countrySelectValue
-													&& this.state.countrySelectValue.country_code
-													&& this.state.regionLists[this.state.countrySelectValue.country_code]
-													? this.state.regionLists[this.state.countrySelectValue.country_code]
-													: []}
-												isOptionDisabled={this.isRegionOptionDisabled}
-												getOptionLabel={this.getRegionOptionLabel}
+												id="searchSelectCountries"
+												name="searchSelectCountries"
+												value={this.state.countrySelectValue}
+												onChange={this.changeCountrySelect}
+												options={this.state.countryList}
+												isOptionDisabled={this.isCountryOptionDisabled}
+												getOptionLabel={this.getCountryOptionLabel}
 												isSearchable={true}
 												isClearable={true}
 											/>
-										{true || this.state.regionSelectValue ?
+										</div>
+
+										{true || this.state.countrySelectValue ?
 											<div className="locationButton">
 												<button
 													className="smallButton"
-													disabled={!this.state.regionSelectValue ||
-														!this.state.regionSelectValue.region_id}
-													onClick={this.addLocationRegion}
+													disabled={!this.state.countrySelectValue
+														|| !this.state.countrySelectValue.country_name
+														|| !!this.state.selectedRegions[this.state.countrySelectValue.country_code]}
+													onClick={this.addLocationCountry}
 												>
-													Add {this.state.regionSelectValue ? this.state.regionSelectValue.region_name : ""} to Location List
+													Add {this.state.countrySelectValue ? this.state.countrySelectValue.country_name : ""} to Location List
 												</button>
 											</div>
 										: ""
 										}
-										</React.Fragment>
 
-									: ""
-									}
+										{(this.state.countrySelectValue && this.state.regionLists[this.state.countrySelectValue.country_code]) ?
 
-									<p className="selectedLocationsHeader"><strong>Selected Locations</strong></p>
-
-									<ul className="selectedLocations">
-										{!this.state.selectedCountries.length ?
-											<li>All</li>
-										:
 											<React.Fragment>
-												{this.state.selectedCountries.sort((a: IGeoCountry, b: IGeoCountry) => {
-													if (a.country_name < b.country_name) {
-														return -1;
-													} else if (a.country_name > b.country_name) {
-														return 1;
-													} else {
-														return 0;
-													}
-												}).map((country: IGeoCountry) => (
-													<li key={country.country_code}>
-														{country.country_name} <span title={country.country_name} className={"flag-icon flag-icon-" + country.country_flag} />
-														<RemoveCountryButton
-															code={country.country_code}
-															name={country.country_name}
-															onButtonClick={this.removeLocation}
-														/>
-														{this.state.selectedRegions[country.country_code] ?
-															<ul className={"selectedRegions" + country.country_code}>
-															{this.state.selectedRegions[country.country_code].sort((a: IGeoRegion, b: IGeoRegion) => {
-																if (a.region_name < b.region_name) {
-																	return -1;
-																} else if (a.region_name > b.region_name) {
-																	return 1;
-																} else {
-																	return 0;
-																}
-															}).map((region: IGeoRegion) => (
-																<li key={region.region_id}>
-																	{region.region_name}
-																	<RemoveRegionButton
-																		country={region.region_country}
-																		id={region.region_id}
-																		name={region.region_name}
-																		onButtonClick={this.removeLocation}
-																	/>
-
-																</li>
-															))}
-															</ul>
-														: ""
-														}
-
-													</li>
-												))}
+												<div className="formInput">
+												<label htmlFor="searchSelectRegions">or select a {this.state.countrySelectValue.country_region_type}:</label>
+												<Select
+													className="Select searchSelectRegions"
+													classNamePrefix="Select"
+													id="searchSelectRegions"
+													name="searchSelectRegions"
+													value={this.state.regionSelectValue}
+													isDisabled={!(this.state.countrySelectValue && this.state.regionLists[this.state.countrySelectValue.country_code])}
+													onChange={this.changeRegionSelect}
+													options={this.state.countrySelectValue
+														&& this.state.countrySelectValue.country_code
+														&& this.state.regionLists[this.state.countrySelectValue.country_code]
+														? this.state.regionLists[this.state.countrySelectValue.country_code]
+														: []}
+													isOptionDisabled={this.isRegionOptionDisabled}
+													getOptionLabel={this.getRegionOptionLabel}
+													isSearchable={true}
+													isClearable={true}
+												/>
+												</div>
+											{true || this.state.regionSelectValue ?
+												<div className="locationButton">
+													<button
+														className="smallButton"
+														disabled={!this.state.regionSelectValue ||
+															!this.state.regionSelectValue.region_id}
+														onClick={this.addLocationRegion}
+													>
+														Add {this.state.regionSelectValue ? this.state.regionSelectValue.region_name : ""} to Location List
+													</button>
+												</div>
+											: ""
+											}
 											</React.Fragment>
+
+										: ""
 										}
-									</ul>
-								</div>
+
+										<div className="selectedLocationsContainer">
+
+											<p className="selectedLocationsHeader">Selected Locations</p>
+
+											<ul className="selectedLocations">
+												{!this.state.selectedCountries.length ?
+													<li>All</li>
+												:
+													<React.Fragment>
+														{this.state.selectedCountries.sort((a: IGeoCountry, b: IGeoCountry) => {
+															if (a.country_name < b.country_name) {
+																return -1;
+															} else if (a.country_name > b.country_name) {
+																return 1;
+															} else {
+																return 0;
+															}
+														}).map((country: IGeoCountry) => (
+															<li key={country.country_code}>
+																{country.country_name} <span title={country.country_name} className={"flag-icon flag-icon-" + country.country_flag} />
+																<RemoveCountryButton
+																	code={country.country_code}
+																	name={country.country_name}
+																	onButtonClick={this.removeLocation}
+																/>
+																{this.state.selectedRegions[country.country_code] ?
+																	<ul className={"selectedRegions" + country.country_code}>
+																	{this.state.selectedRegions[country.country_code].sort((a: IGeoRegion, b: IGeoRegion) => {
+																		if (a.region_name < b.region_name) {
+																			return -1;
+																		} else if (a.region_name > b.region_name) {
+																			return 1;
+																		} else {
+																			return 0;
+																		}
+																	}).map((region: IGeoRegion) => (
+																		<li key={region.region_id}>
+																			{region.region_name}
+																			<RemoveRegionButton
+																				country={region.region_country}
+																				id={region.region_id}
+																				name={region.region_name}
+																				onButtonClick={this.removeLocation}
+																			/>
+
+																		</li>
+																	))}
+																	</ul>
+																: ""
+																}
+
+															</li>
+														))}
+													</React.Fragment>
+												}
+											</ul>
+
+										</div>
+
+									</div>
+
+								: this.state.locationTab === "distance" ?
+
+									<div className="formSection">
+
+										<div className="inputGroup half">
+											<label htmlFor="searchDistance">Distance</label>
+											<input
+												id="searchDistance"
+												name="searchDistance"
+												type="number"
+												min="1"
+												max="10000"
+												required={true}
+												value={this.state.searchDistance}
+												onChange={this.handleInputChange}
+											/>
+										</div>
+
+										<div className="inputGroup half">
+											miles from:
+										</div>
+
+										<div className="inputGroup">
+											<label htmlFor="address1">Street Address</label>
+											<input
+												id="address1"
+												name="address1"
+												type="text"
+												required={true}
+												value={this.state.address1}
+												onChange={this.handleInputChange}
+											/>
+										</div>
+
+										<div className="inputGroup">
+											<label htmlFor="addressCity">City</label>
+											<input
+												id="addressCity"
+												name="addressCity"
+												type="addressCity"
+												required={true}
+												value={this.state.addressCity}
+												onChange={this.handleInputChange}
+											/>
+										</div>
+
+										<div className="inputGroup">
+											<label htmlFor="addressCountry">Country</label>
+											<Select
+												id="addressCountry"
+												name="addressCountry"
+												className="Select searchSelectCountries"
+												classNamePrefix="Select"
+												value={this.state.addressCountry}
+												onChange={this.handleAddressCountryChange}
+												options={this.state.countryList}
+												getOptionLabel={this.getCountryOptionLabel}
+												isSearchable={true}
+												isClearable={true}
+											/>
+										</div>
+
+										{(this.state.addressCountry
+											&& this.state.addressCountry.country_code
+											&& this.state.regionLists[this.state.addressCountry.country_code]) ?
+
+											<div className="inputGroup">
+												<label htmlFor="addressRegion">{this.state.addressCountry.country_region_type}</label>
+												<Select
+													id="addressRegion"
+													name="addressRegion"
+													className="Select searchSelectRegions"
+													classNamePrefix="Select"
+													value={this.state.addressRegion}
+													onChange={this.handleAddressRegionChange}
+													options={this.state.addressCountry
+														&& this.state.addressCountry.country_code
+														&& this.state.regionLists[this.state.addressCountry.country_code]
+														? this.state.regionLists[this.state.addressCountry.country_code]
+														: []}
+													getOptionLabel={this.getRegionOptionLabel}
+													isSearchable={true}
+													isClearable={true}
+												/>
+											</div>
+
+										: ""}
+
+										<div className="inputGroup">
+											<label htmlFor="addressPostal">Postal Code <em>(optional)</em></label>
+											<input
+												id="addressPostal"
+												name="addressPostal"
+												type="text"
+												required={false}
+												value={this.state.addressPostal}
+												onChange={this.handleInputChange}
+											/>
+										</div>
+
+									</div>
+
+								: ""}
+
 							</div>
 
-							{this.state.eventFeatures.tracks ?
+							{this.state.eventFeatures.tracks.length
+								&& this.state.eventFeatures.derbytypes.length
+								&& this.state.eventFeatures.sanctions.length ?
 								<div className="derbyFeatures">
 
 									{(this.state.eventFeatures.tracks.length ?
 										<span className="eventIconGroup eventIconTracks">
-											<span className="label">Filter Tracks</span>
+											<span className="label">Filter Tracks:</span>
 											{this.state.eventFeatures.tracks.map((icon: IDerbyTrack) => (
 												<FeatureIcon
 													imageClass={this.state.selectedEventFeatures.indexOf("track-" + icon.track_id) > -1 ? "selected" : ""}
@@ -307,7 +475,7 @@ export default class Search extends React.Component<IProps> {
 
 									{(this.state.eventFeatures.derbytypes.length ?
 										<span className="eventIconGroup eventIconDerbytypes">
-											<span className="label">Filter Derby Types</span>
+											<span className="label">Filter Derby Types:</span>
 											{this.state.eventFeatures.derbytypes.map((icon: IDerbyType) => (
 												<FeatureIcon
 													imageClass={this.state.selectedEventFeatures.indexOf("derbytype-" + icon.derbytype_id) > -1 ? "selected" : ""}
@@ -324,7 +492,7 @@ export default class Search extends React.Component<IProps> {
 
 									{(this.state.eventFeatures.sanctions.length ?
 										<span className="eventIconGroup eventIconSanctions">
-											<span className="label">Filter Sanctions</span>
+											<span className="label">Filter Sanctions:</span>
 											{this.state.eventFeatures.sanctions.map((icon: IDerbySanction) => (
 												<FeatureIcon
 													imageClass={this.state.selectedEventFeatures.indexOf("sanction-" + icon.sanction_id) > -1 ? "selected" : ""}
@@ -345,7 +513,21 @@ export default class Search extends React.Component<IProps> {
 						</div>
 
 						<div className="searchButtons">
-							<button className="largeButton" onClick={this.submitSearch}>Search</button>
+							<button
+								className="largeButton"
+								onClick={this.submitSearch}
+								disabled={
+									this.state.locationTab === "distance"
+									&& (!this.state.address1
+										|| !this.state.addressCity
+										|| !this.state.addressCountry.country_code
+										|| (this.state.addressCountry.country_region_type
+											&& !this.state.addressRegion.region_id)
+										)
+								}
+							>
+								Search
+							</button>
 						</div>
 
 					</React.Fragment>
@@ -406,6 +588,16 @@ export default class Search extends React.Component<IProps> {
 		this.setState({
 			countrySelectValue: Object.assign({disabled: true}, country) || {} as IGeoCountry,
 			regionSelectValue: {} as IGeoRegion,
+		});
+
+	}
+
+	changeLocationTab(event: React.MouseEvent<HTMLSpanElement>) {
+
+		event.preventDefault();
+
+		this.setState({
+			locationTab: event.currentTarget.dataset.tab,
 		});
 
 	}
@@ -532,6 +724,34 @@ export default class Search extends React.Component<IProps> {
 		this.setState({
 			selectedEventFeatures,
 		});
+
+	}
+
+	handleAddressCountryChange(country: IGeoCountry) {
+
+		this.setState({
+			addressCountry: country || {} as IGeoCountry,
+			addressRegion: {} as IGeoRegion,
+		});
+
+	}
+
+	handleAddressRegionChange(region: IGeoRegion) {
+
+		this.setState({
+			addressRegion: region || {} as IGeoRegion,
+		});
+
+	}
+
+	handleInputChange <T extends keyof ISearchState>(event: React.ChangeEvent<HTMLInputElement>) {
+
+		const fieldName: (keyof ISearchState) = event.currentTarget.name as (keyof ISearchState);
+		const newState = {
+			[fieldName]: event.currentTarget.value,
+		};
+
+		this.setState(newState as { [P in T]: ISearchState[P]; });
 
 	}
 
@@ -746,6 +966,10 @@ export default class Search extends React.Component<IProps> {
 
 							switch (label) {
 								case "locations":
+
+									this.setState({
+										locationTab: "locations",
+									});
 
 									for (const countryItem of value.split(",")) {
 										const [country, regions] = countryItem.split("-");
