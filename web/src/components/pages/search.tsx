@@ -772,8 +772,24 @@ export default class Search extends React.Component<IProps> {
 	handleInputChange <T extends keyof ISearchState>(event: React.ChangeEvent<HTMLInputElement>) {
 
 		const fieldName: (keyof ISearchState) = event.currentTarget.name as (keyof ISearchState);
+		let value = event.currentTarget.value;
+
+		if (event.currentTarget.type === "number") {
+
+			if (event.currentTarget.value && event.currentTarget.min && Number(event.currentTarget.value) < Number(event.currentTarget.min)) {
+
+				value = event.currentTarget.min;
+
+			} else if (event.currentTarget.max && Number(event.currentTarget.value) > Number(event.currentTarget.max)) {
+
+				value = event.currentTarget.max;
+
+			}
+
+		}
+
 		const newState = {
-			[fieldName]: event.currentTarget.value,
+			[fieldName]: value,
 		};
 
 		this.setState(newState as { [P in T]: ISearchState[P]; });

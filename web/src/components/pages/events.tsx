@@ -29,7 +29,6 @@ interface IEventsState {
 	searchDisplaySanctions: string;
 	searchDisplayTracks: string;
 	searchURL: string;
-
 }
 
 export default class Events extends React.Component<IProps> {
