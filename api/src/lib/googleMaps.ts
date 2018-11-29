@@ -1,19 +1,11 @@
-import { IAddressObject } from "interfaces";
-
 const mapsClient = require("@google/maps").createClient({
 	Promise,
 	key: process.env.GOOGLE_KEY_DEV || process.env.GOOGLE_KEY_PROD,
 });
 
-export const getGeocode = (addressObject: IAddressObject) => {
+export const getGeocode = (address: string) => {
 
 	if (mapsClient) {
-
-		const address = `${addressObject.address1}, ${addressObject.city}${
-			addressObject.region ? `, ${addressObject.region}` : ""
-		}${
-			addressObject.postcode ? ` ${addressObject.postcode}` : ""
-		}, ${addressObject.country}`;
 
 		return mapsClient.geocode({
 			address,

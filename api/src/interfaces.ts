@@ -1,13 +1,5 @@
 import { Request } from "express";
 
-export interface IAddressObject {
-	address1: string;
-	city: string;
-	country: string;
-	postcode?: string;
-	region?: string;
-}
-
 export interface IDBVenueAddress {
 	country_name: string;
 	region_abbreviation?: string;
