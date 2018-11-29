@@ -289,6 +289,7 @@ export default class Events extends React.Component<IProps> {
 								}
 
 								this.setState({
+									distanceUnits: units,
 									searchDisplayDistance: addressDisplay,
 								});
 
@@ -530,7 +531,9 @@ export default class Events extends React.Component<IProps> {
 										}, "long"),
 									days: null,
 									distance: eventResult.venue_distance ?
-										`${(eventResult.venue_distance * (this.state.distanceUnits === "km" ? this.props.kmConverter : 1)).toLocaleString()} ${this.state.distanceUnits}`
+										`${Math.round(
+											eventResult.venue_distance * (this.state.distanceUnits === "km" ? this.props.kmConverter : 1))
+											.toLocaleString()} ${this.state.distanceUnits}`
 										: null,
 									host: eventResult.event_name ? eventResult.event_host : null,
 									icons,
