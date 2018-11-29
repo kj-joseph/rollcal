@@ -1,20 +1,21 @@
-import { IVenueAddress } from "interfaces";
+import { IAddressObject } from "interfaces";
 
 const mapsClient = require("@google/maps").createClient({
 	Promise,
 	key: process.env.GOOGLE_KEY_DEV || process.env.GOOGLE_KEY_PROD,
 });
 
-export const getGeocode = (addressObject: IVenueAddress) => {
+export const getGeocode = (addressObject: IAddressObject) => {
 
 	if (mapsClient) {
 
-		const address = `${addressObject.venue_address1}${
-			addressObject.venue_address2 ? `, ${addressObject.venue_address2}` : ""
-		}, ${addressObject.venue_city}${
-			addressObject.region_abbreviation ? `, ${addressObject.region_abbreviation}` : ""
+		const address = `${addressObject.address1}${
+			addressObject.address2 ? `, ${addressObject.address2}` : ""
+		}, ${addressObject.city}${
+			addressObject.region ? `, ${addressObject.region}` : ""
 		}${
-			addressObject.venue_postcode ? ` ${addressObject.venue_postcode}, ${addressObject.country_name}` : ""}`;
+			addressObject.postcode ? ` ${addressObject.postcode}` : ""
+		}, ${addressObject.country}`;
 
 		return mapsClient.geocode({
 			address,

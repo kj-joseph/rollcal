@@ -2,9 +2,9 @@ import { Request, Response, Router } from "express";
 import multer from "multer";
 import { MysqlError } from "mysql";
 
-import { IGeocode, IRequestWithSession } from "interfaces";
-import { checkSession } from "lib/checkSession";
+import { IDBVenueAddress, IGeocode, IRequestWithSession } from "interfaces";
 
+import { checkSession } from "lib/checkSession";
 import { sendChangeApprovalEmail, sendChangeRejectionEmail } from "lib/email";
 import { getGeocode } from "lib/googleMaps";
 
@@ -187,21 +187,28 @@ router.post("/approveChange/:changeId", checkSession("reviewer"), (req: IRequest
 
 				} else {
 
-					getGeocode(results[1].map((row: {}) => ({...row}))[0])
-					.then((geocode: IGeocode) => {
+					getGeocode(results[1].map((row: {}) => ({...row})).map((venue: IDBVenueAddress) => ({
+						address1: venue.venue_address1,
+						address2: venue.venue_address2,
+						city: venue.venue_city,
+						country: venue.country_name,
+						postcode: venue.venue_postcode,
+						region: venue.region_abbreviation,
+					}))[0])
+						.then((geocode: IGeocode) => {
 
-						if (geocode) {
+							if (geocode) {
 
-							res.locals.connection
-								.query(`call saveVenueGeocode(
-									${res.locals.connection.escape(returnedData.venue_id)},
-									${res.locals.connection.escape(geocode.lat)},
-									${res.locals.connection.escape(geocode.lng)}
-									)`);
+								res.locals.connection
+									.query(`call saveVenueGeocode(
+										${res.locals.connection.escape(returnedData.venue_id)},
+										${res.locals.connection.escape(geocode.lat)},
+										${res.locals.connection.escape(geocode.lng)}
+										)`);
 
-						}
+							}
 
-					});
+						});
 
 					sendChangeApprovalEmail
 						(returnedData.email, returnedData.username, req.params.changeId, "venue", returnedData.isNew, returnedData.venue_name)
