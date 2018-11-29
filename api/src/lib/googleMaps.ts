@@ -9,9 +9,7 @@ export const getGeocode = (addressObject: IAddressObject) => {
 
 	if (mapsClient) {
 
-		const address = `${addressObject.address1}${
-			addressObject.address2 ? `, ${addressObject.address2}` : ""
-		}, ${addressObject.city}${
+		const address = `${addressObject.address1}, ${addressObject.city}${
 			addressObject.region ? `, ${addressObject.region}` : ""
 		}${
 			addressObject.postcode ? ` ${addressObject.postcode}` : ""

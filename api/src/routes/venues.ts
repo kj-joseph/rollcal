@@ -189,7 +189,6 @@ router.post("/approveChange/:changeId", checkSession("reviewer"), (req: IRequest
 
 					getGeocode(results[1].map((row: {}) => ({...row})).map((venue: IDBVenueAddress) => ({
 						address1: venue.venue_address1,
-						address2: venue.venue_address2,
 						city: venue.venue_city,
 						country: venue.country_name,
 						postcode: venue.venue_postcode,
