@@ -43,7 +43,7 @@ export interface IReduxStore {
 	dataSanctions: IDerbySanction[];
 	dataTracks: IDerbyTrack[];
 	lastSearch: string;
-	listPageLength: 9;
+	listPageLength: number;
 	loggedIn: false;
 	loggedInUserEmail: string;
 	loggedInUserId: number;
