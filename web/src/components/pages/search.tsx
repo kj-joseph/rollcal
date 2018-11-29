@@ -1046,6 +1046,25 @@ export default class Search extends React.Component<IProps> {
 
 									break;
 
+								case "distance":
+
+									const [address1, city, countryCode, regionAbbr, postal, distanceString, units] = value.split("~");
+
+									this.setState({
+										address1,
+										addressCity: city,
+										addressCountry: countryList.filter((c) => c.country_code === countryCode)[0],
+										addressPostal: postal,
+										addressRegion: regionAbbr ?
+											regionLists[countryCode].filter((r) => r.region_abbreviation === regionAbbr)[0]
+											: {} as IGeoRegion,
+										distanceUnits: units,
+										locationTab: "distance",
+										searchDistance: Number(distanceString),
+									});
+
+									break;
+
 								case "tracks":
 								case "derbytypes":
 								case "sanctions":
