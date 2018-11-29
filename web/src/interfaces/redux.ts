@@ -42,6 +42,7 @@ export interface IReduxStore {
 	dataGeography: IGeoData;
 	dataSanctions: IDerbySanction[];
 	dataTracks: IDerbyTrack[];
+	kmConverter: number;
 	lastSearch: string;
 	listPageLength: number;
 	loggedIn: false;

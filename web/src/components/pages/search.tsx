@@ -871,7 +871,7 @@ export default class Search extends React.Component<IProps> {
 		} else if (this.state.locationTab === "distance") {
 
 			queryParts.push(`distance(${this.state.address1}~${this.state.addressCity}~${this.state.addressCountry.country_code
-				}~${this.state.addressRegion.region_abbreviation || ""}|${this.state.addressPostal || ""
+				}~${this.state.addressRegion.region_abbreviation || ""}~${this.state.addressPostal || ""
 				}~${this.state.searchDistance}~${this.state.distanceUnits})`);
 
 		}

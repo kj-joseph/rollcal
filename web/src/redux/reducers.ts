@@ -10,6 +10,7 @@ const initialState: IReduxStore = {
 	} as IGeoData,
 	dataSanctions: [],
 	dataTracks: [],
+	kmConverter: 1.60934,
 	lastSearch: "",
 	listPageLength: 9,
 	loggedIn: false,

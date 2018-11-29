@@ -10,6 +10,7 @@ export interface IBoxListItem {
 	countryName?: string;
 	datesVenue?: string;
 	days?: moment.Moment[];
+	distance?: string;
 	host?: string;
 	icons?: IDerbyIcons;
 	id?: number;
