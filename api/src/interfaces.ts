@@ -1,7 +1,7 @@
 import { Request } from "express";
 
 export interface IDBVenueAddress {
-	country_name: string;
+	country_flag: string;
 	region_abbreviation?: string;
 	venue_address1: string;
 	venue_city: string;

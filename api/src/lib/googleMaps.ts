@@ -3,13 +3,22 @@ const mapsClient = require("@google/maps").createClient({
 	key: process.env.GOOGLE_KEY_DEV || process.env.GOOGLE_KEY_PROD,
 });
 
-export const getGeocode = (address: string) => {
+export const getGeocode = (address: string, country?: string) => {
 
 	if (mapsClient) {
 
-		return mapsClient.geocode({
+		const geoCodeObject: {
+			address: string,
+			country?: string,
+		} = {
 			address,
-		}).asPromise()
+		};
+
+		if (country && country.length === 2) {
+			geoCodeObject.country = country;
+		}
+
+		return mapsClient.geocode(geoCodeObject).asPromise()
 			.then((response: any) => {
 
 				if (response.json.results[0]

@@ -187,13 +187,15 @@ router.post("/approveChange/:changeId", checkSession("reviewer"), (req: IRequest
 
 				} else {
 
-					getGeocode(results[1].map((row: {}) => ({...row})).map((venue: IDBVenueAddress) => (
+					const venue: IDBVenueAddress = results[1].map((row: {}) => ({...row}))[0];
+
+					getGeocode(
 						`${venue.venue_address1}, ${venue.venue_city}${
 							venue.region_abbreviation ? `, ${venue.region_abbreviation}` : ""
 						}${
 							venue.venue_postcode ? ` ${venue.venue_postcode}` : ""
-						}, ${venue.country_name}`
-						))[0])
+						}`,
+						venue.country_flag)
 						.then((geocode: IGeocode) => {
 
 							if (geocode) {
