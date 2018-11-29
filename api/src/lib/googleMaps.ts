@@ -9,13 +9,17 @@ export const getGeocode = (address: string, country?: string) => {
 
 		const geoCodeObject: {
 			address: string,
-			country?: string,
+			components?: {
+				country: string,
+			},
 		} = {
 			address,
 		};
 
 		if (country && country.length === 2) {
-			geoCodeObject.country = country;
+			geoCodeObject.components = {
+				country,
+			};
 		}
 
 		return mapsClient.geocode(geoCodeObject).asPromise()
