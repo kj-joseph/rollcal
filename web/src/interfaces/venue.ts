@@ -34,6 +34,7 @@ export interface IDerbyVenue {
 	address2: string;
 	city: string;
 	country: string;
+	countryName?: string;
 	description?: string;
 	id: number;
 	lat?: number;
