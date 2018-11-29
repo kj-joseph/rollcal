@@ -89,7 +89,7 @@ router.get("/search", (req: Request, res: Response) => {
 
 	if (req.query.address && req.query.distance) {
 
-		getGeocode(JSON.parse(req.query.address))
+		getGeocode(req.query.address)
 			.then((geocode: IGeocode) => {
 
 				if (geocode) {
@@ -102,7 +102,9 @@ router.get("/search", (req: Request, res: Response) => {
 
 			}).catch((error: Error) => {
 				console.error(error);
+
 				geocodeError = true;
+				runSearchQuery();
 			});
 
 	} else {
