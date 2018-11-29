@@ -385,7 +385,7 @@ export default class Events extends React.Component<IProps> {
 					searchURL: `${this.props.apiLocation}events/search${queryStringDates}${queryStringParts.length ? `&${queryStringParts.join("&")}` : ""}`,
 				});
 
-				this.loadPage();
+				this.loadPage(null, false, true);
 
 			}).catch(() => {
 
@@ -404,9 +404,16 @@ export default class Events extends React.Component<IProps> {
 		this.loadPage(null, true);
 	}
 
-	loadPage(event?: React.MouseEvent<HTMLButtonElement>, loadAll = false) {
+	loadPage(event?: React.MouseEvent<HTMLButtonElement>, loadAll = false, clearEvents = false) {
 		if (event) {
 			event.preventDefault();
+		}
+
+		if (clearEvents) {
+			console.log("clear");
+			this.setState({
+				eventList: [],
+			});
 		}
 
 		this.setState({
@@ -421,7 +428,7 @@ export default class Events extends React.Component<IProps> {
 			.then((result) => {
 
 				const eventResults: IDBDerbyEvent[] = result.data.events;
-				const eventList: IBoxListItem[] = this.state.eventList || [];
+				const eventList: IBoxListItem[] = clearEvents ? [] : this.state.eventList || [];
 				const eventPromises: Array<Promise<any>> = [];
 				let promiseError = false;
 
