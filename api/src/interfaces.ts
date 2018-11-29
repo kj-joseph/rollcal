@@ -2,7 +2,6 @@ import { Request } from "express";
 
 export interface IAddressObject {
 	address1: string;
-	address2?: string;
 	city: string;
 	country: string;
 	postcode?: string;
@@ -13,7 +12,6 @@ export interface IDBVenueAddress {
 	country_name: string;
 	region_abbreviation?: string;
 	venue_address1: string;
-	venue_address2?: string;
 	venue_city: string;
 	venue_postcode?: string;
 }
