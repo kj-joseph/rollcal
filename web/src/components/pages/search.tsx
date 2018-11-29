@@ -30,6 +30,7 @@ interface ISearchState {
 	countryList: IGeoCountry[];
 	countrySelectValue: IGeoCountry;
 	dateRangeDisplay: string;
+	distanceUnits: "mi" | "km";
 	endDate: moment.Moment;
 	eventFeatures: IDerbyFeatures;
 	focusedInput: FocusedInputShape;
@@ -58,6 +59,7 @@ export default class Search extends React.Component<IProps> {
 		dateRangeDisplay: formatDateRange({
 			firstDay: moment(),
 		}),
+		distanceUnits: "mi",
 		endDate: null,
 		eventFeatures: {} as IDerbyFeatures,
 		focusedInput: "startDate",
@@ -84,6 +86,7 @@ export default class Search extends React.Component<IProps> {
 		this.changeCountrySelect = this.changeCountrySelect.bind(this);
 		this.changeLocationTab = this.changeLocationTab.bind(this);
 		this.changeRegionSelect = this.changeRegionSelect.bind(this);
+		this.changeUnits = this.changeUnits.bind(this);
 		this.clearDates = this.clearDates.bind(this);
 		this.determineStartMonth = this.determineStartMonth.bind(this);
 		this.getCountryOptionLabel = this.getCountryOptionLabel.bind(this);
@@ -350,7 +353,7 @@ export default class Search extends React.Component<IProps> {
 									<div className="formSection">
 
 										<div className="inputGroup half">
-											<label htmlFor="searchDistance">Distance</label>
+											<label htmlFor="searchDistance">Within</label>
 											<input
 												id="searchDistance"
 												name="searchDistance"
@@ -363,8 +366,20 @@ export default class Search extends React.Component<IProps> {
 											/>
 										</div>
 
-										<div className="inputGroup half">
-											miles from:
+										<div className="inputGroup half distanceUnits">
+											( <span
+												className={this.state.distanceUnits === "mi" ? "activeTab" : ""}
+												data-unit="mi"
+												onClick={this.changeUnits}
+											>
+												mi
+											</span> | <span
+												className={this.state.distanceUnits === "km" ? "activeTab" : ""}
+												data-unit="km"
+												onClick={this.changeUnits}
+											>
+												km
+											</span> ) of address:
 										</div>
 
 										<div className="inputGroup">
@@ -598,6 +613,16 @@ export default class Search extends React.Component<IProps> {
 
 		this.setState({
 			locationTab: event.currentTarget.dataset.tab,
+		});
+
+	}
+
+	changeUnits(event: React.MouseEvent<HTMLSpanElement>) {
+
+		event.preventDefault();
+
+		this.setState({
+			distanceUnits: event.currentTarget.dataset.unit,
 		});
 
 	}

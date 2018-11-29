@@ -13,6 +13,21 @@
 				&.activeTab {
 					color: $pink;
 					font-weight: bold;
+					cursor: default;
+				}
+			}
+
+		}
+
+		.distanceUnits {
+
+			span {
+				cursor: pointer;
+
+				&.activeTab {
+					color: $pink;
+					font-weight: bold;
+					cursor: default;
 				}
 			}
 
