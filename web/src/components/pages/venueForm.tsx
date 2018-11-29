@@ -228,7 +228,7 @@ export default class VenueForm extends React.Component<IProps> {
 										<label htmlFor="country">Country</label>
 										<Select
 											id="country"
-											name="search-countries"
+											name="country"
 											className="Select searchSelectCountries"
 											classNamePrefix="Select"
 											value={this.state.selectedCountry}
@@ -245,13 +245,12 @@ export default class VenueForm extends React.Component<IProps> {
 											<label htmlFor="region">{this.state.selectedCountry.country_region_type}</label>
 											<Select
 												id="region"
-												name="search-countries"
+												name="region"
 												className="Select searchSelectRegions"
 												classNamePrefix="Select"
 												value={this.state.selectedRegion}
 												onChange={this.handleRegionChange}
 												options={this.state.venueData.country
-													&& this.state.venueData.country
 													&& this.state.regionLists[this.state.venueData.country]
 													? this.state.regionLists[this.state.venueData.country]
 													: []}
