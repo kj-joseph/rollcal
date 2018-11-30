@@ -185,6 +185,10 @@ class ConnectedSiteRouter extends React.Component<IProps> {
 									component={EventsPage}
 								/>
 								<Route
+									path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:endDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(distance.*)"
+									component={EventsPage}
+								/>
+								<Route
 									path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:endDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(derbytypes.*)"
 									component={EventsPage}
 								/>
@@ -205,6 +209,10 @@ class ConnectedSiteRouter extends React.Component<IProps> {
 									component={EventsPage}
 								/>
 								<Route
+									path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(distance.*)"
+									component={EventsPage}
+								/>
+								<Route
 									path="/:startDate([0-9]{4}-[0-9]{2}-[0-9]{2})/:param1(derbytypes.*)"
 									component={EventsPage}
 								/>
@@ -222,6 +230,10 @@ class ConnectedSiteRouter extends React.Component<IProps> {
 								/>
 								<Route
 									path="/:param1(locations.*)"
+									component={EventsPage}
+								/>
+								<Route
+									path="/:param1(distance.*)"
 									component={EventsPage}
 								/>
 								<Route

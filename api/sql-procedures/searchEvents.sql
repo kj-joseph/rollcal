@@ -1,16 +1,18 @@
 BEGIN
 
-set @select = "select distinct e.*, c.*, vr.*, tz.timezone_zone, u.user_id, u.user_name";
+set @select = "select distinct e.*, c.*, v.*, tz.timezone_zone, u.user_id, u.user_name";
 
 set @from = "
 	from events e inner join eventdays on eventday_event = event_id,
 		countries c, timezones tz, users u,
-		(select * from venues left outer join regions on region_id = venue_region) vr
+		(select * from venues left outer join regions on region_id = venue_region) v
 	";
 
 set @where = "
-	where vr.venue_id = event_venue and country_code = vr.venue_country
-		and event_user = user_id and timezone_id = vr.venue_timezone
+	where v.venue_id = event_venue
+		and country_code = v.venue_country
+		and event_user = user_id
+		and timezone_id = v.venue_timezone
 	";
 
 set @group = " group by e.event_id";
@@ -48,8 +50,13 @@ if tracks != "" then
 		" and et.event = event_id and et.track in (", tracks, ")");
 end if;
 
-if locations != "" then
-	set @from = concat(@from, ", venues v");
+if lat and lng and distance then
+	set @select = concat(@select, ", getDistance(", lat, ",", lng, ", v.venue_lat, v.venue_lng) as venue_distance");
+	set @where = concat(@where, " and event_venue = v.venue_id
+		and getDistance(", lat, ",", lng, ", v.venue_lat, v.venue_lng) < ", distance, "
+		");
+
+elseif locations != "" then
 	set @where = concat(@where, " and event_venue = v.venue_id and (");
 	set @temp_locations = locations;
 

@@ -405,7 +405,7 @@ export default class EventForm<Props> extends React.Component<IProps> {
 														<label htmlFor="newVenueCountry">Country</label>
 														<Select
 															id="newVenueCountry"
-															name="search-countries"
+															name="newVenueCountry"
 															className="Select searchSelectCountries"
 															classNamePrefix="Select"
 															value={this.state.newVenueCountry}
@@ -422,7 +422,7 @@ export default class EventForm<Props> extends React.Component<IProps> {
 															<label htmlFor="newVenueRegion">{this.state.newVenueCountry.country_region_type}</label>
 															<Select
 																id="newVenueRegion"
-																name="search-countries"
+																name="newVenueRegion"
 																className="Select searchSelectRegions"
 																classNamePrefix="Select"
 																value={this.state.newVenueRegion}
@@ -1230,7 +1230,10 @@ export default class EventForm<Props> extends React.Component<IProps> {
 						})
 						.then((result) => {
 
-							if (result.data) {
+							if (result.data &&
+								(result.data.event_user === this.props.loggedInUserId
+									|| checkUserRole(this.props.loggedInUserRoles, "reviewer"))
+								) {
 
 								const eventResult: IDBDerbyEvent = result.data;
 

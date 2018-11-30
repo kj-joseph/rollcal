@@ -1,21 +1,23 @@
 export interface IDBDerbyVenue {
 	country_code?: string;
-	country_name?: string;
 	country_flag?: string;
+	country_name?: string;
 	region_abbreviation?: string;
 	region_name?: string;
-	venue_id: number;
-	venue_user: number;
-	venue_name: string;
 	venue_address1: string;
-	venue_address2: string;
+	venue_address2?: string;
 	venue_city: string;
-	venue_link: string;
-	venue_region: number;
-	venue_postcode: string;
 	venue_country: string;
 	venue_description?: string;
+	venue_id: number;
+	venue_lat?: number;
+	venue_link?: string;
+	venue_lng?: number;
+	venue_name: string;
+	venue_postcode?: string;
+	venue_region?: number;
 	venue_timezone: number;
+	venue_user: number;
 }
 
 export interface IDBDerbyVenueChange extends IDBDerbyVenue {
@@ -32,6 +34,7 @@ export interface IDerbyVenue {
 	address2: string;
 	city: string;
 	country: string;
+	countryName?: string;
 	description?: string;
 	id: number;
 	link?: string;

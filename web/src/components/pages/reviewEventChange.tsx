@@ -48,7 +48,7 @@ export default class ReviewEventChange extends React.Component<IProps> {
 		loading: true,
 		modalOpen: false,
 		path: null,
-		rejectComment: null,
+		rejectComment: "",
 		status: null,
 		userId: null,
 	};

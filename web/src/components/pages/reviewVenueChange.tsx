@@ -209,8 +209,8 @@ export default class ReviewVenueChange extends React.Component<IProps> {
 										: ""}<br />
 
 										<CompareValues
-											oldValue={this.state.venueData.country}
-											newValue={this.state.venueChanges.country}
+											oldValue={this.state.venueData.countryName}
+											newValue={this.state.venueChanges.countryName}
 											inline={true}
 										/>
 
@@ -470,7 +470,8 @@ export default class ReviewVenueChange extends React.Component<IProps> {
 								address1: venueResult.venue_address1,
 								address2: venueResult.venue_address2,
 								city: venueResult.venue_city,
-								country: venueResult.country_name,
+								country: venueResult.country_code,
+								countryName: venueResult.country_name,
 								description: venueResult.venue_description,
 								id: venueResult.venue_id,
 								link: venueResult.venue_link,
@@ -509,19 +510,20 @@ export default class ReviewVenueChange extends React.Component<IProps> {
 									switch (key) {
 
 										case "country":
-											venueChanges[key] = countryList.filter(
+											venueChanges.country = changeObject.country;
+											venueChanges.countryName = countryList.filter(
 												(country: IGeoCountry) => country.country_code === changeObject[key])[0].country_name;
 											break;
 
 										case "region":
-											if (changeObject[key] ) {
-												venueChanges[key] = regionLists[changeObject.country || venueData.country].filter(
+											if (changeObject.region) {
+												venueChanges.region = regionLists[changeObject.country || venueData.country].filter(
 													(region: IGeoRegion) => region.region_id === changeObject[key])[0].region_abbreviation;
 											}
 											break;
 
 										case "timezone":
-											venueChanges[key] = timeZones.filter(
+											venueChanges.timezone = timeZones.filter(
 												(tz: ITimeZone) => tz.timezone_id === changeObject[key])[0].timezone_name;
 											break;
 

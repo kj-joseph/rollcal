@@ -237,6 +237,14 @@ if @changeok = true then
 
 	commit;
 
+	select venue_address1, venue_address2, venue_city, country_flag, region_abbreviation, venue_postcode
+	from venues v
+		join countries c
+			on v.venue_country = c.country_code
+		left join regions r
+			on r.region_id = v.venue_region
+	where venue_id = @venueId;
+
 else
 
 	select "Change not found." as error;

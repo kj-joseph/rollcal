@@ -28,6 +28,7 @@
 		"webpack:stage": "webpack --config webpack.stage.js --mode production"
 	},
 	"dependencies": {
+		"@google/maps": "^0.5.5",
 		"axios": "^0.18.0",
 		"babel-polyfill": "^6.26.0",
 		"body-parser": "^1.18.3",
@@ -49,6 +50,7 @@
 		"@babel/preset-env": "^7.1.0",
 		"@babel/preset-typescript": "^7.1.0",
 		"@types/express": "^4.16.0",
+		"@types/googlemaps": "^3.30.16",
 		"@types/mysql": "^2.15.5",
 		"@types/node": "^10.11.7",
 		"@types/webpack-env": "^1.13.6",

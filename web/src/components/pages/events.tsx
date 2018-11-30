@@ -16,6 +16,7 @@ import BoxList from "components/partials/boxList";
 
 interface IEventsState {
 	dataError: boolean;
+	distanceUnits: "mi" | "km";
 	eventList: IBoxListItem[];
 	isSearch: string;
 	listItemsTotal: number;
@@ -25,17 +26,18 @@ interface IEventsState {
 	path: string;
 	searchDisplayDates: string;
 	searchDisplayDerbyTypes: string;
+	searchDisplayDistance: string;
 	searchDisplayLocations: string;
 	searchDisplaySanctions: string;
 	searchDisplayTracks: string;
 	searchURL: string;
-
 }
 
 export default class Events extends React.Component<IProps> {
 
 	state: IEventsState = {
 		dataError: false,
+		distanceUnits: "mi",
 		eventList: [],
 		isSearch: (this.props.match.params.startDate || window.location.pathname !== "/"),
 		listItemsTotal: 0,
@@ -45,6 +47,7 @@ export default class Events extends React.Component<IProps> {
 		path: null,
 		searchDisplayDates: null,
 		searchDisplayDerbyTypes: null,
+		searchDisplayDistance: null,
 		searchDisplayLocations: null,
 		searchDisplaySanctions: null,
 		searchDisplayTracks: null,
@@ -101,7 +104,11 @@ export default class Events extends React.Component<IProps> {
 						:
 						<div className="searchDisplay">
 							<p><strong>Dates:</strong> {this.state.searchDisplayDates}{this.props.match.params.endDate ? "" : " – (all)"}</p>
-							<p><strong>Locations:</strong> {}{this.state.searchDisplayLocations ? this.state.searchDisplayLocations : "all"}</p>
+							{this.state.searchDisplayDistance ?
+								<p><strong>Distance:</strong> {}{this.state.searchDisplayDistance}</p>
+							:
+								<p><strong>Locations:</strong> {}{this.state.searchDisplayLocations ? this.state.searchDisplayLocations : "all"}</p>
+							}
 							<p><strong>Derby Type(s):</strong> {}{this.state.searchDisplayDerbyTypes ? this.state.searchDisplayDerbyTypes : "all"}</p>
 							<p><strong>Sanctions:</strong> {}{this.state.searchDisplaySanctions ? this.state.searchDisplaySanctions : "all (or unsanctioned)"}</p>
 							<p><strong>Tracks:</strong> {}{this.state.searchDisplayTracks ? this.state.searchDisplayTracks : "all"}</p>
@@ -128,6 +135,7 @@ export default class Events extends React.Component<IProps> {
 
 						<BoxList
 							data={this.state.eventList}
+							distance={true}
 							itemType="events"
 							loadAllFunction={this.loadAll}
 							loadMoreFunction={this.loadPage}
@@ -174,7 +182,7 @@ export default class Events extends React.Component<IProps> {
 			for (const part of searchParts) {
 
 				if (!part
-					|| !part.match(/(?:locations|derbytypes|sanctions|tracks)\([^\)]+\)/) ) {
+					|| !part.match(/(?:locations|distance|derbytypes|sanctions|tracks)\([^\)]+\)/) ) {
 					continue;
 				}
 
@@ -248,39 +256,47 @@ export default class Events extends React.Component<IProps> {
 
 						break;
 
-					case "derbytypes":
+					case "distance":
 
-						promises.push(getDerbyTypes(
+						promises.push(getGeography(
 							this.props.apiLocation,
-							this.props.dataDerbyTypes,
-							this.props.saveDataDerbyTypes,
+							this.props.dataGeography,
+							this.props.saveDataGeography,
 							this.axiosSignal)
-							.then((dataResponse: IDerbyType[]) => {
+							.then((dataResponse: IGeoData) => {
 
-								const validTypes = dataResponse
-									.filter((dt: IDerbyType) => values.split(",").indexOf(dt.derbytype_id.toString()) > -1 );
+								const [address1, city, countryCode, regionAbbr, postal, distanceString, units] = values.split("~");
+
+								const addressQuery = `${address1}, ${city}${
+										regionAbbr ? `, ${regionAbbr}` : ""
+									}${
+										postal ? ` ${postal}` : ""
+									}`;
+
+								const addressDisplay = `within ${Number(distanceString).toLocaleString()} ${units} of
+									${address1}, ${city}${
+										regionAbbr ? `, ${regionAbbr}` : ""
+									}${
+										postal ? ` ${postal}` : ""
+									} ${countryCode}`;
+
+								let distanceMi = Number(distanceString);
+
+								if (units === "km") {
+
+									distanceMi /= this.props.kmConverter;
+
+								}
 
 								this.setState({
-									searchDisplayDerbyTypes: (validTypes.length === dataResponse.length ? null :
-										validTypes
-											.map((dt: IDerbyType) => dt.derbytype_name )
-											.sort()
-											.join(", "))});
+									distanceUnits: units,
+									searchDisplayDistance: addressDisplay,
+								});
 
-								if (validTypes.length) {
+								const countryName = dataResponse.countries.filter((c: IGeoCountry) => c.country_code === countryCode)[0].country_name;
 
-									queryStringParts.push("derbytypes="
-										+ validTypes
-											.map((dt: IDerbyType) => dt.derbytype_id )
-											.sort()
-											.join(","));
-
-									saveSearchParts.push("derbytypes("
-										+ validTypes
-											.map((dt: IDerbyType) => dt.derbytype_id )
-											.sort()
-											.join(",") + ")");
-								}
+								queryStringParts.push(`address=${addressQuery}`, `country=${countryName}`, `distance=${distanceMi}`);
+								saveSearchParts.push(`distance(${values})`);
 
 							}).catch((error) => {
 								console.error(error);
@@ -385,7 +401,7 @@ export default class Events extends React.Component<IProps> {
 					searchURL: `${this.props.apiLocation}events/search${queryStringDates}${queryStringParts.length ? `&${queryStringParts.join("&")}` : ""}`,
 				});
 
-				this.loadPage();
+				this.loadPage(null, false, true);
 
 			}).catch(() => {
 
@@ -404,9 +420,15 @@ export default class Events extends React.Component<IProps> {
 		this.loadPage(null, true);
 	}
 
-	loadPage(event?: React.MouseEvent<HTMLButtonElement>, loadAll = false) {
+	loadPage(event?: React.MouseEvent<HTMLButtonElement>, loadAll = false, clearEvents = false) {
 		if (event) {
 			event.preventDefault();
+		}
+
+		if (clearEvents) {
+			this.setState({
+				eventList: [],
+			});
 		}
 
 		this.setState({
@@ -421,7 +443,7 @@ export default class Events extends React.Component<IProps> {
 			.then((result) => {
 
 				const eventResults: IDBDerbyEvent[] = result.data.events;
-				const eventList: IBoxListItem[] = this.state.eventList || [];
+				const eventList: IBoxListItem[] = clearEvents ? [] : this.state.eventList || [];
 				const eventPromises: Array<Promise<any>> = [];
 				let promiseError = false;
 
@@ -508,6 +530,11 @@ export default class Events extends React.Component<IProps> {
 											lastDay: moment.utc(eventResult.event_last_day),
 										}, "long"),
 									days: null,
+									distance: eventResult.venue_distance ?
+										`${Math.round(
+											eventResult.venue_distance * (this.state.distanceUnits === "km" ? this.props.kmConverter : 1))
+											.toLocaleString()} ${this.state.distanceUnits}`
+										: null,
 									host: eventResult.event_name ? eventResult.event_host : null,
 									icons,
 									id: eventResult.event_id,

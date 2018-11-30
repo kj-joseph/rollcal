@@ -9,6 +9,7 @@ import MyEventIcon from "images/star.svg";
 import ReactSVG from "react-svg";
 
 interface IBoxListDefaultProps {
+	distance: boolean;
 	noIcons: boolean;
 	paginate: boolean;
 }
@@ -31,6 +32,7 @@ interface IBoxListProps extends IBoxListDefaultProps {
 export default class BoxList extends React.Component<IBoxListProps> {
 
 	static defaultProps: IBoxListDefaultProps = {
+		distance: false,
 		noIcons: false,
 		paginate: false,
 	};
@@ -89,12 +91,16 @@ export default class BoxList extends React.Component<IBoxListProps> {
 							<p className="listDate"><strong>{item.datesVenue}</strong></p>
 							{this.props.itemType === "events" ?
 								<p className="listLocation">{item.location}
-								{!this.props.noIcons && item.countryFlag ?
-									<React.Fragment>
-										{" "}
-										<span title={item.countryName} className={`flag-icon flag-icon-${item.countryFlag}`} />
-									</React.Fragment>
-								: ""}</p>
+									{!this.props.noIcons && item.countryFlag ?
+										<React.Fragment>
+											{" "}
+											<span title={item.countryName} className={`flag-icon flag-icon-${item.countryFlag}`} />
+										</React.Fragment>
+									: ""}
+									{this.props.distance && item.distance ?
+										<span className="distance">({item.distance})</span>
+									: ""}
+								</p>
 							: ""}
 
 							<h2>
