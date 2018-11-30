@@ -27,6 +27,7 @@ import "styles/main.scss";
 
 import ".htaccess";
 require.context("images/favicon", true);
+import "robots.txt";
 
 // load feature images
 require.context("images/derbytypes", true);
