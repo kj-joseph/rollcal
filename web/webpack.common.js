@@ -44,6 +44,16 @@ module.exports = {
 				}
 			},
 			{
+				test: /robots\.txt$/,
+				use: {
+					loader: "file-loader",
+					options: {
+						name: "[name].[ext]",
+						outputPath: "/",
+					}
+				}
+			},
+			{
 				test: /(browserconfig.xml|site.webmanifest)$/,
 				use: {
 					loader: "file-loader",

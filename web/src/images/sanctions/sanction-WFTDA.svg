@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 16.0.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 104 150" enable-background="new 0 0 104 150" xml:space="preserve">
 <g>
 	<path fill="#FFFFFF" d="M23.955,139.392c-3.478,0-6.749-1.354-9.208-3.814c-2.459-2.459-3.814-5.729-3.814-9.208V23.631
@@ -122,14 +122,14 @@
 		</g>
 		<path fill-rule="evenodd" clip-rule="evenodd" d="M67.011,51.916h1.997l-3.792-8.578h-1.997l-3.793,8.578h1.998l0.88-1.99h3.827
 			L67.011,51.916z M62.851,48.69l1.367-3.094l1.367,3.094H62.851z"/>
-		<polygon fill-rule="evenodd" clip-rule="evenodd" points="30.995,43.338 29.275,49.679 26.153,43.338 23.03,49.679 21.311,43.338 
+		<polygon fill-rule="evenodd" clip-rule="evenodd" points="30.995,43.338 29.275,49.679 26.153,43.338 23.03,49.679 21.311,43.338
 			19.498,43.338 21.982,51.916 23.87,51.916 26.153,46.842 28.435,51.916 30.323,51.916 32.808,43.338 		"/>
 		<path fill-rule="evenodd" clip-rule="evenodd" d="M36.034,44.556c1.318,0,3.914,0,3.914,0v-1.218h-5.779v8.578h1.823v-3.771
 			c1.381,0,3.422,0,3.422,0v-1.218h-3.422v-2.399L36.034,44.556z"/>
 		<path fill-rule="evenodd" clip-rule="evenodd" d="M59.648,47.627c0,2.206-1.042,4.289-4.693,4.289h-4.096c0,0,0-5.732,0-8.578
 			h4.096C58.606,43.338,59.648,45.422,59.648,47.627z M57.822,47.627c0-2.353-1.252-3.053-3.31-3.053h-1.826v6.106h1.826
 			C56.57,50.681,57.822,49.979,57.822,47.627z"/>
-		<polygon fill-rule="evenodd" clip-rule="evenodd" points="41.741,43.338 41.741,44.574 44.724,44.574 44.724,51.916 
+		<polygon fill-rule="evenodd" clip-rule="evenodd" points="41.741,43.338 41.741,44.574 44.724,44.574 44.724,51.916
 			46.546,51.916 46.546,44.574 49.469,44.574 49.469,43.338 		"/>
 	</g>
 	<path fill-rule="evenodd" clip-rule="evenodd" fill="#FCFCFC" d="M52.687,50.687c0-2.026,0-4.031,0-6.096
