@@ -18,6 +18,7 @@ module.exports = merge(common, {
 		}),
 		new webpack.EnvironmentPlugin([
 			"FEEDBACK_EMAIL",
+			"GOOGLE_GEOCODE_KEY",
 			"ROLLCAL_PROD_DBHOST",
 			"ROLLCAL_PROD_DBNAME",
 			"ROLLCAL_PROD_DBPASS",

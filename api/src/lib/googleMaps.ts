@@ -1,6 +1,6 @@
 const mapsClient = require("@google/maps").createClient({
 	Promise,
-	key: process.env.GOOGLE_GEOCODE_KEY || process.env.GOOGLE_KEY_PROD,
+	key: process.env.GOOGLE_GEOCODE_KEY,
 });
 
 export const getGeocode = (address: string, country?: string) => {
