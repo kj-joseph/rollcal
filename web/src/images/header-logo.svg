@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 16.0.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+<svg version="1.1" locationTabxmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 305 100" enable-background="new 0 0 305 100" xml:space="preserve">
 <g>
 	<g>
@@ -11,7 +11,7 @@
 		</g>
 		<g>
 			<rect x="29.466" y="61.111" fill="#041E41" width="8.889" height="16.666"/>
-			
+
 				<rect x="40.789" y="53.714" transform="matrix(0.8661 0.4999 -0.4999 0.8661 39.2414 -13.7223)" fill="#041E41" width="8.889" height="25.336"/>
 			<ellipse fill="#FFFFFF" cx="33.911" cy="77.412" rx="13.476" ry="12.588"/>
 			<g>
@@ -25,7 +25,7 @@
 		</g>
 		<g>
 			<rect x="74.321" y="61.111" fill="#041E41" width="8.89" height="16.666"/>
-			
+
 				<rect x="62.999" y="53.714" transform="matrix(-0.8661 0.4999 -0.4999 -0.8661 159.0391 90.1594)" fill="#041E41" width="8.889" height="25.335"/>
 			<ellipse fill="#FFFFFF" cx="78.766" cy="77.412" rx="13.476" ry="12.588"/>
 			<g>
