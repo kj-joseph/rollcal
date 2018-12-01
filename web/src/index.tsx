@@ -3,14 +3,9 @@ import { render } from "react-dom";
 import { BrowserRouter, NavLink, Route, Switch } from "react-router-dom";
 import ReactSVG from "react-svg";
 
-import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
-import { IGeoData, ITimeZone } from "interfaces/geo";
-import { IPageTitle, IProps, IReduxActions, IReduxActionType } from "interfaces/redux";
-import { IUserInfo, IUserRole } from "interfaces/user";
-
-import { connect, Provider } from "react-redux";
-import { Dispatch } from "redux";
-import reduxActions from "redux/actions";
+import { IProps } from "interfaces/redux";
+import { Provider } from "react-redux";
+import { connectClass } from "redux/connect";
 import store from "redux/store";
 
 import { checkLoginStatus } from "components/lib/auth";
@@ -25,6 +20,7 @@ import "react-dates/lib/css/_datepicker.css";
 // load site css
 import "styles/main.scss";
 
+// load static files
 import ".htaccess";
 require.context("images/favicon", true);
 import "robots.txt";
@@ -34,8 +30,10 @@ require.context("images/derbytypes", true);
 require.context("images/sanctions", true);
 require.context("images/tracks", true);
 
-// load header images; png is for emails
+// load image referenced by emails
 import "images/header-logo.png";
+
+// load header images
 import HeaderLogo from "images/header-logo.svg";
 import LoginIconSolid from "images/menu/user-circle-solid.svg";
 import LoginIconOutline from "images/menu/user-circle.svg";
@@ -270,94 +268,73 @@ class ConnectedSiteRouter extends React.Component<IProps> {
 
 }
 
-const mapStateToProps = (reduxState: IProps) => {
-	return reduxState;
-};
-
-const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>): IReduxActions => {
-	return {
-		clearUserInfo: () => dispatch(reduxActions.clearUserInfo()),
-		saveDataDerbyTypes: (data: IDerbyType[]) => dispatch(reduxActions.saveDataDerbyTypes(data)),
-		saveDataGeography: (data: IGeoData) => dispatch(reduxActions.saveDataGeography(data)),
-		saveDataSanctions: (data: IDerbySanction[]) => dispatch(reduxActions.saveDataSanctions(data)),
-		saveDataTracks: (data: IDerbyTrack[]) => dispatch(reduxActions.saveDataTracks(data)),
-		saveLastSearch: (search: string) => dispatch(reduxActions.saveLastSearch(search)),
-		saveRolesList: (data: IUserRole[]) => dispatch(reduxActions.saveRolesList(data)),
-		saveTimeZones: (data: ITimeZone[]) => dispatch(reduxActions.saveTimeZones(data)),
-		setLoginModalState: (loginModalState: boolean) => dispatch(reduxActions.setLoginModalState(loginModalState)),
-		setPageTitle: (data: IPageTitle) => dispatch(reduxActions.setPageTitle(data)),
-		setSessionState: (sessionInitialized: boolean) => dispatch(reduxActions.setSessionState(sessionInitialized)),
-		setUserInfo: (userState: IUserInfo) => dispatch(reduxActions.setUserInfo(userState)),
-	};
-};
-
-const SiteRouter = connect(mapStateToProps, mapDispatchToProps)(ConnectedSiteRouter);
+const SiteRouter = connectClass(ConnectedSiteRouter);
 
 import AdminDashboard from "components/pages/admin";
-const AdminDashboardPage = connect(mapStateToProps, mapDispatchToProps)(AdminDashboard);
+const AdminDashboardPage = connectClass(AdminDashboard);
 
 import Contact from "components/pages/contact";
-const ContactPage = connect(mapStateToProps, mapDispatchToProps)(Contact);
+const ContactPage = connectClass(Contact);
 
 import Dashboard from "components/pages/dashboard";
-const DashboardPage = connect(mapStateToProps, mapDispatchToProps)(Dashboard);
+const DashboardPage = connectClass(Dashboard);
 
 import EditUser from "components/pages/editUser";
-const EditUserPage = connect(mapStateToProps, mapDispatchToProps)(EditUser);
+const EditUserPage = connectClass(EditUser);
 
 import EventDetails from "components/pages/eventDetails";
-const EventDetailsPage = connect(mapStateToProps, mapDispatchToProps)(EventDetails);
+const EventDetailsPage = connectClass(EventDetails);
 
 import EventChanges from "components/pages/eventChanges";
-const EventChangesPage = connect(mapStateToProps, mapDispatchToProps)(EventChanges);
+const EventChangesPage = connectClass(EventChanges);
 
 import EventForm from "components/pages/eventForm";
-const EventFormPage = connect(mapStateToProps, mapDispatchToProps)(EventForm);
+const EventFormPage = connectClass(EventForm);
 
 import Events from "components/pages/events";
-const EventsPage = connect(mapStateToProps, mapDispatchToProps)(Events);
+const EventsPage = connectClass(Events);
 
 import Faq from "components/pages/faq";
-const FaqPage = connect(mapStateToProps, mapDispatchToProps)(Faq);
+const FaqPage = connectClass(Faq);
 
 import ForgotPassword from "components/pages/forgotPassword";
-const ForgotPasswordPage = connect(mapStateToProps, mapDispatchToProps)(ForgotPassword);
+const ForgotPasswordPage = connectClass(ForgotPassword);
 
 import ReviewEventChange from "components/pages/reviewEventChange";
-const ReviewEventChangePage = connect(mapStateToProps, mapDispatchToProps)(ReviewEventChange);
+const ReviewEventChangePage = connectClass(ReviewEventChange);
 
 import ReviewVenueChange from "components/pages/reviewVenueChange";
-const ReviewVenueChangePage = connect(mapStateToProps, mapDispatchToProps)(ReviewVenueChange);
+const ReviewVenueChangePage = connectClass(ReviewVenueChange);
 
 import Search from "components/pages/search";
-const SearchPage = connect(mapStateToProps, mapDispatchToProps)(Search);
+const SearchPage = connectClass(Search);
 
 import UserAccount from "components/pages/userAccount";
-const UserAccountPage = connect(mapStateToProps, mapDispatchToProps)(UserAccount);
+const UserAccountPage = connectClass(UserAccount);
 
 import UserEvents from "components/pages/userEvents";
-const UserEventsPage = connect(mapStateToProps, mapDispatchToProps)(UserEvents);
+const UserEventsPage = connectClass(UserEvents);
 
 import UserVenues from "components/pages/userVenues";
-const UserVenuesPage = connect(mapStateToProps, mapDispatchToProps)(UserVenues);
+const UserVenuesPage = connectClass(UserVenues);
 
 import Validate from "components/pages/validate";
-const ValidatePage = connect(mapStateToProps, mapDispatchToProps)(Validate);
+const ValidatePage = connectClass(Validate);
 
 import VenueChanges from "components/pages/venueChanges";
-const VenueChangesPage = connect(mapStateToProps, mapDispatchToProps)(VenueChanges);
+const VenueChangesPage = connectClass(VenueChanges);
 
 import VenueForm from "components/pages/venueForm";
-const VenueFormPage = connect(mapStateToProps, mapDispatchToProps)(VenueForm);
+const VenueFormPage = connectClass(VenueForm);
 
 import Login from "components/partials/login";
-const LoginModal = connect(mapStateToProps, mapDispatchToProps)(Login);
+const LoginModal = connectClass(Login);
 
 import SiteMenu from "components/partials/siteMenu";
-const SiteMenuComponent = connect(mapStateToProps, mapDispatchToProps)(SiteMenu);
+const SiteMenuComponent = connectClass(SiteMenu);
 
 import Error404 from "components/status/404";
-const NotFoundPage = connect(mapStateToProps, mapDispatchToProps)(Error404);
+const NotFoundPage = connectClass(Error404);
 
 render(
 	<Provider store={store}>
