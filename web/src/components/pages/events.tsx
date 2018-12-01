@@ -419,7 +419,7 @@ export default class Events extends React.Component<IProps> {
 
 		callApi(
 			"get",
-			`${this.state.searchURL}&count=${loadAll ? "all" : this.state.listPageLength}&start=${this.state.eventList.length}`
+			`${this.state.searchURL}&count=${loadAll ? "all" : this.state.listPageLength}&start=${this.state.eventList.length}`,
 		)
 			.then((result) => {
 
