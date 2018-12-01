@@ -155,11 +155,7 @@ export default class EventChanges extends React.Component<IProps> {
 		const promises: Array<Promise<any>> = [];
 		let regionLists = {} as IGeoRegionList;
 
-		promises.push(getGeography(
-			this.props.apiLocation,
-			this.props.dataGeography,
-			this.props.saveDataGeography,
-			this.axiosSignal)
+		promises.push(getGeography()
 			.then((dataResponse: IGeoData) => {
 				countryList = dataResponse.countries;
 				regionLists = dataResponse.regions;

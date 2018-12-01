@@ -1,130 +1,119 @@
-import axios, { CancelTokenSource } from "axios";
-
 import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
 import { IGeoCountry, IGeoData, IGeoRegionList, ITimeZone } from "interfaces/geo";
 import { IUserRole } from "interfaces/user";
 
-export const getDerbySanctions = (
-	apiLocation: string,
-	dataSanctions: IDerbySanction[],
-	saveDataSanctions: (data: IDerbySanction[]) => void,
-	axiosSignal: CancelTokenSource,
-): Promise<IDerbySanction[]> => {
+import actions from "redux/actions";
+import store from "redux/store";
+
+import { callApi } from "components/lib/api";
+
+export const getDerbySanctions = (): Promise<IDerbySanction[]> => {
 
 	return new Promise((resolve, reject) => {
+		const state = store.getState();
 
-		if (dataSanctions && dataSanctions.length) {
+		if (state.dataSanctions && state.dataSanctions.length) {
 
-			resolve(dataSanctions);
+			resolve(state.dataSanctions);
 
 		} else {
 
-			axios.get(`${apiLocation}eventFeatures/getSanctionTypes`,
-				{
-					cancelToken: axiosSignal.token,
-					withCredentials: true,
-				})
-				.then((result) => {
-					saveDataSanctions(result.data as IDerbySanction[]);
-					resolve(result.data as IDerbySanction[]);
+			callApi("get", "eventFeatures/getSanctionTypes")
+
+				.then((result: IDerbySanction[]) => {
+
+					store.dispatch(actions.saveDataSanctions(result));
+					resolve(result);
+
 				}).catch((error) => {
+
 					reject(error);
+
 				});
+
 		}
 
 	});
 };
 
-export const getDerbyTracks = (
-	apiLocation: string,
-	dataTracks: IDerbyTrack[],
-	saveDataTracks: (data: IDerbyTrack[]) => void,
-	axiosSignal: CancelTokenSource,
-): Promise<IDerbyTrack[]> => {
+export const getDerbyTracks = (): Promise<IDerbyTrack[]> => {
 
 	return new Promise((resolve, reject) => {
+		const state = store.getState();
 
-		if (dataTracks && dataTracks.length) {
+		if (state.dataTracks && state.dataTracks.length) {
 
-			resolve(dataTracks);
+			resolve(state.dataTracks);
 
 		} else {
 
-			axios.get(`${apiLocation}eventFeatures/getTracks`,
-				{
-					cancelToken: axiosSignal.token,
-					withCredentials: true,
-				})
-				.then((result) => {
-					saveDataTracks(result.data as IDerbyTrack[]);
-					resolve(result.data as IDerbyTrack[]);
+			callApi("get", "eventFeatures/getTracks")
+
+				.then((result: IDerbyTrack[]) => {
+
+					store.dispatch(actions.saveDataTracks(result));
+					resolve(result);
+
 				}).catch((error) => {
+
 					reject(error);
+
 				});
+
 		}
 
 	});
 };
 
-export const getDerbyTypes = (
-	apiLocation: string,
-	dataDerbyTypes: IDerbyType[],
-	saveDataDerbyTypes: (data: IDerbyType[]) => void,
-	axiosSignal: CancelTokenSource,
-): Promise<IDerbyType[]> => {
+export const getDerbyTypes = (): Promise<IDerbyType[]> => {
 
 	return new Promise((resolve, reject) => {
+		const state = store.getState();
 
-		if (dataDerbyTypes && dataDerbyTypes.length) {
+		if (state.dataDerbyTypes && state.dataDerbyTypes.length) {
 
-			resolve(dataDerbyTypes);
+			resolve(state.dataDerbyTypes);
 
 		} else {
 
-			axios.get(`${apiLocation}eventFeatures/getDerbyTypes`,
-				{
-					cancelToken: axiosSignal.token,
-					withCredentials: true,
-				})
-				.then((result) => {
-					saveDataDerbyTypes(result.data as IDerbyType[]);
-					resolve(result.data as IDerbyType[]);
+			callApi("get", "eventFeatures/getDerbyTypes")
+
+				.then((result: IDerbyType[]) => {
+
+					store.dispatch(actions.saveDataDerbyTypes(result));
+					resolve(result);
+
 				}).catch((error) => {
+
 					reject(error);
+
 				});
+
 		}
 
 	});
 };
 
-export const getGeography = (
-	apiLocation: string,
-	dataGeography: IGeoData,
-	saveDataGeography: (data: IGeoData) => void,
-	axiosSignal: CancelTokenSource,
-): Promise<IGeoData> => {
+export const getGeography = (): Promise<IGeoData> => {
 
 	return new Promise((resolve, reject) => {
+		const state = store.getState();
 
-		if (dataGeography
-			&& dataGeography.countries && dataGeography.countries.length
-			&& dataGeography.regions && Object.keys(dataGeography.regions).length > 0) {
+		if (state.dataGeography
+			&& state.dataGeography.countries && state.dataGeography.countries.length
+			&& state.dataGeography.regions && Object.keys(state.dataGeography.regions).length > 0) {
 
 			resolve({
-				countries: dataGeography.countries,
-				regions: dataGeography.regions,
+				countries: state.dataGeography.countries,
+				regions: state.dataGeography.regions,
 			});
 
 		} else {
 
-			axios.get(`${apiLocation}geography/getAllCountries`,
-				{
-					cancelToken: axiosSignal.token,
-					withCredentials: true,
-				})
-				.then((result) => {
+			callApi("get", "geography/getAllCountries")
 
-					const countries: IGeoCountry[] = result.data;
+				.then((countries: IGeoCountry[]) => {
+
 					const regions = {} as IGeoRegionList;
 					const regionPromises: Array<Promise<void>> = [];
 
@@ -132,46 +121,52 @@ export const getGeography = (
 						if (countries[country].country_region_type) {
 							regionPromises.push(new Promise((resolveRegions, rejectRegions) => {
 
-								axios.get(apiLocation + "geography/getRegionsByCountry/" + countries[country].country_code,
-									{
-										cancelToken: axiosSignal.token,
-										withCredentials: true,
-									})
+								callApi("get", `geography/getRegionsByCountry/${countries[country].country_code}`)
+
 									.then((resultRegions) => {
 
-										if (resultRegions.data.length) {
-											regions[countries[country].country_code] = resultRegions.data;
+										if (resultRegions.length) {
+											regions[countries[country].country_code] = resultRegions;
 										}
 										resolveRegions();
 
 									}).catch((error) => {
+
 										rejectRegions(error);
+
 									});
 							}));
 						}
+
 					}
 
 					if (regionPromises.length) {
 
 						Promise.all(regionPromises).then(() => {
-							saveDataGeography({
+
+							store.dispatch(actions.saveDataGeography({
 								countries,
 								regions,
-							});
+							}));
+
 							resolve({
 								countries,
 								regions,
 							});
-						}).catch(() => {
-							reject();
+
+						}).catch((error) => {
+
+							reject(error);
+
 						});
 
 					} else {
 
-						saveDataGeography({
+						store.dispatch(actions.saveDataGeography({
 							countries,
 							regions,
-						});
+						}));
+
 						resolve({
 							countries,
 							regions,
@@ -188,62 +183,58 @@ export const getGeography = (
 
 };
 
-export const getTimeZones = (
-	apiLocation: string,
-	dataTimeZones: ITimeZone[],
-	saveTimeZones: (data: ITimeZone[]) => void,
-	axiosSignal: CancelTokenSource,
-): Promise<ITimeZone[]> => {
+export const getTimeZones = (): Promise<ITimeZone[]> => {
 
 	return new Promise((resolve, reject) => {
+		const state = store.getState();
 
-		if (dataTimeZones && dataTimeZones.length) {
+		if (state.timeZones && state.timeZones.length) {
 
-			resolve(dataTimeZones);
+			resolve(state.timeZones);
 
 		} else {
 
-			axios.get(`${apiLocation}geography/getTimeZones`,
-				{
-					cancelToken: axiosSignal.token,
-					withCredentials: true,
-				})
-				.then((result) => {
-					saveTimeZones(result.data as ITimeZone[]);
-					resolve(result.data as ITimeZone[]);
+			callApi("get", "geography/getAllCountries")
+
+				.then((result: ITimeZone[]) => {
+
+					store.dispatch(actions.saveTimeZones(result));
+					resolve(result);
+
 				}).catch((error) => {
+
 					reject(error);
+
 				});
 		}
 
 	});
 };
 
-export const getUserRoles = (
-	apiLocation: string,
-	dataRolesList: IUserRole[],
-	saveRolesList: (data: IUserRole[]) => void,
-	axiosSignal: CancelTokenSource,
-): Promise<IUserRole[]> => {
+export const getUserRoles = (): Promise<IUserRole[]> => {
 
 	return new Promise((resolve, reject) => {
+		const state = store.getState();
 
-		if (dataRolesList && dataRolesList.length) {
+		if (state.rolesList && state.rolesList.length) {
 
-			resolve(dataRolesList);
+			resolve(state.rolesList);
 
 		} else {
 
-			axios.get(`${apiLocation}user/getRolesList`,
-				{
-					cancelToken: axiosSignal.token,
-					withCredentials: true,
-				})
-				.then((result) => {
-					saveRolesList(result.data.filter((role: IUserRole) => role.name !== "superadmin") as IUserRole[]);
-					resolve(result.data.filter((role: IUserRole) => role.name !== "superadmin") as IUserRole[]);
+			callApi("get", "user/getRolesList")
+
+				.then((result: IUserRole[]) => {
+
+					store.dispatch(actions.saveRolesList(
+							result.filter((role) => role.name !== "superadmin")));
+
+					resolve(result.filter((role) => role.name !== "superadmin"));
+
 				}).catch((error) => {
+
 					reject(error);
+
 				});
 		}
 

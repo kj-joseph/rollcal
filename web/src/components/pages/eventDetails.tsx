@@ -2,8 +2,6 @@ import React from "react";
 import FormatText from "react-format-text";
 import { Link } from "react-router-dom";
 
-import axios from "axios";
-
 import EventIcons from "components/partials/eventIcons";
 import { IDBDerbyEvent, IDerbyEvent, IDerbyEventDayFormatted } from "interfaces/event";
 import { IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
@@ -12,6 +10,8 @@ import { IProps } from "interfaces/redux";
 import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "components/lib/data";
 import { formatDateRange } from "components/lib/dateTime";
 import moment from "moment";
+
+import { callApi } from "components/lib/api";
 
 interface IEventDetailsState {
 	dataError: boolean;
@@ -28,8 +28,6 @@ export default class EventDetails extends React.Component<IProps> {
 		loading: true,
 		path: null,
 	};
-
-	axiosSignal = axios.CancelToken.source();
 
 	constructor(props: IProps) {
 		super(props);
@@ -60,7 +58,7 @@ export default class EventDetails extends React.Component<IProps> {
 	}
 
 	componentWillUnmount() {
-		this.axiosSignal.cancel();
+		// ?
 	}
 
 	render() {
@@ -224,16 +222,12 @@ export default class EventDetails extends React.Component<IProps> {
 
 	loadData() {
 
-		axios.get(`${this.props.apiLocation}events/getEventDetails/${this.props.match.params.eventId}`,
-			{
-				cancelToken: this.axiosSignal.token,
-				withCredentials: true,
-			})
-			.then((result) => {
+		callApi("get", `events/getEventDetails/${this.props.match.params.eventId}`)
 
-				if (result.data) {
+			.then((eventResult: IDBDerbyEvent) => {
 
-					const eventResult: IDBDerbyEvent = result.data;
+				if (eventResult) {
+
 					const icons: IDerbyIcons = {
 						derbytypes: [],
 						sanctions: [],
@@ -244,12 +238,9 @@ export default class EventDetails extends React.Component<IProps> {
 
 					if (eventResult.derbytypes) {
 
-						promises.push(getDerbyTypes(
-							this.props.apiLocation,
-							this.props.dataDerbyTypes,
-							this.props.saveDataDerbyTypes,
-							this.axiosSignal)
+						promises.push(getDerbyTypes()
 							.then((dataResponse: IDerbyType[]) => {
+
 								icons.derbytypes =
 									dataResponse.filter((dt: IDerbyType) =>
 										eventResult.derbytypes.split(",").indexOf(dt.derbytype_id.toString()) > -1 )
@@ -257,20 +248,20 @@ export default class EventDetails extends React.Component<IProps> {
 												filename: `derbytype-${dt.derbytype_abbreviation}`,
 												title: dt.derbytype_name,
 											}));
+
 							}).catch(() => {
+
 								promiseError = true;
+
 							}));
 
 					}
 
 					if (eventResult.sanctions) {
 
-						promises.push(getDerbySanctions(
-							this.props.apiLocation,
-							this.props.dataSanctions,
-							this.props.saveDataSanctions,
-							this.axiosSignal)
+						promises.push(getDerbySanctions()
 							.then((dataResponse: IDerbySanction[]) => {
+
 								icons.sanctions =
 									dataResponse.filter((s: IDerbySanction) =>
 										eventResult.sanctions.split(",").indexOf(s.sanction_id.toString()) > -1 )
@@ -278,20 +269,20 @@ export default class EventDetails extends React.Component<IProps> {
 												filename: `sanction-${s.sanction_abbreviation}`,
 												title: `${s.sanction_name} (${s.sanction_abbreviation})`,
 											}));
+
 							}).catch(() => {
+
 								promiseError = true;
+
 							}));
 
 					}
 
 					if (eventResult.tracks) {
 
-						promises.push(getDerbyTracks(
-							this.props.apiLocation,
-							this.props.dataTracks,
-							this.props.saveDataTracks,
-							this.axiosSignal)
+						promises.push(getDerbyTracks()
 							.then((dataResponse: IDerbyTrack[]) => {
+
 								icons.tracks =
 									dataResponse.filter((t: IDerbyTrack) =>
 										eventResult.tracks.split(",").indexOf(t.track_id.toString()) > -1 )
@@ -299,8 +290,11 @@ export default class EventDetails extends React.Component<IProps> {
 												filename: `track-${t.track_abbreviation}`,
 												title: t.track_name,
 											}));
+
 							}).catch(() => {
+
 								promiseError = true;
+
 							}));
 
 					}
@@ -355,12 +349,10 @@ export default class EventDetails extends React.Component<IProps> {
 
 					}).catch(() => {
 
-						if (!promiseError) {
-							this.setState({
-								dataError: true,
-								loading: false,
-							});
-						}
+						this.setState({
+							dataError: true,
+							loading: false,
+						});
 
 					});
 
@@ -374,14 +366,16 @@ export default class EventDetails extends React.Component<IProps> {
 
 				}
 
-			}).catch((error) => {
+			}).catch((exception) => {
 
-				if (!axios.isCancel(error)) {
-					console.error(error);
+				if (!exception.cancel) {
+					console.error(exception);
+
 					this.setState({
 						dataError: true,
 						loading: false,
 					});
+
 				}
 
 			});

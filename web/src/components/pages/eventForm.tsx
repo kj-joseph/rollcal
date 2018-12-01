@@ -1105,11 +1105,7 @@ export default class EventForm<Props> extends React.Component<IProps> {
 		let selectedVenue = {} as IDerbyVenue;
 		let timeZones: ITimeZone[] = [];
 
-		promises.push(getGeography(
-			this.props.apiLocation,
-			this.props.dataGeography,
-			this.props.saveDataGeography,
-			this.axiosSignal)
+		promises.push(getGeography()
 			.then((dataResponse: IGeoData) => {
 				countryList = dataResponse.countries;
 				regionLists = dataResponse.regions;
@@ -1118,11 +1114,7 @@ export default class EventForm<Props> extends React.Component<IProps> {
 				promiseError = true;
 			}));
 
-		promises.push(getTimeZones(
-			this.props.apiLocation,
-			this.props.timeZones,
-			this.props.saveTimeZones,
-			this.axiosSignal)
+		promises.push(getTimeZones()
 			.then((dataResponse: ITimeZone[]) => {
 				timeZones = dataResponse;
 			}).catch((error) => {
@@ -1130,11 +1122,7 @@ export default class EventForm<Props> extends React.Component<IProps> {
 				promiseError = true;
 			}));
 
-		promises.push(getDerbySanctions(
-			this.props.apiLocation,
-			this.props.dataSanctions,
-			this.props.saveDataSanctions,
-			this.axiosSignal)
+		promises.push(getDerbySanctions()
 			.then((dataResponse: IDerbySanction[]) => {
 				eventSanctions = dataResponse;
 			}).catch((error) => {
@@ -1142,11 +1130,7 @@ export default class EventForm<Props> extends React.Component<IProps> {
 				promiseError = true;
 			}));
 
-		promises.push(getDerbyTracks(
-			this.props.apiLocation,
-			this.props.dataTracks,
-			this.props.saveDataTracks,
-			this.axiosSignal)
+		promises.push(getDerbyTracks()
 			.then((dataResponse: IDerbyTrack[]) => {
 				eventTracks = dataResponse;
 			}).catch((error) => {
@@ -1154,11 +1138,7 @@ export default class EventForm<Props> extends React.Component<IProps> {
 				promiseError = true;
 			}));
 
-		promises.push(getDerbyTypes(
-			this.props.apiLocation,
-			this.props.dataDerbyTypes,
-			this.props.saveDataDerbyTypes,
-			this.axiosSignal)
+		promises.push(getDerbyTypes()
 			.then((dataResponse: IDerbyType[]) => {
 				eventTypes = dataResponse;
 			}).catch((error) => {

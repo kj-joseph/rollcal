@@ -6,7 +6,7 @@ import { IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces
 import { IGeoCountry, IGeoData, IGeoRegion } from "interfaces/geo";
 import { IProps } from "interfaces/redux";
 
-import axios from "axios";
+import { callApi } from "components/lib/api";
 
 import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography } from "components/lib/data";
 import { formatDateRange } from "components/lib/dateTime";
@@ -54,8 +54,6 @@ export default class Events extends React.Component<IProps> {
 		searchURL: null,
 	};
 
-	axiosSignal = axios.CancelToken.source();
-
 	constructor(props: IProps) {
 		super(props);
 
@@ -89,7 +87,7 @@ export default class Events extends React.Component<IProps> {
 	}
 
 	componentWillUnmount() {
-		this.axiosSignal.cancel();
+		// ?
 	}
 
 	render() {
@@ -197,11 +195,7 @@ export default class Events extends React.Component<IProps> {
 				switch (label) {
 					case "locations":
 
-						promises.push(getGeography(
-							this.props.apiLocation,
-							this.props.dataGeography,
-							this.props.saveDataGeography,
-							this.axiosSignal)
+						promises.push(getGeography()
 							.then((dataResponse: IGeoData) => {
 
 								const geoDisplay: string[] = [];
@@ -258,11 +252,7 @@ export default class Events extends React.Component<IProps> {
 
 					case "distance":
 
-						promises.push(getGeography(
-							this.props.apiLocation,
-							this.props.dataGeography,
-							this.props.saveDataGeography,
-							this.axiosSignal)
+						promises.push(getGeography()
 							.then((dataResponse: IGeoData) => {
 
 								const [address1, city, countryCode, regionAbbr, postal, distanceString, units] = values.split("~");
@@ -306,11 +296,7 @@ export default class Events extends React.Component<IProps> {
 
 					case "sanctions":
 
-						promises.push(getDerbySanctions(
-							this.props.apiLocation,
-							this.props.dataSanctions,
-							this.props.saveDataSanctions,
-							this.axiosSignal)
+						promises.push(getDerbySanctions()
 							.then((dataResponse: IDerbySanction[]) => {
 
 								const validSanctions = dataResponse
@@ -346,11 +332,7 @@ export default class Events extends React.Component<IProps> {
 
 					case "tracks":
 
-						promises.push(getDerbyTracks(
-							this.props.apiLocation,
-							this.props.dataTracks,
-							this.props.saveDataTracks,
-							this.axiosSignal)
+						promises.push(getDerbyTracks()
 							.then((dataResponse: IDerbyTrack[]) => {
 
 								const validTracks = dataResponse
@@ -398,7 +380,7 @@ export default class Events extends React.Component<IProps> {
 
 				this.setState({
 					searchDisplayDates: dateDisplay || null,
-					searchURL: `${this.props.apiLocation}events/search${queryStringDates}${queryStringParts.length ? `&${queryStringParts.join("&")}` : ""}`,
+					searchURL: `events/search${queryStringDates}${queryStringParts.length ? `&${queryStringParts.join("&")}` : ""}`,
 				});
 
 				this.loadPage(null, false, true);
@@ -435,43 +417,30 @@ export default class Events extends React.Component<IProps> {
 			loadingMore: true,
 		});
 
-		axios.get(`${this.state.searchURL}&count=${loadAll ? "all" : this.state.listPageLength}&start=${this.state.eventList.length}`,
-			{
-				cancelToken: this.axiosSignal.token,
-				withCredentials: true,
-			})
+		callApi(
+			"get",
+			`${this.state.searchURL}&count=${loadAll ? "all" : this.state.listPageLength}&start=${this.state.eventList.length}`
+		)
 			.then((result) => {
 
-				const eventResults: IDBDerbyEvent[] = result.data.events;
+				const eventResults: IDBDerbyEvent[] = result.events;
 				const eventList: IBoxListItem[] = clearEvents ? [] : this.state.eventList || [];
 				const eventPromises: Array<Promise<any>> = [];
 				let promiseError = false;
 
-				eventPromises.push(getDerbySanctions(
-					this.props.apiLocation,
-					this.props.dataSanctions,
-					this.props.saveDataSanctions,
-					this.axiosSignal).catch(() => {
+				eventPromises.push(getDerbySanctions().catch(() => {
 						promiseError = true;
 					}));
 
-				eventPromises.push(getDerbyTracks(
-					this.props.apiLocation,
-					this.props.dataTracks,
-					this.props.saveDataTracks,
-					this.axiosSignal).catch(() => {
+				eventPromises.push(getDerbyTracks().catch(() => {
 						promiseError = true;
 					}));
 
-				eventPromises.push(getDerbyTypes(
-					this.props.apiLocation,
-					this.props.dataDerbyTypes,
-					this.props.saveDataDerbyTypes,
-					this.axiosSignal).catch(() => {
+				eventPromises.push(getDerbyTypes().catch(() => {
 						promiseError = true;
 					}));
 
-				if (result.data.events.length) {
+				if (eventResults.length) {
 
 					Promise.all(eventPromises).then(() => {
 
@@ -548,20 +517,22 @@ export default class Events extends React.Component<IProps> {
 
 							this.setState({
 								eventList,
-								listItemsTotal: result.data.total,
+								listItemsTotal: result.total,
 								loading: false,
 								loadingMore: false,
 							});
 
 						}
 
-					}).catch((error) => {
+					}).catch((exception) => {
 
-						if (!axios.isCancel(error)) {
-							console.error(error);
+						if (!exception.cancel) {
+							console.error(exception);
+
 							this.setState({
 								dataError: true,
 							});
+
 						}
 
 					});
@@ -576,13 +547,15 @@ export default class Events extends React.Component<IProps> {
 
 				}
 
-			}).catch((error) => {
+			}).catch((exception) => {
 
-				if (!axios.isCancel(error)) {
-					console.error(error);
+				if (!exception.cancel) {
+					console.error(exception);
+
 					this.setState({
 						dataError: true,
 					});
+
 				}
 
 			});

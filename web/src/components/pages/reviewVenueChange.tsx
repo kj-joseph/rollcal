@@ -427,11 +427,7 @@ export default class ReviewVenueChange extends React.Component<IProps> {
 		let regionLists = {} as IGeoRegionList;
 		let timeZones = [] as ITimeZone[];
 
-		promises.push(getGeography(
-			this.props.apiLocation,
-			this.props.dataGeography,
-			this.props.saveDataGeography,
-			this.axiosSignal)
+		promises.push(getGeography()
 			.then((dataResponse: IGeoData) => {
 				countryList = dataResponse.countries;
 				regionLists = dataResponse.regions;
@@ -440,11 +436,7 @@ export default class ReviewVenueChange extends React.Component<IProps> {
 				promiseError = true;
 			}));
 
-		promises.push(getTimeZones(
-			this.props.apiLocation,
-			this.props.timeZones,
-			this.props.saveTimeZones,
-			this.axiosSignal)
+		promises.push(getTimeZones()
 			.then((dataResponse: ITimeZone[]) => {
 				timeZones = dataResponse;
 			}).catch((error) => {
