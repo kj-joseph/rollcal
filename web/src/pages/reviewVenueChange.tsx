@@ -9,8 +9,9 @@ import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList, ITimeZone } from "in
 import { IProps } from "interfaces/redux";
 import { IDBDerbyVenueChange, IDerbyVenue, IDerbyVenueChange } from "interfaces/venue";
 
-import { checkUserRole } from "components/lib/auth";
-import { getGeography, getTimeZones } from "components/lib/data";
+import { getGeography } from "services/geo";
+import { getTimeZones } from "services/time";
+import { checkUserRole } from "services/user";
 
 import Modal from "react-modal";
 Modal.setAppElement("#root");
@@ -18,7 +19,7 @@ Modal.setAppElement("#root");
 import CloseIcon from "images/times-circle.svg";
 import ReactSVG from "react-svg";
 
-import CompareValues from "components/partials/compareValues";
+import CompareValues from "components/compareValues";
 
 interface IReviewVenueChangeState {
 	dataError: boolean;

@@ -1,10 +1,8 @@
 import React from "react";
 
-import axios from "axios";
-
 import { IDerbyDates } from "interfaces/event";
-import { IDerbyFeatures, IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
-import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList } from "interfaces/geo";
+import { IDerbyFeature, IDerbyFeatures } from "interfaces/feature";
+import { IGeoCountry, IGeoRegion } from "interfaces/geo";
 import { IProps } from "interfaces/redux";
 
 import { DayPickerRangeController, FocusedInputShape } from "react-dates";
@@ -14,12 +12,30 @@ import moment from "moment";
 
 import Select from "react-select";
 
-import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography } from "components/lib/data";
-import FeatureIcon from "components/partials/featureIcon";
-import RemoveCountryButton from "components/partials/removeCountryButton";
-import RemoveRegionButton from "components/partials/removeRegionButton";
+import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/feature";
+import { getGeography } from "services/geo";
 
-import { formatDateRange } from "components/lib/dateTime";
+import FeatureIcon from "components/featureIcon";
+import RemoveCountryButton from "components/removeCountryButton";
+import RemoveRegionButton from "components/removeRegionButton";
+
+import { formatDateRange } from "services/time";
+
+interface IStartState {
+	address1?: string;
+	addressCity?: string;
+	addressCountry?: IGeoCountry;
+	addressPostal?: string;
+	addressRegion?: IGeoRegion;
+	dateRangeDisplay?: string;
+	distanceUnits?: "mi" | "km";
+	endDate?: moment.Moment;
+	loading: boolean;
+	searchDistance?: number;
+	selectedFeatures?: string[];
+	selectedLocations?: IGeoCountry[];
+	startDate?: moment.Moment;
+}
 
 interface ISearchState {
 	address1: string;
@@ -37,12 +53,10 @@ interface ISearchState {
 	loading: boolean;
 	locationTab: "distance" | "locations" | "none";
 	path: string;
-	regionLists: IGeoRegionList;
 	regionSelectValue: IGeoRegion;
 	searchDistance: number;
-	selectedCountries: IGeoCountry[];
-	selectedEventFeatures: string[];
-	selectedRegions: IGeoRegionList;
+	selectedFeatures: string[];
+	selectedLocations: IGeoCountry[];
 	startDate: moment.Moment;
 }
 
@@ -57,7 +71,7 @@ export default class Search extends React.Component<IProps> {
 		countryList: [],
 		countrySelectValue: {} as IGeoCountry,
 		dateRangeDisplay: formatDateRange({
-			firstDay: moment(),
+			start: moment(),
 		}),
 		distanceUnits: "mi",
 		endDate: null,
@@ -66,23 +80,18 @@ export default class Search extends React.Component<IProps> {
 		loading: true,
 		locationTab: "none",
 		path: null,
-		regionLists: {},
 		regionSelectValue: {} as IGeoRegion,
 		searchDistance: 0,
-		selectedCountries: [],
-		selectedEventFeatures: [],
-		selectedRegions: {} as IGeoRegionList,
+		selectedFeatures: [],
+		selectedLocations: [],
 		startDate: null,
 	};
-
-	axiosSignal = axios.CancelToken.source();
 
 	constructor(props: IProps) {
 		super(props);
 
-		this.addLocation = this.addLocation.bind(this);
-		this.addLocationCountry = this.addLocationCountry.bind(this);
-		this.addLocationRegion = this.addLocationRegion.bind(this);
+		this.addCountry = this.addCountry.bind(this);
+		this.addRegion = this.addRegion.bind(this);
 		this.changeCountrySelect = this.changeCountrySelect.bind(this);
 		this.changeLocationTab = this.changeLocationTab.bind(this);
 		this.changeRegionSelect = this.changeRegionSelect.bind(this);
@@ -102,8 +111,17 @@ export default class Search extends React.Component<IProps> {
 		this.onDatesChange = this.onDatesChange.bind(this);
 		this.removeLocation = this.removeLocation.bind(this);
 		this.renderMonthHeader = this.renderMonthHeader.bind(this);
+		this.setSafeState = this.setSafeState.bind(this);
 		this.submitSearch = this.submitSearch.bind(this);
 		this.toggleFeatureIcon = this.toggleFeatureIcon.bind(this);
+	}
+
+	setSafeState <T extends keyof ISearchState>(stateObject: {
+		[key in T]: any
+	}) {
+		if (this.state) {
+			this.setState(stateObject);
+		}
 	}
 
 	componentDidMount() {
@@ -121,16 +139,12 @@ export default class Search extends React.Component<IProps> {
 
 		if (window.location.pathname !== this.state.path) {
 
-			this.setState({
+			this.setSafeState({
 				path: window.location.pathname,
 			});
 			this.loadData();
 
 		}
-	}
-
-	componentWillUnmount() {
-		this.axiosSignal.cancel();
 	}
 
 	render() {
@@ -230,38 +244,41 @@ export default class Search extends React.Component<IProps> {
 											/>
 										</div>
 
-										{true || this.state.countrySelectValue ?
+										{this.state.countrySelectValue && this.state.countrySelectValue.code ?
 											<div className="locationButton">
 												<button
 													className="smallButton"
 													disabled={!this.state.countrySelectValue
-														|| !this.state.countrySelectValue.country_name
-														|| !!this.state.selectedRegions[this.state.countrySelectValue.country_code]}
-													onClick={this.addLocationCountry}
+														|| !this.state.countrySelectValue.name
+														|| !!this.state.selectedLocations
+															.filter((country) => country.code === this.state.countrySelectValue.code).length
+													}
+													onClick={this.addCountry}
 												>
-													Add {this.state.countrySelectValue ? this.state.countrySelectValue.country_name : ""} to Location List
+													Add {this.state.countrySelectValue ? this.state.countrySelectValue.name : ""} to Location List
 												</button>
 											</div>
 										: ""
 										}
 
-										{(this.state.countrySelectValue && this.state.regionLists[this.state.countrySelectValue.country_code]) ?
+										{(this.state.countrySelectValue
+											&& this.state.countrySelectValue.regions
+											&& this.state.countrySelectValue.regions.length) ?
 
 											<React.Fragment>
 												<div className="formInput">
-												<label htmlFor="searchSelectRegions">or select a {this.state.countrySelectValue.country_region_type}:</label>
+												<label htmlFor="searchSelectRegions">or select a {this.state.countrySelectValue.regionType}:</label>
 												<Select
 													className="Select searchSelectRegions"
 													classNamePrefix="Select"
 													id="searchSelectRegions"
 													name="searchSelectRegions"
 													value={this.state.regionSelectValue}
-													isDisabled={!(this.state.countrySelectValue && this.state.regionLists[this.state.countrySelectValue.country_code])}
 													onChange={this.changeRegionSelect}
 													options={this.state.countrySelectValue
-														&& this.state.countrySelectValue.country_code
-														&& this.state.regionLists[this.state.countrySelectValue.country_code]
-														? this.state.regionLists[this.state.countrySelectValue.country_code]
+														&& this.state.countrySelectValue.regions
+														&& this.state.countrySelectValue.regions.length
+														? this.state.countrySelectValue.regions
 														: []}
 													isOptionDisabled={this.isRegionOptionDisabled}
 													getOptionLabel={this.getRegionOptionLabel}
@@ -274,10 +291,10 @@ export default class Search extends React.Component<IProps> {
 													<button
 														className="smallButton"
 														disabled={!this.state.regionSelectValue ||
-															!this.state.regionSelectValue.region_id}
-														onClick={this.addLocationRegion}
+															!this.state.regionSelectValue.id}
+														onClick={this.addRegion}
 													>
-														Add {this.state.regionSelectValue ? this.state.regionSelectValue.region_name : ""} to Location List
+														Add {this.state.regionSelectValue ? this.state.regionSelectValue.name : ""} to Location List
 													</button>
 												</div>
 											: ""
@@ -292,43 +309,43 @@ export default class Search extends React.Component<IProps> {
 											<p className="selectedLocationsHeader">Selected Locations</p>
 
 											<ul className="selectedLocations">
-												{!this.state.selectedCountries.length ?
+												{!this.state.selectedLocations.length ?
 													<li>All</li>
 												:
 													<React.Fragment>
-														{this.state.selectedCountries.sort((a: IGeoCountry, b: IGeoCountry) => {
-															if (a.country_name < b.country_name) {
+														{this.state.selectedLocations.sort((a: IGeoCountry, b: IGeoCountry) => {
+															if (a.name < b.name) {
 																return -1;
-															} else if (a.country_name > b.country_name) {
+															} else if (a.name > b.name) {
 																return 1;
 															} else {
 																return 0;
 															}
 														}).map((country: IGeoCountry) => (
-															<li key={country.country_code}>
-																{country.country_name} <span title={country.country_name} className={"flag-icon flag-icon-" + country.country_flag} />
+															<li key={country.code}>
+																{country.name} <span title={country.name} className={"flag-icon flag-icon-" + country.flag} />
 																<RemoveCountryButton
-																	code={country.country_code}
-																	name={country.country_name}
+																	code={country.code}
+																	name={country.name}
 																	onButtonClick={this.removeLocation}
 																/>
-																{this.state.selectedRegions[country.country_code] ?
-																	<ul className={"selectedRegions" + country.country_code}>
-																	{this.state.selectedRegions[country.country_code].sort((a: IGeoRegion, b: IGeoRegion) => {
-																		if (a.region_name < b.region_name) {
+																{this.state.selectedRegions[country.code] ?
+																	<ul className={"selectedRegions" + country.code}>
+																	{this.state.selectedRegions[country.code].sort((a: IGeoRegion, b: IGeoRegion) => {
+																		if (a.name < b.name) {
 																			return -1;
-																		} else if (a.region_name > b.region_name) {
+																		} else if (a.name > b.name) {
 																			return 1;
 																		} else {
 																			return 0;
 																		}
 																	}).map((region: IGeoRegion) => (
-																		<li key={region.region_id}>
-																			{region.region_name}
+																		<li key={region.id}>
+																			{region.name}
 																			<RemoveRegionButton
-																				country={region.region_country}
-																				id={region.region_id}
-																				name={region.region_name}
+																				country={region.country}
+																				id={region.id}
+																				name={region.name}
 																				onButtonClick={this.removeLocation}
 																			/>
 
@@ -423,11 +440,11 @@ export default class Search extends React.Component<IProps> {
 										</div>
 
 										{(this.state.addressCountry
-											&& this.state.addressCountry.country_code
-											&& this.state.regionLists[this.state.addressCountry.country_code]) ?
+											&& this.state.addressCountry.code
+											&& this.state.regionLists[this.state.addressCountry.code]) ?
 
 											<div className="inputGroup">
-												<label htmlFor="addressRegion">{this.state.addressCountry.country_region_type}</label>
+												<label htmlFor="addressRegion">{this.state.addressCountry.type}</label>
 												<Select
 													id="addressRegion"
 													name="addressRegion"
@@ -436,9 +453,9 @@ export default class Search extends React.Component<IProps> {
 													value={this.state.addressRegion}
 													onChange={this.handleAddressRegionChange}
 													options={this.state.addressCountry
-														&& this.state.addressCountry.country_code
-														&& this.state.regionLists[this.state.addressCountry.country_code]
-														? this.state.regionLists[this.state.addressCountry.country_code]
+														&& this.state.addressCountry.code
+														&& this.state.regionLists[this.state.addressCountry.code]
+														? this.state.regionLists[this.state.addressCountry.code]
 														: []}
 													getOptionLabel={this.getRegionOptionLabel}
 													isSearchable={true}
@@ -474,14 +491,12 @@ export default class Search extends React.Component<IProps> {
 									{(this.state.eventFeatures.tracks.length ?
 										<span className="eventIconGroup eventIconTracks">
 											<span className="label">Filter Tracks:</span>
-											{this.state.eventFeatures.tracks.map((icon: IDerbyTrack) => (
+											{this.state.eventFeatures.tracks.map((track: IDerbyFeature) => (
 												<FeatureIcon
-													imageClass={this.state.selectedEventFeatures.indexOf("track-" + icon.track_id) > -1 ? "selected" : ""}
-													abbreviation={icon.track_abbreviation}
-													id={icon.track_id}
-													key={icon.track_id}
-													title={icon.title}
-													featureType="track"
+													key={track.id}
+													feature={track}
+													type="track"
+													selected={this.state.selectedFeatures.indexOf("track-" + track.id) > -1}
 													toggleFunction={this.toggleFeatureIcon}
 												/>
 											))}
@@ -491,14 +506,12 @@ export default class Search extends React.Component<IProps> {
 									{(this.state.eventFeatures.derbytypes.length ?
 										<span className="eventIconGroup eventIconDerbytypes">
 											<span className="label">Filter Derby Types:</span>
-											{this.state.eventFeatures.derbytypes.map((icon: IDerbyType) => (
+											{this.state.eventFeatures.derbytypes.map((derbytype: IDerbyFeature) => (
 												<FeatureIcon
-													imageClass={this.state.selectedEventFeatures.indexOf("derbytype-" + icon.derbytype_id) > -1 ? "selected" : ""}
-													abbreviation={icon.derbytype_abbreviation}
-													id={icon.derbytype_id}
-													key={icon.derbytype_id}
-													title={icon.title}
-													featureType="derbytype"
+													key={derbytype.id}
+													feature={derbytype}
+													type="derbytype"
+													selected={this.state.selectedFeatures.indexOf("derbytype-" + derbytype.id) > -1}
 													toggleFunction={this.toggleFeatureIcon}
 												/>
 											))}
@@ -508,14 +521,12 @@ export default class Search extends React.Component<IProps> {
 									{(this.state.eventFeatures.sanctions.length ?
 										<span className="eventIconGroup eventIconSanctions">
 											<span className="label">Filter Sanctions:</span>
-											{this.state.eventFeatures.sanctions.map((icon: IDerbySanction) => (
+											{this.state.eventFeatures.sanctions.map((sanction: IDerbyFeature) => (
 												<FeatureIcon
-													imageClass={this.state.selectedEventFeatures.indexOf("sanction-" + icon.sanction_id) > -1 ? "selected" : ""}
-													abbreviation={icon.sanction_abbreviation}
-													id={icon.sanction_id}
-													key={icon.sanction_id}
-													title={icon.title}
-													featureType="sanction"
+													key={sanction.id}
+													feature={sanction}
+													selected={this.state.selectedFeatures.indexOf("sanction-" + sanction.id) > -1}
+													type="sanction"
 													toggleFunction={this.toggleFeatureIcon}
 												/>
 											))}
@@ -535,9 +546,9 @@ export default class Search extends React.Component<IProps> {
 									this.state.locationTab === "distance"
 									&& (!this.state.address1
 										|| !this.state.addressCity
-										|| !this.state.addressCountry.country_code
-										|| (this.state.addressCountry.country_region_type
-											&& !this.state.addressRegion.region_id)
+										|| !this.state.addressCountry.code
+										|| (this.state.addressCountry.regionType
+											&& !this.state.addressRegion.id)
 										)
 								}
 							>
@@ -563,9 +574,9 @@ export default class Search extends React.Component<IProps> {
 
 	clearDates() {
 
-		this.setState({
+		this.setSafeState({
 			dateRangeDisplay: formatDateRange({
-				firstDay: moment(),
+				start: moment(),
 			}),
 			endDate: null,
 			focusedInput: "startDate",
@@ -586,12 +597,11 @@ export default class Search extends React.Component<IProps> {
 
 	onDatesChange(dates: {startDate: moment.Moment, endDate: moment.Moment}) {
 
-		const dateObject: IDerbyDates = {
-			firstDay: dates.startDate ? dates.startDate : moment(),
-			lastDay: dates.endDate ? dates.endDate : null,
-		};
-		this.setState({
-			dateRangeDisplay: formatDateRange(dateObject),
+		this.setSafeState({
+			dateRangeDisplay: formatDateRange({
+				end: dates.endDate ? dates.endDate : null,
+				start: dates.startDate ? dates.startDate : moment(),
+			}),
 			endDate: dates.endDate,
 			startDate: dates.startDate,
 		});
@@ -600,8 +610,8 @@ export default class Search extends React.Component<IProps> {
 
 	changeCountrySelect(country: IGeoCountry) {
 
-		this.setState({
-			countrySelectValue: Object.assign({disabled: true}, country) || {} as IGeoCountry,
+		this.setSafeState({
+			countrySelectValue: country || {} as IGeoCountry,
 			regionSelectValue: {} as IGeoRegion,
 		});
 
@@ -611,7 +621,7 @@ export default class Search extends React.Component<IProps> {
 
 		event.preventDefault();
 
-		this.setState({
+		this.setSafeState({
 			locationTab: event.currentTarget.dataset.tab,
 		});
 
@@ -621,7 +631,7 @@ export default class Search extends React.Component<IProps> {
 
 		event.preventDefault();
 
-		this.setState({
+		this.setSafeState({
 			distanceUnits: event.currentTarget.dataset.unit,
 		});
 
@@ -629,66 +639,53 @@ export default class Search extends React.Component<IProps> {
 
 	changeRegionSelect(region: IGeoRegion) {
 
-		this.setState({
+		this.setSafeState({
 			regionSelectValue: region || {} as IGeoRegion,
 		});
 
 	}
 
-	addLocation(country: IGeoCountry, region?: IGeoRegion) {
+	addCountry(event: React.MouseEvent<HTMLButtonElement>) {
+		event.preventDefault();
 
-		let countries = this.state.selectedCountries;
-		const countryList = this.state.countryList;
-		const newState = {} as any;
-		const regionLists = this.state.regionLists;
-		const regions: IGeoRegionList = this.state.selectedRegions;
+		const country = this.state.countrySelectValue;
+		let selectedLocations = this.state.selectedLocations;
 
-		const addCountry = (c: IGeoCountry) => {
-			countries = countries.concat([c]);
-			if (!regions[c.country_code]) {
-				countryList[countryList.findIndex((x: IGeoCountry) => x.country_code === c.country_code)].disabled = true;
-			}
-		};
+		selectedLocations = selectedLocations.concat(Object.assign(country, {
+			regions: null,
+		}));
 
-		const addRegion = (c: IGeoCountry, r: IGeoRegion) => {
-			if (!regions[r.region_country]) {
-				regions[r.region_country] = [];
-				addCountry(c);
-			}
-			regions[r.region_country].push(r);
-			regionLists[r.region_country][regionLists[r.region_country].findIndex((x: IGeoRegion) => x.region_id === r.region_id)].disabled = true;
-		};
-
-		if (region) {
-			addRegion(country, region);
-		} else {
-			addCountry(country);
-		}
-
-		newState.selectedRegions = regions;
-		newState.selectedCountries = countries;
-		newState.countryList = countryList;
-		newState.regionLists = regionLists;
-
-		if (region) {
-			newState.regionSelectValue = {} as IGeoRegion;
-		} else {
-			newState.countrySelectValue = {} as IGeoCountry;
-		}
-
-		this.setState(newState);
+		this.setSafeState({
+			selectedLocations,
+		});
 
 	}
 
-	addLocationCountry() {
+	addRegion(event: React.MouseEvent<HTMLButtonElement>) {
+		event.preventDefault();
 
-		this.addLocation(this.state.countrySelectValue);
+		const region = this.state.regionSelectValue;
+		const selectedLocations = this.state.selectedLocations;
 
-	}
+		const findCountry = this.state.selectedLocations.filter((country) => country.code === region.country)[0];
 
-	addLocationRegion() {
+		if (findCountry && findCountry.regions) {
 
-		this.addLocation(this.state.countrySelectValue, this.state.regionSelectValue);
+			findCountry.regions.push(region);
+
+		} else if (!findCountry) {
+
+			const addCountry = this.state.countryList.filter((country) => country.code === region.country)[0];
+
+			selectedLocations.push(Object.assign(addCountry, {
+				regions: [region],
+			}));
+
+		}
+
+		this.setSafeState({
+			selectedLocations,
+		});
 
 	}
 
@@ -697,20 +694,20 @@ export default class Search extends React.Component<IProps> {
 		const countryList = this.state.countryList;
 		const regionLists = this.state.regionLists;
 		const regions = this.state.selectedRegions;
-		let countries = this.state.selectedCountries;
+		let countries = this.state.selectedLocations;
 
 		const removeCountry = (country: string) => {
-			countries = countries.filter((c: IGeoCountry) => c.country_code !== country);
+			countries = countries.filter((c: IGeoCountry) => c.code !== country);
 			if (regions[country]) {
 				delete regions[country];
 			}
-			countryList[countryList.findIndex((x: IGeoCountry) => x.country_code === country)].disabled = false;
+			countryList[countryList.findIndex((x: IGeoCountry) => x.code === country)].disabled = false;
 		};
 
 		const removeRegion = (c: string, r: number) => {
 			if (regions[c]) {
-				regionLists[c][regionLists[c].findIndex((x: IGeoRegion) => x.region_id === r)].disabled = false;
-				regions[c] = regions[c].filter((region: IGeoRegion) => region.region_id !== r);
+				regionLists[c][regionLists[c].findIndex((x: IGeoRegion) => x.id === r)].disabled = false;
+				regions[c] = regions[c].filter((region: IGeoRegion) => region.id !== r);
 				if (!regions[c].length) {
 					delete regions[c];
 					removeCountry(c);
@@ -724,10 +721,9 @@ export default class Search extends React.Component<IProps> {
 			removeCountry(countryCode);
 		}
 
-		this.setState({
+		this.setSafeState({
 			countryList,
-			regionLists,
-			selectedCountries: countries,
+			selectedLocations: countries,
 			selectedRegions: regions,
 		});
 
@@ -737,24 +733,24 @@ export default class Search extends React.Component<IProps> {
 
 	toggleFeatureIcon(icon: string) {
 
-		const selectedEventFeatures = this.state.selectedEventFeatures;
-		const iconIndex = selectedEventFeatures.indexOf(icon);
+		const selectedFeatures = this.state.selectedFeatures;
+		const iconIndex = selectedFeatures.indexOf(icon);
 
 		if (iconIndex === -1) {
-			selectedEventFeatures.push(icon);
+			selectedFeatures.push(icon);
 		} else {
-			selectedEventFeatures.splice(iconIndex, 1);
+			selectedFeatures.splice(iconIndex, 1);
 		}
 
-		this.setState({
-			selectedEventFeatures,
+		this.setSafeState({
+			selectedFeatures,
 		});
 
 	}
 
 	handleAddressCountryChange(country: IGeoCountry) {
 
-		this.setState({
+		this.setSafeState({
 			addressCountry: country || {} as IGeoCountry,
 			addressRegion: {} as IGeoRegion,
 		});
@@ -763,7 +759,7 @@ export default class Search extends React.Component<IProps> {
 
 	handleAddressRegionChange(region: IGeoRegion) {
 
-		this.setState({
+		this.setSafeState({
 			addressRegion: region || {} as IGeoRegion,
 		});
 
@@ -792,19 +788,20 @@ export default class Search extends React.Component<IProps> {
 			[fieldName]: value,
 		};
 
-		this.setState(newState as { [P in T]: ISearchState[P]; });
+		this.setSafeState(newState as { [P in T]: ISearchState[P]; });
 
 	}
 
 	handleFocusChange(focusedInput: FocusedInputShape) {
 
-		this.setState({ focusedInput });
+		this.setSafeState({ focusedInput });
 
 	}
 
 	isCountryOptionDisabled(option: IGeoCountry) {
 
-		return option.disabled;
+		return !!this.state.selectedLocations
+			.filter((country) => country.code === option.code).length;
 
 	}
 
@@ -816,13 +813,13 @@ export default class Search extends React.Component<IProps> {
 
 	getCountryOptionLabel(option: IGeoCountry) {
 
-		return option.country_name || "(type here to search list)";
+		return option.name || "(type here to search list)";
 
 	}
 
 	getRegionOptionLabel(option: IGeoRegion) {
 
-		return option.region_name || "(type here to search list)";
+		return option.name || "(type here to search list)";
 
 	}
 
@@ -857,28 +854,28 @@ export default class Search extends React.Component<IProps> {
 			searchURL += `/${this.state.endDate.format("Y-MM-DD")}`;
 		}
 
-		if (this.state.locationTab === "locations" && this.state.selectedCountries.length) {
+		if (this.state.locationTab === "locations" && this.state.selectedLocations.length) {
 
 			queryParts.push(`locations(${
-				this.state.selectedCountries.map((c: IGeoCountry) =>
-				c.country_code
-				+ (this.state.selectedRegions[c.country_code] ?
-					"-" + this.state.selectedRegions[c.country_code]
-							.map((reg: IGeoRegion) => (reg.region_id)).join("+")
+				this.state.selectedLocations.map((c: IGeoCountry) =>
+				c.code
+				+ (this.state.selectedRegions[c.code] ?
+					"-" + this.state.selectedRegions[c.code]
+							.map((reg: IGeoRegion) => (reg.id)).join("+")
 					: "")).join(",")
 				})`);
 
 		} else if (this.state.locationTab === "distance") {
 
-			queryParts.push(`distance(${this.state.address1}~${this.state.addressCity}~${this.state.addressCountry.country_code
-				}~${this.state.addressRegion.region_abbreviation || ""}~${this.state.addressPostal || ""
+			queryParts.push(`distance(${this.state.address1}~${this.state.addressCity}~${this.state.addressCountry.code
+				}~${this.state.addressRegion.abbreviation || ""}~${this.state.addressPostal || ""
 				}~${this.state.searchDistance}~${this.state.distanceUnits})`);
 
 		}
 
-		for (let feature = 0; feature < this.state.selectedEventFeatures.length; feature ++) {
+		for (let feature = 0; feature < this.state.selectedFeatures.length; feature ++) {
 
-			const [label, value] = this.state.selectedEventFeatures[feature].split("-");
+			const [label, value] = this.state.selectedFeatures[feature].split("-");
 			const featureName: (keyof IDerbyFeatures) = `${label}s` as (keyof IDerbyFeatures);
 			eventFeatures[featureName].push(value);
 
@@ -903,41 +900,39 @@ export default class Search extends React.Component<IProps> {
 	loadData() {
 
 		let countryList: IGeoCountry[] = [];
-		let eventSanctions: IDerbySanction[] = [];
-		let eventTracks: IDerbyTrack[] = [];
-		let eventTypes: IDerbyType[] = [];
+		let eventSanctions: IDerbyFeature[] = [];
+		let eventTracks: IDerbyFeature[] = [];
+		let eventTypes: IDerbyFeature[] = [];
 		let promiseError = false;
 		const promises: Array<Promise<any>> = [];
-		let regionLists: IGeoRegionList = {};
 
 		promises.push(getGeography()
-			.then((dataResponse: IGeoData) => {
-				countryList = dataResponse.countries;
-				regionLists = dataResponse.regions;
+			.then((countries: IGeoCountry[]) => {
+				countryList = countries;
 			}).catch((error) => {
 				console.error(error);
 				promiseError = true;
 			}));
 
 		promises.push(getDerbySanctions()
-			.then((dataResponse: IDerbySanction[]) => {
-				eventSanctions = dataResponse;
+			.then((sanctions: IDerbyFeature[]) => {
+				eventSanctions = sanctions;
 			}).catch((error) => {
 				console.error(error);
 				promiseError = true;
 			}));
 
 		promises.push(getDerbyTracks()
-			.then((dataResponse: IDerbyTrack[]) => {
-				eventTracks = dataResponse;
+			.then((tracks: IDerbyFeature[]) => {
+				eventTracks = tracks;
 			}).catch((error) => {
 				console.error(error);
 				promiseError = true;
 			}));
 
 		promises.push(getDerbyTypes()
-			.then((dataResponse: IDerbyType[]) => {
-				eventTypes = dataResponse;
+			.then((derbytypes: IDerbyFeature[]) => {
+				eventTypes = derbytypes;
 			}).catch((error) => {
 				console.error(error);
 				promiseError = true;
@@ -947,129 +942,91 @@ export default class Search extends React.Component<IProps> {
 
 			if (!promiseError) {
 
-				this.setState({
+				this.setSafeState({
 					countryList,
 					eventFeatures: {
 						derbytypes: eventTypes,
 						sanctions: eventSanctions,
 						tracks: eventTracks,
 					},
-					regionLists,
 				});
 
-				let startState: {
-					dateRangeDisplay: string,
-					endDate: moment.Moment,
+				const startState = {
 					loading: false,
-					startDate: moment.Moment,
-					selectedEventFeatures: string[],
-				};
-
-				startState = {
-					loading: false,
-				} as typeof startState;
+					locationTab: "none",
+					selectedFeatures: [],
+				} as IStartState;
 
 				if (this.props.lastSearch) {
 
-					const searchParts = this.props.lastSearch.match(/\/((?:\/?[0-9]{4}-[0-9]{2}-[0-9]{2}){0,2})\/?(.*)$/);
+					if (this.props.lastSearch.startDate) {
 
-					if (searchParts[1]) {
-						const [startDate, endDate] = searchParts[1].split("/");
-
-						startState.dateRangeDisplay = formatDateRange({
-							firstDay: moment(startDate) || null,
-							lastDay: moment(endDate) || null,
+						Object.assign(startState, {
+							dateRangeDisplay: formatDateRange({
+								end: this.props.lastSearch.endDate ? moment(this.props.lastSearch.endDate, "Y-MM-DD") : null,
+								start: this.props.lastSearch.startDate ? moment(this.props.lastSearch.startDate, "Y-MM-DD") : null,
+							}),
+							endDate: this.props.lastSearch.endDate ? moment(this.props.lastSearch.endDate, "Y-MM-DD") : null,
+							startDate: this.props.lastSearch.startDate ? moment(this.props.lastSearch.startDate, "Y-MM-DD") : null,
 						});
 
-						if (startDate) {
-							startState.startDate = moment(startDate);
-						}
+					}
 
-						if (endDate) {
-							startState.endDate = moment(endDate);
-						}
+					if (this.props.lastSearch.derbytypes && this.props.lastSearch.derbytypes.length) {
+
+						startState.selectedFeatures = startState.selectedFeatures.concat(
+							this.props.lastSearch.derbytypes.map((derbytype) => `derbytype-${derbytype.abbreviation}`));
 
 					}
 
-					if (searchParts[2]) {
-						const features = [];
+					if (this.props.lastSearch.sanctions && this.props.lastSearch.sanctions.length) {
 
-						for (const searchPart of searchParts[2].split("/")) {
-							const [, label, value] = searchPart.match(/([a-z]+)\((.*)\)/);
+						startState.selectedFeatures = startState.selectedFeatures.concat(
+							this.props.lastSearch.sanctions.map((sanction) => `sanction-${sanction.abbreviation}`));
 
-							switch (label) {
-								case "locations":
-
-									this.setState({
-										locationTab: "locations",
-									});
-
-									for (const countryItem of value.split(",")) {
-										const [country, regions] = countryItem.split("-");
-
-										if (regions) {
-
-											for (const region of regions.split("+")) {
-
-												this.addLocation(
-													countryList.filter((c: IGeoCountry) => c.country_code === country)[0],
-													regionLists[country].filter((r: IGeoRegion) => r.region_id === Number(region))[0]);
-
-											}
-
-											// test
-
-										} else {
-
-											this.addLocation(
-												countryList.filter((c: IGeoCountry) => c.country_code === country)[0]);
-
-										}
-
-									}
-
-									break;
-
-								case "distance":
-
-									const [address1, city, countryCode, regionAbbr, postal, distanceString, units] = value.split("~");
-
-									this.setState({
-										address1,
-										addressCity: city,
-										addressCountry: countryList.filter((c) => c.country_code === countryCode)[0],
-										addressPostal: postal,
-										addressRegion: regionAbbr ?
-											regionLists[countryCode].filter((r) => r.region_abbreviation === regionAbbr)[0]
-											: {} as IGeoRegion,
-										distanceUnits: units,
-										locationTab: "distance",
-										searchDistance: Number(distanceString),
-									});
-
-									break;
-
-								case "tracks":
-								case "derbytypes":
-								case "sanctions":
-
-									for (const item of value.split(",")) {
-										features.push(`${label.slice(0, -1)}-${item.trim()}`);
-									}
-									break;
-							}
-						}
-
-						startState.selectedEventFeatures = features;
 					}
+
+					if (this.props.lastSearch.tracks && this.props.lastSearch.tracks.length) {
+
+						startState.selectedFeatures = startState.selectedFeatures.concat(
+							this.props.lastSearch.tracks.map((track) => `track-${track.abbreviation}`));
+
+					}
+
+					if (this.props.lastSearch.address && this.props.lastSearch.distanceUnits) {
+
+						const [address1, city, regionAbbr, postal, countryCode, distanceString, distanceUnits]
+							= this.props.lastSearch.address.split("~");
+
+						const country = countryList.filter((c) => c.code === countryCode)[0];
+
+						Object.assign(startState, {
+							address1,
+							addressCity: city,
+							addressCountry: country,
+							addressPostal: postal,
+							addressRegion: regionAbbr && country.regions ?
+								country.regions.filter((r) => r.abbreviation === regionAbbr)[0] || {} as IGeoRegion
+								: {} as IGeoRegion,
+							distanceUnits,
+							locationTab: "distance",
+							searchDistance: Number(distanceString),
+						});
+
+
+					} else if (this.props.lastSearch.locations && this.props.lastSearch.locations.length) {
+
+						startState.selectedLocations = this.props.lastSearch.locations;
+
+					}
+
+					this.setSafeState(startState as ISearchState);
+
 				}
-
-				this.setState(startState);
 
 			}
 
 		});
-
 	}
 
 }

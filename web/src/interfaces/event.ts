@@ -1,13 +1,10 @@
-import { IDerbyIcons } from "interfaces/feature";
-import { INewDerbyVenue } from "interfaces/venue";
+import { IDerbyFeatures } from "interfaces/feature";
+import { IDBUserInfo, IUserInfo } from "interfaces/user";
+import { IDBDerbyVenue, IDerbyVenue, INewDerbyVenue } from "interfaces/venue";
 
 import moment from "moment";
 
-export interface IDBDerbyEvent {
-	country_code: string;
-	country_flag: string;
-	country_name: string;
-	country_region_type: string;
+export interface IDBDerbyEvent extends IDBDerbyVenue, IDBUserInfo {
 	days: IDerbyEventDay[];
 	derbytypes: string;
 	event_approved: number;
@@ -22,30 +19,8 @@ export interface IDBDerbyEvent {
 	event_timezone: number;
 	event_user: number;
 	event_venue: number;
-	region_abbreviation: string;
-	region_country: string;
-	region_id: number;
-	region_name: string;
 	sanctions: string;
-	timezone_id: number;
-	timezone_name: string;
 	tracks: string;
-	user_id: number;
-	user_name: string;
-	venue_address1: string;
-	venue_address2?: string;
-	venue_city: string;
-	venue_country: string;
-	venue_description?: string;
-	venue_distance: number;
-	venue_id: number;
-	venue_lat?: number;
-	venue_link?: string;
-	venue_lng?: number;
-	venue_name: string;
-	venue_postcode: string;
-	venue_region: number;
-	venue_user: number;
 }
 
 export interface IDBDerbyEventChange extends IDBDerbyEvent {
@@ -57,35 +32,18 @@ export interface IDBDerbyEventChange extends IDBDerbyEvent {
 	changed_item_id: number;
 }
 
-export interface IDerbyDates {
-	firstDay: moment.Moment;
-	lastDay?: moment.Moment;
-}
-
 export interface IDerbyEvent {
-	address1?: string;
-	address2?: string;
-	country?: string;
-	datesVenue?: string;
+	dates?: string;
 	days?: IDerbyEventDayFormatted[];
 	description?: string;
-	link?: string;
-	flag?: JSX.Element;
+	features?: IDerbyFeatures;
 	host?: string;
-	icons?: IDerbyIcons;
 	id: number;
-	location?: string;
+	link?: string;
 	multiDay?: boolean;
 	name: string;
-	postcode?: string;
-	user?: number;
-	username?: string;
-	venue?: number;
-	venueDescription?: string;
-	venueDistance?: string;
-	venueLink?: string;
-	venueLocation?: string;
-	venueName?: string;
+	user?: IUserInfo;
+	venue: IDerbyVenue;
 }
 
 export interface IDerbyEventChange extends IDerbyEvent {
@@ -107,7 +65,7 @@ export interface IDerbyEventChange extends IDerbyEvent {
 		startDate: string,
 		status: string,
 	}>;
-	features?: {
+	featureChanges?: {
 		derbytypes?: Array<{
 			name: string,
 			status: string,

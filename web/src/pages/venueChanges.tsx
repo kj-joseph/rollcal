@@ -6,13 +6,14 @@ import axios from "axios";
 import moment from "moment";
 
 import { IBoxListItem } from "interfaces/boxList";
-import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList } from "interfaces/geo";
+import { IGeoCountry, IGeoRegion } from "interfaces/geo";
 import { IProps } from "interfaces/redux";
 import { IDBDerbyVenueChange, IDerbyVenueChange, IDerbyVenueChangeObject } from "interfaces/venue";
 
-import { checkUserRole } from "components/lib/auth";
-import { getGeography } from "components/lib/data";
-import BoxList from "components/partials/boxList";
+import { getGeography } from "services/geo";
+import { checkUserRole } from "services/user";
+
+import BoxList from "components/boxList";
 
 interface IVenueChangesState {
 	loading: boolean;

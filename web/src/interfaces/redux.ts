@@ -1,5 +1,7 @@
-import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
-import { IGeoData, ITimeZone } from "interfaces/geo";
+import { IDerbyFeature } from "interfaces/feature";
+import { IGeoCountry } from "interfaces/geo";
+import { ISearchObject } from "interfaces/search";
+import { ITimeZone } from "interfaces/time";
 import { IUserInfo, IUserRole } from "interfaces/user";
 
 import { RouteComponentProps } from "react-router";
@@ -18,11 +20,11 @@ export interface IProps extends IReduxActions, IReduxStore, RouteComponentProps<
 
 export interface IReduxActions {
 	clearUserInfo: () => IReduxActionType;
-	saveDataDerbyTypes: (data: IDerbyType[]) => IReduxActionType;
-	saveDataGeography: (data: IGeoData) => IReduxActionType;
-	saveDataSanctions: (data: IDerbySanction[]) => IReduxActionType;
-	saveDataTracks: (data: IDerbyTrack[]) => IReduxActionType;
-	saveLastSearch: (search: string) => IReduxActionType;
+	saveDataDerbyTypes: (data: IDerbyFeature[]) => IReduxActionType;
+	saveDataGeography: (data: IGeoCountry[]) => IReduxActionType;
+	saveDataSanctions: (data: IDerbyFeature[]) => IReduxActionType;
+	saveDataTracks: (data: IDerbyFeature[]) => IReduxActionType;
+	saveLastSearch: (search: ISearchObject) => IReduxActionType;
 	saveRolesList: (roles: IUserRole[]) => IReduxActionType;
 	saveTimeZones: (data: ITimeZone[]) => IReduxActionType;
 	setLoginModalState: (loginModalState: boolean) => IReduxActionType;
@@ -38,12 +40,12 @@ export interface IReduxActionType {
 
 export interface IReduxStore {
 	apiLocation: string;
-	dataDerbyTypes: IDerbyType[];
-	dataGeography: IGeoData;
-	dataSanctions: IDerbySanction[];
-	dataTracks: IDerbyTrack[];
+	dataDerbyTypes: IDerbyFeature[];
+	dataGeography: IGeoCountry[];
+	dataSanctions: IDerbyFeature[];
+	dataTracks: IDerbyFeature[];
 	kmConverter: number;
-	lastSearch: string;
+	lastSearch: ISearchObject;
 	listPageLength: number;
 	loggedIn: false;
 	loggedInUserEmail: string;

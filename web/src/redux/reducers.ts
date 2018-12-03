@@ -1,17 +1,14 @@
-import { IGeoData, ITimeZone } from "interfaces/geo";
 import { IReduxActionType, IReduxStore } from "interfaces/redux";
+import { ISearchObject } from "interfaces/search";
 
 const initialState: IReduxStore = {
 	apiLocation: process.env.API_URL,
 	dataDerbyTypes: [],
-	dataGeography: {
-		countries: [],
-		regions: {},
-	} as IGeoData,
+	dataGeography: [],
 	dataSanctions: [],
 	dataTracks: [],
 	kmConverter: 1.60934,
-	lastSearch: "",
+	lastSearch: {} as ISearchObject,
 	listPageLength: 9,
 	loggedIn: false,
 	loggedInUserEmail: "",
@@ -26,7 +23,7 @@ const initialState: IReduxStore = {
 	},
 	rolesList: [],
 	sessionInitialized: false,
-	timeZones: [] as ITimeZone[],
+	timeZones: [],
 	userStatusList: [
 		"active",
 		"unvalidated",

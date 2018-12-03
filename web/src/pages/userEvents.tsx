@@ -17,9 +17,9 @@ import CircleIcon from "images/circle.svg";
 import CloseIcon from "images/times-circle.svg";
 import ReactSVG from "react-svg";
 
-import { checkUserRole } from "components/lib/auth";
-import { formatDateRange } from "components/lib/dateTime";
-import BoxList from "components/partials/boxList";
+import BoxList from "components/boxList";
+import { formatDateRange } from "services/time";
+import { checkUserRole } from "services/user";
 
 interface IUserEventsState {
 	deleteEventId: number;
@@ -325,7 +325,7 @@ export default class UserEvents extends React.Component<IProps> {
 			.then((result) => {
 
 				const eventData = result.data.events.map((event: IDBDerbyEvent) => ({
-						datesVenue: formatDateRange({
+						dates: formatDateRange({
 								firstDay: moment.utc(event.event_first_day),
 								lastDay: moment.utc(event.event_last_day),
 							}, "short"),

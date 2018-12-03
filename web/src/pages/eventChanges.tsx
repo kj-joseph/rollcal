@@ -3,14 +3,16 @@ import { Link } from "react-router-dom";
 
 import axios from "axios";
 
-import { getGeography } from "components/lib/data";
 import { IDBDerbyEventChange, IDerbyEventChange, IDerbyEventChangeObject } from "interfaces/event";
-import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList } from "interfaces/geo";
+import { IGeoCountry, IGeoRegion } from "interfaces/geo";
 import { IProps } from "interfaces/redux";
 
-import { checkUserRole } from "components/lib/auth";
-import { formatDateRange } from "components/lib/dateTime";
-import BoxList from "components/partials/boxList";
+import { getGeography } from "services/geo";
+import { formatDateRange } from "services/time";
+import { checkUserRole } from "services/user";
+
+import BoxList from "components/boxList";
+
 import moment from "moment";
 
 interface IEventChangesState {
@@ -184,7 +186,7 @@ export default class EventChanges extends React.Component<IProps> {
 								resolve({
 									changeId: change.change_id,
 									changedItemId: change.changed_item_id,
-									datesVenue: formatDateRange({
+									dates: formatDateRange({
 											firstDay: moment.utc(change.event_first_day),
 											lastDay: moment.utc(change.event_last_day),
 										}, "short"),

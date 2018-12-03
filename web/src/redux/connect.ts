@@ -1,6 +1,8 @@
-import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
-import { IGeoData, ITimeZone } from "interfaces/geo";
+import { IDerbyFeature } from "interfaces/feature";
+import { IGeoCountry } from "interfaces/geo";
 import { IPageTitle, IProps, IReduxActions, IReduxActionType } from "interfaces/redux";
+import { ISearchObject } from "interfaces/search";
+import { ITimeZone } from "interfaces/time";
 import { IUserInfo, IUserRole } from "interfaces/user";
 
 import { connect } from "react-redux";
@@ -14,11 +16,11 @@ const mapStateToProps = (reduxState: IProps) => {
 const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>): IReduxActions => {
 	return {
 		clearUserInfo: () => dispatch(reduxActions.clearUserInfo()),
-		saveDataDerbyTypes: (data: IDerbyType[]) => dispatch(reduxActions.saveDataDerbyTypes(data)),
-		saveDataGeography: (data: IGeoData) => dispatch(reduxActions.saveDataGeography(data)),
-		saveDataSanctions: (data: IDerbySanction[]) => dispatch(reduxActions.saveDataSanctions(data)),
-		saveDataTracks: (data: IDerbyTrack[]) => dispatch(reduxActions.saveDataTracks(data)),
-		saveLastSearch: (search: string) => dispatch(reduxActions.saveLastSearch(search)),
+		saveDataDerbyTypes: (data: IDerbyFeature[]) => dispatch(reduxActions.saveDataDerbyTypes(data)),
+		saveDataGeography: (data: IGeoCountry[]) => dispatch(reduxActions.saveDataGeography(data)),
+		saveDataSanctions: (data: IDerbyFeature[]) => dispatch(reduxActions.saveDataSanctions(data)),
+		saveDataTracks: (data: IDerbyFeature[]) => dispatch(reduxActions.saveDataTracks(data)),
+		saveLastSearch: (search: ISearchObject) => dispatch(reduxActions.saveLastSearch(search)),
 		saveRolesList: (data: IUserRole[]) => dispatch(reduxActions.saveRolesList(data)),
 		saveTimeZones: (data: ITimeZone[]) => dispatch(reduxActions.saveTimeZones(data)),
 		setLoginModalState: (loginModalState: boolean) => dispatch(reduxActions.setLoginModalState(loginModalState)),

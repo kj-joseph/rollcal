@@ -7,7 +7,7 @@ import { IDBUserInfo, IUserInfo } from "interfaces/user";
 import Modal from "react-modal";
 Modal.setAppElement("#root");
 
-import { checkUserRole } from "components/lib/auth";
+import { checkUserRole } from "services/user";
 
 import axios from "axios";
 

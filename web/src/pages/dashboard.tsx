@@ -6,7 +6,7 @@ import { IProps } from "interfaces/redux";
 import Modal from "react-modal";
 Modal.setAppElement("#root");
 
-import { checkUserRole, logout } from "components/lib/auth";
+import { checkUserRole, logout } from "services/user";
 
 interface IDashboardState {
 	path: string;

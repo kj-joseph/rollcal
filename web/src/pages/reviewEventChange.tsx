@@ -12,10 +12,12 @@ import { IGeoCountry, IGeoData, IGeoRegionList, ITimeZone } from "interfaces/geo
 import { IProps } from "interfaces/redux";
 import { IDBDerbyVenue, IDerbyVenue, INewDerbyVenue } from "interfaces/venue";
 
-import { checkUserRole } from "components/lib/auth";
-import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography, getTimeZones } from "components/lib/data";
+import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/feature";
+import { getGeography } from "services/geo";
+import { getTimeZones } from "services/time";
+import { checkUserRole } from "services/user";
 
-import CompareValues from "components/partials/compareValues";
+import CompareValues from "components/compareValues";
 
 import Modal from "react-modal";
 Modal.setAppElement("#root");

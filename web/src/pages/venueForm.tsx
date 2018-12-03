@@ -5,8 +5,9 @@ import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList, ITimeZone } from "in
 import { IProps } from "interfaces/redux";
 import { IDerbyVenue, IDerbyVenueChangeObject } from "interfaces/venue";
 
-import { checkUserRole } from "components/lib/auth";
-import { getGeography, getTimeZones } from "components/lib/data";
+import { getGeography } from "services/geo";
+import { getTimeZones } from "services/time";
+import { checkUserRole } from "services/user";
 
 import axios from "axios";
 

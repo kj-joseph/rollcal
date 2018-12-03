@@ -2,7 +2,7 @@ import React from "react";
 
 import { IDerbyIcon, IDerbyIcons } from "interfaces/feature";
 
-import EventIconImage from "components/partials/eventIconImage";
+import EventIconImage from "components/eventIconImage";
 
 interface IEventIconsProps {
 	icons: IDerbyIcons;

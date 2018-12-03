@@ -1,10 +1,11 @@
 import React from "react";
 import ReactSVG from "react-svg";
 
-import { IDerbyIcon } from "interfaces/feature";
+import { IDerbyFeature } from "interfaces/feature";
 
 interface IEventIconImageProps {
-	icon: IDerbyIcon;
+	feature: IDerbyFeature;
+	type: string;
 }
 
 export default class EventIconImage extends React.Component<IEventIconImageProps> {
@@ -19,7 +20,7 @@ export default class EventIconImage extends React.Component<IEventIconImageProps
 
 			<ReactSVG
 				className="icon"
-				src={`/images/${this.props.icon.filename}.svg`}
+				src={`/images/${this.props.feature.abbreviation}.svg`}
 				title={this.props.icon.title}
 			/>
 

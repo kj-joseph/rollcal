@@ -15,8 +15,18 @@ export const callApi = (
 	new Promise((resolve, reject) => {
 		const state = store.getState();
 
+		// remove empty parameters
+		for (const param in params) {
+			if (params.hasOwnProperty(param)) {
+				if (!params[param]) {
+					delete params[param];
+				}
+			}
+		}
+
 		const axiosRequest: AxiosRequestConfig = {
 			cancelToken: axiosSignal.token,
+			method,
 			url: `${state.apiLocation}${path}`,
 			withCredentials: true,
 		};

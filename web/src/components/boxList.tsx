@@ -1,15 +1,18 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { IBoxListItem } from "interfaces/boxList";
-import { IDerbyIcon } from "interfaces/feature";
+import store from "redux/store";
 
-import EventIconImage from "components/partials/eventIconImage";
+import { IBoxListItem } from "interfaces/boxList";
+import { IDerbyFeature } from "interfaces/feature";
+
+import FeatureIcon from "components/featureIcon";
 import MyEventIcon from "images/star.svg";
 import ReactSVG from "react-svg";
 
 interface IBoxListDefaultProps {
 	distance: boolean;
+	distanceUnits: "mi" | "km";
 	noIcons: boolean;
 	paginate: boolean;
 }
@@ -33,12 +36,16 @@ export default class BoxList extends React.Component<IBoxListProps> {
 
 	static defaultProps: IBoxListDefaultProps = {
 		distance: false,
+		distanceUnits: "mi",
 		noIcons: false,
 		paginate: false,
 	};
 
+	state = store.getState();
+
 	constructor(props: IBoxListProps) {
 		super(props);
+
 	}
 
 	render() {
@@ -68,7 +75,7 @@ export default class BoxList extends React.Component<IBoxListProps> {
 										<strong>{item.id ? "Change" : `New ${this.props.itemType.substring(0, this.props.itemType.length - 1)}`}</strong>
 										<br />
 										<span title={item.submittedTime}>{item.submittedDuration} ago</span>{" "}
-										by <strong>{item.username}</strong>
+										by <strong>{item.user.userName}</strong>
 									</p>
 								</React.Fragment>
 							: ""}
@@ -88,17 +95,21 @@ export default class BoxList extends React.Component<IBoxListProps> {
 								</div>
 							: ""}
 
-							<p className="listDate"><strong>{item.datesVenue}</strong></p>
+							<p className="listDate"><strong>{item.dates}</strong></p>
 							{this.props.itemType === "events" ?
 								<p className="listLocation">{item.location}
-									{!this.props.noIcons && item.countryFlag ?
+									{!this.props.noIcons && item.country ?
 										<React.Fragment>
 											{" "}
-											<span title={item.countryName} className={`flag-icon flag-icon-${item.countryFlag}`} />
+											<span title={item.country.name} className={`flag-icon flag-icon-${item.country.flag}`} />
 										</React.Fragment>
 									: ""}
 									{this.props.distance && item.distance ?
-										<span className="distance">({item.distance})</span>
+										<span className="distance">({
+											Math.round(item.distance *
+												(this.props.distanceUnits === "km" ? this.state.kmConverter : 1 ))
+												.toLocaleString()
+										} {this.props.distanceUnits})</span>
 									: ""}
 								</p>
 							: ""}
@@ -118,26 +129,38 @@ export default class BoxList extends React.Component<IBoxListProps> {
 							: ""}
 							{(item.host) ?	<h3>Hosted by {item.host}</h3> : ""}
 
-							{this.props.itemType === "events" && item.icons && !this.props.noIcons ?
+							{this.props.itemType === "events" && item.features && !this.props.noIcons ?
 								<div className="listIcons">
-									{(item.icons.tracks.length ?
+									{(item.features.tracks.length ?
 										<span className="listIconGroup eventIconTracks">
-											{item.icons.tracks.map((icon: IDerbyIcon) => (
-												<EventIconImage icon={icon} key={icon.filename} />
+											{item.features.tracks.map((track: IDerbyFeature) => (
+												<FeatureIcon
+													feature={track}
+													type="track"
+													key={`track-${track.name}`}
+												/>
 											))}
 										</span>
 										: "" )}
-									{(item.icons.derbytypes.length ?
+									{(item.features.derbytypes.length ?
 										<span className="listIconGroup eventIconDerbytypes">
-											{item.icons.derbytypes.map((icon: IDerbyIcon) => (
-												<EventIconImage icon={icon} key={icon.filename} />
+											{item.features.derbytypes.map((derbytype: IDerbyFeature) => (
+												<FeatureIcon
+													feature={derbytype}
+													type="derbytype"
+													key={`derbytype-${derbytype.name}`}
+												/>
 											))}
 										</span>
 										: "" )}
-									{(item.icons.sanctions.length ?
+									{(item.features.sanctions.length ?
 										<span className="listIconGroup eventIconSanctions">
-											{item.icons.sanctions.map((icon: IDerbyIcon) => (
-												<EventIconImage icon={icon} key={icon.filename} />
+											{item.features.sanctions.map((sanction: IDerbyFeature) => (
+												<FeatureIcon
+													feature={sanction}
+													type="sanction"
+													key={`sanction-${sanction.name}`}
+												/>
 											))}
 										</span>
 										: "" )}

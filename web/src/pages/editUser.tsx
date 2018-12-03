@@ -1,14 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { IProps } from "interfaces/redux";
-import { IUserInfo, IUserRole } from "interfaces/user";
-
 import Modal from "react-modal";
 Modal.setAppElement("#root");
 
-import { checkUserRole } from "components/lib/auth";
-import { getUserRoles } from "components/lib/data";
+import { IProps } from "interfaces/redux";
+import { IUserInfo, IUserRole } from "interfaces/user";
+
+import { checkUserRole, getUserRoles } from "services/user";
 
 import axios from "axios";
 

@@ -1,18 +1,19 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { IBoxListItem } from "interfaces/boxList";
-import { IProps } from "interfaces/redux";
-import { IDBDerbyVenue } from "interfaces/venue";
-
 import axios from "axios";
 
 import CheckIcon from "images/check-circle.svg";
 import CircleIcon from "images/circle.svg";
 import ReactSVG from "react-svg";
 
-import { checkUserRole } from "components/lib/auth";
-import BoxList from "components/partials/boxList";
+import { IBoxListItem } from "interfaces/boxList";
+import { IProps } from "interfaces/redux";
+import { IDBDerbyVenue } from "interfaces/venue";
+
+import { checkUserRole } from "services/user";
+
+import BoxList from "components/boxList";
 
 interface IUserVenuesState {
 	isReviewer: boolean;

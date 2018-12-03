@@ -2,16 +2,17 @@ import React from "react";
 import FormatText from "react-format-text";
 import { Link } from "react-router-dom";
 
-import EventIcons from "components/partials/eventIcons";
+import EventIcons from "components/eventIcons";
 import { IDBDerbyEvent, IDerbyEvent, IDerbyEventDayFormatted } from "interfaces/event";
 import { IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
 import { IProps } from "interfaces/redux";
 
-import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "components/lib/data";
-import { formatDateRange } from "components/lib/dateTime";
+import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/feature";
+import { formatDateRange } from "services/time";
+
 import moment from "moment";
 
-import { callApi } from "components/lib/api";
+import { callApi } from "services/api";
 
 interface IEventDetailsState {
 	dataError: boolean;
@@ -109,7 +110,7 @@ export default class EventDetails extends React.Component<IProps> {
 									<h1>{this.state.eventData.name}</h1>
 									{(this.state.eventData.host) ?  <h3>Hosted by {this.state.eventData.host}</h3> : ""}
 
-									<p className="eventDate"><strong>{this.state.eventData.datesVenue}</strong></p>
+									<p className="eventDate"><strong>{this.state.eventData.dates}</strong></p>
 
 									{(this.state.eventData.link) ?
 										<p className="eventLink">
@@ -308,7 +309,7 @@ export default class EventDetails extends React.Component<IProps> {
 									address1: eventResult.venue_address1,
 									address2: eventResult.venue_address2,
 									country: eventResult.country_name,
-									datesVenue: formatDateRange({
+									dates: formatDateRange({
 											firstDay: moment.utc(eventResult.days[0].eventday_start_venue),
 											lastDay: moment.utc(eventResult.days[eventResult.days.length - 1].eventday_start_venue),
 										}, "long"),

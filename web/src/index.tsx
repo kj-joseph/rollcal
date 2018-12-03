@@ -1,6 +1,6 @@
 import React from "react";
 import { render } from "react-dom";
-import { BrowserRouter, NavLink, Route, Switch } from "react-router-dom";
+import { NavLink, Route, Router, Switch } from "react-router-dom";
 import ReactSVG from "react-svg";
 
 import { IProps } from "interfaces/redux";
@@ -8,7 +8,8 @@ import { Provider } from "react-redux";
 import { connectClass } from "redux/connect";
 import store from "redux/store";
 
-import { checkLoginStatus } from "components/lib/auth";
+import history from "services/history";
+import { checkLoginStatus } from "services/user";
 
 import Analytics from "react-ga";
 Analytics.initialize("UA-2467744-6");
@@ -21,9 +22,9 @@ import "react-dates/lib/css/_datepicker.css";
 import "styles/main.scss";
 
 // load static files
-import ".htaccess";
+import "static/.htaccess";
 require.context("images/favicon", true);
-import "robots.txt";
+import "static/robots.txt";
 
 // load feature images
 require.context("images/derbytypes", true);
@@ -39,101 +40,101 @@ import LoginIconSolid from "images/menu/user-circle-solid.svg";
 import LoginIconOutline from "images/menu/user-circle.svg";
 
 interface ISiteState {
-	url: string;
+    url: string;
 }
 
-class ConnectedSiteRouter extends React.Component<IProps> {
+class AppRouter extends React.Component < IProps > {
 
-	state: ISiteState = {
-		url: null,
-	};
+    state: ISiteState = {
+        url: null,
+    };
 
-	constructor(props: IProps) {
-		super(props);
+    constructor(props: IProps) {
+        super(props);
 
-		this.openLoginModal = this.openLoginModal.bind(this);
-	}
+        this.openLoginModal = this.openLoginModal.bind(this);
+    }
 
-	componentDidMount() {
+    componentDidMount() {
 
-		if (!this.props.sessionInitialized) {
+        if (!this.props.sessionInitialized) {
 
-			checkLoginStatus(this.props.apiLocation, this.props.setUserInfo).then(() => {
-				this.props.setSessionState(true);
-			});
+            checkLoginStatus().then(() => {
+                this.props.setSessionState(true);
+            });
 
-		}
+        }
 
-	}
+    }
 
-	componentDidUpdate() {
-		if (window.location.pathname !== this.state.url) {
+    componentDidUpdate() {
+        if (window.location.pathname !== this.state.url) {
 
-			this.setState({
-				url: window.location.pathname,
-			});
+            this.setState({
+                url: window.location.pathname,
+            });
 
-			if (!!(window.location.pathname.match(/^\/(?:[0-9]{4}-[0-9]{2}-[0-9]{2}|derbytypes|sanctions|tracks|locations)/g))) {
+            if (!!(window.location.pathname.match(/^\/(?:[0-9]{4}-[0-9]{2}-[0-9]{2}|derbytypes|sanctions|tracks|locations)/g))) {
 
-				const urlSearchParts = window.location.pathname.split("/");
+                const urlSearchParts = window.location.pathname.split("/");
 
-				const searchURL: string[] = [];
-				let hasStart = false;
+                const searchURL: string[] = [];
+                let hasStart = false;
 
-				for (const part of urlSearchParts) {
+                for (const part of urlSearchParts) {
 
-					if (part.match(/^[0-9]/)) {
+                    if (part.match(/^[0-9]/)) {
 
-						if (hasStart) {
-							searchURL.push(`endDate=${part}`);
-						} else {
-							searchURL.push(`startDate=${part}`);
-							hasStart = true;
-						}
+                        if (hasStart) {
+                            searchURL.push(`endDate=${part}`);
+                        } else {
+                            searchURL.push(`startDate=${part}`);
+                            hasStart = true;
+                        }
 
-					} else if (part) {
+                    } else if (part) {
 
-						const values = part.match(/^(derbytypes|sanctions|tracks|locations)\(([^\)]+)\)/);
-						searchURL.push(`${values[1]}=${values[2]}`);
+                        const values = part.match(/^(derbytypes|sanctions|tracks|locations)\(([^\)]+)\)/);
+                        searchURL.push(`${values[1]}=${values[2]}`);
 
-					}
+                    }
 
-				}
+                }
 
-				Analytics.set({
-					location: `${window.location.origin}/searchResults?${searchURL.join("&")}`,
-				});
-				Analytics.pageview(`/searchResults?${searchURL.join("&")}`);
+                Analytics.set({
+                    location: `${window.location.origin}/searchResults?${searchURL.join("&")}`,
+                });
+                Analytics.pageview(`/searchResults?${searchURL.join("&")}`);
 
-			} else {
+            } else {
 
-				Analytics.set({
-					location: window.location.origin + window.location.pathname,
-				});
-				Analytics.pageview(window.location.pathname);
+                Analytics.set({
+                    location: window.location.origin + window.location.pathname,
+                });
+                Analytics.pageview(window.location.pathname);
 
-			}
+            }
 
 
-		}
-	}
+        }
+    }
 
-	openLoginModal(event?: React.MouseEvent<HTMLAnchorElement>) {
+    openLoginModal(event?: React.MouseEvent < HTMLAnchorElement > ) {
 
-		if (event) {
-			event.preventDefault();
-		}
+        if (event) {
+            event.preventDefault();
+        }
 
-		this.props.setLoginModalState(true);
-		Analytics.modalview("Login");
+        this.props.setLoginModalState(true);
+        Analytics.modalview("Login");
 
-	}
+    }
 
-	render() {
+    render() {
 
-		return (
+        return (
 
-			<BrowserRouter>
+            <Router history={history}>
 
 				<div id="pageWrapper" className={typeof(process.env.ENV) !== "undefined" ? `env-${process.env.ENV}` : ""}>
 					<div id="siteHeader">
@@ -261,83 +262,83 @@ class ConnectedSiteRouter extends React.Component<IProps> {
 
 				</div>
 
-			 </BrowserRouter>
+			 </Router>
 
-		);
-	}
+        );
+    }
 
 }
 
-const SiteRouter = connectClass(ConnectedSiteRouter);
+const SiteRouter = connectClass(AppRouter);
 
-import AdminDashboard from "components/pages/admin";
+import AdminDashboard from "pages/admin";
 const AdminDashboardPage = connectClass(AdminDashboard);
 
-import Contact from "components/pages/contact";
+import Contact from "pages/contact";
 const ContactPage = connectClass(Contact);
 
-import Dashboard from "components/pages/dashboard";
+import Dashboard from "pages/dashboard";
 const DashboardPage = connectClass(Dashboard);
 
-import EditUser from "components/pages/editUser";
+import EditUser from "pages/editUser";
 const EditUserPage = connectClass(EditUser);
 
-import EventDetails from "components/pages/eventDetails";
+import EventDetails from "pages/eventDetails";
 const EventDetailsPage = connectClass(EventDetails);
 
-import EventChanges from "components/pages/eventChanges";
+import EventChanges from "pages/eventChanges";
 const EventChangesPage = connectClass(EventChanges);
 
-import EventForm from "components/pages/eventForm";
+import EventForm from "pages/eventForm";
 const EventFormPage = connectClass(EventForm);
 
-import Events from "components/pages/events";
+import Events from "pages/events";
 const EventsPage = connectClass(Events);
 
-import Faq from "components/pages/faq";
+import Faq from "pages/faq";
 const FaqPage = connectClass(Faq);
 
-import ForgotPassword from "components/pages/forgotPassword";
+import ForgotPassword from "pages/forgotPassword";
 const ForgotPasswordPage = connectClass(ForgotPassword);
 
-import ReviewEventChange from "components/pages/reviewEventChange";
+import ReviewEventChange from "pages/reviewEventChange";
 const ReviewEventChangePage = connectClass(ReviewEventChange);
 
-import ReviewVenueChange from "components/pages/reviewVenueChange";
+import ReviewVenueChange from "pages/reviewVenueChange";
 const ReviewVenueChangePage = connectClass(ReviewVenueChange);
 
-import Search from "components/pages/search";
+import Search from "pages/search";
 const SearchPage = connectClass(Search);
 
-import UserAccount from "components/pages/userAccount";
+import UserAccount from "pages/userAccount";
 const UserAccountPage = connectClass(UserAccount);
 
-import UserEvents from "components/pages/userEvents";
+import UserEvents from "pages/userEvents";
 const UserEventsPage = connectClass(UserEvents);
 
-import UserVenues from "components/pages/userVenues";
+import UserVenues from "pages/userVenues";
 const UserVenuesPage = connectClass(UserVenues);
 
-import Validate from "components/pages/validate";
+import Validate from "pages/validate";
 const ValidatePage = connectClass(Validate);
 
-import VenueChanges from "components/pages/venueChanges";
+import VenueChanges from "pages/venueChanges";
 const VenueChangesPage = connectClass(VenueChanges);
 
-import VenueForm from "components/pages/venueForm";
+import VenueForm from "pages/venueForm";
 const VenueFormPage = connectClass(VenueForm);
 
-import Login from "components/partials/login";
+import Login from "components/login";
 const LoginModal = connectClass(Login);
 
-import SiteMenu from "components/partials/siteMenu";
+import SiteMenu from "components/siteMenu";
 const SiteMenuComponent = connectClass(SiteMenu);
 
-import Error404 from "components/status/404";
+import Error404 from "status/404";
 const NotFoundPage = connectClass(Error404);
 
 render(
-	<Provider store={store}>
+    <Provider store={store}>
 		<SiteRouter />
 	</Provider>,
-	document.getElementById("root"));
+    document.getElementById("root"));

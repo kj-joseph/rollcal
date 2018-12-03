@@ -7,8 +7,10 @@ import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList, ITimeZone } from "in
 import { IProps } from "interfaces/redux";
 import { IDBDerbyVenue, IDerbyVenue } from "interfaces/venue";
 
-import { checkUserRole } from "components/lib/auth";
-import { getDerbySanctions, getDerbyTracks, getDerbyTypes, getGeography, getTimeZones } from "components/lib/data";
+import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/feature";
+import { getGeography } from "services/geo";
+import { getTimeZones } from "services/time";
+import { checkUserRole } from "services/user";
 
 import axios from "axios";
 
@@ -19,7 +21,7 @@ import moment from "moment";
 
 import Select from "react-select";
 
-import FeatureIcon from "components/partials/featureIcon";
+import FeatureIcon from "components/featureIcon";
 
 interface IEventFormState {
 	countryList: IGeoCountry[];

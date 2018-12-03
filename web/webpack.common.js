@@ -26,7 +26,7 @@ module.exports = {
 	plugins: [
 		new HtmlWebpackPlugin({
 			title: "Roll-Cal - Roller derby event calendar",
-			template: "src/index.html",
+			template: "src/static/index.html",
 			minify: false,
 		})
 	],
