@@ -93,87 +93,38 @@ export const getGeography = (): Promise<IGeoCountry[]> => {
 
 		} else {
 
-			callApi("get", "geography/getAllCountries")
+			callApi("get", "geography/getGeography")
+				.then((result) => {
 
-				.then((countries: IDBGeoCountry[]) => {
+					const countries: IDBGeoCountry[] = result.countries;
+					const regions: IDBGeoRegion[] = result.regions;
 
-					const promises: Array<Promise<IGeoCountry>> = [];
-
-					for (const country of countries) {
-
-						promises.push(new Promise((countryResolve, countryReject) => {
-
-							const countryData: IGeoCountry = {
-								code: country.country_code,
-								flag: country.country_flag,
-								name: country.country_name,
-								regionType: country.country_region_type,
-							};
-
-							if (countryData.regionType) {
-
-								callApi("get", `geography/getRegionsByCountry/${countryData.code}`)
-
-									.then((resultRegions: IDBGeoRegion[]) => {
-
-										if (resultRegions.length) {
-
-											countryData.regions = resultRegions.map((region) => ({
-												abbreviation: region.region_abbreviation,
-												country: region.region_country,
-												id: region.region_id,
-												name: region.region_name,
-											}));
-
-											countryResolve(countryData);
-
-										} else {
-
-											countryResolve(countryData);
-
-										}
-
-									}).catch((error) => {
-
-										countryResolve(countryData);
-
-									});
-
-							} else {
-
-								countryResolve(countryData);
-
-							}
-
+					const countryList = countries
+						.map((country): IGeoCountry => ({
+							code: country.country_code,
+							flag: country.country_flag,
+							name: country.country_name,
+							regionType: country.country_region_type,
+							regions: country.country_region_type ?
+								regions
+									.filter((region) => region.region_country === country.country_code)
+									.map((region) => ({
+										abbreviation: region.region_abbreviation,
+										country: region.region_country,
+										id: region.region_id,
+										name: region.region_name,
+									}))
+								: undefined,
 						}));
 
+					store.dispatch(actions.saveDataGeography(countryList));
+					resolve(countryList);
 
-					}
+				})
+				.catch((error) => {
 
-					if (promises.length) {
-
-						Promise.all(promises).then((countryList) => {
-
-							store.dispatch(actions.saveDataGeography(countryList));
-
-							resolve(countryList);
-
-						}).catch((error) => {
-
-							reject(error);
-
-						});
-
-					} else {
-
-						store.dispatch(actions.saveDataGeography([]));
-
-						resolve([]);
-
-					}
-
-				}).catch((error) => {
 					reject(error);
+
 				});
 		}
 
@@ -194,4 +145,3 @@ export const mapRegion = (data: IDBDerbyEvent | IDBDerbyVenue): IGeoRegion => ({
 	id: data.region_id,
 	name: data.region_name,
 });
-
