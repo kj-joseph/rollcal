@@ -27,7 +27,7 @@
 	},
 	"dependencies": {
 		"@babel/polyfill": "^7.0.0",
-		"react": "^16.5.2",
+		"react": "^16.6.3",
 		"react-dates": "^18.1.1",
 		"react-dom": "^16.5.2",
 		"react-format-text": "^1.1.1",
