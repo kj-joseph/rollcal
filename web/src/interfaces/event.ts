@@ -5,7 +5,7 @@ import { IDBDerbyVenue, IDerbyVenue, INewDerbyVenue } from "interfaces/venue";
 import moment from "moment";
 
 export interface IDBDerbyEvent extends IDBDerbyVenue, IDBUserInfo {
-	days: IDerbyEventDay[];
+	days: IDBDerbyEventDay[];
 	derbytypes: string;
 	event_approved: number;
 	event_description?: string;
@@ -32,9 +32,22 @@ export interface IDBDerbyEventChange extends IDBDerbyEvent {
 	changed_item_id: number;
 }
 
+export interface IDBDerbyEventDay {
+	eventday_description?: string;
+	eventday_event: number;
+	eventday_games?: number;
+	eventday_doors: string;
+	eventday_doors_user?: string;
+	eventday_doors_venue: string;
+	eventday_id: number;
+	eventday_start: string;
+	eventday_start_user?: string;
+	eventday_start_venue: string;
+}
+
 export interface IDerbyEvent {
 	dates?: string;
-	days?: IDerbyEventDayFormatted[];
+	days?: IDerbyEventDay[];
 	description?: string;
 	features?: IDerbyFeatures;
 	host?: string;
@@ -108,19 +121,6 @@ export interface IDerbyEventChangeObject {
 }
 
 export interface IDerbyEventDay {
-	eventday_description?: string;
-	eventday_event: number;
-	eventday_games?: number;
-	eventday_doors: string;
-	eventday_doors_user?: string;
-	eventday_doors_venue: string;
-	eventday_id: number;
-	eventday_start: string;
-	eventday_start_user?: string;
-	eventday_start_venue: string;
-}
-
-export interface IDerbyEventDayFormatted {
 	date?: string;
 	dateObject?: moment.Moment;
 	doorsTime?: string;

@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { IDBDerbyEvent, IDerbyEvent, IDerbyEventChangeObject, IDerbyEventDayFormatted } from "interfaces/event";
+import { IDBDerbyEvent, IDerbyEvent, IDerbyEventChangeObject, IDerbyEventDay } from "interfaces/event";
 import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
 import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList, ITimeZone } from "interfaces/geo";
 import { IProps } from "interfaces/redux";
@@ -26,7 +26,7 @@ import FeatureIcon from "components/featureIcon";
 interface IEventFormState {
 	countryList: IGeoCountry[];
 	dataError: boolean;
-	editingDays: IDerbyEventDayFormatted[];
+	editingDays: IDerbyEventDay[];
 	eventData: IDerbyEvent;
 	eventFeatures: {
 		derbytypes: IDerbyType[],
@@ -509,12 +509,12 @@ export default class EventForm<Props> extends React.Component<IProps> {
 										<h3
 											className={"formSectionHeader"
 												+ (this.state.sectionOpenDays ? " open" : " closed")
-												+ (this.state.editingDays.filter((day: IDerbyEventDayFormatted) =>
+												+ (this.state.editingDays.filter((day: IDerbyEventDay) =>
 													day.id > 0 || day.editing === false).length ? " ok" : "")}
 											data-section="Days"
 											onClick={this.toggleSection}
 										>
-											<span>Event Days</span> ({this.state.editingDays.filter((day: IDerbyEventDayFormatted) =>
+											<span>Event Days</span> ({this.state.editingDays.filter((day: IDerbyEventDay) =>
 												day.id > 0 || day.editing === false).length})
 										</h3>
 
@@ -528,9 +528,9 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 												<ul className={"eventDayList" + (this.state.editingDays.length ? "" : " empty")}>
 													{this.state.editingDays
-														.sort((day1: IDerbyEventDayFormatted, day2: IDerbyEventDayFormatted) =>
+														.sort((day1: IDerbyEventDay, day2: IDerbyEventDay) =>
 															day1.sortValue > day2.sortValue ? 1 : day1.sortValue < day2.sortValue ? -1 : 0)
-														.map((day: IDerbyEventDayFormatted) => (
+														.map((day: IDerbyEventDay) => (
 														<li key={day.id} data-day-id={day.id} className={day.editing ? "editing" : ""}>
 															<dl>
 																<dt>Date:</dt>
@@ -747,7 +747,7 @@ export default class EventForm<Props> extends React.Component<IProps> {
 											|| (!this.state.selectedFeatures.filter((feature: string) => feature.split("-")[0] === "derbytype").length
 												|| !this.state.selectedFeatures.filter((feature: string) => feature.split("-")[0] === "track").length
 												)
-											|| !!this.state.editingDays.filter((day: IDerbyEventDayFormatted) => day.editing).length
+											|| !!this.state.editingDays.filter((day: IDerbyEventDay) => day.editing).length
 										}
 										className="largeButton"
 									>
@@ -776,7 +776,7 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 		if (editingDays.length) {
 
-			nextDate = moment(editingDays.map((day: IDerbyEventDayFormatted) => day.dateObject)
+			nextDate = moment(editingDays.map((day: IDerbyEventDay) => day.dateObject)
 				.sort((day1: moment.Moment, day2: moment.Moment) =>
 					day1.isBefore(day2) ? 1 : day1.isAfter(day2) ? -1 : 0)[0]
 				.format("Y-MM-DD"))
@@ -810,10 +810,10 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 		const id = Number(event.currentTarget.getAttribute("data-day-id"));
 		const editingDays = this.state.editingDays;
-		const days = editingDays.filter((day: IDerbyEventDayFormatted) => day.id !== id);
+		const days = editingDays.filter((day: IDerbyEventDay) => day.id !== id);
 
 		if (id > 0) {
-			const originalDay: IDerbyEventDayFormatted = this.state.eventData.days.filter((day: IDerbyEventDayFormatted) => day.id === id)[0];
+			const originalDay: IDerbyEventDay = this.state.eventData.days.filter((day: IDerbyEventDay) => day.id === id)[0];
 
 			days.push({
 				dateObject: moment(originalDay.dateObject),
@@ -834,8 +834,8 @@ export default class EventForm<Props> extends React.Component<IProps> {
 		const id = Number(event.currentTarget.getAttribute("data-day-id"));
 		const eventData = this.state.eventData;
 
-		const eventDays = eventData.days.filter((day: IDerbyEventDayFormatted) => day.id !== id);
-		const editingDays = this.state.editingDays.filter((day: IDerbyEventDayFormatted) => day.id !== id);
+		const eventDays = eventData.days.filter((day: IDerbyEventDay) => day.id !== id);
+		const editingDays = this.state.editingDays.filter((day: IDerbyEventDay) => day.id !== id);
 
 		eventData.days = eventDays;
 
@@ -853,8 +853,8 @@ export default class EventForm<Props> extends React.Component<IProps> {
 		const id = Number(event.currentTarget.getAttribute("data-day-id"));
 
 		const editingDays = this.state.editingDays;
-		const thisDay = editingDays.filter((day: IDerbyEventDayFormatted) => day.id === id)[0];
-		const days = editingDays.filter((day: IDerbyEventDayFormatted) => day.id !== id);
+		const thisDay = editingDays.filter((day: IDerbyEventDay) => day.id === id)[0];
+		const days = editingDays.filter((day: IDerbyEventDay) => day.id !== id);
 
 		thisDay.editing = true;
 
@@ -952,10 +952,10 @@ export default class EventForm<Props> extends React.Component<IProps> {
 			case "eventDay":
 
 				const id = Number(event.currentTarget.getAttribute("data-day-id"));
-				const dayField: (keyof IDerbyEventDayFormatted) = event.currentTarget.getAttribute("id").split("_")[0];
+				const dayField: (keyof IDerbyEventDay) = event.currentTarget.getAttribute("id").split("_")[0];
 
-				const editingDays = this.state.editingDays.filter((day: IDerbyEventDayFormatted) => day.id !== id);
-				const thisDay = this.state.editingDays.filter((day: IDerbyEventDayFormatted) => day.id === id)[0];
+				const editingDays = this.state.editingDays.filter((day: IDerbyEventDay) => day.id !== id);
+				const thisDay = this.state.editingDays.filter((day: IDerbyEventDay) => day.id === id)[0];
 
 				thisDay[dayField] = event.currentTarget.value;
 
@@ -1003,8 +1003,8 @@ export default class EventForm<Props> extends React.Component<IProps> {
 		}
 
 		const usedDates = this.state.editingDays
-			.filter((day: IDerbyEventDayFormatted) => day.id !== id)
-			.map((usedDay: IDerbyEventDayFormatted) =>
+			.filter((day: IDerbyEventDay) => day.id !== id)
+			.map((usedDay: IDerbyEventDay) =>
 			usedDay.dateObject.format("Y-MM-DD"));
 
 		return usedDates.indexOf(compareDate.format("Y-MM-DD")) > -1;
@@ -1013,8 +1013,8 @@ export default class EventForm<Props> extends React.Component<IProps> {
 	onDateChange(date: moment.Moment, id: number) {
 
 		const editingDays = this.state.editingDays;
-		const thisDay = editingDays.filter((day: IDerbyEventDayFormatted) => day.id === id)[0];
-		const days = editingDays.filter((day: IDerbyEventDayFormatted) => day.id !== id);
+		const thisDay = editingDays.filter((day: IDerbyEventDay) => day.id === id)[0];
+		const days = editingDays.filter((day: IDerbyEventDay) => day.id !== id);
 
 		thisDay.dateObject = date;
 		thisDay.date = date.format("MMM D, Y");
@@ -1033,9 +1033,9 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 		const id = Number(event.currentTarget.getAttribute("data-day-id"));
 		const eventData = this.state.eventData;
-		const editedDay = this.state.editingDays.filter((day: IDerbyEventDayFormatted) => day.id === id)[0];
-		const editingDays = this.state.editingDays.filter((day: IDerbyEventDayFormatted) => day.id !== id);
-		const days = eventData.days.filter((day: IDerbyEventDayFormatted) => day.id !== id);
+		const editedDay = this.state.editingDays.filter((day: IDerbyEventDay) => day.id === id)[0];
+		const editingDays = this.state.editingDays.filter((day: IDerbyEventDay) => day.id !== id);
+		const days = eventData.days.filter((day: IDerbyEventDay) => day.id !== id);
 
 		const newDate = moment(editedDay.date, "MMM D, Y");
 
@@ -1358,7 +1358,7 @@ export default class EventForm<Props> extends React.Component<IProps> {
 								address1: "",
 								address2: "",
 								city: "",
-								days: [] as IDerbyEventDayFormatted[],
+								days: [] as IDerbyEventDay[],
 								description: "",
 								host: "",
 								id: 0,
@@ -1451,15 +1451,15 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 		}
 
-		const validDays = this.state.eventData.days.filter((day: IDerbyEventDayFormatted) =>
+		const validDays = this.state.eventData.days.filter((day: IDerbyEventDay) =>
 			day.date && day.dateObject.isValid() && day.startTime);
 
-		const dayIds = this.state.eventData.days.map((day: IDerbyEventDayFormatted) => day.id);
+		const dayIds = this.state.eventData.days.map((day: IDerbyEventDay) => day.id);
 
 		dataChanges.days = dataChanges.days.concat(
 			validDays
-				.filter((day: IDerbyEventDayFormatted) => day.id < 0 )
-				.map((day: IDerbyEventDayFormatted) => ({
+				.filter((day: IDerbyEventDay) => day.id < 0 )
+				.map((day: IDerbyEventDay) => ({
 					id: null as number,
 					operation: "add",
 					value: {
@@ -1473,17 +1473,17 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 			dataChanges.days = dataChanges.days.concat(
 				this.state.initialEventData.days
-					.filter((day: IDerbyEventDayFormatted) => dayIds.indexOf(day.id) === -1 )
-					.map((day: IDerbyEventDayFormatted) => ({
+					.filter((day: IDerbyEventDay) => dayIds.indexOf(day.id) === -1 )
+					.map((day: IDerbyEventDay) => ({
 						id: day.id,
 						operation: "delete",
 						value: {},
 					})));
 
-			for (const editedDay of validDays.filter((day: IDerbyEventDayFormatted) => day.id > 0 )) {
+			for (const editedDay of validDays.filter((day: IDerbyEventDay) => day.id > 0 )) {
 
 				const initialDay = this.state.initialEventData.days
-					.filter((day: IDerbyEventDayFormatted) => day.id === editedDay.id )[0];
+					.filter((day: IDerbyEventDay) => day.id === editedDay.id )[0];
 
 				if (editedDay.date !== initialDay.date
 					|| editedDay.startTime !== initialDay.startTime

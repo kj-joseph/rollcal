@@ -8,11 +8,32 @@ import { formatDateRange } from "services/time";
 import { mapUser } from "services/user";
 import { mapVenue } from "services/venue";
 
-import { IDBDerbyEvent, IDerbyEvent } from "interfaces/event";
+import { IDBDerbyEvent, IDBDerbyEventDay, IDerbyEvent, IDerbyEventDay } from "interfaces/event";
 import { IDerbyFeature, IDerbyFeatures } from "interfaces/feature";
 import { ISearchObject } from "interfaces/search";
 
 import moment from "moment";
+
+export const getEvent = (
+	id: number,
+): Promise<IDerbyEvent> =>
+
+	new Promise((resolve, reject) => {
+
+		callApi(
+			"get",
+			`events/getEventDetails/${id}`,
+		)
+			.then((eventData: IDBDerbyEvent) =>
+				mapEvent(eventData))
+
+			.then((event: IDerbyEvent) =>
+				resolve(event))
+
+			.catch((error) =>
+				reject(error));
+
+	});
 
 export const getSearchObject = (
 	search: string,
@@ -223,6 +244,20 @@ export const loadEvents = (
 
 };
 
+const mapDays = (
+	data: IDBDerbyEventDay[],
+): IDerbyEventDay[] =>
+
+	data.map((day) => ({
+		date: moment.utc(day.eventday_start_venue).format("MMM D"),
+		description: day.eventday_description,
+		doorsTime: day.eventday_doors_venue
+			&& day.eventday_doors_venue < day.eventday_start_venue
+			? moment.utc(day.eventday_doors_venue).format("h:mm a")
+			: "",
+		startTime: moment.utc(day.eventday_start_venue).format("h:mm a"),
+	}));
+
 const mapEvent = (
 	data: IDBDerbyEvent,
 ): Promise<IDerbyEvent> => {
@@ -269,12 +304,17 @@ const mapEvent = (
 						end: moment.utc(data.event_last_day),
 						start: moment.utc(data.event_first_day),
 					}, "long"),
+				days: data.days && data.days.length ?
+					mapDays(data.days)
+					: null,
 				description: data.event_description,
 				features,
 				host: data.event_name ? data.event_host : null,
 				id: data.event_id,
 				link: data.event_link,
-				multiDay: data.event_first_day.substring(0, 10) !== data.event_last_day.substring(0, 10),
+				multiDay: data.event_first_day ?
+					data.event_first_day.substring(0, 10) !== data.event_last_day.substring(0, 10)
+					: null,
 				name: data.event_name ? data.event_name : data.event_host,
 				user: mapUser(data),
 				venue: mapVenue(data),

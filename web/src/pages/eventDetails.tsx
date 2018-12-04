@@ -2,17 +2,13 @@ import React from "react";
 import FormatText from "react-format-text";
 import { Link } from "react-router-dom";
 
-import EventIcons from "components/eventIcons";
-import { IDBDerbyEvent, IDerbyEvent, IDerbyEventDayFormatted } from "interfaces/event";
-import { IDerbyIcons, IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
+import { IDerbyEvent, IDerbyEventDay } from "interfaces/event";
+import { IDerbyFeature } from "interfaces/feature";
 import { IProps } from "interfaces/redux";
 
-import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/feature";
-import { formatDateRange } from "services/time";
+import { getEvent } from "services/event";
 
-import moment from "moment";
-
-import { callApi } from "services/api";
+import FeatureIcon from "components/featureIcon";
 
 interface IEventDetailsState {
 	dataError: boolean;
@@ -98,7 +94,7 @@ export default class EventDetails extends React.Component<IProps> {
 
 						<div className="eventDetails">
 
-							{this.state.eventData.user === this.props.loggedInUserId ?
+							{this.state.eventData.user.userId === this.props.loggedInUserId ?
 								<div className="buttonRow cornerButton">
 									<button type="button" onClick={this.editEvent} className="largeButton">Edit Event</button>
 								</div>
@@ -122,7 +118,6 @@ export default class EventDetails extends React.Component<IProps> {
 									}
 								</div>
 
-
 								{(this.state.eventData.description) ?
 									<p><FormatText>{this.state.eventData.description}</FormatText></p>
 									: ""
@@ -130,40 +125,41 @@ export default class EventDetails extends React.Component<IProps> {
 
 								<div className="eventVenueInfo">
 									<address>
-										<strong>{this.state.eventData.venueName}</strong><br />
-										{this.state.eventData.address1}<br />
-										{(this.state.eventData.address2) ?
+										<strong>{this.state.eventData.venue.name}</strong><br />
+										{this.state.eventData.venue.address1}<br />
+										{(this.state.eventData.venue.address2) ?
 											<React.Fragment>
 												<span>
-													{this.state.eventData.address2}
+													{this.state.eventData.venue.address2}
 												</span>
 												<br />
 											</React.Fragment>
 											: ""
 										}
-										{this.state.eventData.location} {this.state.eventData.postcode}<br />
-										{this.state.eventData.country} {this.state.eventData.flag}
+										{this.state.eventData.venue.location} {this.state.eventData.venue.postcode}<br />
+										{this.state.eventData.venue.country.name} {this.state.eventData.venue.country.flag}
 									</address>
-									{(this.state.eventData.venueLink) ?
+
+									{(this.state.eventData.venue.link) ?
 										<p className="venueLink">
-											<a href={this.state.eventData.venueLink} target="_blank" rel="noopener noreferrer">
-												{this.state.eventData.venueName} website
+											<a href={this.state.eventData.venue.link} target="_blank" rel="noopener noreferrer">
+												{this.state.eventData.venue.name} website
 											</a>
 										</p>
 										: ""
 									}
 
-									{(this.state.eventData.venueDescription) ?
-										<p className="venueDescription">{this.state.eventData.venueDescription}</p>
+									{(this.state.eventData.venue.description) ?
+										<p className="venueDescription">{this.state.eventData.venue.description}</p>
 										: ""
 									}
 								</div>
 
-								{(this.state.eventData.multiDay) ?
+								{(this.state.eventData.days && this.state.eventData.days.length) ?
 									<div className="eventDays">
 										<h4>Days</h4>
 										<dl>
-										{this.state.eventData.days.map((day: IDerbyEventDayFormatted) => (
+										{this.state.eventData.days.map((day: IDerbyEventDay) => (
 											<React.Fragment key={day.date}>
 												<dt><strong>{day.date}:</strong>{day.startTime}
 													{day.doorsTime ? ` (Doors: ${day.doorsTime})` : ""}
@@ -186,15 +182,75 @@ export default class EventDetails extends React.Component<IProps> {
 								<p><em>All times shown are local to the venue.</em></p>
 
 								<p className="eventUser">
-									Event added by {this.state.eventData.username}{this.state.eventData.user === this.props.loggedInUserId ? " (thank you!)" : ""}
+									Event added by {this.state.eventData.user.userName
+										}{this.state.eventData.user.userId === this.props.loggedInUserId ? " (thank you!)" : ""}
 								</p>
 
 							</div>
 
-							<EventIcons
-								icons={this.state.eventData.icons}
-								showLabels={true}
-							/>
+							<div className="featureIcons">
+
+								{(this.state.eventData.features.tracks && this.state.eventData.features.tracks.length ?
+									<span className="featureIconGroup">
+
+										<span className="label">Track{
+											this.state.eventData.features.tracks.length > 1 ?
+												"s" : ""}</span>
+
+										{this.state.eventData.features.tracks.map((track: IDerbyFeature) => (
+
+											<FeatureIcon
+												key={track.id}
+												feature={track}
+												type="track"
+											/>
+
+										))}
+
+									</span>
+									: "" )}
+
+								{(this.state.eventData.features.derbytypes && this.state.eventData.features.derbytypes.length ?
+									<span className="featureIconGroup">
+
+										<span className="label">Derby Type{
+											this.state.eventData.features.derbytypes.length > 1 ?
+												"s" : ""}</span>
+
+										{this.state.eventData.features.derbytypes.map((derbytype: IDerbyFeature) => (
+
+											<FeatureIcon
+												key={derbytype.id}
+												feature={derbytype}
+												type="derbytype"
+											/>
+
+										))}
+
+									</span>
+									: "" )}
+
+								{(this.state.eventData.features.sanctions && this.state.eventData.features.sanctions.length ?
+									<span className="featureIconGroup">
+
+										<span className="label">Sanction{
+											this.state.eventData.features.sanctions.length > 1 ?
+												"s" : ""}</span>
+
+										{this.state.eventData.features.sanctions.map((sanction: IDerbyFeature) => (
+
+											<FeatureIcon
+												key={sanction.id}
+												feature={sanction}
+												type="sanction"
+											/>
+
+										))}
+
+									</span>
+									: "" )}
+
+							</div>
 
 						</div>
 
@@ -223,161 +279,27 @@ export default class EventDetails extends React.Component<IProps> {
 
 	loadData() {
 
-		callApi("get", `events/getEventDetails/${this.props.match.params.eventId}`)
+		getEvent(this.props.match.params.eventId)
+			.then((event: IDerbyEvent) => {
 
-			.then((eventResult: IDBDerbyEvent) => {
+				this.props.setPageTitle({
+					detail: event.name ? event.name : event.host,
+				});
 
-				if (eventResult) {
+				this.setState({
+					eventData: event,
+					loading: false,
+				});
 
-					const icons: IDerbyIcons = {
-						derbytypes: [],
-						sanctions: [],
-						tracks: [],
-					};
-					let promiseError = false;
-					const promises: Array<Promise<void>> = [];
+			})
+			.catch((error) => {
 
-					if (eventResult.derbytypes) {
+				console.error(error);
 
-						promises.push(getDerbyTypes()
-							.then((dataResponse: IDerbyType[]) => {
-
-								icons.derbytypes =
-									dataResponse.filter((dt: IDerbyType) =>
-										eventResult.derbytypes.split(",").indexOf(dt.derbytype_id.toString()) > -1 )
-											.map((dt: IDerbyType) => ({
-												filename: `derbytype-${dt.derbytype_abbreviation}`,
-												title: dt.derbytype_name,
-											}));
-
-							}).catch(() => {
-
-								promiseError = true;
-
-							}));
-
-					}
-
-					if (eventResult.sanctions) {
-
-						promises.push(getDerbySanctions()
-							.then((dataResponse: IDerbySanction[]) => {
-
-								icons.sanctions =
-									dataResponse.filter((s: IDerbySanction) =>
-										eventResult.sanctions.split(",").indexOf(s.sanction_id.toString()) > -1 )
-											.map((s: IDerbySanction) => ({
-												filename: `sanction-${s.sanction_abbreviation}`,
-												title: `${s.sanction_name} (${s.sanction_abbreviation})`,
-											}));
-
-							}).catch(() => {
-
-								promiseError = true;
-
-							}));
-
-					}
-
-					if (eventResult.tracks) {
-
-						promises.push(getDerbyTracks()
-							.then((dataResponse: IDerbyTrack[]) => {
-
-								icons.tracks =
-									dataResponse.filter((t: IDerbyTrack) =>
-										eventResult.tracks.split(",").indexOf(t.track_id.toString()) > -1 )
-											.map((t: IDerbyTrack) => ({
-												filename: `track-${t.track_abbreviation}`,
-												title: t.track_name,
-											}));
-
-							}).catch(() => {
-
-								promiseError = true;
-
-							}));
-
-					}
-
-					Promise.all(promises).then(() => {
-
-						if (!promiseError) {
-
-							this.setState({
-								eventData: {
-									address1: eventResult.venue_address1,
-									address2: eventResult.venue_address2,
-									country: eventResult.country_name,
-									dates: formatDateRange({
-											firstDay: moment.utc(eventResult.days[0].eventday_start_venue),
-											lastDay: moment.utc(eventResult.days[eventResult.days.length - 1].eventday_start_venue),
-										}, "long"),
-									days: eventResult.days.map((day) => ({
-										date: moment.utc(day.eventday_start_venue).format("MMM D"),
-										description: day.eventday_description,
-										doorsTime: day.eventday_doors_venue
-											&& day.eventday_doors_venue < day.eventday_start_venue
-											? moment.utc(day.eventday_doors_venue).format("h:mm a")
-											: "",
-										startTime: moment.utc(day.eventday_start_venue).format("h:mm a"),
-									})),
-									description: eventResult.event_description,
-									flag: eventResult.country_flag ? <span title={eventResult.country_name} className={`flag-icon flag-icon-${eventResult.country_flag}`} /> : null,
-									host: eventResult.event_name ? eventResult.event_host : null,
-									icons,
-									id: eventResult.event_id,
-									link: eventResult.event_link,
-									location: `${eventResult.venue_city}${eventResult.region_abbreviation ?
-										`, ${eventResult.region_abbreviation}` : ""}`,
-									multiDay: eventResult.days.length > 1,
-									name: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
-									postcode: eventResult.venue_postcode,
-									user: eventResult.user_id,
-									username: eventResult.user_name,
-									venueDescription: eventResult.venue_description,
-									venueLink: eventResult.venue_link,
-									venueName: eventResult.venue_name,
-								},
-								loading: false,
-							});
-
-							this.props.setPageTitle({
-								detail: eventResult.event_name ? eventResult.event_name : eventResult.event_host,
-							});
-
-						}
-
-					}).catch(() => {
-
-						this.setState({
-							dataError: true,
-							loading: false,
-						});
-
-					});
-
-				} else {
-					// no result, likely bad event ID in URL
-
-					this.setState({
-						dataError: true,
-						loading: false,
-					});
-
-				}
-
-			}).catch((exception) => {
-
-				if (!exception.cancel) {
-					console.error(exception);
-
-					this.setState({
-						dataError: true,
-						loading: false,
-					});
-
-				}
+				this.setState({
+					dataError: true,
+					loading: false,
+				});
 
 			});
 
