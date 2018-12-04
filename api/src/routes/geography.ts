@@ -3,10 +3,12 @@ import { MysqlError } from "mysql";
 
 const router = Router();
 
-router.get("/getAllCountries", (req: Request, res: Response) => {
+router.get("/getGeography", (req: Request, res: Response) => {
 
 	res.locals.connection
-		.query("call getAllCountries()",
+		.query(`call getAllCountries();
+			call getAllRegions();`,
+
 		(error: MysqlError, results: any) => {
 
 			if (error) {
@@ -17,30 +19,11 @@ router.get("/getAllCountries", (req: Request, res: Response) => {
 			} else {
 
 				res.locals.connection.end();
-				res.status(200).json(results[0].map((row: {}) => ({...row})));
+				res.status(200).json({
+					countries: results[0].map((row: {}) => ({...row})),
+					regions: results[2].map((row: {}) => ({...row})),
+				});
 			}
-		});
-});
-
-router.get("/getRegionsByCountry/:countryId", (req: Request, res: Response) => {
-
-	res.locals.connection
-		.query(`call getRegionsByCountry(${res.locals.connection.escape(req.params.countryId)})`,
-		(error: MysqlError, results: any) => {
-
-			if (error) {
-				console.error(error);
-
-				res.locals.connection.end();
-				res.status(500).send();
-
-			} else {
-
-				res.locals.connection.end();
-				res.status(200).json(results[0].map((row: {}) => ({...row})));
-
-			}
-
 		});
 });
 
