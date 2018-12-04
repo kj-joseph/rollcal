@@ -52,7 +52,6 @@ export const getDerbySanctions = (): Promise<IDerbyFeature[]> => {
 		} else {
 
 			callApi("get", "eventFeatures/getSanctionTypes")
-
 				.then((result: IDBDerbySanction[]) => {
 
 					const sanctions: IDerbyFeature[] = result.map((sanction) => ({
@@ -64,7 +63,8 @@ export const getDerbySanctions = (): Promise<IDerbyFeature[]> => {
 					store.dispatch(actions.saveDataSanctions(sanctions));
 					resolve(sanctions);
 
-				}).catch((error) => {
+				})
+				.catch((error) => {
 
 					reject(error);
 
@@ -87,7 +87,6 @@ export const getDerbyTracks = (): Promise<IDerbyFeature[]> => {
 		} else {
 
 			callApi("get", "eventFeatures/getTracks")
-
 				.then((result: IDBDerbyTrack[]) => {
 
 					const tracks: IDerbyFeature[] = result.map((track) => ({
@@ -99,7 +98,8 @@ export const getDerbyTracks = (): Promise<IDerbyFeature[]> => {
 					store.dispatch(actions.saveDataTracks(tracks));
 					resolve(tracks);
 
-				}).catch((error) => {
+				})
+				.catch((error) => {
 
 					reject(error);
 
@@ -122,7 +122,6 @@ export const getDerbyTypes = (): Promise<IDerbyFeature[]> => {
 		} else {
 
 			callApi("get", "eventFeatures/getDerbyTypes")
-
 				.then((result: IDBDerbyType[]) => {
 
 					const derbytypes: IDerbyFeature[] = result.map((derbytype) => ({
@@ -134,7 +133,8 @@ export const getDerbyTypes = (): Promise<IDerbyFeature[]> => {
 					store.dispatch(actions.saveDataDerbyTypes(derbytypes));
 					resolve(derbytypes);
 
-				}).catch((error) => {
+				})
+				.catch((error) => {
 
 					reject(error);
 

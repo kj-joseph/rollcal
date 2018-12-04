@@ -56,15 +56,6 @@ export default class Events extends React.Component<IProps> {
 		this.initialLoad = this.initialLoad.bind(this);
 		this.loadAll = this.loadAll.bind(this);
 		this.loadPage = this.loadPage.bind(this);
-		this.setSafeState = this.setSafeState.bind(this);
-	}
-
-	setSafeState <T extends keyof IEventsState>(stateObject: {
-		[key in T]: any
-	}) {
-		if (this.state) {
-			this.setState(stateObject);
-		}
 	}
 
 	componentDidMount() {
@@ -82,7 +73,7 @@ export default class Events extends React.Component<IProps> {
 
 		if (window.location.pathname !== this.state.path) {
 
-			this.setSafeState({
+			this.setState({
 				isSearch: (this.props.match.params.startDate || window.location.pathname !== "/"),
 				path: window.location.pathname,
 			});
@@ -114,12 +105,14 @@ export default class Events extends React.Component<IProps> {
 								}, "long")
 							}{this.state.searchObject.endDate ? "" : " – (all)"}</p>
 
-							{this.state.searchObject.address && this.state.searchObject.distance && this.state.searchObject.distanceUnits ?
+							{this.state.searchObject.address
+								&& this.state.searchObject.distance
+								&& this.state.searchObject.distanceUnits ?
 
 								<p><strong>Distance:</strong> {}{
 									`within ${Number(this.state.searchObject.distance).toLocaleString()
 										} ${this.state.searchObject.distanceUnits} of `}
-									<em>{this.state.searchObject.address}</em>
+									<em className="searchAddress">{this.displaySearchAddress(this.state.searchObject.address)}</em>
 								</p>
 
 							:
@@ -203,9 +196,22 @@ export default class Events extends React.Component<IProps> {
 		);
 	}
 
+	displaySearchAddress(address: string) {
+
+		const [address1, city, regionAbbr, postal, countryCode]
+			= address.split("~");
+
+		return `${address1}, ${city}${
+			regionAbbr ? `, ${regionAbbr}` : ""
+		}${
+			postal ? ` ${postal}` : ""
+		} ${countryCode}`;
+
+	}
+
 	initialLoad() {
 
-		this.setSafeState({
+		this.setState({
 			eventList: [],
 			loading: true,
 		});
@@ -221,10 +227,9 @@ export default class Events extends React.Component<IProps> {
 		}
 
 		searchEventsByString(searchString, this.state.listPageLength)
-
 			.then(({events, total, search}) => {
 
-				this.setSafeState({
+				this.setState({
 					eventList: events,
 					listItemsTotal: total,
 					loading: false,
@@ -233,10 +238,9 @@ export default class Events extends React.Component<IProps> {
 				});
 
 			})
-
 			.catch((error) => {
 
-				this.setSafeState({
+				this.setState({
 					dataError: true,
 					loading: false,
 					loadingMore: false,
@@ -261,7 +265,7 @@ export default class Events extends React.Component<IProps> {
 			event.preventDefault();
 		}
 
-		this.setSafeState({
+		this.setState({
 			loadingMore: true,
 		});
 
@@ -272,7 +276,7 @@ export default class Events extends React.Component<IProps> {
 		)
 			.then(({events, total}) => {
 
-				this.setSafeState({
+				this.setState({
 					eventList: this.state.eventList.concat(events),
 					listItemsTotal: total,
 					loading: false,
@@ -280,10 +284,9 @@ export default class Events extends React.Component<IProps> {
 				});
 
 			})
-
 			.catch((error) => {
 
-				this.setSafeState({
+				this.setState({
 					dataError: true,
 					loading: false,
 					loadingMore: false,

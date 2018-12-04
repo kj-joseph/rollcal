@@ -140,7 +140,7 @@ export const loadEvents = (
 				const apiSearch = {
 					address: null as string,
 					count,
-					country: search.addressCountry,
+					country: null as string,
 					derbytypes: search.derbytypes ?
 						search.derbytypes.map((derbytype) => derbytype.id).join(",")
 						: undefined,
@@ -176,6 +176,7 @@ export const loadEvents = (
 						postal ? ` ${postal}` : ""
 					}`;
 
+					apiSearch.country = countryCode;
 					apiSearch.distance = Number(distanceString) / (distanceUnits === "km" ? state.kmConverter : 1);
 
 				}
@@ -209,7 +210,8 @@ export const loadEvents = (
 
 							});
 
-					}).catch((exception) => {
+					})
+					.catch((exception) => {
 
 						reject(exception);
 

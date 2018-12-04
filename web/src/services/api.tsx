@@ -42,13 +42,11 @@ export const callApi = (
 		}
 
 		axios(axiosRequest)
-
 			.then((result) => {
 
 				resolve(result.data);
 
 			})
-
 			.catch((error) => {
 
 				if (axios.isCancel(error)) {

@@ -47,14 +47,14 @@ export const getTimeZones = (): Promise<ITimeZone[]> => {
 
 		} else {
 
-			callApi("get", "geography/getAllCountries")
-
+			callApi("get", "geography/getTimeZones")
 				.then((result: ITimeZone[]) => {
 
 					store.dispatch(actions.saveTimeZones(result));
 					resolve(result);
 
-				}).catch((error) => {
+				})
+				.catch((error) => {
 
 					reject(error);
 

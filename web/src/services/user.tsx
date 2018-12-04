@@ -26,7 +26,8 @@ export const checkLoginStatus = (): Promise<boolean> => {
 
 				resolve(true);
 
-			}).catch((error) => {
+			})
+			.catch((error) => {
 
 				if (error.response.status === 403) {
 					// not logged in
@@ -67,7 +68,8 @@ export const logout = (event?: React.MouseEvent<any>, redirect = true): Promise<
 
 				}
 
-			}).catch((error) => {
+			})
+			.catch((error) => {
 
 				console.error(error);
 
@@ -97,7 +99,8 @@ export const getUserRoles = (): Promise<IUserRole[]> => {
 
 					resolve(result.filter((role) => role.name !== "superadmin"));
 
-				}).catch((error) => {
+				})
+				.catch((error) => {
 
 					reject(error);
 

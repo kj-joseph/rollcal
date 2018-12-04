@@ -5,22 +5,15 @@ import { IDerbyFeature } from "interfaces/feature";
 
 interface IFeatureIconProps {
 	feature: IDerbyFeature;
-	type: string;
 	selected?: boolean;
-	toggleFunction?: (icon: string) => void;
+	toggle?: (event: React.MouseEvent<any>) => void;
+	type: string;
 }
 
 export default class FeatureIcon extends React.Component<IFeatureIconProps> {
 
 	constructor(props: IFeatureIconProps) {
 		super(props);
-
-		this.toggleIcon = this.toggleIcon.bind(this);
-	}
-
-	toggleIcon() {
-
-		this.props.toggleFunction(`${this.props.type}-${this.props.feature.id.toString()}`);
 
 	}
 
@@ -30,7 +23,8 @@ export default class FeatureIcon extends React.Component<IFeatureIconProps> {
 
 			<ReactSVG
 				className={`featureIcon${this.props.selected ? " selected" : ""}`}
-				onClick={this.props.toggleFunction ? this.toggleIcon : null}
+				data-feature={`${this.props.type}-${this.props.feature.id}`}
+				onClick={this.props.toggle ? this.props.toggle : null}
 				src={`/images/${this.props.type}-${this.props.feature.abbreviation}.svg`}
 				title={this.props.feature.name}
 			/>
