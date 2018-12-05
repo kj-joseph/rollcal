@@ -1,7 +1,11 @@
 import store from "redux/store";
 
 import axios, { AxiosRequestConfig } from "axios";
-const axiosSignal = axios.CancelToken.source();
+
+import * as Promise from "bluebird";
+Promise.config({
+	cancellation: true,
+});
 
 export const callApi = (
 	method: "delete" | "get" | "post" | "put",
@@ -12,7 +16,8 @@ export const callApi = (
 )
 : Promise<any> =>
 
-	new Promise((resolve, reject) => {
+	new Promise((resolve, reject, onCancel) => {
+		const axiosSignal = axios.CancelToken.source();
 		const state = store.getState();
 
 		// remove empty parameters
@@ -51,10 +56,7 @@ export const callApi = (
 
 				if (axios.isCancel(error)) {
 
-					reject({
-						cancel: true,
-						error: new ErrorEvent("API call canceled."),
-					});
+					reject(new Error("API call canceled"));
 
 				} else {
 
@@ -63,5 +65,11 @@ export const callApi = (
 				}
 
 			});
+
+		onCancel(() => {
+
+			axiosSignal.cancel();
+
+		});
 
 	});

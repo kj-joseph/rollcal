@@ -1,3 +1,4 @@
+import ComponentWithListeners from "components/componentWithListeners";
 import React from "react";
 import FormatText from "react-format-text";
 import { Link } from "react-router-dom";
@@ -17,7 +18,7 @@ interface IEventDetailsState {
 	path: string;
 }
 
-export default class EventDetails extends React.Component<IProps> {
+export default class EventDetails extends ComponentWithListeners<IProps> {
 
 	state: IEventDetailsState = {
 		dataError: false,
@@ -55,14 +56,17 @@ export default class EventDetails extends React.Component<IProps> {
 	}
 
 	componentWillUnmount() {
-		// ?
+		this.clearAllListeners();
 	}
+
 
 	render() {
 
 		return (
 
 			<React.Fragment>
+				<p>{this.promiseListeners.length}</p>
+
 				{this.props.match.params.eventId ?
 
 				<React.Fragment>
@@ -279,29 +283,30 @@ export default class EventDetails extends React.Component<IProps> {
 
 	loadData() {
 
-		getEvent(this.props.match.params.eventId)
-			.then((event: IDerbyEvent) => {
+		this.addListener(
+			getEvent(this.props.match.params.eventId)
+				.then((event: IDerbyEvent) => {
 
-				this.props.setPageTitle({
-					detail: event.name ? event.name : event.host,
-				});
+					this.props.setPageTitle({
+						detail: event.name ? event.name : event.host,
+					});
 
-				this.setState({
-					eventData: event,
-					loading: false,
-				});
+					this.setState({
+						eventData: event,
+						loading: false,
+					});
 
-			})
-			.catch((error) => {
+				})
+				.catch((error) => {
 
-				console.error(error);
+					console.error(error);
 
-				this.setState({
-					dataError: true,
-					loading: false,
-				});
+					this.setState({
+						dataError: true,
+						loading: false,
+					});
 
-			});
+				}));
 
 	}
 

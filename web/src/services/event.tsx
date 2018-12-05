@@ -14,13 +14,18 @@ import { ISearchObject } from "interfaces/search";
 
 import moment from "moment";
 
+import * as Promise from "bluebird";
+Promise.config({
+	cancellation: true,
+});
+
 export const getEvent = (
 	id: number,
 ): Promise<IDerbyEvent> =>
 
-	new Promise((resolve, reject) => {
+	new Promise((resolve, reject, onCancel) => {
 
-		callApi(
+		const apiCall = callApi(
 			"get",
 			`events/getEventDetails/${id}`,
 		)
@@ -32,6 +37,10 @@ export const getEvent = (
 
 			.catch((error) =>
 				reject(error));
+
+		onCancel(() => {
+			apiCall.cancel();
+		});
 
 	});
 
