@@ -59,9 +59,18 @@ class AppRouter extends React.Component < IProps > {
 
         if (!this.props.sessionInitialized) {
 
-            checkLoginStatus().then(() => {
-                this.props.setSessionState(true);
-            });
+            checkLoginStatus()
+            	.then(() => {
+
+                	this.props.setSessionState(true);
+
+            	})
+            	.catch(() => {
+
+            		// allow the page to continue if the status cannot be verified
+                	this.props.setSessionState(true);
+
+            	});
 
         }
 
