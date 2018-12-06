@@ -1,4 +1,4 @@
-// import { callApi } from "services/api";
+// import { callApi } from "services/apiService";
 // import actions from "redux/actions";
 // import store from "redux/store";
 
@@ -7,9 +7,9 @@ import { IDBDerbyEvent } from "interfaces/event";
 // import { IUserInfo } from "interfaces/user";
 import { IDBDerbyVenue, IDerbyVenue } from "interfaces/venue";
 
-import { mapCountry, mapRegion } from "services/geo";
-import { mapTimezone } from "services/time";
-import { mapUser } from "services/user";
+import { mapCountry, mapRegion } from "services/geoService";
+import { mapTimezone } from "services/timeService";
+import { mapUser } from "services/userService";
 
 export const mapVenue = (data: IDBDerbyEvent | IDBDerbyVenue): IDerbyVenue => ({
 	address1: data.venue_address1,

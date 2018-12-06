@@ -9,10 +9,18 @@ import { connectClass } from "redux/connect";
 import store from "redux/store";
 
 import history from "services/history";
-import { checkLoginStatus } from "services/user";
+import { checkLoginStatus } from "services/userService";
 
 import Analytics from "react-ga";
 Analytics.initialize("UA-2467744-6");
+
+// Use bluebird
+import * as Promise from "bluebird";
+Promise.config({
+	cancellation: true,
+	warnings: false,
+});
+global.Promise = Promise;
 
 // load css for modules
 import "flag-icon-css/sass/flag-icon.scss";
@@ -145,7 +153,7 @@ class AppRouter extends React.Component < IProps > {
 
             <Router history={history}>
 
-				<div id="pageWrapper" className={typeof(process.env.ENV) !== "undefined" ? `env-${process.env.ENV}` : ""}>
+				<div id="pageWrapper">
 					<div id="siteHeader">
 						<NavLink to="/" title="Roll-Cal.com">
 							<ReactSVG id="siteLogo" src={HeaderLogo} />

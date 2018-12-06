@@ -1,6 +1,6 @@
 import actions from "redux/actions";
 import store from "redux/store";
-import { callApi } from "services/api";
+import { callApi } from "services/apiService";
 
 import { IDBDerbyEvent } from "interfaces/event";
 import { IDerbyDates, ITimeZone } from "interfaces/time";

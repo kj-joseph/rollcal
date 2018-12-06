@@ -1,23 +1,18 @@
 import actions from "redux/actions";
 import store from "redux/store";
-import { callApi } from "services/api";
+import { callApi } from "services/apiService";
 
-import { filterDerbyTypes, filterSanctions, filterTracks, getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/feature";
-import { filterLocationsByString } from "services/geo";
-import { formatDateRange } from "services/time";
-import { mapUser } from "services/user";
-import { mapVenue } from "services/venue";
+import { filterDerbyTypes, filterSanctions, filterTracks, getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/featureService";
+import { filterLocationsByString } from "services/geoService";
+import { formatDateRange } from "services/timeService";
+import { mapUser } from "services/userService";
+import { mapVenue } from "services/venueService";
 
 import { IDBDerbyEvent, IDBDerbyEventDay, IDerbyEvent, IDerbyEventDay } from "interfaces/event";
 import { IDerbyFeature, IDerbyFeatures } from "interfaces/feature";
 import { ISearchObject } from "interfaces/search";
 
 import moment from "moment";
-
-import * as Promise from "bluebird";
-Promise.config({
-	cancellation: true,
-});
 
 export const getEvent = (
 	id: number,

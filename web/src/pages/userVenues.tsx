@@ -11,7 +11,7 @@ import { IBoxListItem } from "interfaces/boxList";
 import { IProps } from "interfaces/redux";
 import { IDBDerbyVenue } from "interfaces/venue";
 
-import { checkUserRole } from "services/user";
+import { checkUserRole } from "services/userService";
 
 import BoxList from "components/boxList";
 

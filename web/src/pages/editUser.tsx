@@ -7,7 +7,7 @@ Modal.setAppElement("#root");
 import { IProps } from "interfaces/redux";
 import { IUserInfo, IUserRole } from "interfaces/user";
 
-import { checkUserRole, getUserRoles } from "services/user";
+import { checkUserRole, getUserRoles } from "services/userService";
 
 import axios from "axios";
 

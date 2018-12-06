@@ -2,7 +2,7 @@ import React from "react";
 
 import actions from "redux/actions";
 import store from "redux/store";
-import { callApi } from "services/api";
+import { callApi } from "services/apiService";
 import history from "services/history";
 
 import { IDBDerbyEvent } from "interfaces/event";
@@ -24,21 +24,12 @@ export const checkLoginStatus = (): Promise<boolean> => {
 					userRoles: result.user_roles,
 				}));
 
-				resolve(true);
+				resolve();
 
 			})
 			.catch((error) => {
 
-				if (error.response.status === 403) {
-					// not logged in
-
-					resolve(false);
-
-				} else {
-					// other errors
-
-					reject(false);
-				}
+				reject(new Error("User not logged in."));
 
 			});
 

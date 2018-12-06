@@ -8,9 +8,9 @@ import { IProps } from "interfaces/redux";
 import { DayPickerRangeController, FocusedInputShape } from "react-dates";
 import "react-dates/initialize";
 
-import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/feature";
-import { getGeography } from "services/geo";
-import { formatDateRange } from "services/time";
+import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/featureService";
+import { getGeography } from "services/geoService";
+import { formatDateRange } from "services/timeService";
 
 import FeatureIcon from "components/featureIcon";
 

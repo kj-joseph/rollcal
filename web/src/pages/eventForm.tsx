@@ -7,10 +7,10 @@ import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList, ITimeZone } from "in
 import { IProps } from "interfaces/redux";
 import { IDBDerbyVenue, IDerbyVenue } from "interfaces/venue";
 
-import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/feature";
-import { getGeography } from "services/geo";
-import { getTimeZones } from "services/time";
-import { checkUserRole } from "services/user";
+import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/featureService";
+import { getGeography } from "services/geoService";
+import { getTimeZones } from "services/timeService";
+import { checkUserRole } from "services/userService";
 
 import axios from "axios";
 

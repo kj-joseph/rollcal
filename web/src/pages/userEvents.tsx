@@ -18,8 +18,8 @@ import CloseIcon from "images/times-circle.svg";
 import ReactSVG from "react-svg";
 
 import BoxList from "components/boxList";
-import { formatDateRange } from "services/time";
-import { checkUserRole } from "services/user";
+import { formatDateRange } from "services/timeService";
+import { checkUserRole } from "services/userService";
 
 interface IUserEventsState {
 	deleteEventId: number;

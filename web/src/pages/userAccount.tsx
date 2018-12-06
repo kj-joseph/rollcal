@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 import axios from "axios";
 
-import { logout } from "services/user";
+import { logout } from "services/userService";
 
 import { IProps } from "interfaces/redux";
 

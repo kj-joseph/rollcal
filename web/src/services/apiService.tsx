@@ -2,11 +2,6 @@ import store from "redux/store";
 
 import axios, { AxiosRequestConfig } from "axios";
 
-import * as Promise from "bluebird";
-Promise.config({
-	cancellation: true,
-});
-
 export const callApi = (
 	method: "delete" | "get" | "post" | "put",
 	path: string,
@@ -56,7 +51,7 @@ export const callApi = (
 
 				if (axios.isCancel(error)) {
 
-					reject(new Error("API call canceled"));
+					reject();
 
 				} else {
 

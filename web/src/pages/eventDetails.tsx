@@ -1,4 +1,4 @@
-import ComponentWithListeners from "components/componentWithListeners";
+import Component from "components/component";
 import React from "react";
 import FormatText from "react-format-text";
 import { Link } from "react-router-dom";
@@ -7,7 +7,7 @@ import { IDerbyEvent, IDerbyEventDay } from "interfaces/event";
 import { IDerbyFeature } from "interfaces/feature";
 import { IProps } from "interfaces/redux";
 
-import { getEvent } from "services/event";
+import { getEvent } from "services/eventService";
 
 import FeatureIcon from "components/featureIcon";
 
@@ -18,7 +18,7 @@ interface IEventDetailsState {
 	path: string;
 }
 
-export default class EventDetails extends ComponentWithListeners<IProps> {
+export default class EventDetails extends Component<IProps> {
 
 	state: IEventDetailsState = {
 		dataError: false,
@@ -56,7 +56,7 @@ export default class EventDetails extends ComponentWithListeners<IProps> {
 	}
 
 	componentWillUnmount() {
-		this.clearAllListeners();
+		this.cancelAllListeners();
 	}
 
 
@@ -65,8 +65,6 @@ export default class EventDetails extends ComponentWithListeners<IProps> {
 		return (
 
 			<React.Fragment>
-				<p>{this.promiseListeners.length}</p>
-
 				{this.props.match.params.eventId ?
 
 				<React.Fragment>
@@ -283,30 +281,36 @@ export default class EventDetails extends ComponentWithListeners<IProps> {
 
 	loadData() {
 
-		this.addListener(
-			getEvent(this.props.match.params.eventId)
-				.then((event: IDerbyEvent) => {
+		const getEventData = this.addListener(getEvent(this.props.match.params.eventId));
 
-					this.props.setPageTitle({
-						detail: event.name ? event.name : event.host,
-					});
+		// getEventData.clear();
 
-					this.setState({
-						eventData: event,
-						loading: false,
-					});
+		getEventData
+			.then((event: IDerbyEvent) => {
 
-				})
-				.catch((error) => {
+				this.props.setPageTitle({
+					detail: event.name ? event.name : event.host,
+				});
 
-					console.error(error);
+				this.setState({
+					eventData: event,
+					loading: false,
+				});
 
-					this.setState({
-						dataError: true,
-						loading: false,
-					});
+			})
+			.catch((error: ErrorEvent) => {
 
-				}));
+				this.setState({
+					dataError: true,
+					loading: false,
+				});
+
+			})
+			.finally(() => {
+
+				getEventData.clear();
+
+			});
 
 	}
 

@@ -12,10 +12,10 @@ import { IGeoCountry, IGeoData, IGeoRegionList, ITimeZone } from "interfaces/geo
 import { IProps } from "interfaces/redux";
 import { IDBDerbyVenue, IDerbyVenue, INewDerbyVenue } from "interfaces/venue";
 
-import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/feature";
-import { getGeography } from "services/geo";
-import { getTimeZones } from "services/time";
-import { checkUserRole } from "services/user";
+import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/featureService";
+import { getGeography } from "services/geoService";
+import { getTimeZones } from "services/timeService";
+import { checkUserRole } from "services/userService";
 
 import CompareValues from "components/compareValues";
 

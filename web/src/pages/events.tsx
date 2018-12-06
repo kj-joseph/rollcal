@@ -1,8 +1,8 @@
 import React from "react";
 
-import { mapEventsToBoxList } from "services/boxList";
-import { loadEvents, searchEventsByString } from "services/event";
-import { formatDateRange } from "services/time";
+import { mapEventsToBoxList } from "services/boxListService";
+import { loadEvents, searchEventsByString } from "services/eventService";
+import { formatDateRange } from "services/timeService";
 
 import BoxList from "components/boxList";
 

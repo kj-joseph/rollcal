@@ -9,9 +9,9 @@ import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList, ITimeZone } from "in
 import { IProps } from "interfaces/redux";
 import { IDBDerbyVenueChange, IDerbyVenue, IDerbyVenueChange } from "interfaces/venue";
 
-import { getGeography } from "services/geo";
-import { getTimeZones } from "services/time";
-import { checkUserRole } from "services/user";
+import { getGeography } from "services/geoService";
+import { getTimeZones } from "services/timeService";
+import { checkUserRole } from "services/userService";
 
 import Modal from "react-modal";
 Modal.setAppElement("#root");

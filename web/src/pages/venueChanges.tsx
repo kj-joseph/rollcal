@@ -10,8 +10,8 @@ import { IGeoCountry, IGeoRegion } from "interfaces/geo";
 import { IProps } from "interfaces/redux";
 import { IDBDerbyVenueChange, IDerbyVenueChange, IDerbyVenueChangeObject } from "interfaces/venue";
 
-import { getGeography } from "services/geo";
-import { checkUserRole } from "services/user";
+import { getGeography } from "services/geoService";
+import { checkUserRole } from "services/userService";
 
 import BoxList from "components/boxList";
 

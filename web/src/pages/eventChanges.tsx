@@ -7,9 +7,9 @@ import { IDBDerbyEventChange, IDerbyEventChange, IDerbyEventChangeObject } from 
 import { IGeoCountry, IGeoRegion } from "interfaces/geo";
 import { IProps } from "interfaces/redux";
 
-import { getGeography } from "services/geo";
-import { formatDateRange } from "services/time";
-import { checkUserRole } from "services/user";
+import { getGeography } from "services/geoService";
+import { formatDateRange } from "services/timeService";
+import { checkUserRole } from "services/userService";
 
 import BoxList from "components/boxList";
 
