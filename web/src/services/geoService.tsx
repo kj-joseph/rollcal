@@ -61,7 +61,7 @@ export const filterLocations = (search: IGeoCountryFilter[]): Promise<IGeoCountr
 
 };
 
-export const filterLocationsByString = (locations: string): Promise<any> => {
+export const filterLocationsByString = (locations: string): Promise<IGeoCountry[]> => {
 
 	const countrySearch: IGeoCountryFilter[] = [];
 

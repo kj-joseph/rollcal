@@ -1,5 +1,3 @@
-import React from "react";
-
 import history from "components/history";
 import actions from "redux/actions";
 import store from "redux/store";
@@ -8,6 +6,36 @@ import { callApi } from "services/apiService";
 import { IDBDerbyEvent } from "interfaces/event";
 import { IDBUserInfo, IUserInfo, IUserRole } from "interfaces/user";
 import { IDBDerbyVenue } from "interfaces/venue";
+
+export const checkEmail = (
+	email: string,
+	id: number,
+): Promise<boolean> => {
+
+	return new Promise((resolve, reject, onCancel) => {
+
+		const apiCall = callApi("get", "user/checkEmail", {
+			email,
+			id,
+		})
+		.then((response) => {
+
+			resolve(response);
+
+		})
+		.catch((error) => {
+
+			reject(error);
+
+		});
+
+		onCancel(() => {
+			apiCall.cancel();
+		});
+
+	});
+
+};
 
 export const checkLoginStatus = (): Promise<boolean> => {
 
@@ -41,34 +69,27 @@ export const checkLoginStatus = (): Promise<boolean> => {
 
 };
 
-export const checkUserRole = (userRoles: string[], role: string): boolean =>
-	userRoles && userRoles.indexOf(role) > -1;
+export const checkUsername = (
+	username: string,
+	id: number,
+): Promise<boolean> =>
 
-export const logout = (event?: React.MouseEvent<any>, redirect = true): Promise<void> => {
+	new Promise((resolve, reject, onCancel) => {
 
-	if (event) {
-		event.preventDefault();
-	}
+		const apiCall = callApi("get", "user/checkUsername", {
+			id,
+			username,
+		})
+		.then((response) => {
 
-	return new Promise((resolve, reject, onCancel) => {
+			resolve(response);
 
-		const apiCall = callApi("get", "user/logout")
-			.then((result) => {
+		})
+		.catch((error) => {
 
-				store.dispatch(actions.clearUserInfo());
+			reject(error);
 
-				if (window.location.pathname.match(/^\/dashboard/) && redirect) {
-
-					history.push("/");
-
-				}
-
-			})
-			.catch((error) => {
-
-				console.error(error);
-
-			});
+		});
 
 		onCancel(() => {
 			apiCall.cancel();
@@ -76,11 +97,32 @@ export const logout = (event?: React.MouseEvent<any>, redirect = true): Promise<
 
 	});
 
-};
+export const checkUserRole = (userRoles: string[], role: string): boolean =>
+	userRoles && userRoles.indexOf(role) > -1;
 
-export const getUserRoles = (): Promise<IUserRole[]> => {
+export const logout = (redirect = true): Promise<void> =>
 
-	return new Promise((resolve, reject, onCancel) => {
+	callApi("get", "user/logout")
+		.then((result) => {
+
+			store.dispatch(actions.clearUserInfo());
+
+			if (window.location.pathname.match(/^\/dashboard/) && redirect) {
+
+				history.push("/");
+
+			}
+
+		})
+		.catch((error) => {
+
+			console.error(error);
+
+		});
+
+export const getUserRoles = (): Promise<IUserRole[]> =>
+
+	new Promise((resolve, reject, onCancel) => {
 		const state = store.getState();
 
 		if (state.rolesList && state.rolesList.length) {
@@ -112,9 +154,40 @@ export const getUserRoles = (): Promise<IUserRole[]> => {
 		}
 
 	});
-};
 
 export const mapUser = (data: IDBUserInfo | IDBDerbyEvent | IDBDerbyVenue): IUserInfo => ({
 	userId: data.user_id,
 	userName: data.user_name,
 });
+
+export const updateUser = (
+	id: number,
+	changes: {
+		email?: string,
+		username?: string,
+		newPassword?: string,
+		currentPassword?: string,
+	},
+) =>
+
+	new Promise((resolve, reject, onCancel) => {
+
+		const apiCall = callApi("put", "user/account/update", Object.assign(changes, {
+			id,
+		}))
+		.then((response) => {
+
+			resolve(response);
+
+		})
+		.catch((error) => {
+
+			reject(error);
+
+		});
+
+		onCancel(() => {
+			apiCall.cancel();
+		});
+
+	});

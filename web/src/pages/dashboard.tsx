@@ -127,7 +127,8 @@ export default class Dashboard extends React.Component<IProps> {
 
 	logout(event: React.MouseEvent<HTMLButtonElement>) {
 
-		logout(this.props.apiLocation, this.props.clearUserInfo, this.props.history, event);
+		event.preventDefault();
+		logout();
 
 	}
 

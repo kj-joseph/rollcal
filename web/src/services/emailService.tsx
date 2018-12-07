@@ -4,7 +4,7 @@ export const sendContactEmail = (
 	email: string,
 	message: string,
 	name: string,
-): Promise<any> => {
+): Promise<void> => {
 
 	return new Promise((resolve, reject, onCancel) => {
 

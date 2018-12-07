@@ -1,9 +1,8 @@
+import RCComponent from "components/rcComponent";
 import React from "react";
 import { Link } from "react-router-dom";
 
-import axios from "axios";
-
-import { logout } from "services/userService";
+import { checkEmail, checkUsername, logout, updateUser } from "services/userService";
 
 import { IProps } from "interfaces/redux";
 
@@ -31,7 +30,7 @@ interface IUserAccountState {
 	status: "form" | "success" | "successLogout";
 }
 
-export default class UserAccount extends React.Component<IProps> {
+export default class UserAccount extends RCComponent<IProps> {
 
 	state: IUserAccountState = {
 		accountCurrentPassword: "",
@@ -57,17 +56,8 @@ export default class UserAccount extends React.Component<IProps> {
 		status: "form",
 	};
 
-	axiosSignal = axios.CancelToken.source();
-
 	constructor(props: IProps) {
 		super(props);
-
-		// TODO: Not sure why componentDidUpdate doesn't execute, forcing this into the constructor
-		if (!this.props.loggedIn && this.state.status !== "successLogout") {
-
-			this.props.history.push("/");
-
-		}
 
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.submitAccountForm = this.submitAccountForm.bind(this);
@@ -82,8 +72,14 @@ export default class UserAccount extends React.Component<IProps> {
 
 	}
 
-	componentWillUnmount() {
-		this.axiosSignal.cancel();
+	componentWillUpdate() {
+
+		if (!this.props.loggedIn && this.state.status !== "successLogout") {
+
+			this.props.history.push("/");
+
+		}
+
 	}
 
 	render() {
@@ -272,19 +268,20 @@ export default class UserAccount extends React.Component<IProps> {
 			accountEmailOk: false,
 		});
 
-		axios.get(`${this.props.apiLocation}user/checkEmail?email=${email}&id=${this.props.loggedInUserId}`,
-			{
-				cancelToken: this.axiosSignal.token,
-				withCredentials: true,
-			})
-			.then((result) => {
+		const emailCheck = this.addPromise(checkEmail(
+			email,
+			this.props.loggedInUserId,
+		));
 
-				if (result.data) {
+		emailCheck
+			.then((emailRegistered) => {
+
+				if (emailRegistered) {
 
 					this.setState({
 						accountEmailChecked: true,
 						accountEmailChecking: false,
-						accountEmailError: "That email has already been accounted.",
+						accountEmailError: "That email has already been registered.",
 						accountEmailOk: false,
 					});
 
@@ -308,7 +305,8 @@ export default class UserAccount extends React.Component<IProps> {
 					accountEmailOk: false,
 				});
 
-			});
+			})
+			.finally(emailCheck.clear);
 
 	}
 
@@ -319,14 +317,15 @@ export default class UserAccount extends React.Component<IProps> {
 			accountUsernameOk: false,
 		});
 
-		axios.get(`${this.props.apiLocation}user/checkUsername?username=${username}&id=${this.props.loggedInUserId}`,
-			{
-				cancelToken: this.axiosSignal.token,
-				withCredentials: true,
-			})
-			.then((result) => {
+		const usernameCheck = this.addPromise(checkUsername(
+			username,
+			this.props.loggedInUserId,
+		));
 
-				if (result.data) {
+		usernameCheck
+			.then((usernameUsed) => {
+
+				if (usernameUsed) {
 
 					this.setState({
 						accountUsernameChecked: true,
@@ -355,7 +354,9 @@ export default class UserAccount extends React.Component<IProps> {
 					accountUsernameOk: false,
 				});
 
-			});
+			})
+
+			.finally(usernameCheck.clear);
 
 	}
 
@@ -420,68 +421,69 @@ export default class UserAccount extends React.Component<IProps> {
 				processing: true,
 			});
 
-			axios.put(this.props.apiLocation + "user/account/update", {
-				currentPassword: this.state.accountCurrentPassword,
-				email: this.state.accountEmail !== this.state.initialAccountEmail
-					&& !!this.state.accountCurrentPassword
-					? this.state.accountEmail : "",
-				id: this.props.loggedInUserId,
-				newPassword: this.state.accountNewPassword === this.state.accountNewPasswordConfirm
-					&& !!this.state.accountCurrentPassword
-					? this.state.accountNewPassword : "",
-				username: this.state.accountUsername !== this.state.initialAccountUsername
-					? this.state.accountUsername : "",
-				},
+			const userUpdate = this.addPromise(updateUser(
+				this.props.loggedInUserId,
 				{
-					cancelToken: this.axiosSignal.token,
-					withCredentials: true,
-				})
-			.then((result) => {
+					currentPassword: this.state.accountCurrentPassword || undefined,
+					email: this.state.accountEmail !== this.state.initialAccountEmail
+						&& !!this.state.accountCurrentPassword ?
+						this.state.accountEmail : undefined,
+					newPassword: this.state.accountNewPassword === this.state.accountNewPasswordConfirm
+						&& !!this.state.accountCurrentPassword ?
+						this.state.accountNewPassword : undefined,
+					username: this.state.accountUsername !== this.state.initialAccountUsername ?
+						this.state.accountUsername : undefined,
+				},
+			));
 
-				if (result.data.validationCode) {
+			userUpdate
+				.then((result) => {
 
-					this.setState({
-						processing: false,
-						status: "successLogout",
-					});
+					if (result.validationCode) {
 
-					this.logout();
+						this.setState({
+							processing: false,
+							status: "successLogout",
+						});
 
-				} else {
+						this.logout();
 
-					this.setState({
-						processing: false,
-						status: "success",
-					});
+					} else {
 
-					this.props.setUserInfo({
-						loggedIn: true,
-						userEmail: result.data.email,
-						userId: result.data.id,
-						userName: result.data.username,
-						userRoles: result.data.roles,
-					});
+						this.setState({
+							processing: false,
+							status: "success",
+						});
 
-				}
+						this.props.setUserInfo({
+							loggedIn: true,
+							userEmail: result.email,
+							userId: result.id,
+							userName: result.username,
+							userRoles: result.roles,
+						});
 
-			}).catch((error) => {
-				console.error(error);
+					}
 
-				if (!axios.isCancel(error)) {
+				}).catch((error) => {
+
 					this.setState({
 						errorMessage: "Sorry, something went wrong.  Your current password may not have been correct.  Please try again.",
 						processing: false,
 					});
-				}
 
-			});
+				})
+				.finally(userUpdate.clear);
 
 		}
 	}
 
 	logout(event?: React.MouseEvent<HTMLButtonElement>) {
 
-		logout(this.props.apiLocation, this.props.clearUserInfo, this.props.history, event, false);
+		if (event) {
+			event.preventDefault();
+		}
+		logout(false);
 
 	}
 
