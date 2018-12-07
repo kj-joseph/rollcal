@@ -9,6 +9,7 @@ import { IProps } from "interfaces/redux";
 import { getEvent } from "services/eventService";
 
 import FeatureIconSet from "components/featureIconSet";
+import Flag from "components/flag";
 
 interface IEventDetailsState {
 	dataError: boolean;
@@ -131,10 +132,12 @@ export default class EventDetails extends RCComponent<IProps> {
 												</span>
 												<br />
 											</React.Fragment>
-											: ""
-										}
+										: ""}
 										{this.state.eventData.venue.location} {this.state.eventData.venue.postcode}<br />
-										{this.state.eventData.venue.country.name} {this.state.eventData.venue.country.flag}
+										{this.state.eventData.venue.country.name}
+										{this.state.eventData.venue.country.flag ?
+											<Flag country={this.state.eventData.venue.country} />
+										: null}
 									</address>
 
 									{(this.state.eventData.venue.link) ?

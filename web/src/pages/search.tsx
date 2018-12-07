@@ -14,6 +14,7 @@ import { getGeography } from "services/geoService";
 import { formatDateRange } from "services/timeService";
 
 import FeatureIconSet from "components/featureIconSet";
+import Flag from "components/flag";
 
 import moment from "moment";
 
@@ -309,7 +310,8 @@ export default class Search extends RCComponent<IProps> {
 															}
 														}).map((country) => (
 															<li key={country.code}>
-																{country.name} <span title={country.name} className={"flag-icon flag-icon-" + country.flag} />
+																{country.name}
+																<Flag country={country} />
 
 																<ReactSVG
 																	className="removeGeoButton"

@@ -6,6 +6,7 @@ import store from "redux/store";
 import { IBoxListItem } from "interfaces/boxList";
 
 import FeatureIconSet from "components/featureIconSet";
+import Flag from "components/flag";
 
 import MyEventIcon from "images/star.svg";
 import ReactSVG from "react-svg";
@@ -99,10 +100,7 @@ export default class BoxList extends React.Component<IBoxListProps> {
 							{this.props.itemType === "events" ?
 								<p className="listLocation">{item.location}
 									{!this.props.noIcons && item.country ?
-										<React.Fragment>
-											{" "}
-											<span title={item.country.name} className={`flag-icon flag-icon-${item.country.flag}`} />
-										</React.Fragment>
+										<Flag country={item.country} />
 									: ""}
 									{this.props.distance && item.distance ?
 										<span className="distance">({
