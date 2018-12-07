@@ -1,6 +1,6 @@
 BEGIN
 
-select e.*, c.*, vr.*, tz.*, u.user_id, u.user_name,
+select e.*, c.*, vr.*, tz.*, u.user_id, u.user_name, ed.event_first_day, ed.event_last_day,
     (select group_concat(distinct derbytype_id) as list
     	from derbytypes dt, event_derbytypes edt
      	where edt.event = id
@@ -20,7 +20,11 @@ select e.*, c.*, vr.*, tz.*, u.user_id, u.user_name,
      	order by t.track_id
     ) as tracks
 from events e, countries c, users u, timezones tz,
-	(select * from venues left outer join regions on region_id = venue_region) as vr
+	(select * from venues left outer join regions on region_id = venue_region) vr,
+    (select min(eventday_datetime) event_first_day, max(eventday_datetime) event_last_day
+        from eventdays
+        where eventday_event = id) ed
+
 where event_id = id
 	and venue_id = event_venue and country_code = venue_country
 	and event_user = user_id and timezone_id = venue_timezone;

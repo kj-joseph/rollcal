@@ -98,7 +98,10 @@ execute stmt;
 deallocate prepare stmt;
 
 set @query = concat(
-	"select eventlist.*, ed.event_first_day, ed.event_last_day, derbytypeslist.list as derbytypes, sanctionslist.list as sanctions, trackslist.list as tracks",
+	"select eventlist.*,
+	convert_tz(ed.event_first_day, 'UTC', eventlist.timezone_zone) as event_first_day,
+	convert_tz(ed.event_last_day, 'UTC', eventlist.timezone_zone) as event_last_day,
+	derbytypeslist.list as derbytypes, sanctionslist.list as sanctions, trackslist.list as tracks",
 	" from (
 	", @select, @from, @where, @group, "
 	) eventlist
