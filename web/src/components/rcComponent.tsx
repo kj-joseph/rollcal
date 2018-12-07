@@ -27,18 +27,18 @@ export default class RCComponent<P = {}> extends React.Component<IProps> {
 
 	}
 
-	cancelAllPromises() {
-
-		this.storedPromises.forEach((listener) => {
-			listener.cancel();
-		});
-
-		this.storedPromises = [];
-
-	}
-
 	componentWillUnmount() {
-		this.cancelAllPromises();
+
+		if (this.storedPromises.length) {
+
+			this.storedPromises.forEach((listener) => {
+				listener.cancel();
+			});
+
+			this.storedPromises = [];
+
+		}
+
 	}
 
 }
