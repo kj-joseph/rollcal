@@ -1,6 +1,7 @@
+import RCComponent from "components/rcComponent";
 import React from "react";
 
-import axios from "axios";
+import { sendContactEmail } from "services/emailService";
 
 import { IProps } from "interfaces/redux";
 
@@ -14,7 +15,7 @@ interface IContactState {
 	userId: number;
 }
 
-export default class Contact extends React.Component<IProps> {
+export default class Contact extends RCComponent<IProps> {
 
 	state: IContactState = {
 		contactEmail: this.props.loggedInUserEmail || "",
@@ -25,8 +26,6 @@ export default class Contact extends React.Component<IProps> {
 		submitting: false,
 		userId: null,
 	};
-
-	axiosSignal = axios.CancelToken.source();
 
 	constructor(props: IProps) {
 		super(props);
@@ -159,15 +158,13 @@ export default class Contact extends React.Component<IProps> {
 			submitting: true,
 		});
 
-		axios.post(this.props.apiLocation + "contact/sendContactForm", {
-				email: this.state.contactEmail,
-				message: this.state.contactMessage,
-				name: this.state.contactName,
-			},
-			{
-				cancelToken: this.axiosSignal.token,
-				withCredentials: true,
-			})
+		const sendEmail = this.addPromise(sendContactEmail(
+			this.state.contactEmail,
+			this.state.contactMessage,
+			this.state.contactName,
+		));
+
+		sendEmail
 			.then((result) => {
 
 				this.setState({
@@ -175,19 +172,17 @@ export default class Contact extends React.Component<IProps> {
 					submitting: false,
 				});
 
-			}).catch((error) => {
-				console.error(error);
+			})
+			.catch((error) => {
 
-				if (!axios.isCancel(error)) {
-					this.setState({
-						formError: "Sorry, something went wrong.  Please try again.",
-						status: "form",
-						submitting: false,
-					});
-				}
+				this.setState({
+					formError: "Sorry, something went wrong.  Please try again.",
+					status: "form",
+					submitting: false,
+				});
 
-			});
-
+			})
+			.finally(sendEmail.clear);
 
 	}
 

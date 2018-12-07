@@ -25,8 +25,7 @@ export const formatDateRange = (
 			+ (differentYear ? `, ${dates.start.year()}` : "")
 			+ (multiDay && !differentMonth ? ` – ${dates.end.date()}` : "")
 			+ (differentMonth ? ` – ${dates.end.format(mo)} ${dates.end.date()}` : "")
-			+  `, ${dates.end.year()}`
-			;
+			+  `, ${dates.end.year()}`;
 
 	} else {
 
