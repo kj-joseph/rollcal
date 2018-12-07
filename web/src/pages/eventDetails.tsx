@@ -133,7 +133,11 @@ export default class EventDetails extends RCComponent<IProps> {
 												<br />
 											</React.Fragment>
 										: ""}
-										{this.state.eventData.venue.location} {this.state.eventData.venue.postcode}<br />
+										{this.state.eventData.venue.city} {
+											this.state.eventData.venue.region && this.state.eventData.venue.region.abbreviation ?
+												this.state.eventData.venue.region.abbreviation
+											: null
+										} {this.state.eventData.venue.postcode}<br />
 										{this.state.eventData.venue.country.name}
 										{this.state.eventData.venue.country.flag ?
 											<Flag country={this.state.eventData.venue.country} />
