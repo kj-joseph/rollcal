@@ -30,7 +30,7 @@
 		"axios": "^0.18.0",
 		"bluebird": "^3.5.3",
 		"react": "^16.6.3",
-		"react-dates": "^18.1.1",
+		"react-dates": "^18.2.2",
 		"react-dom": "^16.5.2",
 		"react-format-text": "^1.1.1",
 		"react-ga": "^2.5.5-0",

@@ -8,7 +8,7 @@ import { Provider } from "react-redux";
 import { connectClass } from "redux/connect";
 import store from "redux/store";
 
-import history from "services/history";
+import history from "components/history";
 import { checkLoginStatus } from "services/userService";
 
 import Analytics from "react-ga";
