@@ -300,15 +300,11 @@ export default class Search extends RCComponent<IProps> {
 													<li>All</li>
 												:
 													<React.Fragment>
-														{this.state.selectedLocations.sort((a, b) => {
-															if (a.name < b.name) {
-																return -1;
-															} else if (a.name > b.name) {
-																return 1;
-															} else {
-																return 0;
-															}
-														}).map((country) => (
+
+														{this.state.selectedLocations
+															.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)
+															.map((country) => (
+
 															<li key={country.code}>
 																{country.name}
 																<Flag country={country} />
@@ -323,15 +319,10 @@ export default class Search extends RCComponent<IProps> {
 
 																{country.regions && country.regions.length ?
 																	<ul className={"selectedRegions" + country.code}>
-																	{country.regions.sort((a, b) => {
-																		if (a.name < b.name) {
-																			return -1;
-																		} else if (a.name > b.name) {
-																			return 1;
-																		} else {
-																			return 0;
-																		}
-																	}).map((region) => (
+																	{country.regions
+																		.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)
+																		.map((region) => (
+
 																		<li key={region.id}>
 																			{region.name}
 
@@ -819,8 +810,6 @@ export default class Search extends RCComponent<IProps> {
 	}
 
 	toggleFeatureIcon(event: React.MouseEvent<HTMLDivElement>) {
-
-		console.log(event.currentTarget.dataset.feature);
 
 		event.preventDefault();
 
