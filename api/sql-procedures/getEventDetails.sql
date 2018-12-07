@@ -1,6 +1,8 @@
 BEGIN
 
-select e.*, c.*, vr.*, tz.*, u.user_id, u.user_name, ed.event_first_day, ed.event_last_day,
+select e.*, c.*, vr.*, tz.*, u.user_id, u.user_name,
+    convert_tz(ed.event_first_day, 'UTC', tz.timezone_zone) as event_first_day,
+    convert_tz(ed.event_last_day, 'UTC', tz.timezone_zone) as event_last_day,
     (select group_concat(distinct derbytype_id) as list
     	from derbytypes dt, event_derbytypes edt
      	where edt.event = id
