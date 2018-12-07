@@ -4,9 +4,9 @@ import { Link } from "react-router-dom";
 import store from "redux/store";
 
 import { IBoxListItem } from "interfaces/boxList";
-import { IDerbyFeature } from "interfaces/feature";
 
-import FeatureIcon from "components/featureIcon";
+import FeatureIconSet from "components/featureIconSet";
+
 import MyEventIcon from "images/star.svg";
 import ReactSVG from "react-svg";
 
@@ -130,41 +130,24 @@ export default class BoxList extends React.Component<IBoxListProps> {
 							{(item.host) ?	<h3>Hosted by {item.host}</h3> : ""}
 
 							{this.props.itemType === "events" && item.features && !this.props.noIcons ?
-								<div className="listIcons">
-									{(item.features.tracks.length ?
-										<span className="listIconGroup eventIconTracks">
-											{item.features.tracks.map((track: IDerbyFeature) => (
-												<FeatureIcon
-													feature={track}
-													type="track"
-													key={`track-${track.name}`}
-												/>
-											))}
-										</span>
-										: "" )}
-									{(item.features.derbytypes.length ?
-										<span className="listIconGroup eventIconDerbytypes">
-											{item.features.derbytypes.map((derbytype: IDerbyFeature) => (
-												<FeatureIcon
-													feature={derbytype}
-													type="derbytype"
-													key={`derbytype-${derbytype.name}`}
-												/>
-											))}
-										</span>
-										: "" )}
-									{(item.features.sanctions.length ?
-										<span className="listIconGroup eventIconSanctions">
-											{item.features.sanctions.map((sanction: IDerbyFeature) => (
-												<FeatureIcon
-													feature={sanction}
-													type="sanction"
-													key={`sanction-${sanction.name}`}
-												/>
-											))}
-										</span>
-										: "" )}
-								</div>
+
+								<FeatureIconSet
+									data={[
+										{
+											items: item.features.tracks,
+											type: "track",
+										},
+										{
+											items: item.features.derbytypes,
+											type: "derbytype",
+										},
+										{
+											items: item.features.sanctions,
+											type: "sanction",
+										},
+									]}
+								/>
+
 							: ""}
 
 						</li>

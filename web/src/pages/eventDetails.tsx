@@ -1,15 +1,14 @@
-import Component from "components/component";
+import RCComponent from "components/rcComponent";
 import React from "react";
 import FormatText from "react-format-text";
 import { Link } from "react-router-dom";
 
 import { IDerbyEvent, IDerbyEventDay } from "interfaces/event";
-import { IDerbyFeature } from "interfaces/feature";
 import { IProps } from "interfaces/redux";
 
 import { getEvent } from "services/eventService";
 
-import FeatureIcon from "components/featureIcon";
+import FeatureIconSet from "components/featureIconSet";
 
 interface IEventDetailsState {
 	dataError: boolean;
@@ -18,7 +17,7 @@ interface IEventDetailsState {
 	path: string;
 }
 
-export default class EventDetails extends Component<IProps> {
+export default class EventDetails extends RCComponent<IProps> {
 
 	state: IEventDetailsState = {
 		dataError: false,
@@ -55,16 +54,12 @@ export default class EventDetails extends Component<IProps> {
 
 	}
 
-	componentWillUnmount() {
-		this.cancelAllListeners();
-	}
-
-
 	render() {
 
 		return (
 
 			<React.Fragment>
+
 				{this.props.match.params.eventId ?
 
 				<React.Fragment>
@@ -190,69 +185,34 @@ export default class EventDetails extends Component<IProps> {
 
 							</div>
 
-							<div className="featureIcons">
-
-								{(this.state.eventData.features.tracks && this.state.eventData.features.tracks.length ?
-									<span className="featureIconGroup">
-
-										<span className="label">Track{
-											this.state.eventData.features.tracks.length > 1 ?
-												"s" : ""}</span>
-
-										{this.state.eventData.features.tracks.map((track: IDerbyFeature) => (
-
-											<FeatureIcon
-												key={track.id}
-												feature={track}
-												type="track"
-											/>
-
-										))}
-
-									</span>
-									: "" )}
-
-								{(this.state.eventData.features.derbytypes && this.state.eventData.features.derbytypes.length ?
-									<span className="featureIconGroup">
-
-										<span className="label">Derby Type{
-											this.state.eventData.features.derbytypes.length > 1 ?
-												"s" : ""}</span>
-
-										{this.state.eventData.features.derbytypes.map((derbytype: IDerbyFeature) => (
-
-											<FeatureIcon
-												key={derbytype.id}
-												feature={derbytype}
-												type="derbytype"
-											/>
-
-										))}
-
-									</span>
-									: "" )}
-
-								{(this.state.eventData.features.sanctions && this.state.eventData.features.sanctions.length ?
-									<span className="featureIconGroup">
-
-										<span className="label">Sanction{
-											this.state.eventData.features.sanctions.length > 1 ?
-												"s" : ""}</span>
-
-										{this.state.eventData.features.sanctions.map((sanction: IDerbyFeature) => (
-
-											<FeatureIcon
-												key={sanction.id}
-												feature={sanction}
-												type="sanction"
-											/>
-
-										))}
-
-									</span>
-									: "" )}
-
-							</div>
+							<FeatureIconSet
+								data={[
+									{
+										items: this.state.eventData.features.tracks,
+										label: {
+											plural: "Tracks",
+											singular: "Track",
+										},
+										type: "track",
+									},
+									{
+										items: this.state.eventData.features.derbytypes,
+										label: {
+											plural: "Derby Types",
+											singular: "Derby Type",
+										},
+										type: "derbytype",
+									},
+									{
+										items: this.state.eventData.features.sanctions,
+										label: {
+											plural: "Sanctions",
+											singular: "sanction",
+										},
+										type: "sanction",
+									},
+								]}
+							/>
 
 						</div>
 
@@ -281,9 +241,8 @@ export default class EventDetails extends Component<IProps> {
 
 	loadData() {
 
-		const getEventData = this.addListener(getEvent(this.props.match.params.eventId));
-
-		// getEventData.clear();
+		const getEventData = this.addPromise(
+			getEvent(this.props.match.params.eventId));
 
 		getEventData
 			.then((event: IDerbyEvent) => {
@@ -306,11 +265,7 @@ export default class EventDetails extends Component<IProps> {
 				});
 
 			})
-			.finally(() => {
-
-				getEventData.clear();
-
-			});
+			.finally(getEventData.clear);
 
 	}
 

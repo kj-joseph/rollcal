@@ -1,3 +1,4 @@
+import RCComponent from "components/rcComponent";
 import React from "react";
 
 import { mapEventsToBoxList } from "services/boxListService";
@@ -30,7 +31,7 @@ interface IEventsState {
 	searchObject: ISearchObject;
 }
 
-export default class Events extends React.Component<IProps> {
+export default class Events extends RCComponent<IProps> {
 
 	state: IEventsState = {
 		dataError: false,
@@ -80,10 +81,6 @@ export default class Events extends React.Component<IProps> {
 			this.initialLoad();
 
 		}
-	}
-
-	componentWillUnmount() {
-		// this.cancel = true;
 	}
 
 	render() {
@@ -226,7 +223,10 @@ export default class Events extends React.Component<IProps> {
 			searchString = searchString.split("/").concat(`endDate(${this.props.match.params.endDate})`).join("/");
 		}
 
-		searchEventsByString(searchString, this.state.listPageLength)
+		const searchEvents = this.addPromise(
+			searchEventsByString(searchString, this.state.listPageLength));
+
+		searchEvents
 			.then(({events, total, search}) => {
 
 				this.setState({
@@ -246,7 +246,8 @@ export default class Events extends React.Component<IProps> {
 					loadingMore: false,
 				});
 
-			});
+			})
+			.finally(searchEvents.clear);
 
 	}
 
@@ -269,11 +270,14 @@ export default class Events extends React.Component<IProps> {
 			loadingMore: true,
 		});
 
-		loadEvents(
-			this.state.searchObject,
-			loadAll ? "all" : this.state.listPageLength,
-			this.state.eventList.length,
-		)
+		const loadEventPage = this.addPromise(
+			loadEvents(
+				this.state.searchObject,
+				loadAll ? "all" : this.state.listPageLength,
+				this.state.eventList.length,
+			));
+
+		loadEventPage
 			.then(({events, total}) => {
 
 				this.setState({
@@ -292,7 +296,8 @@ export default class Events extends React.Component<IProps> {
 					loadingMore: false,
 				});
 
-			});
+			})
+			.finally(loadEventPage.clear);
 
 	}
 

@@ -1,3 +1,4 @@
+import RCComponent from "components/rcComponent";
 import React from "react";
 import Select from "react-select";
 
@@ -12,7 +13,7 @@ import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/featu
 import { getGeography } from "services/geoService";
 import { formatDateRange } from "services/timeService";
 
-import FeatureIcon from "components/featureIcon";
+import FeatureIconSet from "components/featureIconSet";
 
 import moment from "moment";
 
@@ -59,7 +60,7 @@ interface ISearchState {
 	startDate: moment.Moment;
 }
 
-export default class Search extends React.Component<IProps> {
+export default class Search extends RCComponent<IProps> {
 
 	state: ISearchState = {
 		address1: "",
@@ -475,68 +476,32 @@ export default class Search extends React.Component<IProps> {
 							{this.state.eventFeatures.tracks.length
 								&& this.state.eventFeatures.derbytypes.length
 								&& this.state.eventFeatures.sanctions.length ?
-								<div className="derbyFeatures">
 
-									{(this.state.eventFeatures.tracks.length ?
-										<span className="eventIconGroup eventIconTracks">
+								<FeatureIconSet
+									data={[
+										{
+											items: this.state.eventFeatures.tracks,
+											label: "Filter Tracks:",
+											type: "track",
+										},
+										{
+											items: this.state.eventFeatures.derbytypes,
+											label: "Filter Derby Types:",
+											type: "derbytype",
+										},
+										{
+											items: this.state.eventFeatures.sanctions,
+											label: "Filter Sanctions:",
+											type: "sanction",
+										},
+									]}
+									selected={this.state.selectedFeatures}
+									toggle={this.toggleFeatureIcon}
+								/>
 
-											<span className="label">Filter Tracks:</span>
-											{this.state.eventFeatures.tracks.map((track: IDerbyFeature) => (
 
-												<FeatureIcon
-													key={track.id}
-													feature={track}
-													type="track"
-													selected={this.state.selectedFeatures.indexOf(`track-${track.id}`) > -1}
-													toggle={this.toggleFeatureIcon}
-												/>
+							: ""}
 
-											))}
-										</span>
-
-									: "" )}
-
-									{(this.state.eventFeatures.derbytypes.length ?
-										<span className="eventIconGroup eventIconDerbytypes">
-
-											<span className="label">Filter Derby Types:</span>
-											{this.state.eventFeatures.derbytypes.map((derbytype: IDerbyFeature) => (
-
-												<FeatureIcon
-													key={derbytype.id}
-													feature={derbytype}
-													type="derbytype"
-													selected={this.state.selectedFeatures.indexOf(`derbytype-${derbytype.id}`) > -1}
-													toggle={this.toggleFeatureIcon}
-												/>
-
-											))}
-										</span>
-
-									: "" )}
-
-									{(this.state.eventFeatures.sanctions.length ?
-										<span className="eventIconGroup eventIconSanctions">
-
-											<span className="label">Filter Sanctions:</span>
-											{this.state.eventFeatures.sanctions.map((sanction: IDerbyFeature) => (
-
-												<FeatureIcon
-													key={sanction.id}
-													feature={sanction}
-													type="sanction"
-													selected={this.state.selectedFeatures.indexOf(`sanction-${sanction.id}`) > -1}
-													toggle={this.toggleFeatureIcon}
-												/>
-
-											))}
-
-										</span>
-									: "" )}
-
-								</div>
-							: ""
-							}
 						</div>
 
 						<div className="searchButtons">
@@ -853,6 +818,8 @@ export default class Search extends React.Component<IProps> {
 
 	toggleFeatureIcon(event: React.MouseEvent<HTMLDivElement>) {
 
+		console.log(event.currentTarget.dataset.feature);
+
 		event.preventDefault();
 
 		const selectedFeatures = this.state.selectedFeatures;
@@ -1000,7 +967,11 @@ export default class Search extends React.Component<IProps> {
 
 			}));
 
-		Promise.all(promises).then(() => {
+		const getData = this.addPromise(
+			Promise.all(promises));
+
+		getData
+			.then(() => {
 
 			if (!promiseError) {
 
@@ -1091,7 +1062,14 @@ export default class Search extends React.Component<IProps> {
 
 			}
 
-		});
+		})
+		.catch((error) => {
+
+			console.error(error);
+
+		})
+		.finally(getData.clear);
+
 	}
 
 }
