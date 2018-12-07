@@ -43,7 +43,7 @@ export const getSearchObject = (
 	search: string,
 ): Promise<ISearchObject> =>
 
-	new Promise((resolve, reject) => {
+	new Promise((resolve, reject, onCancel) => {
 
 		if (!search) {
 			resolve({} as ISearchObject);
@@ -129,7 +129,7 @@ export const getSearchObject = (
 
 			}
 
-			Promise.all(promises)
+			const loadData = Promise.all(promises)
 				.then(() => {
 					if (searchObject.address && searchObject.distance && searchObject.distanceUnits) {
 						delete searchObject.locations;
@@ -137,6 +137,10 @@ export const getSearchObject = (
 
 					resolve(searchObject);
 				});
+
+			onCancel(() => {
+				loadData.cancel();
+			});
 
 		}
 
@@ -152,14 +156,16 @@ export const loadEvents = (
 	total: number,
 }> => {
 
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve, reject, onCancel) => {
 		const state = store.getState();
 
-		Promise.all([
+		const loadData = Promise.all([
 			getDerbySanctions(),
 			getDerbyTracks(),
 			getDerbyTypes(),
-		])
+		]);
+
+		loadData
 			.then(() => {
 
 				const apiSearch = {
@@ -206,43 +212,57 @@ export const loadEvents = (
 
 				}
 
-				callApi(
+				return apiSearch;
+
+			})
+			.then ((apiSearch) => {
+
+				const apiCall = callApi(
 					"get",
 					`events/search`,
 					apiSearch,
-				)
-					.then((result) => {
+				);
 
-						const eventResults: IDBDerbyEvent[] = result.events;
-						const events: Array<Promise<IDerbyEvent>> = [];
+				onCancel(() => {
+					apiCall.cancel();
+				});
 
-						for (const eventItem of eventResults) {
+				return apiCall;
 
-							events.push(mapEvent(eventItem));
+			}).then((result) => {
 
-						}
+				const eventResults: IDBDerbyEvent[] = result.events;
+				const events: Array<Promise<IDerbyEvent>> = [];
 
-						Promise.all(events)
-							.then((eventList: IDerbyEvent[]) => {
+				for (const eventItem of eventResults) {
 
-								store.dispatch(actions.saveLastSearch(search));
+					events.push(mapEvent(eventItem));
 
-								resolve({
-									events: eventList,
-									search,
-									total: result.total,
-								});
+				}
 
-							});
+				const eventResolution = Promise.all(events)
+					.then((eventList: IDerbyEvent[]) => {
 
-					})
-					.catch((exception) => {
+						store.dispatch(actions.saveLastSearch(search));
 
-						reject(exception);
+						resolve({
+							events: eventList,
+							search,
+							total: result.total,
+						});
 
 					});
 
-			});
+				onCancel(() => {
+					eventResolution.cancel();
+				});
+
+			})
+			.catch((error) => reject(error));
+
+		onCancel(() => {
+			loadData.cancel();
+		});
 
 	});
 
@@ -266,7 +286,7 @@ const mapEvent = (
 	data: IDBDerbyEvent,
 ): Promise<IDerbyEvent> => {
 
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve, reject, onCancel) => {
 
 		const features: IDerbyFeatures = {
 			derbytypes: {} as IDerbyFeature[],
@@ -301,7 +321,7 @@ const mapEvent = (
 					}));
 		}
 
-		Promise.all(promises).then(() => {
+		const loadData = Promise.all(promises).then(() => {
 
 			resolve ({
 				dates: formatDateRange({
@@ -326,6 +346,10 @@ const mapEvent = (
 
 		});
 
+		onCancel(() => {
+			loadData.cancel();
+		});
+
 	});
 
 };
@@ -338,9 +362,7 @@ export const searchEventsByString = (
 	events: IDerbyEvent[],
 	search: ISearchObject,
 	total: number,
-}> => {
+}> =>
 
-	return getSearchObject(searchString)
+	getSearchObject(searchString)
 		.then((searchObject) => loadEvents(searchObject, count, start));
-
-};

@@ -62,9 +62,7 @@ export const callApi = (
 			});
 
 		onCancel(() => {
-
 			axiosSignal.cancel();
-
 		});
 
 	});

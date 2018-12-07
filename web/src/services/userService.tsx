@@ -1,9 +1,9 @@
 import React from "react";
 
+import history from "components/history";
 import actions from "redux/actions";
 import store from "redux/store";
 import { callApi } from "services/apiService";
-import history from "services/history";
 
 import { IDBDerbyEvent } from "interfaces/event";
 import { IDBUserInfo, IUserInfo, IUserRole } from "interfaces/user";
@@ -11,9 +11,9 @@ import { IDBDerbyVenue } from "interfaces/venue";
 
 export const checkLoginStatus = (): Promise<boolean> => {
 
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve, reject, onCancel) => {
 
-		callApi("post", "user/getSession")
+		const apiCall = callApi("post", "user/getSession")
 			.then((result: IDBUserInfo) => {
 
 				store.dispatch(actions.setUserInfo({
@@ -33,6 +33,10 @@ export const checkLoginStatus = (): Promise<boolean> => {
 
 			});
 
+		onCancel(() => {
+			apiCall.cancel();
+		});
+
 	});
 
 };
@@ -46,9 +50,9 @@ export const logout = (event?: React.MouseEvent<any>, redirect = true): Promise<
 		event.preventDefault();
 	}
 
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve, reject, onCancel) => {
 
-		callApi("get", "user/logout")
+		const apiCall = callApi("get", "user/logout")
 			.then((result) => {
 
 				store.dispatch(actions.clearUserInfo());
@@ -66,13 +70,17 @@ export const logout = (event?: React.MouseEvent<any>, redirect = true): Promise<
 
 			});
 
+		onCancel(() => {
+			apiCall.cancel();
+		});
+
 	});
 
 };
 
 export const getUserRoles = (): Promise<IUserRole[]> => {
 
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve, reject, onCancel) => {
 		const state = store.getState();
 
 		if (state.rolesList && state.rolesList.length) {
@@ -81,7 +89,7 @@ export const getUserRoles = (): Promise<IUserRole[]> => {
 
 		} else {
 
-			callApi("get", "user/getRolesList")
+			const apiCall = callApi("get", "user/getRolesList")
 
 				.then((result: IUserRole[]) => {
 
@@ -96,6 +104,11 @@ export const getUserRoles = (): Promise<IUserRole[]> => {
 					reject(error);
 
 				});
+
+			onCancel(() => {
+				apiCall.cancel();
+			});
+
 		}
 
 	});

@@ -6,43 +6,61 @@ import { IDBDerbySanction, IDBDerbyTrack, IDBDerbyType, IDerbyFeature } from "in
 
 export const filterDerbyTypes = (derbytypes: string[]): Promise<IDerbyFeature[]> => {
 
-	return new Promise((resolve, reject) => {
-		getDerbyTypes()
+	return new Promise((resolve, reject, onCancel) => {
+
+		const getData = getDerbyTypes()
 			.then((derbytypeList) => {
 				resolve (derbytypeList.filter((derbytype) =>
 					derbytypes.indexOf(derbytype.id.toString()) > -1));
 			});
+
+		onCancel(() => {
+			getData.cancel();
+		});
+
 	});
 
 };
 
 export const filterSanctions = (sanctions: string[]): Promise<IDerbyFeature[]> => {
 
-	return new Promise((resolve, reject) => {
-		getDerbySanctions()
+	return new Promise((resolve, reject, onCancel) => {
+
+		const getData = getDerbySanctions()
 			.then((sanctionList) => {
 				resolve (sanctionList.filter((sanction) =>
 					sanctions.indexOf(sanction.id.toString()) > -1));
 			});
+
+		onCancel(() => {
+			getData.cancel();
+		});
+
 	});
 
 };
 
 export const filterTracks = (tracks: string[]): Promise<IDerbyFeature[]> => {
 
-	return new Promise((resolve, reject) => {
-		getDerbyTracks()
+	return new Promise((resolve, reject, onCancel) => {
+
+		const getData = getDerbyTracks()
 			.then((trackList) => {
 				resolve (trackList.filter((track) =>
 					tracks.indexOf(track.id.toString()) > -1));
 			});
+
+		onCancel(() => {
+			getData.cancel();
+		});
+
 	});
 
 };
 
 export const getDerbySanctions = (): Promise<IDerbyFeature[]> => {
 
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve, reject, onCancel) => {
 		const state = store.getState();
 
 		if (state.dataSanctions && state.dataSanctions.length) {
@@ -51,7 +69,7 @@ export const getDerbySanctions = (): Promise<IDerbyFeature[]> => {
 
 		} else {
 
-			callApi("get", "eventFeatures/getSanctionTypes")
+			const apiCall = callApi("get", "eventFeatures/getSanctionTypes")
 				.then((result: IDBDerbySanction[]) => {
 
 					const sanctions: IDerbyFeature[] = result.map((sanction) => ({
@@ -70,6 +88,10 @@ export const getDerbySanctions = (): Promise<IDerbyFeature[]> => {
 
 				});
 
+			onCancel(() => {
+				apiCall.cancel();
+			});
+
 		}
 
 	});
@@ -77,7 +99,7 @@ export const getDerbySanctions = (): Promise<IDerbyFeature[]> => {
 
 export const getDerbyTracks = (): Promise<IDerbyFeature[]> => {
 
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve, reject, onCancel) => {
 		const state = store.getState();
 
 		if (state.dataTracks && state.dataTracks.length) {
@@ -86,7 +108,7 @@ export const getDerbyTracks = (): Promise<IDerbyFeature[]> => {
 
 		} else {
 
-			callApi("get", "eventFeatures/getTracks")
+			const apiCall = callApi("get", "eventFeatures/getTracks")
 				.then((result: IDBDerbyTrack[]) => {
 
 					const tracks: IDerbyFeature[] = result.map((track) => ({
@@ -105,6 +127,10 @@ export const getDerbyTracks = (): Promise<IDerbyFeature[]> => {
 
 				});
 
+			onCancel(() => {
+				apiCall.cancel();
+			});
+
 		}
 
 	});
@@ -112,7 +138,7 @@ export const getDerbyTracks = (): Promise<IDerbyFeature[]> => {
 
 export const getDerbyTypes = (): Promise<IDerbyFeature[]> => {
 
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve, reject, onCancel) => {
 		const state = store.getState();
 
 		if (state.dataDerbyTypes && state.dataDerbyTypes.length) {
@@ -121,7 +147,7 @@ export const getDerbyTypes = (): Promise<IDerbyFeature[]> => {
 
 		} else {
 
-			callApi("get", "eventFeatures/getDerbyTypes")
+			const apiCall = callApi("get", "eventFeatures/getDerbyTypes")
 				.then((result: IDBDerbyType[]) => {
 
 					const derbytypes: IDerbyFeature[] = result.map((derbytype) => ({
@@ -139,6 +165,10 @@ export const getDerbyTypes = (): Promise<IDerbyFeature[]> => {
 					reject(error);
 
 				});
+
+			onCancel(() => {
+				apiCall.cancel();
+			});
 
 		}
 
