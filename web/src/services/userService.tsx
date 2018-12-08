@@ -9,7 +9,7 @@ import { IDBDerbyVenue } from "interfaces/venue";
 
 export const checkEmail = (
 	email: string,
-	id: number,
+	id: number = undefined,
 ): Promise<boolean> => {
 
 	return new Promise((resolve, reject, onCancel) => {
@@ -113,7 +113,7 @@ export const checkLoginStatus = (): Promise<boolean> => {
 
 export const checkUsername = (
 	username: string,
-	id: number,
+	id: number = undefined,
 ): Promise<boolean> =>
 
 	new Promise((resolve, reject, onCancel) => {
@@ -251,6 +251,43 @@ export const getUserRoleList = (): Promise<IUserRole[]> =>
 
 	});
 
+export const login = (
+	email: string,
+	password: string,
+): Promise<IUserInfo> =>
+
+	new Promise((resolve, reject, onCancel) => {
+
+		const apiCall = callApi(
+			"post",
+			"user/login",
+			{
+				email,
+				password,
+			},
+		)
+			.then((result: IDBUserInfo) => {
+
+				resolve({
+					userEmail: result.user_email,
+					userId: result.user_id,
+					userName: result.user_name,
+					userRoles: result.user_roles,
+				});
+
+			})
+			.catch((error) => {
+
+				reject(error);
+
+			});
+
+		onCancel(() => {
+			apiCall.cancel();
+		});
+
+	});
+
 export const logout = (redirect = true): Promise<void> =>
 
 	callApi(
@@ -278,6 +315,40 @@ export const mapUser = (data: IDBUserInfo | IDBDerbyEvent | IDBDerbyVenue): IUse
 	userId: data.user_id,
 	userName: data.user_name,
 });
+
+export const registerUser = (
+	email: string,
+	password: string,
+	username: string,
+): Promise<IUserInfo> =>
+
+	new Promise((resolve, reject, onCancel) => {
+
+		const apiCall = callApi(
+			"post",
+			"user/register",
+			{
+				email,
+				password,
+				username,
+			},
+		)
+			.then(() => {
+
+				resolve();
+
+			})
+			.catch((error) => {
+
+				reject(error);
+
+			});
+
+		onCancel(() => {
+			apiCall.cancel();
+		});
+
+	});
 
 export const searchUsers = (
 	term: string,
@@ -348,6 +419,37 @@ export const setNewPassword = (
 		});
 
 	});
+
+export const submitForgotPassword = (
+	email: string,
+): Promise<void> =>
+
+	new Promise((resolve, reject, onCancel) => {
+
+		const apiCall = callApi(
+			"post",
+			"user/submitForgotPassword",
+			{
+				email,
+			},
+		)
+			.then(() => {
+
+				resolve();
+
+			})
+			.catch((error) => {
+
+				reject(error);
+
+			});
+
+		onCancel(() => {
+			apiCall.cancel();
+		});
+
+	});
+
 
 export const updateUserAsAdmin = (
 	id: number,

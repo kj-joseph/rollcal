@@ -1,15 +1,17 @@
+import RCComponent from "components/rcComponent";
 import React from "react";
 import { withRouter } from "react-router";
 
 import Modal from "react-modal";
 Modal.setAppElement("#root");
 
-import axios from "axios";
-
 import CloseIcon from "images/times-circle.svg";
 import ReactSVG from "react-svg";
 
 import { IProps } from "interfaces/redux";
+import { IUserInfo } from "interfaces/user";
+
+import { checkEmail, checkUsername, login, registerUser, submitForgotPassword } from "services/userService";
 
 interface ILoginState {
 	errorMessage: string;
@@ -34,7 +36,7 @@ interface ILoginState {
 	registerUsernameOk: boolean;
 }
 
-class Login extends React.Component<IProps> {
+class Login extends RCComponent<IProps> {
 
 	state: ILoginState = {
 		errorMessage: null,
@@ -58,8 +60,6 @@ class Login extends React.Component<IProps> {
 		registerUsernameError: null,
 		registerUsernameOk: false,
 	};
-
-	axiosSignal = axios.CancelToken.source();
 
 	constructor(props: IProps) {
 		super(props);
@@ -86,10 +86,6 @@ class Login extends React.Component<IProps> {
 			});
 
 		}
-	}
-
-	componentWillUnmount() {
-		this.axiosSignal.cancel();
 	}
 
 	render() {
@@ -345,14 +341,13 @@ class Login extends React.Component<IProps> {
 			registerEmailOk: false,
 		});
 
-		axios.get(`${this.props.apiLocation}user/checkEmail?email=${email}`,
-			{
-				cancelToken: this.axiosSignal.token,
-				withCredentials: true,
-			})
-			.then((result) => {
+		const emailCheck = this.addPromise(
+			checkEmail(email));
 
-				if (result.data) {
+		emailCheck
+			.then((emailUsed: boolean) => {
+
+				if (emailUsed) {
 
 					this.setState({
 						registerEmailChecked: true,
@@ -381,7 +376,8 @@ class Login extends React.Component<IProps> {
 					registerEmailOk: false,
 				});
 
-			});
+			})
+			.finally(emailCheck.clear);
 
 	}
 
@@ -392,14 +388,13 @@ class Login extends React.Component<IProps> {
 			registerUsernameOk: false,
 		});
 
-		axios.get(`${this.props.apiLocation}user/checkUsername?username=${username}`,
-			{
-				cancelToken: this.axiosSignal.token,
-				withCredentials: true,
-			})
-			.then((result) => {
+		const nameCheck = this.addPromise(
+			checkUsername(username));
 
-				if (result.data) {
+		nameCheck
+			.then((nameUsed: boolean) => {
+
+				if (nameUsed) {
 
 					this.setState({
 						registerUsernameChecked: true,
@@ -428,7 +423,8 @@ class Login extends React.Component<IProps> {
 					registerUsernameOk: false,
 				});
 
-			});
+			})
+			.finally(nameCheck.clear);
 
 	}
 
@@ -526,46 +522,28 @@ class Login extends React.Component<IProps> {
 			loading: true,
 		});
 
-		axios.post(this.props.apiLocation + "user/submitForgotPassword", {
-				email: this.state.forgotEmail,
-			},
-			{
-				cancelToken: this.axiosSignal.token,
-				withCredentials: true,
-			})
-			.then((result) => {
+		const submitRequest = this.addPromise(
+			submitForgotPassword(this.state.forgotEmail));
+
+		submitRequest
+			.then(() => {
 
 				this.changeStatusClearState("forgotSuccess");
 
 			}).catch((error) => {
 
-				if (!axios.isCancel(error)) {
+				this.setState({
+					errorMessage:
+						error.response.data.errorCode === "notFound" ?
+							"Sorry, we couldn't find an account using that email address.  Please try again."
+						: error.response.data.errorCode === "email" ?
+							"Sorry, there was a problem sending the email.  Please try again."
+						: "Sorry, something went wrong on our end.  Please try again.",
+					loading: false,
+				});
 
-					let errorMessage = "";
-
-					switch (error.response.data.errorCode) {
-
-						case "notFound":
-							errorMessage = "Sorry, we couldn't find an account using that email address.  Please try again.";
-							break;
-
-						case "email":
-							errorMessage = "Sorry, there was a problem sending the email.  Please try again.";
-							break;
-
-						default:
-							errorMessage = "Sorry, something went wrong on our end.  Please try again.";
-							break;
-
-					}
-
-					this.setState({
-						errorMessage,
-						loading: false,
-					});
-				}
-
-			});
+			})
+			.finally(submitRequest.clear);
 
 	}
 
@@ -576,22 +554,21 @@ class Login extends React.Component<IProps> {
 			loading: true,
 		});
 
-		axios.post(this.props.apiLocation + "user/login", {
-				email: this.state.loginEmail,
-				password: this.state.loginPassword,
-			},
-			{
-				cancelToken: this.axiosSignal.token,
-				withCredentials: true,
-			})
-			.then((result) => {
+		const loginAttempt = this.addPromise(
+			login(
+				this.state.loginEmail,
+				this.state.loginPassword,
+			));
+
+		loginAttempt
+			.then((result: IUserInfo) => {
 
 				this.props.setUserInfo({
 					loggedIn: true,
-					userEmail: result.data.email,
-					userId: result.data.id,
-					userName: result.data.username,
-					userRoles: result.data.roles,
+					userEmail: result.userEmail,
+					userId: result.userId,
+					userName: result.userName,
+					userRoles: result.userRoles,
 				});
 
 				this.changeStatusClearState("login");
@@ -600,14 +577,13 @@ class Login extends React.Component<IProps> {
 			}).catch((error) => {
 				console.error(error);
 
-				if (!axios.isCancel(error)) {
-					this.setState({
-						errorMessage: "Sorry, that login wasn't right.  Try again.",
-						loading: false,
-					});
-				}
+				this.setState({
+					errorMessage: "Sorry, that login wasn't right.  Try again.",
+					loading: false,
+				});
 
-			});
+			})
+			.finally(loginAttempt.clear);
 
 	}
 
@@ -618,30 +594,27 @@ class Login extends React.Component<IProps> {
 			loading: true,
 		});
 
-		axios.post(this.props.apiLocation + "user/register", {
-			email: this.state.registerEmail,
-			password: this.state.registerPassword,
-			username: this.state.registerUsername,
-			},
-			{
-				cancelToken: this.axiosSignal.token,
-				withCredentials: true,
-			})
-			.then((registerResult) => {
+		const registration = this.addPromise(
+			registerUser(
+				this.state.registerEmail,
+				this.state.registerPassword,
+				this.state.registerUsername,
+			));
+
+		registration
+			.then(() => {
 
 				this.changeStatusClearState("registrationSuccess");
 
 			}).catch((error) => {
-				console.error(error);
 
-				if (!axios.isCancel(error)) {
-					this.setState({
-						errorMessage: "Sorry, something went wrong.  Try again.",
-						loading: false,
-					});
-				}
+				this.setState({
+					errorMessage: "Sorry, something went wrong.  Try again.",
+					loading: false,
+				});
 
-			});
+			})
+			.finally(registration.clear);
 
 	}
 
