@@ -162,15 +162,17 @@ class AppRouter extends React.Component < IProps > {
 							<SiteMenuComponent />
 						</div>
 						<div id="loginUserIconMobile">
-						{this.props.loggedIn ?
-							<NavLink to="/dashboard" title="Dashboard" activeClassName="activeIcon">
-								<ReactSVG src={LoginIconSolid} />
-							</NavLink>
-						:
-							<a href="" onClick={this.openLoginModal} title="Login / Register">
-								<ReactSVG src={LoginIconOutline} />
-							</a>
-						}
+							{this.props.sessionInitialized ?
+								(this.props.loggedIn ?
+									<NavLink to="/dashboard" title="Dashboard" activeClassName="activeIcon">
+										<ReactSVG src={LoginIconSolid} />
+									</NavLink>
+								:
+									<a href="" onClick={this.openLoginModal} title="Login / Register">
+										<ReactSVG src={LoginIconOutline} />
+									</a>
+								)
+							: null}
 						</div>
 					</div>
 					<div id="siteMenuMobile">
