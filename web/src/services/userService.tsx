@@ -41,6 +41,41 @@ export const checkEmail = (
 
 };
 
+export const checkForgotPassword = (
+	validationCode: string,
+): Promise<IUserInfo> => {
+
+	return new Promise((resolve, reject, onCancel) => {
+
+		const apiCall = callApi(
+			"post",
+			"user/checkForgotPassword",
+			{
+				validationCode,
+			},
+		)
+			.then((response: IDBUserInfo) => {
+
+				resolve({
+					userId: response.user_id,
+					userName: response.user_name,
+				});
+
+			})
+			.catch((error) => {
+
+				reject(error);
+
+			});
+
+		onCancel(() => {
+			apiCall.cancel();
+		});
+
+	});
+
+};
+
 export const checkLoginStatus = (): Promise<boolean> => {
 
 	return new Promise((resolve, reject, onCancel) => {
@@ -280,6 +315,40 @@ export const searchUsers = (
 
 };
 
+export const setNewPassword = (
+	id: number,
+	password: string,
+	validationCode: string,
+): Promise<void> =>
+
+	new Promise((resolve, reject, onCancel) => {
+
+		const apiCall = callApi(
+			"post",
+			"user/account/setNewPassword",
+			{
+				id,
+				password,
+				validationCode,
+			},
+		)
+			.then(() => {
+
+				resolve();
+
+			})
+			.catch((error) => {
+
+				reject(error);
+
+			});
+
+		onCancel(() => {
+			apiCall.cancel();
+		});
+
+	});
+
 export const updateUserAsAdmin = (
 	id: number,
 	changes: {
@@ -294,7 +363,7 @@ export const updateUserAsAdmin = (
 
 		const apiCall = callApi(
 			"put",
-			`admin/updateUser`,
+			"admin/updateUser",
 			Object.assign(changes, {
 				id,
 				roles: changes.roles.map((role) => role.id).join(","),

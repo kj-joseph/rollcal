@@ -1,9 +1,11 @@
+import RCComponent from "components/rcComponent";
 import React from "react";
 import { Link } from "react-router-dom";
 
-import axios from "axios";
-
 import { IProps } from "interfaces/redux";
+import { IUserInfo } from "interfaces/user";
+
+import { checkForgotPassword, setNewPassword } from "services/userService";
 
 interface IForgotPasswordState {
 	formError: string;
@@ -15,9 +17,7 @@ interface IForgotPasswordState {
 	validationCode: string;
 }
 
-export default class ForgotPassword extends React.Component<IProps> {
-
-	validationParts = decodeURIComponent(this.props.match.params.validationCode).split("||");
+export default class ForgotPassword extends RCComponent<IProps> {
 
 	state: IForgotPasswordState = {
 		formError: null,
@@ -28,8 +28,6 @@ export default class ForgotPassword extends React.Component<IProps> {
 		userName: null,
 		validationCode: this.props.match.params.validationCode,
 	};
-
-	axiosSignal = axios.CancelToken.source();
 
 	constructor(props: IProps) {
 		super(props);
@@ -48,10 +46,6 @@ export default class ForgotPassword extends React.Component<IProps> {
 			page: "Set New Password",
 		});
 
-	}
-
-	componentWillUnmount() {
-		this.axiosSignal.cancel();
 	}
 
 	render() {
@@ -156,63 +150,55 @@ export default class ForgotPassword extends React.Component<IProps> {
 			status: "submitting",
 		});
 
-		axios.post(this.props.apiLocation + "user/account/setNewPassword", {
-				id: this.state.userId,
-				password: this.state.password,
-				validationCode: this.state.validationCode,
-			},
-			{
-				cancelToken: this.axiosSignal.token,
-				withCredentials: true,
-			})
-			.then((result) => {
+		const setPassword = this.addPromise(
+			setNewPassword(
+				this.state.userId,
+				this.state.password,
+				this.state.validationCode,
+			));
+
+		setPassword
+			.then(() => {
 
 				this.setState({
 					status: "success",
 				});
 
 			}).catch((error) => {
-				console.error(error);
 
-				if (!axios.isCancel(error)) {
-					this.setState({
-						formError: "Sorry, something went wrong.  Please try again.",
-						status: "form",
-					});
-				}
+				this.setState({
+					formError: "Sorry, something went wrong.  Please try again.",
+					status: "form",
+				});
 
-			});
-
+			})
+			.finally(setPassword.clear);
 
 	}
 
 	loadData() {
 
-		axios.post(this.props.apiLocation + "user/checkForgotPassword", {
-				validationCode: this.state.validationCode,
-			},
-			{
-				cancelToken: this.axiosSignal.token,
-				withCredentials: true,
-			})
-			.then((result) => {
+		const checkCode = this.addPromise(
+			checkForgotPassword(this.state.validationCode));
+
+		checkCode
+			.then((result: IUserInfo) => {
 
 				this.setState({
 					status: "form",
-					userId: result.data.user_id,
-					userName: result.data.user_name,
+					userId: result.userId,
+					userName: result.userName,
 				});
 
 			}).catch((error) => {
 				console.error(error);
 
-				if (!axios.isCancel(error)) {
-					this.setState({
-						status: "loadError",
-					});
-				}
+				this.setState({
+					status: "loadError",
+				});
 
-			});
+			})
+			.finally(checkCode.clear);
 
 	}
 
