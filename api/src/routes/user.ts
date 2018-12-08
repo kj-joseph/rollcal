@@ -230,10 +230,10 @@ router.post("/login", upload.array(), (req: IRequestWithSession, res: Response) 
 
 					res.locals.connection.end();
 					res.status(200).json({
-						email: loginResult.user_email,
-						id: loginResult.user_id,
-						roles: loginResult.user_roles ? loginResult.user_roles.split(",") : [],
-						username: loginResult.user_name,
+						user_email: loginResult.user_email,
+						user_id: loginResult.user_id,
+						user_name: loginResult.user_name,
+						user_roles: loginResult.user_roles ? loginResult.user_roles.split(",") : [],
 					});
 
 				}
