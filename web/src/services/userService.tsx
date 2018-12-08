@@ -42,7 +42,7 @@ export const checkEmail = (
 };
 
 export const checkForgotPassword = (
-	validationCode: string,
+	code: string,
 ): Promise<IUserInfo> => {
 
 	return new Promise((resolve, reject, onCancel) => {
@@ -51,7 +51,7 @@ export const checkForgotPassword = (
 			"post",
 			"user/checkForgotPassword",
 			{
-				validationCode,
+				validationCode: code,
 			},
 		)
 			.then((response: IDBUserInfo) => {
@@ -389,7 +389,7 @@ export const searchUsers = (
 export const setNewPassword = (
 	id: number,
 	password: string,
-	validationCode: string,
+	code: string,
 ): Promise<void> =>
 
 	new Promise((resolve, reject, onCancel) => {
@@ -400,7 +400,7 @@ export const setNewPassword = (
 			{
 				id,
 				password,
-				validationCode,
+				validationCode: code,
 			},
 		)
 			.then(() => {
@@ -523,3 +523,35 @@ export const updateUserProfile = (
 		});
 
 	});
+
+export const validateAccount = (
+	code: string,
+): Promise<IUserInfo> => {
+
+	return new Promise((resolve, reject, onCancel) => {
+
+		const apiCall = callApi(
+			"post",
+			"user/account/validate",
+			{
+				validationCode: code,
+			},
+		)
+			.then(() => {
+
+				resolve();
+
+			})
+			.catch((error) => {
+
+				reject(error);
+
+			});
+
+		onCancel(() => {
+			apiCall.cancel();
+		});
+
+	});
+
+};

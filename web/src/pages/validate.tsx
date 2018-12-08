@@ -1,16 +1,17 @@
+import RCComponent from "components/rcComponent";
 import React from "react";
 import { Link } from "react-router-dom";
 
-import axios from "axios";
-
 import { IProps } from "interfaces/redux";
+
+import { validateAccount } from "services/userService";
 
 interface IValidateState {
 	status: "error" | "valid" | "validating";
 	validationCode: string;
 }
 
-export default class Validate extends React.Component<IProps> {
+export default class Validate extends RCComponent<IProps> {
 
 	validationParts = decodeURIComponent(this.props.match.params.validationCode).split("||");
 
@@ -18,8 +19,6 @@ export default class Validate extends React.Component<IProps> {
 		status: "validating",
 		validationCode: this.props.match.params.validationCode,
 	};
-
-	axiosSignal = axios.CancelToken.source();
 
 	constructor(props: IProps) {
 		super(props);
@@ -37,10 +36,6 @@ export default class Validate extends React.Component<IProps> {
 			page: "User Dashboard",
 		});
 
-	}
-
-	componentWillUnmount() {
-		this.axiosSignal.cancel();
 	}
 
 	render() {
@@ -69,29 +64,24 @@ export default class Validate extends React.Component<IProps> {
 
 	loadData() {
 
-		axios.post(this.props.apiLocation + "user/account/validate", {
-				validationCode: this.state.validationCode,
-			},
-			{
-				cancelToken: this.axiosSignal.token,
-				withCredentials: true,
-			})
-			.then((result) => {
+		const validation = this.addPromise(
+			validateAccount(this.state.validationCode));
+
+		validation
+			.then(() => {
 
 				this.setState({
 					status: "valid",
 				});
 
 			}).catch((error) => {
-				console.error(error);
 
-				if (!axios.isCancel(error)) {
-					this.setState({
-						status: "error",
-					});
-				}
+				this.setState({
+					status: "error",
+				});
 
-			});
+			})
+			.finally(validation.clear);
 
 	}
 

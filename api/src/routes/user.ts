@@ -548,9 +548,7 @@ router.post("/account/validate", upload.array(), (req: Request, res: Response) =
 				if (results[0].map((row: {}) => ({...row}))[0].validated) {
 
 					res.locals.connection.end();
-					res.status(200).json({
-						validated: true,
-					});
+					res.status(200).json();
 
 				} else {
 
