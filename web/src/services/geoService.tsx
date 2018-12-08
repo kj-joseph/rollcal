@@ -89,6 +89,7 @@ export const filterLocationsByString = (locations: string): Promise<IGeoCountry[
 export const getGeography = (): Promise<IGeoCountry[]> => {
 
 	return new Promise((resolve, reject, onCancel) => {
+
 		const state = store.getState();
 
 		if (state.dataGeography && state.dataGeography.length) {
@@ -97,7 +98,10 @@ export const getGeography = (): Promise<IGeoCountry[]> => {
 
 		} else {
 
-			const apiCall = callApi("get", "geography/getGeography")
+			const apiCall = callApi(
+				"get",
+				"geography/getGeography",
+			)
 				.then((result) => {
 
 					const countries: IDBGeoCountry[] = result.countries;

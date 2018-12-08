@@ -138,7 +138,7 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 	componentDidUpdate() {
 
-		if (!this.props.loggedIn || !checkUserRole(this.props.loggedInUserRoles, "user")) {
+		if (!this.props.loggedIn || !checkUserRole("user")) {
 
 			this.props.history.push("/");
 
@@ -1214,7 +1214,7 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 							if (result.data &&
 								(result.data.event_user === this.props.loggedInUserId
-									|| checkUserRole(this.props.loggedInUserRoles, "reviewer"))
+									|| checkUserRole("reviewer"))
 								) {
 
 								const eventResult: IDBDerbyEvent = result.data;

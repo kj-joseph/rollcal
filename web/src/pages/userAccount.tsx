@@ -2,7 +2,7 @@ import RCComponent from "components/rcComponent";
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { checkEmail, checkUsername, logout, updateUser } from "services/userService";
+import { checkEmail, checkUsername, logout, updateUserProfile } from "services/userService";
 
 import { IProps } from "interfaces/redux";
 
@@ -268,10 +268,8 @@ export default class UserAccount extends RCComponent<IProps> {
 			accountEmailOk: false,
 		});
 
-		const emailCheck = this.addPromise(checkEmail(
-			email,
-			this.props.loggedInUserId,
-		));
+		const emailCheck = this.addPromise(
+			checkEmail(email, this.props.loggedInUserId));
 
 		emailCheck
 			.then((emailRegistered) => {
@@ -317,10 +315,8 @@ export default class UserAccount extends RCComponent<IProps> {
 			accountUsernameOk: false,
 		});
 
-		const usernameCheck = this.addPromise(checkUsername(
-			username,
-			this.props.loggedInUserId,
-		));
+		const usernameCheck = this.addPromise(
+			checkUsername(username, this.props.loggedInUserId));
 
 		usernameCheck
 			.then((usernameUsed) => {
@@ -421,20 +417,21 @@ export default class UserAccount extends RCComponent<IProps> {
 				processing: true,
 			});
 
-			const userUpdate = this.addPromise(updateUser(
-				this.props.loggedInUserId,
-				{
-					currentPassword: this.state.accountCurrentPassword || undefined,
-					email: this.state.accountEmail !== this.state.initialAccountEmail
-						&& !!this.state.accountCurrentPassword ?
-						this.state.accountEmail : undefined,
-					newPassword: this.state.accountNewPassword === this.state.accountNewPasswordConfirm
-						&& !!this.state.accountCurrentPassword ?
-						this.state.accountNewPassword : undefined,
-					username: this.state.accountUsername !== this.state.initialAccountUsername ?
-						this.state.accountUsername : undefined,
-				},
-			));
+			const userUpdate = this.addPromise(
+				updateUserProfile(
+					this.props.loggedInUserId,
+					{
+						currentPassword: this.state.accountCurrentPassword || undefined,
+						email: this.state.accountEmail !== this.state.initialAccountEmail
+							&& !!this.state.accountCurrentPassword ?
+							this.state.accountEmail : undefined,
+						newPassword: this.state.accountNewPassword === this.state.accountNewPasswordConfirm
+							&& !!this.state.accountCurrentPassword ?
+							this.state.accountNewPassword : undefined,
+						username: this.state.accountUsername !== this.state.initialAccountUsername ?
+							this.state.accountUsername : undefined,
+					},
+				));
 
 			userUpdate
 				.then((result) => {

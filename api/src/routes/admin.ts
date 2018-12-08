@@ -64,15 +64,15 @@ router.get("/getUserDetailsById/:id", checkSession("admin"), (req: Request, res:
 });
 
 
-router.put("/updateUser/:id", checkSession("admin"), upload.array(), (req: Request, res: Response) => {
+router.put("/updateUser", checkSession("admin"), upload.array(), (req: Request, res: Response) => {
 
 	res.locals.connection
 		.query(`call updateUser(
-			${res.locals.connection.escape(req.params.id)},
-			${res.locals.connection.escape(req.body.userName)},
-			${res.locals.connection.escape(req.body.userStatus)},
-			${res.locals.connection.escape(req.body.userEmail)},
-			${res.locals.connection.escape(req.body.userRoles)}
+			${res.locals.connection.escape(req.body.id)},
+			${res.locals.connection.escape(req.body.name)},
+			${res.locals.connection.escape(req.body.status)},
+			${res.locals.connection.escape(req.body.email)},
+			${res.locals.connection.escape(req.body.roles)}
 			)`,
 
 		(error: MysqlError, results: any) => {

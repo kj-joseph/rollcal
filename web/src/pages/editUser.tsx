@@ -1,3 +1,4 @@
+import RCComponent from "components/rcComponent";
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -7,9 +8,7 @@ Modal.setAppElement("#root");
 import { IProps } from "interfaces/redux";
 import { IUserInfo, IUserRole } from "interfaces/user";
 
-import { checkUserRole, getUserRoles } from "services/userService";
-
-import axios from "axios";
+import { checkUserRole, filterUserRoles, getUserDetails, getUserRoleList, updateUserAsAdmin } from "services/userService";
 
 import Select from "react-select";
 
@@ -34,9 +33,7 @@ interface IAdminDashboardState {
 	userInfo: IUserInfo;
 }
 
-export default class EditUser extends React.Component<IProps> {
-
-	axiosSignal = axios.CancelToken.source();
+export default class EditUser extends RCComponent<IProps> {
 
 	state: IAdminDashboardState = {
 		dataError: false,
@@ -78,11 +75,11 @@ export default class EditUser extends React.Component<IProps> {
 
 	componentDidUpdate() {
 
-		if (!this.props.loggedIn || !checkUserRole(this.props.loggedInUserRoles, "user")) {
+		if (!this.props.loggedIn || !checkUserRole("user")) {
 
 			this.props.history.push("/");
 
-		} else if (!checkUserRole(this.props.loggedInUserRoles, "admin")) {
+		} else if (!checkUserRole("admin")) {
 
 			this.props.history.push("/dashboard");
 
@@ -98,10 +95,6 @@ export default class EditUser extends React.Component<IProps> {
 
 		}
 
-	}
-
-	componentWillUnmount() {
-		this.axiosSignal.cancel();
 	}
 
 	render() {
@@ -253,7 +246,7 @@ export default class EditUser extends React.Component<IProps> {
 
 	handleRoleChange(selected: IUserRole[]) {
 
-		// user role is required
+		// "user" role is required
 		if (!selected.filter((role) => role.name === "user").length) {
 			selected.unshift(this.props.rolesList.filter((role) => role.name === "user")[0]);
 		}
@@ -281,17 +274,18 @@ export default class EditUser extends React.Component<IProps> {
 			saveError: false,
 		});
 
-		axios.put(`${this.props.apiLocation}admin/updateUser/${this.state.editUserId}`, {
-			userEmail: this.state.editUserEmail,
-			userName: this.state.editUserName,
-			userRoles: this.state.editUserRoles
-				.map((role) => role.id).join(","),
-			userStatus: this.state.editUserStatus.value,
-		},
-		{
-			cancelToken: this.axiosSignal.token,
-			withCredentials: true,
-		})
+		const userUpdate = this.addPromise(
+			updateUserAsAdmin(
+				this.state.editUserId,
+				{
+					email: this.state.editUserEmail,
+					name: this.state.editUserName,
+					roles: this.state.editUserRoles,
+					status: this.state.editUserStatus.value,
+				},
+			));
+
+		userUpdate
 			.then((result) => {
 
 				this.setState({
@@ -300,83 +294,65 @@ export default class EditUser extends React.Component<IProps> {
 				});
 
 			}).catch((error) => {
+				console.error(error);
 
 				this.setState({
 					loading: false,
 					saveError: true,
 				});
 
-			});
+			})
+			.finally(userUpdate.clear);
 
 	}
 
 	loadData() {
 
-		this.setState({
-			searchComplete: false,
-			searching: true,
-		});
+		const getUserData = this.addPromise(
+			getUserDetails(this.props.match.params.id));
 
-		getUserRoles()
-			.then(() => {
+		getUserData
+			.then((userData: IUserInfo) => {
 
-				const rolesList = this.props.rolesList;
+				this.setState({
+					editUserEmail: userData.userEmail,
+					editUserId: userData.userId,
+					editUserName: userData.userName,
+					editUserStatus: {
+						label: userData.userStatus,
+						value: userData.userStatus,
+					},
+				});
 
-				axios.get(`${this.props.apiLocation}admin/getUserDetailsById/${this.props.match.params.id}`,
-					{
-						cancelToken: this.axiosSignal.token,
-						withCredentials: true,
-					})
-					.then((result) => {
+				return userData.userRoles;
 
-						if (!result.data) {
-							throw new Error("User not found.");
-						}
+			})
+			.then((userRoles) => filterUserRoles(userRoles))
+			.then((userRolesList) => {
 
-						if (result.data.user_id === this.props.loggedInUserId
-							|| (checkUserRole(this.props.rolesList.map((role) => role.name), "admin")
-								&& !checkUserRole(this.props.loggedInUserRoles, "superadmin"))
+				this.setState({
+					editUserRoles: userRolesList,
+				});
 
-							) {
+			})
+			.then(() => getUserRoleList())
+			.then((rolesList) => {
 
-							this.setState({
-								dataError: true,
-								loading: false,
-							});
+				this.setState({
+					loading: false,
+					rolesList,
+				});
 
-						} else {
+			})
+			.catch((error) => {
 
-							const userRoles = this.props.rolesList
-								.filter((role) => result.data.user_roles.indexOf(role.id.toString()) > -1)
-								.sort((a, b) => a.order > b.order ? 1 : a.order < b.order ? -1 : 0);
+				this.setState({
+					dataError: true,
+					loading: false,
+				});
 
-							this.setState({
-								editUserEmail: result.data.user_email,
-								editUserId: result.data.user_id,
-								editUserName: result.data.user_name,
-								editUserRoles: userRoles,
-								editUserStatus: {
-									label: result.data.user_status,
-									value: result.data.user_status,
-								},
-								loading: false,
-								rolesList,
-							});
-						}
-
-					}).catch((error) => {
-
-						if (!axios.isCancel(error)) {
-							console.error(error);
-							this.setState({
-								dataError: true,
-								loading: false,
-							});
-						}
-
-					});
-
-			});
+			})
+			.finally(getUserData.clear);
 
 	}
 

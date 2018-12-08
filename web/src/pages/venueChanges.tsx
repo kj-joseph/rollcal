@@ -53,11 +53,11 @@ export default class VenueChanges extends React.Component<IProps> {
 
 	componentDidUpdate() {
 
-		if (!this.props.loggedIn || !checkUserRole(this.props.loggedInUserRoles, "user")) {
+		if (!this.props.loggedIn || !checkUserRole("user")) {
 
 			this.props.history.push("/");
 
-		} else if (!checkUserRole(this.props.loggedInUserRoles, "reviewer")) {
+		} else if (!checkUserRole("reviewer")) {
 
 			this.props.history.push("/dashboard");
 

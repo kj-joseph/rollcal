@@ -59,13 +59,13 @@ export default class UserVenues extends React.Component<IProps, IUserVenuesState
 
 	componentDidUpdate() {
 
-		if (!this.props.loggedIn || !checkUserRole(this.props.loggedInUserRoles, "user")) {
+		if (!this.props.loggedIn || !checkUserRole("user")) {
 
 			this.props.history.push("/");
 
 		} else if (window.location.pathname !== this.state.path || this.props.loggedInUserId !== this.state.userId ) {
 
-			const isReviewer = checkUserRole(this.props.loggedInUserRoles, "reviewer");
+			const isReviewer = checkUserRole("reviewer");
 
 			this.setState({
 				isReviewer,

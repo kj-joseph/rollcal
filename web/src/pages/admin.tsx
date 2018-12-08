@@ -1,15 +1,14 @@
+import RCComponent from "components/rcComponent";
 import React from "react";
 import { Link } from "react-router-dom";
 
 import { IProps } from "interfaces/redux";
-import { IDBUserInfo, IUserInfo } from "interfaces/user";
+import { IUserInfo } from "interfaces/user";
 
 import Modal from "react-modal";
 Modal.setAppElement("#root");
 
-import { checkUserRole } from "services/userService";
-
-import axios from "axios";
+import { checkUserRole, searchUsers } from "services/userService";
 
 interface IAdminDashboardState {
 	path: string;
@@ -21,9 +20,7 @@ interface IAdminDashboardState {
 	userId: number;
 }
 
-export default class AdminDashboard extends React.Component<IProps> {
-
-	axiosSignal = axios.CancelToken.source();
+export default class AdminDashboard extends RCComponent<IProps> {
 
 	state: IAdminDashboardState = {
 		path: null,
@@ -56,11 +53,11 @@ export default class AdminDashboard extends React.Component<IProps> {
 
 	componentDidUpdate() {
 
-		if (!this.props.loggedIn || !checkUserRole(this.props.loggedInUserRoles, "user")) {
+		if (!this.props.loggedIn || !checkUserRole("user")) {
 
 			this.props.history.push("/");
 
-		} else if (!checkUserRole(this.props.loggedInUserRoles, "admin")) {
+		} else if (!checkUserRole("admin")) {
 
 			this.props.history.push("/dashboard");
 
@@ -74,10 +71,6 @@ export default class AdminDashboard extends React.Component<IProps> {
 
 		}
 
-	}
-
-	componentWillUnmount() {
-		this.axiosSignal.cancel();
 	}
 
 	render() {
@@ -145,8 +138,8 @@ export default class AdminDashboard extends React.Component<IProps> {
 										<tr key={user.userId}>
 											<td>
 												{ user.userId === this.props.loggedInUserId
-													|| (checkUserRole(user.userRoles, "admin")
-														&& !checkUserRole(this.props.loggedInUserRoles, "superadmin")) ?
+													|| (user.userRoles.indexOf("admin") > -1
+														&& !checkUserRole("superadmin")) ?
 													user.userName
 												:
 													<Link to={`/dashboard/admin/user/${user.userId}`}>{user.userName}</Link>
@@ -206,37 +199,28 @@ export default class AdminDashboard extends React.Component<IProps> {
 			searching: true,
 		});
 
-		axios.get(`${this.props.apiLocation}admin/searchUsers/${this.state.searchTerm}`,
-			{
-				cancelToken: this.axiosSignal.token,
-				withCredentials: true,
-			})
+		const userSearch = this.addPromise(
+			searchUsers(this.state.searchTerm));
+
+		userSearch
 			.then((result) => {
 
 				this.setState({
 					searchComplete: true,
-					searchResults: result.data.map((user: IDBUserInfo): IUserInfo => ({
-						userEmail: user.user_email,
-						userId: user.user_id,
-						userName: user.user_name,
-						userRoles: user.user_roles,
-						userStatus: user.user_status,
-					})),
+					searchResults: result,
 					searching: false,
 				});
 
 			}).catch((error) => {
 
-				if (!axios.isCancel(error)) {
-					console.error(error);
-					this.setState({
-						searchComplete: false,
-						searchError: true,
-						searching: false,
-					});
-				}
+				this.setState({
+					searchComplete: false,
+					searchError: true,
+					searching: false,
+				});
 
-			});
+			})
+			.finally(userSearch.clear);
 
 	}
 }

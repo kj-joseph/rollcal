@@ -12,6 +12,7 @@ export const callApi = (
 : Promise<any> =>
 
 	new Promise((resolve, reject, onCancel) => {
+
 		const axiosSignal = axios.CancelToken.source();
 		const state = store.getState();
 

@@ -38,6 +38,7 @@ export const formatDateRange = (
 export const getTimeZones = (): Promise<ITimeZone[]> => {
 
 	return new Promise((resolve, reject, onCancel) => {
+
 		const state = store.getState();
 
 		if (state.timeZones && state.timeZones.length) {
@@ -46,7 +47,10 @@ export const getTimeZones = (): Promise<ITimeZone[]> => {
 
 		} else {
 
-			const apiCall = callApi("get", "geography/getTimeZones")
+			const apiCall = callApi(
+				"get",
+				"geography/getTimeZones",
+			)
 				.then((result: ITimeZone[]) => {
 
 					store.dispatch(actions.saveTimeZones(result));

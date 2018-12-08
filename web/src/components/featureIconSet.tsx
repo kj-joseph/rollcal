@@ -32,7 +32,6 @@ export default class FeatureIconSet extends React.Component<IFeatureSetProps> {
 
 	constructor(props: IFeatureSetProps) {
 		super(props);
-
 	}
 
 	render() {

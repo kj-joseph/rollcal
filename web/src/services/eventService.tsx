@@ -157,6 +157,7 @@ export const loadEvents = (
 }> => {
 
 	return new Promise((resolve, reject, onCancel) => {
+
 		const state = store.getState();
 
 		const loadData = Promise.all([
