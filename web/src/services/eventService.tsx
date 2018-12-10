@@ -175,9 +175,9 @@ export const loadEvents = (
 	events: IDerbyEvent[],
 	search: ISearchObject,
 	total: number,
-}> => {
+}> =>
 
-	return new Promise((resolve, reject, onCancel) => {
+	new Promise((resolve, reject, onCancel) => {
 
 		const state = store.getState();
 
@@ -288,8 +288,6 @@ export const loadEvents = (
 
 	});
 
-};
-
 const mapDays = (
 	data: IDBDerbyEventDay[],
 ): IDerbyEventDay[] =>
@@ -306,9 +304,9 @@ const mapDays = (
 
 const mapEvent = (
 	data: IDBDerbyEvent,
-): Promise<IDerbyEvent> => {
+): Promise<IDerbyEvent> =>
 
-	return new Promise((resolve, reject, onCancel) => {
+	new Promise((resolve, reject, onCancel) => {
 
 		const features: IDerbyFeatures = {
 			derbytypes: {} as IDerbyFeature[],
@@ -373,8 +371,6 @@ const mapEvent = (
 		});
 
 	});
-
-};
 
 export const searchEventsByString = (
 	searchString: string = null,
