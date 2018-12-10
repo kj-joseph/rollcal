@@ -6,9 +6,9 @@ import { IDBDerbyEvent } from "interfaces/event";
 import { IDBGeoCountry, IDBGeoRegion, IGeoCountry, IGeoCountryFilter, IGeoRegion } from "interfaces/geo";
 import { IDBDerbyVenue } from "interfaces/venue";
 
-export const filterLocations = (search: IGeoCountryFilter[]): Promise<IGeoCountry[]> => {
+export const filterLocations = (search: IGeoCountryFilter[]): Promise<IGeoCountry[]> =>
 
-	return new Promise((resolve, reject, onCancel) => {
+	new Promise((resolve, reject, onCancel) => {
 
 		const getGeo = getGeography()
 			.then((countryList) => {
@@ -59,8 +59,6 @@ export const filterLocations = (search: IGeoCountryFilter[]): Promise<IGeoCountr
 
 	});
 
-};
-
 export const filterLocationsByString = (locations: string): Promise<IGeoCountry[]> => {
 
 	const countrySearch: IGeoCountryFilter[] = [];
@@ -86,9 +84,9 @@ export const filterLocationsByString = (locations: string): Promise<IGeoCountry[
 
 };
 
-export const getGeography = (): Promise<IGeoCountry[]> => {
+export const getGeography = (): Promise<IGeoCountry[]> =>
 
-	return new Promise((resolve, reject, onCancel) => {
+	new Promise((resolve, reject, onCancel) => {
 
 		const state = store.getState();
 
@@ -142,8 +140,6 @@ export const getGeography = (): Promise<IGeoCountry[]> => {
 		}
 
 	});
-
-};
 
 export const mapCountry = (data: IDBDerbyEvent | IDBDerbyVenue): IGeoCountry => ({
 	code: data.country_code,

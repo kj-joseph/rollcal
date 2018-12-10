@@ -4,9 +4,9 @@ export const sendContactEmail = (
 	email: string,
 	message: string,
 	name: string,
-): Promise<void> => {
+): Promise<void> =>
 
-	return new Promise((resolve, reject, onCancel) => {
+	new Promise((resolve, reject, onCancel) => {
 
 		const apiCall = callApi("post", "contact/sendContactForm", {
 			email,
@@ -29,5 +29,3 @@ export const sendContactEmail = (
 		});
 
 	});
-
-};

@@ -35,9 +35,9 @@ export const formatDateRange = (
 
 };
 
-export const getTimeZones = (): Promise<ITimeZone[]> => {
+export const getTimeZones = (): Promise<ITimeZone[]> =>
 
-	return new Promise((resolve, reject, onCancel) => {
+	new Promise((resolve, reject, onCancel) => {
 
 		const state = store.getState();
 
@@ -70,7 +70,6 @@ export const getTimeZones = (): Promise<ITimeZone[]> => {
 		}
 
 	});
-};
 
 export const mapTimezone = (data: IDBDerbyEvent | IDBDerbyVenue): ITimeZone => ({
 	id: data.timezone_id,

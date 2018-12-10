@@ -10,9 +10,9 @@ import { IDBDerbyVenue } from "interfaces/venue";
 export const checkEmail = (
 	email: string,
 	id: number = undefined,
-): Promise<boolean> => {
+): Promise<boolean> =>
 
-	return new Promise((resolve, reject, onCancel) => {
+	new Promise((resolve, reject, onCancel) => {
 
 		const apiCall = callApi(
 			"get",
@@ -39,13 +39,11 @@ export const checkEmail = (
 
 	});
 
-};
-
 export const checkForgotPassword = (
 	code: string,
-): Promise<IUserInfo> => {
+): Promise<IUserInfo> =>
 
-	return new Promise((resolve, reject, onCancel) => {
+	new Promise((resolve, reject, onCancel) => {
 
 		const apiCall = callApi(
 			"post",
@@ -74,11 +72,9 @@ export const checkForgotPassword = (
 
 	});
 
-};
+export const checkLoginStatus = (): Promise<boolean> =>
 
-export const checkLoginStatus = (): Promise<boolean> => {
-
-	return new Promise((resolve, reject, onCancel) => {
+	new Promise((resolve, reject, onCancel) => {
 
 		const apiCall = callApi(
 			"post",
@@ -108,8 +104,6 @@ export const checkLoginStatus = (): Promise<boolean> => {
 		});
 
 	});
-
-};
 
 export const checkUsername = (
 	username: string,
@@ -352,9 +346,9 @@ export const registerUser = (
 
 export const searchUsers = (
 	term: string,
-): Promise<IUserInfo[]> => {
+): Promise<IUserInfo[]> =>
 
-	return new Promise((resolve, reject, onCancel) => {
+	new Promise((resolve, reject, onCancel) => {
 
 		const apiCall = callApi(
 			"get",
@@ -383,8 +377,6 @@ export const searchUsers = (
 		});
 
 	});
-
-};
 
 export const setNewPassword = (
 	id: number,
@@ -526,9 +518,9 @@ export const updateUserProfile = (
 
 export const validateAccount = (
 	code: string,
-): Promise<IUserInfo> => {
+): Promise<IUserInfo> =>
 
-	return new Promise((resolve, reject, onCancel) => {
+	new Promise((resolve, reject, onCancel) => {
 
 		const apiCall = callApi(
 			"post",
@@ -553,5 +545,3 @@ export const validateAccount = (
 		});
 
 	});
-
-};
