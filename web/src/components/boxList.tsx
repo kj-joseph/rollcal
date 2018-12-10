@@ -46,7 +46,6 @@ export default class BoxList extends React.Component<IBoxListProps> {
 
 	constructor(props: IBoxListProps) {
 		super(props);
-
 	}
 
 	render() {

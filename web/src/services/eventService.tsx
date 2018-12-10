@@ -13,6 +13,28 @@ import { IDerbyFeature, IDerbyFeatures } from "interfaces/feature";
 
 import moment from "moment";
 
+export const deleteEvent = (
+	id: number,
+): Promise<IDerbyEvent> =>
+
+	new Promise((resolve, reject, onCancel) => {
+
+		const apiCall = callApi(
+			"delete",
+			`events/deleteEvent/${id}`,
+		)
+			.then(() =>
+				resolve())
+
+			.catch((error) =>
+				reject(error));
+
+		onCancel(() => {
+			apiCall.cancel();
+		});
+
+	});
+
 export const getEvent = (
 	id: number,
 ): Promise<IDerbyEvent> =>

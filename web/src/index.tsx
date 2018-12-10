@@ -332,7 +332,7 @@ const SearchPage = connectClass(Search);
 import UserAccount from "pages/userAccount";
 const UserAccountPage = connectClass(UserAccount);
 
-import UserEvents from "pages/userEvents";
+import UserEvents from "pages/editEventsList";
 const UserEventsPage = connectClass(UserEvents);
 
 import UserVenues from "pages/userVenues";

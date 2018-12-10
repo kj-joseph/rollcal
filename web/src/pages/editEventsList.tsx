@@ -1,14 +1,9 @@
+import RCComponent from "components/rcComponent";
 import React from "react";
 import { Link } from "react-router-dom";
 
 import Modal from "react-modal";
 Modal.setAppElement("#root");
-
-import { IBoxListItem } from "interfaces/boxList";
-import { IDBDerbyEvent } from "interfaces/event";
-import { IProps } from "interfaces/redux";
-
-import axios from "axios";
 
 import moment from "moment";
 
@@ -17,14 +12,19 @@ import CircleIcon from "images/circle.svg";
 import CloseIcon from "images/times-circle.svg";
 import ReactSVG from "react-svg";
 
-import BoxList from "components/boxList";
-import { formatDateRange } from "services/timeService";
+import { IDerbyEvent } from "interfaces/event";
+import { IProps } from "interfaces/redux";
+
+import { mapEventsToBoxList } from "services/boxListService";
+import { deleteEvent, loadEvents } from "services/eventService";
 import { checkUserRole } from "services/userService";
+
+import BoxList from "components/boxList";
 
 interface IUserEventsState {
 	deleteEventId: number;
 	deleteModalOpen: boolean;
-	eventData: IBoxListItem[];
+	eventData: IDerbyEvent[];
 	isReviewer: boolean;
 	loading: boolean;
 	modalError: string;
@@ -34,7 +34,7 @@ interface IUserEventsState {
 	userId: number;
 }
 
-export default class UserEvents extends React.Component<IProps> {
+export default class EditEventsList extends RCComponent<IProps> {
 
 	state: IUserEventsState = {
 		deleteEventId: null,
@@ -48,8 +48,6 @@ export default class UserEvents extends React.Component<IProps> {
 		showAll: false,
 		userId: null,
 	};
-
-	axiosSignal = axios.CancelToken.source();
 
 	constructor(props: IProps) {
 		super(props);
@@ -95,10 +93,6 @@ export default class UserEvents extends React.Component<IProps> {
 
 		}
 
-	}
-
-	componentWillUnmount() {
-		this.axiosSignal.cancel();
 	}
 
 	render() {
@@ -150,10 +144,10 @@ export default class UserEvents extends React.Component<IProps> {
 						{this.state.eventData.length ?
 
 							<BoxList
-								data={this.state.eventData.filter((event: IBoxListItem) =>
-									event.user === this.props.loggedInUserId
-									|| (this.state.isReviewer
-										&& this.state.showAll))}
+								data={mapEventsToBoxList(
+									this.state.eventData.filter((event) =>
+										event.user.userId === this.props.loggedInUserId
+										|| (this.state.isReviewer && this.state.showAll)))}
 								deleteFunction={this.deleteEvent}
 								editFunction={this.editEvent}
 								itemType="events"
@@ -254,30 +248,28 @@ export default class UserEvents extends React.Component<IProps> {
 			modalProcessing: true,
 		});
 
-		axios.delete(`${this.props.apiLocation}events/deleteEvent/${this.state.deleteEventId}`,
-			{
-				cancelToken: this.axiosSignal.token,
-				withCredentials: true,
-			})
-			.then((result) => {
+		const eventDeletion = this.addPromise(
+			deleteEvent(this.state.deleteEventId));
 
-				this.loadData();
+		eventDeletion
+			.then(() => {
 
 				this.setState({
 					deleteModalOpen: false,
 					modalProcessing: false,
 				});
 
+				this.loadData();
+
 			}).catch((error) => {
 
-				if (!axios.isCancel(error)) {
-					this.setState({
-						modalError: "There was a problem trying to delete the event.",
-						modalProcessing: false,
-					});
-				}
+				this.setState({
+					modalError: "There was a problem trying to delete the event.",
+					modalProcessing: false,
+				});
 
-			});
+			})
+			.finally(eventDeletion.clear);
 
 	}
 
@@ -316,41 +308,29 @@ export default class UserEvents extends React.Component<IProps> {
 			loading: true,
 		});
 
-		axios.get(`${this.props.apiLocation}events/search${isReviewer ? "" : `?user=${this.props.loggedInUserId}`}`
-			+ `${isReviewer ? "?" : "&"}startDate=${moment().format("Y-MM-DD")}`,
-			{
-				cancelToken: this.axiosSignal.token,
-				withCredentials: true,
-			})
-			.then((result) => {
+		const getEvents = this.addPromise(
+			loadEvents({
+				startDate: moment().format("Y-MM-DD"),
+				user: isReviewer ? undefined : this.props.loggedInUserId,
+			}));
 
-				const eventData = result.data.events.map((event: IDBDerbyEvent) => ({
-						dates: formatDateRange({
-								firstDay: moment.utc(event.event_first_day),
-								lastDay: moment.utc(event.event_last_day),
-							}, "short"),
-						host: event.event_name ? event.event_host : null,
-						id: event.event_id,
-						location: `${event.venue_city}${event.region_abbreviation ? ", " + event.region_abbreviation : ""}, ${event.country_code}`,
-						name: event.event_name ? event.event_name : event.event_host,
-						user: event.event_user,
-					}));
+		getEvents
+			.then((response) => {
 
 				this.setState({
-					eventData,
+					eventData: response.events,
 					loading: false,
 				});
 
 			}).catch((error) => {
 				console.error(error);
 
-				if (!axios.isCancel(error)) {
-					this.setState({
-						loading: false,
-					});
-				}
+				this.setState({
+					loading: false,
+				});
 
-			});
+			})
+			.finally(getEvents.clear);
 
 	}
 
