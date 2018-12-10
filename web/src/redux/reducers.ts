@@ -1,5 +1,5 @@
+import { ISearchObject } from "interfaces/event";
 import { IReduxActionType, IReduxStore } from "interfaces/redux";
-import { ISearchObject } from "interfaces/search";
 
 const initialState: IReduxStore = {
 	apiLocation: process.env.API_URL,

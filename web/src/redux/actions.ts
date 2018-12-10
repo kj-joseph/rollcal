@@ -1,7 +1,7 @@
+import { ISearchObject } from "interfaces/event";
 import { IDerbyFeature } from "interfaces/feature";
 import { IGeoCountry } from "interfaces/geo";
 import { IPageTitle, IReduxActionType } from "interfaces/redux";
-import { ISearchObject } from "interfaces/search";
 import { ITimeZone } from "interfaces/time";
 import { IUserInfo, IUserRole } from "interfaces/user";
 

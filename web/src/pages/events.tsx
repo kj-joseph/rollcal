@@ -7,9 +7,8 @@ import { formatDateRange } from "services/timeService";
 
 import BoxList from "components/boxList";
 
-import { IDerbyEvent } from "interfaces/event";
+import { IDerbyEvent, ISearchObject } from "interfaces/event";
 import { IProps } from "interfaces/redux";
-import { ISearchObject } from "interfaces/search";
 
 import moment from "moment";
 

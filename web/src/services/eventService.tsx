@@ -8,9 +8,8 @@ import { formatDateRange } from "services/timeService";
 import { mapUser } from "services/userService";
 import { mapVenue } from "services/venueService";
 
-import { IDBDerbyEvent, IDBDerbyEventDay, IDerbyEvent, IDerbyEventDay } from "interfaces/event";
+import { IDBDerbyEvent, IDBDerbyEventDay, IDerbyEvent, IDerbyEventDay, ISearchObject} from "interfaces/event";
 import { IDerbyFeature, IDerbyFeatures } from "interfaces/feature";
-import { ISearchObject } from "interfaces/search";
 
 import moment from "moment";
 

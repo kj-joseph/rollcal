@@ -1,4 +1,5 @@
-import { IDerbyFeatures } from "interfaces/feature";
+import { IDerbyFeature, IDerbyFeatures } from "interfaces/feature";
+import { IGeoCountry } from "interfaces/geo";
 import { IDBUserInfo, IUserInfo } from "interfaces/user";
 import { IDBDerbyVenue, IDerbyVenue, INewDerbyVenue } from "interfaces/venue";
 
@@ -131,10 +132,15 @@ export interface IDerbyEventDay {
 	description?: string;
 }
 
-export interface ISearchAddress {
-	address1: string;
-	city: string;
-	country: string;
-	postcode?: string;
-	region?: string;
+export interface ISearchObject {
+	address?: string;
+	derbytypes?: IDerbyFeature[];
+	distance?: number;
+	distanceUnits?: "mi" | "km";
+	endDate?: string;
+	locations?: IGeoCountry[];
+	sanctions?: IDerbyFeature[];
+	startDate?: string;
+	tracks?: IDerbyFeature[];
+	user?: number;
 }
