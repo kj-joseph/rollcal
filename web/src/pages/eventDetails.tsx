@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { IDerbyEvent, IDerbyEventDay } from "interfaces/event";
 import { IProps } from "interfaces/redux";
 
-import { getEvent } from "services/eventService";
+import { getEventDetails } from "services/eventService";
 
 import FeatureIconSet from "components/featureIconSet";
 import Flag from "components/flag";
@@ -249,7 +249,7 @@ export default class EventDetails extends RCComponent<IProps> {
 	loadData() {
 
 		const getEventData = this.addPromise(
-			getEvent(this.props.match.params.eventId));
+			getEventDetails(this.props.match.params.eventId));
 
 		getEventData
 			.then((event: IDerbyEvent) => {

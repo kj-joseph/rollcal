@@ -35,7 +35,7 @@ export const deleteEvent = (
 
 	});
 
-export const getEvent = (
+export const getEventDetails = (
 	id: number,
 ): Promise<IDerbyEvent> =>
 
