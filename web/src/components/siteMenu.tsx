@@ -1,5 +1,6 @@
+import { Location } from "history";
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { match as Match, NavLink } from "react-router-dom";
 
 import ReactSVG from "react-svg";
 
@@ -32,7 +33,7 @@ export default class SiteMenu extends React.Component<IProps> {
 				<div className="siteMenu">
 					<ul>
 						<li>
-							<NavLink to="/" title="Upcoming Events" activeClassName="active" isActive={this.isEventsCurrentPage.bind(this)}>
+							<NavLink to="/" title="Upcoming Events" activeClassName="active" isActive={this.isEventsCurrentPage}>
 								<ReactSVG
 									className="mobileNavIcon"
 									title="Events"
@@ -107,9 +108,10 @@ export default class SiteMenu extends React.Component<IProps> {
 
 	}
 
-	isEventsCurrentPage(path: any, match: any, location: any) {
+	isEventsCurrentPage(match: Match, location: Location): boolean {
 
-		return match && !match.pathname.match(/\/(?:search|faq|contact|dashboard|validate)/);
+		return location && location.pathname && !location.pathname.match(/\/(?:search|faq|contact|dashboard|validate|forgotPassword)/);
+
 	}
 
 }
