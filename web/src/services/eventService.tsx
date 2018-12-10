@@ -199,13 +199,13 @@ export const loadEvents = (
 					// distance search takes precedence over location search
 					delete apiSearch.locations;
 
-					const [address1, city, regionAbbr, postal, countryCode, distanceString, distanceUnits]
+					const [address1, city, regionAbbr, postcode, countryCode, distanceString, distanceUnits]
 						= search.address.split("~");
 
 					apiSearch.address = `${address1}, ${city}${
 						regionAbbr ? `, ${regionAbbr}` : ""
 					}${
-						postal ? ` ${postal}` : ""
+						postcode ? ` ${postcode}` : ""
 					}`;
 
 					apiSearch.country = countryCode;

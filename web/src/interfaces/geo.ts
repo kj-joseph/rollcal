@@ -35,4 +35,3 @@ export interface IGeoRegion {
 	id: number;
 	name: string;
 }
-

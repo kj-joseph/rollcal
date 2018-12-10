@@ -60,14 +60,6 @@
 			}
 		}
 
-		.searchSelectCountries {
-			z-index: 65
-		}
-
-		.searchSelectRegions {
-			z-index: 62
-		}
-
 		.searchLocations {
 			min-width: 240px;
 			max-width: 400px;
@@ -75,7 +67,7 @@
 			.selectedLocationsContainer {
 				margin-top: 1em;
 				padding-bottom: 10px;
-				border: 1px solid $blue;
+				border: 1px solid $pink;
 
 				.selectedLocationsHeader {
 					font-size: 1.4rem;
@@ -83,7 +75,7 @@
 					font-weight: bold;
 					margin-bottom: 10px;
 					padding: 3px 10px;
-					background: $blue;
+					background: $pink;
 				}
 
 				ul.selectedLocations {

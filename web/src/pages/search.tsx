@@ -13,6 +13,7 @@ import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/featu
 import { getGeography } from "services/geoService";
 import { formatDateRange } from "services/timeService";
 
+import AddressFields from "components/addressFields";
 import FeatureIconSet from "components/featureIconSet";
 import Flag from "components/flag";
 
@@ -25,7 +26,7 @@ interface IStartState {
 	address1?: string;
 	addressCity?: string;
 	addressCountry?: IGeoCountry;
-	addressPostal?: string;
+	addressPostcode?: string;
 	addressRegion?: IGeoRegion;
 	dateRangeDisplay?: string;
 	distanceUnits?: "mi" | "km";
@@ -42,7 +43,7 @@ interface ISearchState {
 	address1: string;
 	addressCity: string;
 	addressCountry: IGeoCountry;
-	addressPostal: string;
+	addressPostcode: string;
 	addressRegion: IGeoRegion;
 	countryList: IGeoCountry[];
 	countrySelectValue: IGeoCountry;
@@ -67,7 +68,7 @@ export default class Search extends RCComponent<IProps> {
 		address1: "",
 		addressCity: "",
 		addressCountry: {} as IGeoCountry,
-		addressPostal: "",
+		addressPostcode: "",
 		addressRegion: {} as IGeoRegion,
 		countryList: [],
 		countrySelectValue: {} as IGeoCountry,
@@ -219,10 +220,10 @@ export default class Search extends RCComponent<IProps> {
 											To search events by country or region (e.g., state or province), search below then click the button to add to your filter list.
 										</p>
 
-										<div className="formInput">
+										<div className="inputGroup">
 											<label htmlFor="searchSelectCountries">Select a country:</label>
 											<Select
-												className="Select searchSelectCountries"
+												className="Select"
 												classNamePrefix="Select"
 												id="searchSelectCountries"
 												name="searchSelectCountries"
@@ -257,11 +258,11 @@ export default class Search extends RCComponent<IProps> {
 											&& this.state.countrySelectValue.regions.length) ?
 
 											<React.Fragment>
-												<div className="formInput">
+												<div className="inputGroup">
 													<label htmlFor="searchSelectRegions">or select a {this.state.countrySelectValue.regionType}:</label>
 
 													<Select
-														className="Select searchSelectRegions"
+														className="Select"
 														classNamePrefix="Select"
 														id="searchSelectRegions"
 														name="searchSelectRegions"
@@ -385,80 +386,36 @@ export default class Search extends RCComponent<IProps> {
 											</span> ) of address:
 										</div>
 
-										<div className="inputGroup">
-											<label htmlFor="address1">Street Address</label>
-											<input
-												id="address1"
-												name="address1"
-												type="text"
-												required={true}
-												value={this.state.address1}
-												onChange={this.handleInputChange}
-											/>
-										</div>
+										<AddressFields
+											prefix="address"
+											address1={({
+												handler: this.handleInputChange,
+												stateVar: "address1",
+												value: this.state.address1,
+											})}
+											city={({
+												handler: this.handleInputChange,
+												stateVar: "addressCity",
+												value: this.state.addressCity,
+											})}
+											country={({
+												handler: this.handleAddressCountryChange,
+												label: this.getCountryOptionLabel,
+												list: this.state.countryList,
+												value: this.state.addressCountry,
+											})}
+											region={({
+												handler: this.handleAddressRegionChange,
+												label: this.getRegionOptionLabel,
+												value: this.state.addressRegion,
+											})}
+											postcode={({
+												handler: this.handleInputChange,
+												stateVar: "addressPostcode",
+												value: this.state.addressPostcode,
+											})}
+										/>
 
-										<div className="inputGroup">
-											<label htmlFor="addressCity">City</label>
-											<input
-												id="addressCity"
-												name="addressCity"
-												type="addressCity"
-												required={true}
-												value={this.state.addressCity}
-												onChange={this.handleInputChange}
-											/>
-										</div>
-
-										<div className="inputGroup">
-											<label htmlFor="addressCountry">Country</label>
-											<Select
-												id="addressCountry"
-												name="addressCountry"
-												className="Select searchSelectCountries"
-												classNamePrefix="Select"
-												value={this.state.addressCountry}
-												onChange={this.handleAddressCountryChange}
-												options={this.state.countryList}
-												getOptionLabel={this.getCountryOptionLabel}
-												isSearchable={true}
-												isClearable={true}
-											/>
-										</div>
-
-										{(this.state.addressCountry
-											&& this.state.addressCountry.code
-											&& this.state.addressCountry.regions
-											&& this.state.addressCountry.regions.length) ?
-
-											<div className="inputGroup">
-												<label htmlFor="addressRegion">{this.state.addressCountry.regionType}</label>
-												<Select
-													id="addressRegion"
-													name="addressRegion"
-													className="Select searchSelectRegions"
-													classNamePrefix="Select"
-													value={this.state.addressRegion}
-													onChange={this.handleAddressRegionChange}
-													options={this.state.addressCountry.regions}
-													getOptionLabel={this.getRegionOptionLabel}
-													isSearchable={true}
-													isClearable={true}
-												/>
-											</div>
-
-										: ""}
-
-										<div className="inputGroup">
-											<label htmlFor="addressPostal">Postal Code <em>(optional)</em></label>
-											<input
-												id="addressPostal"
-												name="addressPostal"
-												type="text"
-												required={false}
-												value={this.state.addressPostal}
-												onChange={this.handleInputChange}
-											/>
-										</div>
 
 									</div>
 
@@ -503,7 +460,8 @@ export default class Search extends RCComponent<IProps> {
 								onClick={this.submitSearch}
 								disabled={
 									this.state.locationTab === "distance"
-									&& (!this.state.address1
+									&& (!this.state.searchDistance
+										|| !this.state.address1
 										|| !this.state.addressCity
 										|| !this.state.addressCountry.code
 										|| (this.state.addressCountry.regionType
@@ -676,7 +634,10 @@ export default class Search extends RCComponent<IProps> {
 
 	handleInputChange <T extends keyof ISearchState>(event: React.ChangeEvent<HTMLInputElement>) {
 
-		const fieldName: (keyof ISearchState) = event.currentTarget.name as (keyof ISearchState);
+		const fieldName: (keyof ISearchState) =
+			event.currentTarget.dataset.statevar ?
+				event.currentTarget.dataset.statevar as (keyof ISearchState)
+			: event.currentTarget.name as (keyof ISearchState);
 		let value = event.currentTarget.value;
 
 		if (event.currentTarget.type === "number") {
@@ -866,7 +827,7 @@ export default class Search extends RCComponent<IProps> {
 			queryParts.push(`distance(${this.state.address1
 				}~${this.state.addressCity
 				}~${this.state.addressRegion.abbreviation || ""
-				}~${this.state.addressPostal || ""
+				}~${this.state.addressPostcode || ""
 				}~${this.state.addressCountry.code
 				}~${this.state.searchDistance
 				}~${this.state.distanceUnits})`);
@@ -1019,7 +980,7 @@ export default class Search extends RCComponent<IProps> {
 
 					if (this.props.lastSearch.address && this.props.lastSearch.distanceUnits) {
 
-						const [address1, city, regionAbbr, postal, countryCode, distanceString, distanceUnits]
+						const [address1, city, regionAbbr, postcode, countryCode, distanceString, distanceUnits]
 							= this.props.lastSearch.address.split("~");
 
 						const country = countryList.filter((c) => c.code === countryCode)[0];
@@ -1028,7 +989,7 @@ export default class Search extends RCComponent<IProps> {
 							address1,
 							addressCity: city,
 							addressCountry: country,
-							addressPostal: postal,
+							addressPostcode: postcode,
 							addressRegion: regionAbbr && country.regions ?
 								country.regions.filter((r) => r.abbreviation === regionAbbr)[0] || {} as IGeoRegion
 								: {} as IGeoRegion,

@@ -195,13 +195,13 @@ export default class Events extends RCComponent<IProps> {
 
 	displaySearchAddress(address: string) {
 
-		const [address1, city, regionAbbr, postal, countryCode]
+		const [address1, city, regionAbbr, postcode, countryCode]
 			= address.split("~");
 
 		return `${address1}, ${city}${
 			regionAbbr ? `, ${regionAbbr}` : ""
 		}${
-			postal ? ` ${postal}` : ""
+			postcode ? ` ${postcode}` : ""
 		} ${countryCode}`;
 
 	}
