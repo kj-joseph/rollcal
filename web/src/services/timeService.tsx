@@ -3,7 +3,7 @@ import store from "redux/store";
 import { callApi } from "services/apiService";
 
 import { IDBDerbyEvent } from "interfaces/event";
-import { IDerbyDates, ITimeZone } from "interfaces/time";
+import { IDBTimeZone, IDerbyDates, ITimeZone } from "interfaces/time";
 import { IDBDerbyVenue } from "interfaces/venue";
 
 export const formatDateRange = (
@@ -51,10 +51,12 @@ export const getTimeZones = (): Promise<ITimeZone[]> =>
 				"get",
 				"geography/getTimeZones",
 			)
-				.then((result: ITimeZone[]) => {
+				.then((result: IDBTimeZone[]) => {
 
-					store.dispatch(actions.saveTimeZones(result));
-					resolve(result);
+					const timeZoneList: ITimeZone[] = result.map((timezone) => mapTimezone(timezone));
+
+					store.dispatch(actions.saveTimeZones(timeZoneList));
+					resolve(timeZoneList);
 
 				})
 				.catch((error) => {
@@ -71,7 +73,7 @@ export const getTimeZones = (): Promise<ITimeZone[]> =>
 
 	});
 
-export const mapTimezone = (data: IDBDerbyEvent | IDBDerbyVenue): ITimeZone => ({
+export const mapTimezone = (data: IDBDerbyEvent | IDBDerbyVenue | IDBTimeZone): ITimeZone => ({
 	id: data.timezone_id,
 	name: data.timezone_name,
 	zone: data.timezone_zone,

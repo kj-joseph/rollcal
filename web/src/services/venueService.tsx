@@ -1,15 +1,42 @@
 import { callApi } from "services/apiService";
-// import actions from "redux/actions";
-// import store from "redux/store";
 
 import { IDBDerbyEvent } from "interfaces/event";
-// import { IGeoCountry, IGeoRegion, ITimeZone } from "interfaces/geo";
-// import { IUserInfo } from "interfaces/user";
-import { IDBDerbyVenue, IDerbyVenue } from "interfaces/venue";
+import { IDBDerbyVenue, IDerbyVenue, IDerbyVenueChangeObject } from "interfaces/venue";
 
 import { mapCountry, mapRegion } from "services/geoService";
 import { mapTimezone } from "services/timeService";
 import { mapUser } from "services/userService";
+
+export const getVenueDetails = (
+	id: number,
+): Promise<IDerbyVenue> =>
+
+	new Promise((resolve, reject, onCancel) => {
+
+		const apiCall = callApi(
+			"get",
+			`venues/getVenueDetails/${id}`,
+		);
+
+		onCancel(() => {
+			apiCall.cancel();
+		});
+
+		apiCall
+			.then((venueData: IDBDerbyVenue) => {
+
+				resolve(mapVenue(venueData));
+
+			})
+			.catch((error) =>
+
+				reject(error));
+
+		onCancel(() => {
+			apiCall.cancel();
+		});
+
+	});
 
 export const loadVenues = (
 	userId?: number,
@@ -24,10 +51,6 @@ export const loadVenues = (
 				user: userId || undefined,
 			},
 		);
-
-		onCancel(() => {
-			apiCall.cancel();
-		});
 
 		apiCall
 			.then((venueData: IDBDerbyVenue[]) => {
@@ -46,7 +69,9 @@ export const loadVenues = (
 
 	});
 
-export const mapVenue = (data: IDBDerbyEvent | IDBDerbyVenue): IDerbyVenue => ({
+export const mapVenue = (
+	data: IDBDerbyEvent | IDBDerbyVenue,
+): IDerbyVenue => ({
 	address1: data.venue_address1,
 	address2: data.venue_address2,
 	city: data.venue_city,
@@ -61,3 +86,35 @@ export const mapVenue = (data: IDBDerbyEvent | IDBDerbyVenue): IDerbyVenue => ({
 	timezone: mapTimezone(data),
 	user: mapUser(data),
 });
+
+export const saveVenueChange = (
+	changes: IDerbyVenueChangeObject,
+	id: number = 0,
+): Promise<void> =>
+
+	new Promise((resolve, reject, onCancel) => {
+
+		const apiCall = callApi(
+			"put",
+			"venues/saveChanges",
+			{
+				changeObject: JSON.stringify(changes),
+				id,
+			},
+		);
+
+		apiCall
+			.then(() => {
+
+				resolve();
+
+			})
+			.catch((error) =>
+
+				reject(error));
+
+		onCancel(() => {
+			apiCall.cancel();
+		});
+
+	});

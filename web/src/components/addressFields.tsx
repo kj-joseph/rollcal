@@ -82,7 +82,7 @@ export default class AddressForm extends React.Component<IAddressFieldsProps> {
 						/>
 					</div>
 
-				: null }
+				: null}
 
 				{this.props.city ?
 
@@ -99,7 +99,7 @@ export default class AddressForm extends React.Component<IAddressFieldsProps> {
 						/>
 					</div>
 
-				: null }
+				: null}
 
 				{this.props.country ?
 
@@ -119,7 +119,7 @@ export default class AddressForm extends React.Component<IAddressFieldsProps> {
 						/>
 					</div>
 
-				: null }
+				: null}
 
 				{this.props.region
 					&& this.props.country && this.props.country.value
@@ -141,7 +141,7 @@ export default class AddressForm extends React.Component<IAddressFieldsProps> {
 						/>
 					</div>
 
-				: ""}
+				: null}
 
 				{this.props.postcode ?
 
@@ -158,7 +158,7 @@ export default class AddressForm extends React.Component<IAddressFieldsProps> {
 						/>
 					</div>
 
-				: null }
+				: null}
 
 
 			</>

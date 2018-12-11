@@ -1,15 +1,18 @@
+import RCComponent from "components/rcComponent";
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList, ITimeZone } from "interfaces/geo";
+import { IGeoCountry, IGeoRegion } from "interfaces/geo";
 import { IProps } from "interfaces/redux";
+import { ITimeZone } from "interfaces/time";
 import { IDerbyVenue, IDerbyVenueChangeObject } from "interfaces/venue";
 
 import { getGeography } from "services/geoService";
 import { getTimeZones } from "services/timeService";
 import { checkUserRole } from "services/userService";
+import { getVenueDetails, saveVenueChange } from "services/venueService";
 
-import axios from "axios";
+import AddressFields from "components/addressFields";
 
 import Select from "react-select";
 
@@ -21,10 +24,6 @@ interface IVenueFormState {
 	pageFunction: string;
 	path: string;
 	processing: boolean;
-	regionLists: IGeoRegionList;
-	selectedCountry: IGeoCountry;
-	selectedRegion: IGeoRegion;
-	selectedTimeZone: ITimeZone;
 	submitError: string;
 	submitSuccess: boolean;
 	timeZoneList: ITimeZone[];
@@ -32,7 +31,7 @@ interface IVenueFormState {
 	venueData: IDerbyVenue;
 }
 
-export default class VenueForm extends React.Component<IProps> {
+export default class VenueForm extends RCComponent<IProps> {
 
 	state: IVenueFormState = {
 		countryList: [],
@@ -46,18 +45,12 @@ export default class VenueForm extends React.Component<IProps> {
 				? "Edit Venue" : "Error",
 		path: null,
 		processing: false,
-		regionLists: {} as IGeoRegionList,
-		selectedCountry: {} as IGeoCountry,
-		selectedRegion: {} as IGeoRegion,
-		selectedTimeZone: {} as ITimeZone,
 		submitError: null,
 		submitSuccess: false,
 		timeZoneList: [],
 		userId: null,
 		venueData: {} as IDerbyVenue,
 	};
-
-	axiosSignal = axios.CancelToken.source();
 
 	constructor(props: IProps) {
 		super(props);
@@ -72,7 +65,9 @@ export default class VenueForm extends React.Component<IProps> {
 	componentDidUpdate() {
 
 		if (!this.props.loggedIn || !checkUserRole("user")) {
+
 			this.props.history.push("/");
+
 		} else if (window.location.pathname !== this.state.path
 			|| this.props.loggedInUserId !== this.state.userId ) {
 
@@ -108,10 +103,6 @@ export default class VenueForm extends React.Component<IProps> {
 			page: "User Dashboard",
 		});
 
-	}
-
-	componentWillUnmount() {
-		this.axiosSignal.cancel();
 	}
 
 	render() {
@@ -182,6 +173,7 @@ export default class VenueForm extends React.Component<IProps> {
 										<input
 											id="name"
 											name="name"
+											data-statevar="name"
 											type="text"
 											required={true}
 											value={this.state.venueData.name}
@@ -189,91 +181,40 @@ export default class VenueForm extends React.Component<IProps> {
 										/>
 									</div>
 
-									<div className="inputGroup">
-										<label htmlFor="address1">Street Address</label>
-										<input
-											id="address1"
-											name="address1"
-											type="text"
-											required={true}
-											value={this.state.venueData.address1}
-											onChange={this.handleInputChange}
-										/>
-									</div>
-
-									<div className="inputGroup">
-										<label htmlFor="address2">Address Line 2 <em>(optional)</em></label>
-										<input
-											id="address2"
-											name="address2"
-											type="text"
-											required={false}
-											value={this.state.venueData.address2}
-											onChange={this.handleInputChange}
-										/>
-									</div>
-
-									<div className="inputGroup">
-										<label htmlFor="city">City</label>
-										<input
-											id="city"
-											name="city"
-											type="text"
-											required={true}
-											value={this.state.venueData.city}
-											onChange={this.handleInputChange}
-										/>
-									</div>
-
-									<div className="inputGroup">
-										<label htmlFor="country">Country</label>
-										<Select
-											id="country"
-											name="country"
-											className="Select searchSelectCountries"
-											classNamePrefix="Select"
-											value={this.state.selectedCountry}
-											onChange={this.handleCountryChange}
-											options={this.state.countryList}
-											getOptionLabel={this.getCountryOptionLabel}
-											isSearchable={true}
-											isClearable={true}
-										/>
-									</div>
-
-									{(this.state.venueData.country && this.state.regionLists[this.state.venueData.country]) ?
-										<div className="inputGroup selectRegion">
-											<label htmlFor="region">{this.state.selectedCountry.country_region_type}</label>
-											<Select
-												id="region"
-												name="region"
-												className="Select searchSelectRegions"
-												classNamePrefix="Select"
-												value={this.state.selectedRegion}
-												onChange={this.handleRegionChange}
-												options={this.state.venueData.country
-													&& this.state.regionLists[this.state.venueData.country]
-													? this.state.regionLists[this.state.venueData.country]
-													: []}
-												getOptionLabel={this.getRegionOptionLabel}
-												isSearchable={true}
-												isClearable={true}
-											/>
-										</div>
-
-									: ""}
-
-									<div className="inputGroup">
-										<label htmlFor="postcode">Postal Code <em>(optional, but suggested)</em></label>
-										<input
-											id="postcode"
-											name="postcode"
-											type="text"
-											required={false}
-											value={this.state.venueData.postcode}
-											onChange={this.handleInputChange}
-										/>
-									</div>
+									<AddressFields
+										prefix="address"
+										address1={({
+											handler: this.handleInputChange,
+											stateVar: "address1",
+											value: this.state.venueData.address1,
+										})}
+										address2={({
+											handler: this.handleInputChange,
+											stateVar: "address2",
+											value: this.state.venueData.address2,
+										})}
+										city={({
+											handler: this.handleInputChange,
+											stateVar: "city",
+											value: this.state.venueData.city,
+										})}
+										country={({
+											handler: this.handleCountryChange,
+											label: this.getCountryOptionLabel,
+											list: this.state.countryList,
+											value: this.state.venueData.country,
+										})}
+										region={({
+											handler: this.handleRegionChange,
+											label: this.getRegionOptionLabel,
+											value: this.state.venueData.region,
+										})}
+										postcode={({
+											handler: this.handleInputChange,
+											stateVar: "postcode",
+											value: this.state.venueData.postcode,
+										})}
+									/>
 
 									<div className="inputGroup selectTimeZone">
 										<label htmlFor="timezone">Time Zone</label>
@@ -282,7 +223,7 @@ export default class VenueForm extends React.Component<IProps> {
 											name="timezone"
 											className="Select"
 											classNamePrefix="Select"
-											value={this.state.selectedTimeZone}
+											value={this.state.venueData.timezone}
 											onChange={this.handleTimeZoneChange}
 											options={this.state.timeZoneList}
 											getOptionLabel={this.getTimeZoneLabel}
@@ -296,6 +237,7 @@ export default class VenueForm extends React.Component<IProps> {
 										<input
 											id="link"
 											name="link"
+											data-statevar="link"
 											type="url"
 											required={false}
 											value={this.state.venueData.link}
@@ -308,6 +250,7 @@ export default class VenueForm extends React.Component<IProps> {
 										<textarea
 											id="description"
 											name="description"
+											data-statevar="description"
 											required={false}
 											value={this.state.venueData.description}
 											onChange={this.handleInputChange}
@@ -327,7 +270,7 @@ export default class VenueForm extends React.Component<IProps> {
 											!this.state.venueData.name
 											|| !this.state.venueData.address1
 											|| !this.state.venueData.city
-											|| !this.state.venueData.country
+											|| !this.state.venueData.country.code
 											|| !this.state.venueData.timezone
 										}
 										className="largeButton"
@@ -350,40 +293,45 @@ export default class VenueForm extends React.Component<IProps> {
 
 	getCountryOptionLabel(option: IGeoCountry) {
 
-		return option.country_name || "(type here to search list)";
+		return option.name || "(type here to search list)";
 
 	}
 
 	getRegionOptionLabel(option: IGeoRegion) {
 
-		return option.region_name || "(type here to search list)";
+		return option.name || "(type here to search list)";
 
 	}
 
-	getTimeZoneLabel(timezone: ITimeZone) {
+	getTimeZoneLabel(option: ITimeZone) {
 
-		if (timezone && timezone.timezone_name) {
-			return timezone.timezone_name;
-		} else {
-			return "(Type here to search time zones)";
-		}
+		return option.name || "(type here to search list)";
 
 	}
 
 	handleCountryChange(country: IGeoCountry) {
 
-		const venueData = this.state.venueData;
-
-		if (country) {
-			venueData.country = country.country_code;
-		} else {
-			venueData.country = null;
-		}
-		venueData.region = null;
+		const venueData = Object.assign(this.state.venueData, {
+			country: country || {} as IGeoCountry,
+			region: {} as IGeoRegion,
+		});
 
 		this.setState({
-			selectedCountry: country || {} as IGeoCountry,
-			selectedRegion: {} as IGeoRegion,
+			venueData,
+		});
+
+	}
+
+	handleInputChange(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+
+		const venueData = this.state.venueData;
+		const fieldName: (keyof IDerbyVenue) =
+			event.currentTarget.dataset.statevar ?
+				event.currentTarget.dataset.statevar as keyof IDerbyVenue
+			: event.currentTarget.name as keyof IDerbyVenue;
+		venueData[fieldName] = event.currentTarget.value;
+
+		this.setState({
 			venueData,
 		});
 
@@ -391,26 +339,9 @@ export default class VenueForm extends React.Component<IProps> {
 
 	handleRegionChange(region: IGeoRegion) {
 
-		const venueData = this.state.venueData;
-
-		if (region) {
-			venueData.region = region.region_id;
-		} else {
-			venueData.region = null;
-		}
-
-		this.setState({
-			selectedRegion: region || {} as IGeoRegion,
-			venueData,
+		const venueData = Object.assign(this.state.venueData, {
+			region: region || {} as IGeoRegion,
 		});
-
-	}
-
-	handleInputChange(event: React.ChangeEvent<any>) {
-
-		const venueData = this.state.venueData;
-		const fieldName: (keyof IDerbyVenue) = event.currentTarget.name;
-		venueData[fieldName] = event.currentTarget.value;
 
 		this.setState({
 			venueData,
@@ -420,13 +351,9 @@ export default class VenueForm extends React.Component<IProps> {
 
 	handleTimeZoneChange(timezone: ITimeZone) {
 
-		const venueData = this.state.venueData;
-
-		if (timezone) {
-			venueData.timezone = timezone.timezone_id;
-		} else {
-			venueData.timezone = null;
-		}
+		const venueData = Object.assign(this.state.venueData, {
+			timezone: timezone || {} as ITimeZone,
+		});
 
 		this.setState({
 			selectedTimeZone: timezone || {} as ITimeZone,
@@ -437,155 +364,84 @@ export default class VenueForm extends React.Component<IProps> {
 
 	loadData() {
 
-		let countryList: IGeoCountry[] = [];
-		let promiseError = false;
-		const promises: Array<Promise<any>> = [];
-		let regionLists: IGeoRegionList = {};
-		let timeZones: ITimeZone[] = [];
+		const dataPromises: Array<Promise<any>> = [
+			getGeography(),
+			getTimeZones(),
+		];
 
-		promises.push(getGeography()
-			.then((dataResponse: IGeoData) => {
-				countryList = dataResponse.countries;
-				regionLists = dataResponse.regions;
-			}).catch((error) => {
-				console.error(error);
-				promiseError = true;
-			}));
+		if (this.props.match.params.venueId) {
+			dataPromises.push(getVenueDetails(this.props.match.params.venueId));
+		}
 
-		promises.push(getTimeZones()
-			.then((dataResponse: ITimeZone[]) => {
-				timeZones = dataResponse;
-			}).catch((error) => {
-				console.error(error);
-				promiseError = true;
-			}));
+		const loadData = this.addPromise(
+			Promise.all(dataPromises));
 
-		Promise.all(promises).then(() => {
+		loadData
+			.then((data: [IGeoCountry[], ITimeZone[], IDerbyVenue]) => {
 
-			if (!promiseError) {
+				const [countryList, timeZoneList, venueData] = data;
 
-			this.setState({
-				countryList,
-				regionLists,
-				timeZoneList: timeZones,
-			});
+				let initialVenueData: IDerbyVenue = {
+					address1: "",
+					address2: "",
+					city: "",
+					country: {} as IGeoCountry,
+					description: "",
+					id: null,
+					link: "",
+					name: "",
+					postcode: "",
+					region: {} as IGeoRegion,
+					timezone: {} as ITimeZone,
+				};
 
-			if (this.props.match.params.venueId) {
+				if (this.props.match.params.venueId) {
 
-				axios.get(`${this.props.apiLocation}venues/getVenueDetails/${this.props.match.params.venueId}`,
-					{
-						cancelToken: this.axiosSignal.token,
-						withCredentials: true,
-					})
-					.then((result) => {
+					let countryObject = {} as IGeoCountry;
+					let regionObject = {} as IGeoRegion;
 
-						if (result.data &&
-							(result.data.venue_user === this.props.loggedInUserId
-								|| checkUserRole("reviewer"))
-							) {
+					if (venueData.country && venueData.country.code) {
+						countryObject = countryList.filter((country) =>
+				 			country.code === venueData.country.code)[0];
+					}
 
-							this.setState({
-								initialVenueData: {
-									address1: result.data.venue_address1 || "",
-									address2: result.data.venue_address2 || "",
-									city: result.data.venue_city || "",
-									country: result.data.venue_country || null,
-									description: result.data.venue_description || "",
-									id: result.data.venue_id || "",
-									link: result.data.venue_link || "",
-									name: result.data.venue_name || "",
-									postcode: result.data.venue_postcode || "",
-									region: result.data.venue_region || null,
-									timezone: result.data.venue_timezone || null,
-								},
-								loading: false,
-								selectedCountry: this.state.countryList
-									.filter((country: IGeoCountry) => country.country_code === result.data.venue_country)[0]
-									|| {} as IGeoCountry,
-								selectedRegion: this.state.regionLists[result.data.venue_country] ?
-										this.state.regionLists[result.data.venue_country]
-											.filter((region: IGeoRegion) => region.region_id === result.data.venue_region)[0]
-										|| {} as IGeoRegion : {} as IGeoRegion,
-								selectedTimeZone: this.state.timeZoneList
-									.filter((timezone: ITimeZone) => timezone.timezone_id === result.data.venue_timezone)[0]
-									|| {} as ITimeZone,
-								venueData: {
-									address1: result.data.venue_address1 || "",
-									address2: result.data.venue_address2 || "",
-									city: result.data.venue_city || "",
-									country: result.data.venue_country || null,
-									description: result.data.venue_description || "",
-									id: result.data.venue_id || "",
-									link: result.data.venue_link || "",
-									name: result.data.venue_name || "",
-									postcode: result.data.venue_postcode || "",
-									region: result.data.venue_region || null,
-									timezone: result.data.venue_timezone || null,
-								},
-							});
+					if (venueData.region && venueData.region.id
+			 			&& countryObject.regions && countryObject.regions.length) {
+						regionObject = countryObject.regions.filter((region) =>
+							region.id === venueData.region.id)[0];
+					}
 
-							this.props.setPageTitle({
-								detail: `Edit Venue: ${result.data.venue_name}`,
-							});
-
-						} else {
-							// no result, likely bad event ID in URL
-
-							this.setState({
-								dataError: true,
-								loading: false,
-							});
-
-						}
-
-					}).catch((error) => {
-						console.error(error);
-
-						if (!axios.isCancel(error)) {
-							this.setState({
-								dataError: true,
-								loading: false,
-							});
-						}
-
-					});
-
-				} else {
-
-					this.setState({
-						initialVenueData: {
-							address1: "",
-							address2: "",
-							city: "",
-							country: null,
-							description: "",
-							id: undefined,
-							link: "",
-							name: "",
-							postcode: "",
-							region: null,
-							timezone: null,
-						},
-						loading: false,
-						venueData: {
-							address1: "",
-							address2: "",
-							city: "",
-							country: null,
-							description: "",
-							id: undefined,
-							link: "",
-							name: "",
-							postcode: "",
-							region: null,
-							timezone: null,
-						},
-					});
+					initialVenueData = {
+						address1: venueData.address1 || "",
+						address2: venueData.address2 || "",
+						city: venueData.city || "",
+						country: countryObject,
+						description: venueData.description || "",
+						id: venueData.id,
+						link: venueData.link || "",
+						name: venueData.name || "",
+						postcode: venueData.postcode || "",
+						region: regionObject,
+						timezone: venueData.timezone || {} as ITimeZone,
+					};
 
 				}
-			}
 
-		});
+				this.setState({
+					countryList,
+					initialVenueData: Object.assign({}, initialVenueData),
+					loading: false,
+					timeZoneList,
+					venueData: Object.assign({}, initialVenueData),
+				});
+
+			})
+			.catch((error) => {
+
+				console.error(error);
+
+			})
+			.finally(loadData.clear);
 
 	}
 
@@ -604,44 +460,52 @@ export default class VenueForm extends React.Component<IProps> {
 				continue;
 			}
 			const fieldName: (keyof IDerbyVenueChangeObject) = field as (keyof IDerbyVenueChangeObject);
-			const initialValue = this.state.initialVenueData[fieldName] || null;
-			const value = this.state.venueData[fieldName] || null;
 
-			if ((!this.state.venueData.id && value)
-				|| (this.state.venueData.id && value !== initialValue)) {
-				dataChanges[fieldName] = value;
+			const initialValue =
+				fieldName === "country" ?
+					this.state.initialVenueData.country.code
+				: fieldName === "region" || fieldName === "timezone" ?
+					this.state.initialVenueData[fieldName].id
+				:
+					this.state.initialVenueData[fieldName] || undefined;
+
+			const savedValue =
+				fieldName === "country" ?
+					this.state.venueData.country.code
+				: fieldName === "region" || fieldName === "timezone" ?
+					this.state.venueData[fieldName].id
+				:
+					this.state.venueData[fieldName] || undefined;
+
+			if ((!this.state.venueData.id && savedValue)
+				|| (this.state.venueData.id && savedValue !== initialValue)) {
+				dataChanges[fieldName] = savedValue;
 			}
+
 		}
 
 		if (Object.keys(dataChanges).length) {
 
-			axios.put(`${this.props.apiLocation}venues/saveChanges`, {
-				changeObject: JSON.stringify(dataChanges),
-				id: this.state.venueData.id || 0,
-			},
-			{
-				cancelToken: this.axiosSignal.token,
-				withCredentials: true,
-			})
+			const saveChanges = this.addPromise(
+				saveVenueChange(dataChanges, this.state.venueData.id || 0));
 
-			.then((result) => {
+			saveChanges
+				.then(() => {
 
-				this.setState({
-					processing: false,
-					submitSuccess: true,
-				});
+					this.setState({
+						processing: false,
+						submitSuccess: true,
+					});
 
 
-			}).catch((error) => {
+				}).catch((error) => {
 
-				if (!axios.isCancel(error)) {
 					this.setState({
 						processing: false,
 						submitError: "There was an error submitting your changes. Please try again.",
 					});
-				}
 
-			});
+				});
 
 		} else {
 

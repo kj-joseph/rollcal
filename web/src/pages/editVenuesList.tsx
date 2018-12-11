@@ -6,7 +6,6 @@ import CheckIcon from "images/check-circle.svg";
 import CircleIcon from "images/circle.svg";
 import ReactSVG from "react-svg";
 
-import { IBoxListItem } from "interfaces/boxList";
 import { IProps } from "interfaces/redux";
 import { IDerbyVenue } from "interfaces/venue";
 
