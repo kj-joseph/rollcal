@@ -19,7 +19,7 @@ export const callApi = (
 		// remove empty parameters
 		for (const param in params) {
 			if (params.hasOwnProperty(param)) {
-				if (!params[param]) {
+				if (params[param] === undefined) {
 					delete params[param];
 				}
 			}

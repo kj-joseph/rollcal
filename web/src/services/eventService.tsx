@@ -191,13 +191,13 @@ export const loadEvents = (
 			.then(() => {
 
 				const apiSearch = {
-					address: null as string,
+					address: undefined as string,
 					count,
-					country: null as string,
+					country: undefined as string,
 					derbytypes: search.derbytypes ?
 						search.derbytypes.map((derbytype) => derbytype.id).join(",")
 						: undefined,
-					distance: null as number,
+					distance: undefined as number,
 					endDate: search.endDate,
 					locations: search.locations ? search.locations.map((country) =>
 						`${country.code}${country.regions ?
@@ -353,15 +353,15 @@ const mapEvent = (
 					}, "long"),
 				days: data.days && data.days.length ?
 					mapDays(data.days)
-					: null,
+					: undefined,
 				description: data.event_description,
 				features,
-				host: data.event_name ? data.event_host : null,
+				host: data.event_name ? data.event_host : undefined,
 				id: data.event_id,
 				link: data.event_link,
 				multiDay: data.event_first_day ?
 					data.event_first_day.substring(0, 10) !== data.event_last_day.substring(0, 10)
-					: null,
+					: undefined,
 				name: data.event_name ? data.event_name : data.event_host,
 				user: mapUser(data),
 				venue: mapVenue(data),
@@ -376,7 +376,7 @@ const mapEvent = (
 	});
 
 export const searchEventsByString = (
-	searchString: string = null,
+	searchString: string = undefined,
 	count: number | "all" = "all",
 	start: number = 0,
 ): Promise<{
