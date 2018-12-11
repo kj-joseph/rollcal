@@ -1,7 +1,6 @@
+import RCComponent from "components/rcComponent";
 import React from "react";
 import { Link } from "react-router-dom";
-
-import axios from "axios";
 
 import CheckIcon from "images/check-circle.svg";
 import CircleIcon from "images/circle.svg";
@@ -9,9 +8,11 @@ import ReactSVG from "react-svg";
 
 import { IBoxListItem } from "interfaces/boxList";
 import { IProps } from "interfaces/redux";
-import { IDBDerbyVenue } from "interfaces/venue";
+import { IDerbyVenue } from "interfaces/venue";
 
+import { mapVenuesToBoxList } from "services/boxListService";
 import { checkUserRole } from "services/userService";
+import { loadVenues } from "services/venueService";
 
 import BoxList from "components/boxList";
 
@@ -21,10 +22,10 @@ interface IUserVenuesState {
 	path: string;
 	showAll: boolean;
 	userId: number;
-	venueData: IBoxListItem[];
+	venueData: IDerbyVenue[];
 }
 
-export default class UserVenues extends React.Component<IProps, IUserVenuesState> {
+export default class EditVenuesList extends RCComponent<IProps> {
 
 	state: IUserVenuesState = {
 		isReviewer: false,
@@ -34,8 +35,6 @@ export default class UserVenues extends React.Component<IProps, IUserVenuesState
 		userId: null,
 		venueData: [],
 	};
-
-	axiosSignal = axios.CancelToken.source();
 
 	constructor(props: IProps) {
 		super(props);
@@ -79,10 +78,6 @@ export default class UserVenues extends React.Component<IProps, IUserVenuesState
 
 		}
 
-	}
-
-	componentWillUnmount() {
-		this.axiosSignal.cancel();
 	}
 
 	render() {
@@ -134,10 +129,11 @@ export default class UserVenues extends React.Component<IProps, IUserVenuesState
 						{this.state.venueData.length ?
 
 							<BoxList
-								data={this.state.venueData.filter((venue: IBoxListItem) =>
-									venue.user === this.props.loggedInUserId
-									|| (this.state.isReviewer
-										&& this.state.showAll))}
+								data={mapVenuesToBoxList(
+									this.state.venueData.filter((venue) =>
+										venue.user.userId === this.props.loggedInUserId
+										|| (this.state.isReviewer
+											&& this.state.showAll)))}
 								editFunction={this.editVenue}
 								itemType="venues"
 								listType="edit"
@@ -194,24 +190,13 @@ export default class UserVenues extends React.Component<IProps, IUserVenuesState
 			loading: true,
 		});
 
-		axios.get(`${this.props.apiLocation}venues/${
-			isReviewer ? "getAllVenues"
-				: `getVenuesByUser/${this.props.loggedInUserId}`
-			}`,
-			{
-				cancelToken: this.axiosSignal.token,
-				withCredentials: true,
-			})
-			.then((result) => {
+		const getVenues = this.addPromise(
+			loadVenues(
+				isReviewer ?
+					undefined : this.props.loggedInUserId));
 
-				const venueData = result.data.map((venue: IDBDerbyVenue) => ({
-					city: venue.venue_city,
-					country: venue.venue_country,
-					id: venue.venue_id,
-					location: `${venue.venue_city}${venue.region_abbreviation ? ", " + venue.region_abbreviation : ""}, ${venue.venue_country}`,
-					name: venue.venue_name,
-					user: venue.venue_user,
-				}));
+		getVenues
+			.then((venueData: IDerbyVenue[]) => {
 
 				this.setState({
 					loading: false,
@@ -221,11 +206,9 @@ export default class UserVenues extends React.Component<IProps, IUserVenuesState
 			}).catch((error) => {
 				console.error(error);
 
-				if (!axios.isCancel(error)) {
-					this.setState({
-						loading: false,
-					});
-				}
+				this.setState({
+					loading: false,
+				});
 
 			});
 

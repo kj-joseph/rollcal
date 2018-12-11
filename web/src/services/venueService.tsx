@@ -1,4 +1,4 @@
-// import { callApi } from "services/apiService";
+import { callApi } from "services/apiService";
 // import actions from "redux/actions";
 // import store from "redux/store";
 
@@ -10,6 +10,41 @@ import { IDBDerbyVenue, IDerbyVenue } from "interfaces/venue";
 import { mapCountry, mapRegion } from "services/geoService";
 import { mapTimezone } from "services/timeService";
 import { mapUser } from "services/userService";
+
+export const loadVenues = (
+	userId?: number,
+): Promise<IDerbyVenue[]> =>
+
+	new Promise((resolve, reject, onCancel) => {
+
+		const apiCall = callApi(
+			"get",
+			"venues/getVenues",
+			{
+				user: userId || undefined,
+			},
+		);
+
+		onCancel(() => {
+			apiCall.cancel();
+		});
+
+		apiCall
+			.then((venueData: IDBDerbyVenue[]) => {
+
+				resolve(venueData
+					.map((venue) => mapVenue(venue)));
+
+			})
+			.catch((error) =>
+
+				reject(error));
+
+		onCancel(() => {
+			apiCall.cancel();
+		});
+
+	});
 
 export const mapVenue = (data: IDBDerbyEvent | IDBDerbyVenue): IDerbyVenue => ({
 	address1: data.venue_address1,

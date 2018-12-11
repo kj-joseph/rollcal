@@ -241,7 +241,7 @@ export const loadEvents = (
 
 				const apiCall = callApi(
 					"get",
-					`events/search`,
+					"events/search",
 					apiSearch,
 				);
 
@@ -251,7 +251,8 @@ export const loadEvents = (
 
 				return apiCall;
 
-			}).then((result) => {
+			})
+			.then((result) => {
 
 				const eventResults: IDBDerbyEvent[] = result.events;
 				const events: Array<Promise<IDerbyEvent>> = [];
@@ -280,7 +281,9 @@ export const loadEvents = (
 				});
 
 			})
-			.catch((error) => reject(error));
+			.catch((error) =>
+
+				reject(error));
 
 		onCancel(() => {
 			loadData.cancel();

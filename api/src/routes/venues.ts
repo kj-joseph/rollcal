@@ -12,33 +12,12 @@ const router = Router();
 const upload = multer();
 
 
-router.get("/getAllVenues", (req: Request, res: Response) => {
+router.get("/getVenues", (req: Request, res: Response) => {
 
 	res.locals.connection
-		.query("call getAllVenues()",
-		(error: MysqlError, results: any) => {
-
-			if (error) {
-				console.error(error);
-
-				res.locals.connection.end();
-				res.status(500).send();
-
-			} else {
-
-				res.locals.connection.end();
-				res.status(200).json(results[0].map((row: {}) => ({...row})));
-
-			}
-
-		});
-});
-
-
-router.get("/getVenuesByUser/:userId", (req: Request, res: Response) => {
-
-	res.locals.connection
-		.query(`call getVenuesByUser(${res.locals.connection.escape(req.params.userId)})`,
+		.query(req.query.user ?
+			`call getVenuesByUser(${res.locals.connection.escape(req.query.user)})`
+			: "call getAllVenues()",
 		(error: MysqlError, results: any) => {
 
 			if (error) {

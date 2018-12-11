@@ -190,8 +190,8 @@ class AppRouter extends React.Component < IProps > {
 								<Route path="/dashboard/events/changes" component={EventChangesPage} exact={true} />
 								<Route path="/dashboard/venues/changes/:changeId(\d+)" component={ReviewVenueChangePage} exact={true} />
 								<Route path="/dashboard/venues/changes" component={VenueChangesPage} exact={true} />
-								<Route path="/dashboard/venues/:all(all)?" component={UserVenuesPage} exact={true} />
 								<Route path="/dashboard/events/:all(all)?" component={EditEventsListPage} exact={true} />
+								<Route path="/dashboard/venues/:all(all)?" component={EditVenuesListPage} exact={true} />
 								<Route path="/dashboard/account" component={UserAccountPage} exact={true} />
 								<Route path="/dashboard/admin/user/:id" component={EditUserPage} exact={true} />
 								<Route path="/dashboard/admin" component={AdminDashboardPage} exact={true} />
@@ -305,6 +305,9 @@ const EditEventsListPage = connectClass(EditEventsList);
 import EditUser from "pages/editUser";
 const EditUserPage = connectClass(EditUser);
 
+import EditVenuesList from "pages/editVenuesList";
+const EditVenuesListPage = connectClass(EditVenuesList);
+
 import EventDetails from "pages/eventDetails";
 const EventDetailsPage = connectClass(EventDetails);
 
@@ -334,9 +337,6 @@ const SearchPage = connectClass(Search);
 
 import UserAccount from "pages/userAccount";
 const UserAccountPage = connectClass(UserAccount);
-
-import UserVenues from "pages/userVenues";
-const UserVenuesPage = connectClass(UserVenues);
 
 import Validate from "pages/validate";
 const ValidatePage = connectClass(Validate);

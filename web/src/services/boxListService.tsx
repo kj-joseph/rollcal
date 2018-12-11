@@ -1,7 +1,6 @@
 import { IBoxListItem } from "interfaces/boxList";
 import { IDerbyEvent } from "interfaces/event";
-// import { IUserInfo } from "interfaces/user";
-// import { IDerbyVenue } from "interfaces/venue";
+import { IDerbyVenue } from "interfaces/venue";
 
 export const mapEventsToBoxList = (events: IDerbyEvent[]): IBoxListItem[] =>
 
@@ -17,4 +16,16 @@ export const mapEventsToBoxList = (events: IDerbyEvent[]): IBoxListItem[] =>
 			}, ${event.venue.country.code}`,
 		name: event.name,
 		user: event.user,
+	}));
+
+export const mapVenuesToBoxList = (venues: IDerbyVenue[]): IBoxListItem[] =>
+
+	venues.map((venue): IBoxListItem => ({
+		country: venue.country,
+		id: venue.id,
+		location: `${venue.city}${
+				venue.region && venue.region.abbreviation ? ", " + venue.region.abbreviation : ""
+			}, ${venue.country.code}`,
+		name: venue.name,
+		user: venue.user,
 	}));
