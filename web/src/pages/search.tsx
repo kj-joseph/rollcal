@@ -2,20 +2,22 @@ import RCComponent from "components/rcComponent";
 import React from "react";
 import Select from "react-select";
 
-import { IDerbyFeature, IDerbyFeatures } from "interfaces/feature";
-import { IGeoCountry, IGeoRegion } from "interfaces/geo";
-import { IProps } from "interfaces/redux";
-
 import { DayPickerRangeController, FocusedInputShape } from "react-dates";
 import "react-dates/initialize";
 
-import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/featureService";
+import { filterDerbyTypes, filterSanctions, filterTracks, getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/featureService";
 import { getGeography } from "services/geoService";
+import { getSearchUrl } from "services/searchService";
 import { formatDateRange } from "services/timeService";
 
 import AddressFields from "components/addressFields";
 import FeatureIconSet from "components/featureIconSet";
 import Flag from "components/flag";
+
+import { ISearchObject } from "interfaces/event";
+import { IDerbyFeature, IDerbyFeatures } from "interfaces/feature";
+import { IGeoCountry, IGeoRegion } from "interfaces/geo";
+import { IProps } from "interfaces/redux";
 
 import moment from "moment";
 
@@ -792,69 +794,112 @@ export default class Search extends RCComponent<IProps> {
 
 	submitSearch() {
 
-		let searchURL = "";
-		const queryParts = [];
-		const eventFeatures: {
-			derbytypes: string[],
-			sanctions: string[],
-			tracks: string[],
-		} = {
-			derbytypes: [],
-			sanctions: [],
-			tracks: [],
-		};
+		const searchObject: ISearchObject = {};
+		const promises: Array<Promise<any>> = [];
 
 		if (this.state.startDate) {
-			searchURL += `/${this.state.startDate.format("Y-MM-DD")}`;
+
+			searchObject.startDate =  this.state.startDate.format("Y-MM-DD");
+
 		}
+
 		if (this.state.endDate) {
-			searchURL += `/${this.state.endDate.format("Y-MM-DD")}`;
+
+			searchObject.endDate =  this.state.endDate.format("Y-MM-DD");
+
 		}
 
 		if (this.state.locationTab === "locations" && this.state.selectedLocations.length) {
 
-			queryParts.push(`locations(${
-				this.state.selectedLocations.map((country: IGeoCountry) =>
-				country.code
-				+ (country.regions && country.regions.length ?
-					"-" + country.regions
-							.map((reg: IGeoRegion) => (reg.id)).join("+")
-					: "")).join(",")
-				})`);
+			searchObject.locations = this.state.selectedLocations;
 
 		} else if (this.state.locationTab === "distance") {
 
-			queryParts.push(`distance(${this.state.address1
+			searchObject.address = (`distance(${this.state.address1
 				}~${this.state.addressCity
 				}~${this.state.addressRegion.abbreviation || ""
 				}~${this.state.addressPostcode || ""
 				}~${this.state.addressCountry.code
 				}~${this.state.searchDistance
 				}~${this.state.distanceUnits})`);
+			searchObject.distance = this.state.searchDistance;
+			searchObject.distanceUnits = this.state.distanceUnits;
 
 		}
 
-		for (let feature = 0; feature < this.state.selectedFeatures.length; feature ++) {
+		if (this.state.selectedFeatures.length) {
 
-			const [label, value] = this.state.selectedFeatures[feature].split("-");
-			const featureName: (keyof IDerbyFeatures) = `${label}s` as (keyof IDerbyFeatures);
-			eventFeatures[featureName].push(value);
+			const eventFeatures: {
+				derbytypes: string[],
+				sanctions: string[],
+				tracks: string[],
+			} = {
+				derbytypes: [],
+				sanctions: [],
+				tracks: [],
+			};
 
-		}
+			for (let feature = 0; feature < this.state.selectedFeatures.length; feature ++) {
 
-		for (const feature in eventFeatures) {
-			if (eventFeatures.hasOwnProperty(feature)) {
-
-				const featureName: (keyof IDerbyFeatures) = feature as (keyof IDerbyFeatures);
-				if (eventFeatures[featureName].length) {
-					queryParts.push(`${feature}(${eventFeatures[featureName].join(",")})`);
-				}
+				const [label, value] = this.state.selectedFeatures[feature].split("-");
+				const featureName: (keyof IDerbyFeatures) = `${label}s` as (keyof IDerbyFeatures);
+				eventFeatures[featureName].push(value);
 
 			}
+
+			if (eventFeatures.derbytypes.length) {
+
+				promises.push(
+					filterDerbyTypes(eventFeatures.derbytypes)
+						.then((derbytypes) => {
+
+							searchObject.derbytypes = derbytypes;
+
+						}));
+
+			}
+
+			if (eventFeatures.sanctions.length) {
+
+				promises.push(
+					filterSanctions(eventFeatures.sanctions)
+						.then((sanctions) => {
+
+							searchObject.sanctions = sanctions;
+
+						}));
+
+			}
+
+			if (eventFeatures.tracks.length) {
+
+				promises.push(
+					filterTracks(eventFeatures.tracks)
+						.then((tracks) => {
+
+							searchObject.tracks = tracks;
+
+						}));
+
+			}
+
 		}
 
-		this.props.history.push(searchURL +
-			(queryParts.length ? `/${queryParts.join("/")}` : ""));
+		const filterFeatures = this.addPromise(
+			Promise.all(promises));
+
+		filterFeatures
+			.then(() => {
+
+				this.props.history.push(getSearchUrl(searchObject));
+
+			})
+			.catch((error) => {
+
+				console.error(error);
+
+			})
+			.finally(filterFeatures.clear);
 
 	}
 
