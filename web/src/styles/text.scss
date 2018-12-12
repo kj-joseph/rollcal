@@ -79,7 +79,8 @@ p {
 
 		&.header {
 			color: $white;
-			font-weight: strong;
+			font-weight: bold;
+			text-transform: uppercase;
 			margin: 0 0 .2em;
 			padding: 0 6px 2px;
 			background: $pink;

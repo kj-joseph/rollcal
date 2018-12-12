@@ -13,6 +13,7 @@ import { checkUserRole } from "services/userService";
 import { getVenueDetails, saveVenueChange } from "services/venueService";
 
 import AddressFields from "components/addressFields";
+import Callout from "components/callout";
 
 import Select from "react-select";
 
@@ -152,13 +153,12 @@ export default class VenueForm extends RCComponent<IProps> {
 
 						<React.Fragment>
 
-							<div className="callout">
-								<p className="header">IMPORTANT!</p>
+							<Callout title="Important!">
 								<p>
 									Changes made to this venue will show on <em>all</em> events that list this venue.
 									Don't use this to change the venue of an event; edit the event instead.
 								</p>
-							</div>
+							</Callout>
 
 							<form
 								className="entryForm"
