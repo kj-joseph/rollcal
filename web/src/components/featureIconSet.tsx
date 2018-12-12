@@ -38,55 +38,59 @@ export default class FeatureIconSet extends React.Component<IFeatureSetProps> {
 
 		return(
 
-			<div className="featureIcons">
+			this.props.data && this.props.data.length ?
 
-				{this.props.data.map((featureGroup) => (
+				<div className="featureIcons">
 
-					featureGroup.items.length || this.props.includeEmpty ?
+					{this.props.data.map((featureGroup) => (
 
-						<span className="featureIconGroup" key={featureGroup.type}>
+						featureGroup.items.length || this.props.includeEmpty ?
 
-							{featureGroup.label ?
+							<span className="featureIconGroup" key={featureGroup.type}>
 
-								<span className="label">
-									{typeof featureGroup.label === "string" ?
-										featureGroup.label
-									: featureGroup.label.singular && featureGroup.label.plural ?
-										featureGroup.items.length === 1 ?
-											featureGroup.label.singular
-											: featureGroup.label.plural
-										: featureGroup.label.singular ?
-											featureGroup.label.singular
-										: featureGroup.label.plural ?
-											featureGroup.label.plural
-										: ""
-									}
+								{featureGroup.label ?
+
+									<span className="label">
+										{typeof featureGroup.label === "string" ?
+											featureGroup.label
+										: featureGroup.label.singular && featureGroup.label.plural ?
+											featureGroup.items.length === 1 ?
+												featureGroup.label.singular
+												: featureGroup.label.plural
+											: featureGroup.label.singular ?
+												featureGroup.label.singular
+											: featureGroup.label.plural ?
+												featureGroup.label.plural
+											: ""
+										}
 
 
-								</span>
+									</span>
 
-							: ""}
+								: ""}
 
-							{featureGroup.items.map((item) => (
+								{featureGroup.items.map((item) => (
 
-								<FeatureIcon
-									key={item.id}
-									feature={item}
-									selected={this.props.selected && this.props.toggle ?
-										this.props.selected.indexOf(`${featureGroup.type}-${item.id}`) > -1 : false}
-									toggle={this.props.toggle || null}
-									type={featureGroup.type}
-								/>
+									<FeatureIcon
+										key={item.id}
+										feature={item}
+										selected={this.props.selected && this.props.toggle ?
+											this.props.selected.indexOf(`${featureGroup.type}-${item.id}`) > -1 : false}
+										toggle={this.props.toggle || null}
+										type={featureGroup.type}
+									/>
 
-							))}
+								))}
 
-						</span>
+							</span>
 
-					: ""
+						: ""
 
-				))}
+					))}
 
-			</div>
+				</div>
+
+			: null
 
 		);
 
