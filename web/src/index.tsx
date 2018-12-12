@@ -48,68 +48,68 @@ import LoginIconSolid from "images/menu/user-circle-solid.svg";
 import LoginIconOutline from "images/menu/user-circle.svg";
 
 interface ISiteState {
-    url: string;
+	url: string;
 }
 
 class AppRouter extends React.Component < IProps > {
 
-    state: ISiteState = {
-        url: null,
-    };
+	state: ISiteState = {
+		url: null,
+	};
 
-    constructor(props: IProps) {
-        super(props);
+	constructor(props: IProps) {
+		super(props);
 
-        this.openLoginModal = this.openLoginModal.bind(this);
-    }
+		this.openLoginModal = this.openLoginModal.bind(this);
+	}
 
-    componentDidMount() {
+	componentDidMount() {
 
-        if (!this.props.sessionInitialized) {
+		if (!this.props.sessionInitialized) {
 
-            checkLoginStatus()
-            	.then(() => {
+			checkLoginStatus()
+				.then(() => {
 
-                	this.props.setSessionState(true);
+					this.props.setSessionState(true);
 
-            	})
-            	.catch(() => {
+				})
+				.catch(() => {
 
-            		// allow the page to continue if the status cannot be verified
-                	this.props.setSessionState(true);
+					// allow the page to continue if the status cannot be verified
+					this.props.setSessionState(true);
 
-            	});
+				});
 
-        }
+		}
 
-    }
+	}
 
-    componentDidUpdate() {
-        if (window.location.pathname !== this.state.url) {
+	componentDidUpdate() {
+		if (window.location.pathname !== this.state.url) {
 
-            this.setState({
-                url: window.location.pathname,
-            });
+			this.setState({
+				url: window.location.pathname,
+			});
 
-            if (!!(window.location.pathname.match(/^\/(?:[0-9]{4}-[0-9]{2}-[0-9]{2}|derbytypes|sanctions|tracks|locations)/g))) {
+			if (!!(window.location.pathname.match(/^\/(?:[0-9]{4}-[0-9]{2}-[0-9]{2}|derbytypes|sanctions|tracks|locations)/g))) {
 
-                const urlSearchParts = window.location.pathname.split("/");
+				const urlSearchParts = window.location.pathname.split("/");
 
-                const searchURL: string[] = [];
-                let hasStart = false;
+				const searchURL: string[] = [];
+				let hasStart = false;
 
-                for (const part of urlSearchParts) {
+				for (const part of urlSearchParts) {
 
-                    if (part.match(/^[0-9]/)) {
+					if (part.match(/^[0-9]/)) {
 
-                        if (hasStart) {
-                            searchURL.push(`endDate=${part}`);
-                        } else {
-                            searchURL.push(`startDate=${part}`);
-                            hasStart = true;
-                        }
+						if (hasStart) {
+							searchURL.push(`endDate=${part}`);
+						} else {
+							searchURL.push(`startDate=${part}`);
+							hasStart = true;
+						}
 
-                    } else if (part) {
+					} else if (part) {
 
 						const values = part.match(/^(derbytypes|sanctions|tracks|locations|distance)\(([^\)]+)\)/);
 
@@ -128,50 +128,50 @@ class AppRouter extends React.Component < IProps > {
 
 							} else {
 
-                        searchURL.push(`${values[1]}=${values[2]}`);
+								searchURL.push(`${values[1]}=${values[2]}`);
 
-                    }
+							}
 
-                }
+						}
 
 					}
 
 				}
 
-                Analytics.set({
-                    location: `${window.location.origin}/searchResults?${searchURL.join("&")}`,
-                });
-                Analytics.pageview(`/searchResults?${searchURL.join("&")}`);
+				Analytics.set({
+					location: `${window.location.origin}/searchResults?${searchURL.join("&")}`,
+				});
+				Analytics.pageview(`/searchResults?${searchURL.join("&")}`);
 
-            } else {
+			} else {
 
-                Analytics.set({
-                    location: window.location.origin + window.location.pathname,
-                });
-                Analytics.pageview(window.location.pathname);
+				Analytics.set({
+					location: window.location.origin + window.location.pathname,
+				});
+				Analytics.pageview(window.location.pathname);
 
-            }
+			}
 
 
-        }
-    }
+		}
+	}
 
-    openLoginModal(event?: React.MouseEvent < HTMLAnchorElement > ) {
+	openLoginModal(event?: React.MouseEvent < HTMLAnchorElement > ) {
 
-        if (event) {
-            event.preventDefault();
-        }
+		if (event) {
+			event.preventDefault();
+		}
 
-        this.props.setLoginModalState(true);
-        Analytics.modalview("Login");
+		this.props.setLoginModalState(true);
+		Analytics.modalview("Login");
 
-    }
+	}
 
-    render() {
+	render() {
 
-        return (
+		return (
 
-            <Router history={history}>
+			<Router history={history}>
 
 				<div id="pageWrapper">
 					<div id="siteHeader">
@@ -303,8 +303,8 @@ class AppRouter extends React.Component < IProps > {
 
 			 </Router>
 
-        );
-    }
+		);
+	}
 
 }
 
@@ -377,7 +377,7 @@ import Error404 from "status/404";
 const NotFoundPage = connectClass(Error404);
 
 render(
-    <Provider store={store}>
+	<Provider store={store}>
 		<SiteRouter />
 	</Provider>,
-    document.getElementById("root"));
+	document.getElementById("root"));
