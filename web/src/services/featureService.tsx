@@ -2,7 +2,7 @@ import actions from "redux/actions";
 import store from "redux/store";
 import { callApi } from "services/apiService";
 
-import { IDBDerbySanction, IDBDerbyTrack, IDBDerbyType, IDerbyFeature } from "interfaces/feature";
+import { IDBDerbySanction, IDBDerbyTrack, IDBDerbyType, IDerbyFeature, IDerbyFeatures } from "interfaces/feature";
 
 export const filterDerbyTypes = (
 	derbytypes: string[],
@@ -181,5 +181,77 @@ export const getDerbyTypes = (): Promise<IDerbyFeature[]> =>
 			});
 
 		}
+
+	});
+
+export const mapFeatures = (
+	featureLists: {
+		derbytypes: string[],
+		sanctions: string[],
+		tracks: string[],
+	},
+): Promise<IDerbyFeatures> =>
+
+	new Promise((resolve, reject, onCancel) => {
+
+		const featureFilters = Promise.all([
+			filterDerbyTypes(featureLists.derbytypes),
+			filterSanctions(featureLists.sanctions),
+			filterTracks(featureLists.tracks),
+		])
+			.then((data) => {
+
+				const [
+					derbytypes,
+					sanctions,
+					tracks,
+				]
+					= data;
+
+				resolve({
+					derbytypes,
+					sanctions,
+					tracks,
+				});
+
+			});
+
+		onCancel(() => {
+			featureFilters.cancel();
+		});
+
+	});
+
+export const mapFeaturesFromText = (
+	featureStrings: string[],
+): Promise<IDerbyFeatures> =>
+
+	new Promise((resolve, reject, onCancel) => {
+
+		const eventFeatures: {
+			derbytypes: string[],
+			sanctions: string[],
+			tracks: string[],
+		} = {
+			derbytypes: [],
+			sanctions: [],
+			tracks: [],
+		};
+
+		for (const feature of featureStrings) {
+
+			const [label, value] = feature.split("-");
+			const featureName: keyof IDerbyFeatures = `${label}s` as keyof IDerbyFeatures;
+			eventFeatures[featureName].push(value);
+
+		}
+
+		const featureMap =
+			mapFeatures(eventFeatures)
+				.then((features) => resolve(features));
+
+		onCancel(() => {
+			featureMap.cancel();
+		});
 
 	});

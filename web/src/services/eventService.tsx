@@ -3,7 +3,7 @@ import store from "redux/store";
 import { callApi } from "services/apiService";
 
 import { mapDays } from "services/eventDayService";
-import { filterDerbyTypes, filterSanctions, filterTracks, getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/featureService";
+import { filterDerbyTypes, filterSanctions, filterTracks, getDerbySanctions, getDerbyTracks, getDerbyTypes, mapFeatures } from "services/featureService";
 import { formatDateRange } from "services/timeService";
 import { mapUser } from "services/userService";
 import { mapVenue } from "services/venueService";
@@ -153,29 +153,28 @@ export const loadEvents = (
 				return apiCall;
 
 			})
-			.then((result) => {
+			.then((result: {
+				events: IDBDerbyEvent[],
+				total: number,
+			}) => {
 
-				const eventResults: IDBDerbyEvent[] = result.events;
-				const events: Array<Promise<IDerbyEvent>> = [];
+				const eventResolution =
+					Promise.all(
+						result.events
+							.map((eventItem) =>
+								mapEvent(eventItem)))
 
-				for (const eventItem of eventResults) {
+						.then((eventList: IDerbyEvent[]) => {
 
-					events.push(mapEvent(eventItem));
+							store.dispatch(actions.saveLastSearch(search));
 
-				}
+							resolve({
+								events: eventList,
+								search,
+								total: result.total,
+							});
 
-				const eventResolution = Promise.all(events)
-					.then((eventList: IDerbyEvent[]) => {
-
-						store.dispatch(actions.saveLastSearch(search));
-
-						resolve({
-							events: eventList,
-							search,
-							total: result.total,
 						});
-
-					});
 
 				onCancel(() => {
 					eventResolution.cancel();
@@ -198,61 +197,34 @@ const mapEvent = (
 
 	new Promise((resolve, reject, onCancel) => {
 
-		const features: IDerbyFeatures = {
-			derbytypes: {} as IDerbyFeature[],
-			sanctions: {} as IDerbyFeature[],
-			tracks: {} as IDerbyFeature[],
-		};
+		const loadData =
+			mapFeatures({
+				derbytypes: data.derbytypes ? data.derbytypes.split(",") : [],
+				sanctions: data.sanctions ? data.sanctions.split(",") : [],
+				tracks: data.tracks ? data.tracks.split(",") : [],
+			})
+				.then((features) => {
 
-		const promises: Array<Promise<void>> = [];
-
-		if (data.derbytypes) {
-			promises.push(
-
-				filterDerbyTypes(data.derbytypes.split(","))
-					.then((derbytypes) => {
-						features.derbytypes = derbytypes;
-					}));
-		}
-
-		if (data.sanctions) {
-			promises.push(
-				filterSanctions(data.sanctions.split(","))
-					.then((sanctions) => {
-						features.sanctions = sanctions;
-					}));
-		}
-
-		if (data.tracks) {
-			promises.push(
-				filterTracks(data.tracks.split(","))
-					.then((tracks) => {
-						features.tracks = tracks;
-					}));
-		}
-
-		const loadData = Promise.all(promises).then(() => {
-
-			resolve ({
-				dates: formatDateRange({
-						end: moment.utc(data.event_last_day),
-						start: moment.utc(data.event_first_day),
-					}, "long"),
-				days: data.days && data.days.length ?
-					mapDays(data.days)
-					: undefined,
-				description: data.event_description,
-				features,
-				host: data.event_host,
-				id: data.event_id,
-				link: data.event_link,
-				multiDay: data.event_first_day ?
-					data.event_first_day.substring(0, 10) !== data.event_last_day.substring(0, 10)
-					: undefined,
-				name: data.event_name,
-				user: mapUser(data),
-				venue: mapVenue(data),
-			});
+					resolve ({
+						dates: formatDateRange({
+								end: moment.utc(data.event_last_day),
+								start: moment.utc(data.event_first_day),
+							}, "long"),
+						days: data.days && data.days.length ?
+							mapDays(data.days)
+							: undefined,
+						description: data.event_description,
+						features,
+						host: data.event_host,
+						id: data.event_id,
+						link: data.event_link,
+						multiDay: data.event_first_day ?
+							data.event_first_day.substring(0, 10) !== data.event_last_day.substring(0, 10)
+							: undefined,
+						name: data.event_name,
+						user: mapUser(data),
+						venue: mapVenue(data),
+					});
 
 		});
 

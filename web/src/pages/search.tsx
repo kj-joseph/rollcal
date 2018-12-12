@@ -5,7 +5,7 @@ import Select from "react-select";
 import { DayPickerRangeController, FocusedInputShape } from "react-dates";
 import "react-dates/initialize";
 
-import { filterDerbyTypes, filterSanctions, filterTracks, getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/featureService";
+import { getDerbySanctions, getDerbyTracks, getDerbyTypes, mapFeaturesFromText } from "services/featureService";
 import { getGeography } from "services/geoService";
 import { getSearchUrl } from "services/searchService";
 import { formatDateRange } from "services/timeService";
@@ -827,69 +827,19 @@ export default class Search extends RCComponent<IProps> {
 
 		}
 
-		if (this.state.selectedFeatures.length) {
-
-			const eventFeatures: {
-				derbytypes: string[],
-				sanctions: string[],
-				tracks: string[],
-			} = {
-				derbytypes: [],
-				sanctions: [],
-				tracks: [],
-			};
-
-			for (let feature = 0; feature < this.state.selectedFeatures.length; feature ++) {
-
-				const [label, value] = this.state.selectedFeatures[feature].split("-");
-				const featureName: (keyof IDerbyFeatures) = `${label}s` as (keyof IDerbyFeatures);
-				eventFeatures[featureName].push(value);
-
-			}
-
-			if (eventFeatures.derbytypes.length) {
-
-				promises.push(
-					filterDerbyTypes(eventFeatures.derbytypes)
-						.then((derbytypes) => {
-
-							searchObject.derbytypes = derbytypes;
-
-						}));
-
-			}
-
-			if (eventFeatures.sanctions.length) {
-
-				promises.push(
-					filterSanctions(eventFeatures.sanctions)
-						.then((sanctions) => {
-
-							searchObject.sanctions = sanctions;
-
-						}));
-
-			}
-
-			if (eventFeatures.tracks.length) {
-
-				promises.push(
-					filterTracks(eventFeatures.tracks)
-						.then((tracks) => {
-
-							searchObject.tracks = tracks;
-
-						}));
-
-			}
-
-		}
-
 		const filterFeatures = this.addPromise(
-			Promise.all(promises));
+			mapFeaturesFromText(this.state.selectedFeatures));
 
 		filterFeatures
-			.then(() => {
+			.then((features: {
+				derbytypes: IDerbyFeature[],
+				sanctions: IDerbyFeature[],
+				tracks: IDerbyFeature[],
+			}) => {
+
+				searchObject.derbytypes = features.derbytypes;
+				searchObject.sanctions = features.sanctions;
+				searchObject.tracks = features.tracks;
 
 				this.props.history.push(getSearchUrl(searchObject));
 
