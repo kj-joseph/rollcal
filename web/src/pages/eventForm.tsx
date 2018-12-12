@@ -1040,7 +1040,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 				IDerbyFeature[],
 				ITimeZone[],
 				IDerbyVenue[],
-				IDerbyEvent,
+				IDerbyEvent
 			]) => {
 
 				const [

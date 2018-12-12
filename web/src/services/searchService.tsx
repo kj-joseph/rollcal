@@ -3,10 +3,7 @@ import { filterDerbyTypes, filterSanctions, filterTracks } from "services/featur
 import { filterLocationsByString } from "services/geoService";
 
 import { IDerbyEvent, ISearchObject } from "interfaces/event";
-import { IDerbyFeatures } from "interfaces/feature";
 import { IGeoCountry, IGeoRegion } from "interfaces/geo";
-
-import moment from "moment";
 
 const getSearchObject = (
 	search: string,

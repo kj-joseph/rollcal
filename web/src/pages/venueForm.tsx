@@ -380,7 +380,7 @@ export default class VenueForm extends RCComponent<IProps> {
 			.then((data: [
 				IGeoCountry[],
 				ITimeZone[],
-				IDerbyVenue,
+				IDerbyVenue
 			]) => {
 
 				const [
