@@ -905,72 +905,31 @@ export default class Search extends RCComponent<IProps> {
 
 	loadData() {
 
-		let countryList: IGeoCountry[] = [];
-		let eventSanctions: IDerbyFeature[] = [];
-		let eventTracks: IDerbyFeature[] = [];
-		let eventTypes: IDerbyFeature[] = [];
-		let promiseError = false;
-		const promises: Array<Promise<any>> = [];
-
-		promises.push(getGeography()
-			.then((countries: IGeoCountry[]) => {
-
-				countryList = countries;
-
-			})
-			.catch((error) => {
-
-				console.error(error);
-				promiseError = true;
-
-			}));
-
-		promises.push(getDerbySanctions()
-			.then((sanctions: IDerbyFeature[]) => {
-
-				eventSanctions = sanctions;
-
-			})
-			.catch((error) => {
-
-				console.error(error);
-				promiseError = true;
-
-			}));
-
-		promises.push(getDerbyTracks()
-			.then((tracks: IDerbyFeature[]) => {
-
-				eventTracks = tracks;
-
-			})
-			.catch((error) => {
-
-				console.error(error);
-				promiseError = true;
-
-			}));
-
-		promises.push(getDerbyTypes()
-			.then((derbytypes: IDerbyFeature[]) => {
-
-				eventTypes = derbytypes;
-
-			})
-			.catch((error) => {
-
-				console.error(error);
-				promiseError = true;
-
-			}));
-
 		const getData = this.addPromise(
-			Promise.all(promises));
+			Promise.all([
+				getGeography(),
+				getDerbySanctions(),
+				getDerbyTracks(),
+				getDerbyTypes(),
+
+
+				]));
 
 		getData
-			.then(() => {
+			.then((data: [
+				IGeoCountry[],
+				IDerbyFeature[],
+				IDerbyFeature[],
+				IDerbyFeature[]
+			]) => {
 
-			if (!promiseError) {
+				const [
+					countryList,
+					eventSanctions,
+					eventTracks,
+					eventTypes,
+				]
+					= data;
 
 				this.setState({
 					countryList,
@@ -1025,7 +984,15 @@ export default class Search extends RCComponent<IProps> {
 
 					if (this.props.lastSearch.address && this.props.lastSearch.distanceUnits) {
 
-						const [address1, city, regionAbbr, postcode, countryCode, distanceString, distanceUnits]
+						const [
+							address1,
+							city,
+							regionAbbr,
+							postcode,
+							countryCode,
+							distanceString,
+							distanceUnits,
+						]
 							= this.props.lastSearch.address.split("~");
 
 						const country = countryList.filter((c) => c.code === countryCode)[0];
@@ -1057,15 +1024,13 @@ export default class Search extends RCComponent<IProps> {
 
 				}
 
-			}
+			})
+			.catch((error) => {
 
-		})
-		.catch((error) => {
+				console.error(error);
 
-			console.error(error);
-
-		})
-		.finally(getData.clear);
+			})
+			.finally(getData.clear);
 
 	}
 
