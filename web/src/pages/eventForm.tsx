@@ -1053,6 +1053,8 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 					venue: {} as IDerbyVenue,
 				};
 
+				let selectedFeatures: string[] = [];
+
 				if (isEdit) {
 
 					initialEventData = {
@@ -1066,26 +1068,24 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 							venue.id === eventData.venue.id)[0],
 					};
 
-				}
+					if (eventData.features.derbytypes && eventData.features.derbytypes.length) {
+						selectedFeatures = selectedFeatures.concat(eventData.features.derbytypes
+							.map((derbytype) =>
+								`derbytype-${derbytype.id}`));
+					}
 
-				let selectedFeatures: string[] = [];
+					if (eventData.features.sanctions && eventData.features.sanctions.length) {
+						selectedFeatures = selectedFeatures.concat(eventData.features.sanctions
+							.map((sanction) =>
+								`sanction-${sanction.id}`));
+					}
 
-				if (eventData.features.derbytypes && eventData.features.derbytypes.length) {
-					selectedFeatures = selectedFeatures.concat(eventData.features.derbytypes
-						.map((derbytype) =>
-							`derbytype-${derbytype.id}`));
-				}
+					if (eventData.features.tracks && eventData.features.tracks.length) {
+						selectedFeatures = selectedFeatures.concat(eventData.features.tracks
+							.map((track) =>
+								`track-${track.id}`));
+					}
 
-				if (eventData.features.sanctions && eventData.features.sanctions.length) {
-					selectedFeatures = selectedFeatures.concat(eventData.features.sanctions
-						.map((sanction) =>
-							`sanction-${sanction.id}`));
-				}
-
-				if (eventData.features.tracks && eventData.features.tracks.length) {
-					selectedFeatures = selectedFeatures.concat(eventData.features.tracks
-						.map((track) =>
-							`track-${track.id}`));
 				}
 
 				this.setState({
