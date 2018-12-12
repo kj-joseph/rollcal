@@ -1033,9 +1033,25 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 			Promise.all(dataPromises));
 
 		loadData
-			.then((data: [IGeoCountry[], IDerbyFeature[], IDerbyFeature[], IDerbyFeature[], ITimeZone[], IDerbyVenue[], IDerbyEvent]) => {
+			.then((data: [
+				IGeoCountry[],
+				IDerbyFeature[],
+				IDerbyFeature[],
+				IDerbyFeature[],
+				ITimeZone[],
+				IDerbyVenue[],
+				IDerbyEvent,
+			]) => {
 
-				const [countryList, derbySanctions, derbyTracks, derbyTypes, timeZoneList, venueList, eventData] = data;
+				const [
+					countryList,
+					derbySanctions,
+					derbyTracks,
+					derbyTypes,
+					timeZoneList,
+					venueList,
+					eventData,
+				] = data;
 
 				venueList.unshift({
 					city: "fill form below)",

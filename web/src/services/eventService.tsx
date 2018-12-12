@@ -113,7 +113,15 @@ export const loadEvents = (
 					// ignore locations if searching by address
 					delete apiSearch.locations;
 
-					const [address1, city, regionAbbr, postcode, countryCode, distanceString, distanceUnits]
+					const [
+						address1,
+						city,
+						regionAbbr,
+						postcode,
+						countryCode,
+						distanceString,
+						distanceUnits,
+					]
 						= search.address.split("~");
 
 					apiSearch.address = `${address1}, ${city}${

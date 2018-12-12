@@ -117,7 +117,15 @@ class AppRouter extends React.Component < IProps > {
 
 							if (values[1] === "distance") {
 
-								const [, , regionAbbr, , countryCode, distanceString, distanceUnits]
+								const [
+									,
+									,
+									regionAbbr,
+									,
+									countryCode,
+									distanceString,
+									distanceUnits,
+								]
 									= values[2].split("~");
 
 								searchURL.push(`distance=/${countryCode}${

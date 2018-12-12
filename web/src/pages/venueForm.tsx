@@ -377,9 +377,18 @@ export default class VenueForm extends RCComponent<IProps> {
 			Promise.all(dataPromises));
 
 		loadData
-			.then((data: [IGeoCountry[], ITimeZone[], IDerbyVenue]) => {
+			.then((data: [
+				IGeoCountry[],
+				ITimeZone[],
+				IDerbyVenue,
+			]) => {
 
-				const [countryList, timeZoneList, venueData] = data;
+				const [
+					countryList,
+					timeZoneList,
+					venueData,
+				]
+					= data;
 
 				let initialVenueData: IDerbyVenue = {
 					address1: "",

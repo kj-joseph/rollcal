@@ -48,7 +48,17 @@ const getSearchObject = (
 					break;
 
 				case "distance":
-					const [, , , , , distanceString, distanceUnits] = value.split("~");
+
+					const [
+						,
+						,
+						,
+						,
+						,
+						distanceString,
+						distanceUnits,
+					]
+						 = value.split("~");
 
 					searchObject.address = value;
 					searchObject.distance = Number(distanceString);
