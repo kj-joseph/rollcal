@@ -2,13 +2,14 @@ import actions from "redux/actions";
 import store from "redux/store";
 import { callApi } from "services/apiService";
 
+import { mapDays } from "services/eventDayService";
 import { filterDerbyTypes, filterSanctions, filterTracks, getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/featureService";
 import { filterLocationsByString } from "services/geoService";
 import { formatDateRange } from "services/timeService";
 import { mapUser } from "services/userService";
 import { mapVenue } from "services/venueService";
 
-import { IDBDerbyEvent, IDBDerbyEventDay, IDerbyEvent, IDerbyEventDay, ISearchObject} from "interfaces/event";
+import { IDBDerbyEvent, IDerbyEvent, IDerbyEventChangeObject, ISearchObject} from "interfaces/event";
 import { IDerbyFeature, IDerbyFeatures } from "interfaces/feature";
 
 import moment from "moment";
@@ -291,20 +292,6 @@ export const loadEvents = (
 
 	});
 
-const mapDays = (
-	data: IDBDerbyEventDay[],
-): IDerbyEventDay[] =>
-
-	data.map((day) => ({
-		date: moment.utc(day.eventday_start_venue).format("MMM D"),
-		description: day.eventday_description,
-		doorsTime: day.eventday_doors_venue
-			&& day.eventday_doors_venue < day.eventday_start_venue
-			? moment.utc(day.eventday_doors_venue).format("h:mm a")
-			: "",
-		startTime: moment.utc(day.eventday_start_venue).format("h:mm a"),
-	}));
-
 const mapEvent = (
 	data: IDBDerbyEvent,
 ): Promise<IDerbyEvent> =>
@@ -356,13 +343,13 @@ const mapEvent = (
 					: undefined,
 				description: data.event_description,
 				features,
-				host: data.event_name ? data.event_host : undefined,
+				host: data.event_host,
 				id: data.event_id,
 				link: data.event_link,
 				multiDay: data.event_first_day ?
 					data.event_first_day.substring(0, 10) !== data.event_last_day.substring(0, 10)
 					: undefined,
-				name: data.event_name ? data.event_name : data.event_host,
+				name: data.event_name,
 				user: mapUser(data),
 				venue: mapVenue(data),
 			});

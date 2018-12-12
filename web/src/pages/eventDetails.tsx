@@ -3,13 +3,15 @@ import React from "react";
 import FormatText from "react-format-text";
 import { Link } from "react-router-dom";
 
-import { IDerbyEvent, IDerbyEventDay } from "interfaces/event";
-import { IProps } from "interfaces/redux";
-
 import { getEventDetails } from "services/eventService";
 
 import FeatureIconSet from "components/featureIconSet";
 import Flag from "components/flag";
+
+import moment from "moment";
+
+import { IDerbyEvent, IDerbyEventDay } from "interfaces/event";
+import { IProps } from "interfaces/redux";
 
 interface IEventDetailsState {
 	dataError: boolean;
@@ -101,15 +103,24 @@ export default class EventDetails extends RCComponent<IProps> {
 							<div className="data">
 
 								<div className="eventInfo">
-									<h1>{this.state.eventData.name}</h1>
-									{(this.state.eventData.host) ?  <h3>Hosted by {this.state.eventData.host}</h3> : ""}
+									<h1>
+										{this.state.eventData.name ?
+											this.state.eventData.name
+										: this.state.eventData.host}
+									</h1>
+
+									{this.state.eventData.name ?
+										<h3>Hosted by {this.state.eventData.host}</h3>
+									: null}
 
 									<p className="eventDate"><strong>{this.state.eventData.dates}</strong></p>
 
 									{(this.state.eventData.link) ?
 										<p className="eventLink">
 											<a href={this.state.eventData.link} target="_blank" rel="noopener noreferrer">
-												{this.state.eventData.name} website
+												{this.state.eventData.name ?
+													this.state.eventData.name
+												: "Event"} website
 											</a>
 										</p>
 										: ""
@@ -144,36 +155,41 @@ export default class EventDetails extends RCComponent<IProps> {
 										: null}
 									</address>
 
-									{(this.state.eventData.venue.link) ?
+									{this.state.eventData.venue.link ?
+
 										<p className="venueLink">
 											<a href={this.state.eventData.venue.link} target="_blank" rel="noopener noreferrer">
 												{this.state.eventData.venue.name} website
 											</a>
 										</p>
-										: ""
-									}
 
-									{(this.state.eventData.venue.description) ?
+									: null}
+
+									{this.state.eventData.venue.description ?
 										<p className="venueDescription">{this.state.eventData.venue.description}</p>
-										: ""
-									}
+									: null}
 								</div>
 
-								{(this.state.eventData.days && this.state.eventData.days.length) ?
+								{this.state.eventData.days && this.state.eventData.days.length ?
+
 									<div className="eventDays">
 										<h4>Days</h4>
 										<dl>
 										{this.state.eventData.days.map((day: IDerbyEventDay) => (
 											<React.Fragment key={day.date}>
-												<dt><strong>{day.date}:</strong>{day.startTime}
-													{day.doorsTime ? ` (Doors: ${day.doorsTime})` : ""}
+												<dt><strong>{day.date}:</strong>{moment(day.startTime, "HH:mm:00").format("h:mm a")}
+													{day.doorsTime ?
+														` (Doors: ${moment(day.doorsTime, "HH:mm:00").format("h:mm a")})`
+													: null}
 												</dt>
 												<dd><FormatText>{day.description}</FormatText></dd>
 											</React.Fragment>
 										))}
 										</dl>
 									</div>
+
 									:
+
 									<div className="eventTime">
 										<p>
 											<strong>Start time:</strong> {this.state.eventData.days[0].startTime}
@@ -181,6 +197,7 @@ export default class EventDetails extends RCComponent<IProps> {
 												? ` (Doors: ${this.state.eventData.days[0].doorsTime})` : ""}
 										</p>
 									</div>
+
 								}
 
 								<p><em>All times shown are local to the venue.</em></p>

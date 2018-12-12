@@ -73,7 +73,9 @@ export const getTimeZones = (): Promise<ITimeZone[]> =>
 
 	});
 
-export const mapTimezone = (data: IDBDerbyEvent | IDBDerbyVenue | IDBTimeZone): ITimeZone => ({
+export const mapTimezone = (
+	data: IDBDerbyEvent | IDBDerbyVenue | IDBTimeZone,
+): ITimeZone => ({
 	id: data.timezone_id,
 	name: data.timezone_name,
 	zone: data.timezone_zone,

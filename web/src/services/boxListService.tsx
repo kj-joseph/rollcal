@@ -9,12 +9,12 @@ export const mapEventsToBoxList = (events: IDerbyEvent[]): IBoxListItem[] =>
 		dates: event.dates,
 		distance: event.venue.distance,
 		features: event.features,
-		host: event.host,
+		host: event.name ? event.host : undefined,
 		id: event.id,
 		location: `${event.venue.city}${
 				event.venue.region && event.venue.region.abbreviation ? ", " + event.venue.region.abbreviation : ""
 			}, ${event.venue.country.code}`,
-		name: event.name,
+		name: event.name ? event.name : event.host,
 		user: event.user,
 	}));
 
