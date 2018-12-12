@@ -111,12 +111,32 @@ class AppRouter extends React.Component < IProps > {
 
                     } else if (part) {
 
-                        const values = part.match(/^(derbytypes|sanctions|tracks|locations)\(([^\)]+)\)/);
+						const values = part.match(/^(derbytypes|sanctions|tracks|locations|distance)\(([^\)]+)\)/);
+
+						if (values) {
+
+							if (values[1] === "distance") {
+
+								const [, , regionAbbr, , countryCode, distanceString, distanceUnits]
+									= values[2].split("~");
+
+								searchURL.push(`distance=/${countryCode}${
+									regionAbbr ?
+										`/${regionAbbr}`
+									: ""
+									}/${distanceString}+${distanceUnits}`);
+
+							} else {
+
                         searchURL.push(`${values[1]}=${values[2]}`);
 
                     }
 
                 }
+
+					}
+
+				}
 
                 Analytics.set({
                     location: `${window.location.origin}/searchResults?${searchURL.join("&")}`,
