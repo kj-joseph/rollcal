@@ -362,6 +362,38 @@ const mapEvent = (
 
 	});
 
+export const saveVenueChange = (
+	changes: IDerbyEventChangeObject,
+	id: number = 0,
+): Promise<void> =>
+
+	new Promise((resolve, reject, onCancel) => {
+
+		const apiCall = callApi(
+			"put",
+			"events/saveChanges",
+			{
+				changeObject: JSON.stringify(changes),
+				id,
+			},
+		);
+
+		apiCall
+			.then(() => {
+
+				resolve();
+
+			})
+			.catch((error) =>
+
+				reject(error));
+
+		onCancel(() => {
+			apiCall.cancel();
+		});
+
+	});
+
 export const searchEventsByString = (
 	searchString: string = undefined,
 	count: number | "all" = "all",

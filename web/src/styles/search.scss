@@ -162,7 +162,7 @@
 
 @include respond-to("xsmall") {
 
-	.featureIcons {
+	.searchForm .featureIcons {
 		svg {
 			height: 75px;
 			margin: 0 5px;
@@ -173,7 +173,7 @@
 
 @include respond-to("small") {
 
-	.featureIcons {
+	.searchForm .featureIcons {
 		svg {
 			height: 90px;
 		}
@@ -192,11 +192,11 @@
 			margin-right: 40px;
 		}
 
-	}
+		.featureIcons {
+			margin-top: .3em;
+			width: calc(50%);
+		}
 
-	.featureIcons {
-		margin-top: .3em;
-		width: calc(50%);
 	}
 
 }

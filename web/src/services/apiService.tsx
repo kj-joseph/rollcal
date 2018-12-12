@@ -16,13 +16,18 @@ export const callApi = (
 		const axiosSignal = axios.CancelToken.source();
 		const state = store.getState();
 
-		// remove empty parameters
-		for (const param in params) {
-			if (params.hasOwnProperty(param)) {
-				if (params[param] === undefined) {
-					delete params[param];
-				}
-			}
+		const callParams: {[key: string]: any} = {};
+
+		if (Object.keys(params).length) {
+
+			// remove empty parameters
+			Object.keys(params)
+				.forEach((key) => {
+					if (params[key] !== undefined) {
+						callParams[key] = params[key];
+					}
+				});
+
 		}
 
 		const axiosRequest: AxiosRequestConfig = {
@@ -34,11 +39,11 @@ export const callApi = (
 
 		if (method === "get") {
 
-			axiosRequest.params = params;
+			axiosRequest.params = callParams;
 
 		} else {
 
-			axiosRequest.data = params;
+			axiosRequest.data = callParams;
 
 		}
 

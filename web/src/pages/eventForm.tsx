@@ -1,27 +1,33 @@
+import RCComponent from "components/rcComponent";
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { IDBDerbyEvent, IDerbyEvent, IDerbyEventChangeObject, IDerbyEventDay } from "interfaces/event";
-import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
-import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList, ITimeZone } from "interfaces/geo";
+import { IDerbyEvent, IDerbyEventChangeObject, IDerbyEventDay } from "interfaces/event";
+import { IDerbyFeature } from "interfaces/feature";
+import { IGeoCountry, IGeoRegion } from "interfaces/geo";
 import { IProps } from "interfaces/redux";
-import { IDBDerbyVenue, IDerbyVenue } from "interfaces/venue";
+import { ITimeZone } from "interfaces/time";
+import { IDerbyVenue, INewDerbyVenue } from "interfaces/venue";
 
+import { mapDayForStorage, mapDaysForEditing } from "services/eventDayService";
+import { getEventDetails, saveVenueChange } from "services/eventService";
 import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/featureService";
 import { getGeography } from "services/geoService";
 import { getTimeZones } from "services/timeService";
 import { checkUserRole } from "services/userService";
+import { loadVenues } from "services/venueService";
 
-import axios from "axios";
-
-import { DayPickerSingleDateController } from "react-dates";
 import "react-dates/initialize";
 
 import moment from "moment";
 
 import Select from "react-select";
 
-import FeatureIcon from "components/featureIcon";
+import AddressFields from "components/addressFields";
+import Callout from "components/callout";
+import EventDayPicker from "components/eventDayPicker";
+import FeatureIconSet from "components/featureIconSet";
+import FormSection from "components/formSection";
 
 interface IEventFormState {
 	countryList: IGeoCountry[];
@@ -29,9 +35,9 @@ interface IEventFormState {
 	editingDays: IDerbyEventDay[];
 	eventData: IDerbyEvent;
 	eventFeatures: {
-		derbytypes: IDerbyType[],
-		sanctions: IDerbySanction[],
-		tracks: IDerbyTrack[],
+		derbytypes: IDerbyFeature[],
+		sanctions: IDerbyFeature[],
+		tracks: IDerbyFeature[],
 	};
 	focused: boolean;
 	initialEventData: IDerbyEvent;
@@ -51,13 +57,11 @@ interface IEventFormState {
 	pageFunction: string;
 	path: string;
 	processing: boolean;
-	regionLists: IGeoRegionList;
 	sectionOpenBasic: boolean;
 	sectionOpenDays: boolean;
 	sectionOpenFeatures: boolean;
 	sectionOpenVenue: boolean;
 	selectedFeatures: string[];
-	selectedVenue: IDerbyVenue;
 	submitError: string;
 	submitSuccess: boolean;
 	timeZoneList: ITimeZone[];
@@ -65,7 +69,7 @@ interface IEventFormState {
 	venueList: IDerbyVenue[];
 }
 
-export default class EventForm<Props> extends React.Component<IProps> {
+export default class EventForm<Props> extends RCComponent<IProps> {
 
 	state: IEventFormState = {
 		countryList: [],
@@ -99,21 +103,17 @@ export default class EventForm<Props> extends React.Component<IProps> {
 				? "Edit Event" : "Error",
 		path: null,
 		processing: false,
-		regionLists: {} as IGeoRegionList,
 		sectionOpenBasic: true,
 		sectionOpenDays: true,
 		sectionOpenFeatures: true,
 		sectionOpenVenue: true,
 		selectedFeatures: [],
-		selectedVenue: {} as IDerbyVenue,
 		submitError: null,
 		submitSuccess: false,
 		timeZoneList: [],
 		userId: null,
 		venueList: [],
 	};
-
-	axiosSignal = axios.CancelToken.source();
 
 	constructor(props: IProps) {
 		super(props);
@@ -183,10 +183,6 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 	}
 
-	componentWillUnmount() {
-		this.axiosSignal.cancel();
-	}
-
 	render() {
 
 		return (
@@ -234,10 +230,9 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 						<React.Fragment>
 
-							<div className="callout">
-								<p className="header">IMPORTANT!</p>
+							<Callout title="Important!">
 								<p>Make sure to click the <strong>Submit Changes</strong> button at the bottom of the page to save your changes.</p>
-							</div>
+							</Callout>
 
 							<form
 								className="entryForm"
@@ -247,483 +242,375 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 								<div className="formContainer">
 
-									<div>
+									<FormSection
+										checked={!!this.state.eventData.host}
+										status={this.state.sectionOpenBasic}
+										name="Basic"
+										label="Basic Event Information"
+										toggle={this.toggleSection}
+									>
 
-										<h3
-											className={"formSectionHeader"
-												+ (this.state.sectionOpenBasic ? " open" : " closed")
-												+ (this.state.eventData.host ? " ok" : "")}
-											data-section="Basic"
-											onClick={this.toggleSection}
-										>
-											<span>Basic Event Information</span>
-										</h3>
-
-										<div className={"formSection" + (this.state.sectionOpenBasic ? " open" : " closed")}>
-
-											<div className="inputGroup">
-												<label htmlFor="host">Host</label>
-												<input
-													id="host"
-													name="host"
-													data-handler="eventData"
-													type="text"
-													required={true}
-													value={this.state.eventData.host}
-													onChange={this.handleInputChange}
-												/>
-											</div>
-
-											<div className="inputGroup">
-												<label htmlFor="name">Event Name <em>(optional)</em></label>
-												<input
-													id="name"
-													name="name"
-													data-handler="eventData"
-													type="text"
-													required={false}
-													value={this.state.eventData.name}
-													onChange={this.handleInputChange}
-												/>
-											</div>
-
-											<div className="inputGroup">
-												<label htmlFor="link">Web Page <em>(optional)</em></label>
-												<input
-													id="link"
-													name="link"
-													data-handler="eventData"
-													type="url"
-													required={false}
-													value={this.state.eventData.link}
-													onChange={this.handleInputChange}
-												/>
-											</div>
-
-											<div className="inputGroup">
-												<label htmlFor="description">Description <em>(recommended, but optional)</em></label>
-												<textarea
-													id="description"
-													name="description"
-													data-handler="eventData"
-													required={false}
-													value={this.state.eventData.description}
-													onChange={this.handleInputChange}
-												/>
-											</div>
-
+										<div className="inputGroup">
+											<label htmlFor="host">Host</label>
+											<input
+												id="host"
+												name="host"
+												data-handler="eventData"
+												type="text"
+												required={true}
+												value={this.state.eventData.host}
+												onChange={this.handleInputChange}
+											/>
 										</div>
 
-									</div>
+										<div className="inputGroup">
+											<label htmlFor="name">Event Name <em>(optional)</em></label>
+											<input
+												id="name"
+												name="name"
+												data-handler="eventData"
+												type="text"
+												required={false}
+												value={this.state.eventData.name}
+												onChange={this.handleInputChange}
+											/>
+										</div>
 
-									<div>
+										<div className="inputGroup">
+											<label htmlFor="link">Web Page <em>(optional)</em></label>
+											<input
+												id="link"
+												name="link"
+												data-handler="eventData"
+												type="url"
+												required={false}
+												value={this.state.eventData.link}
+												onChange={this.handleInputChange}
+											/>
+										</div>
 
-										<h3
-											className={"formSectionHeader"
-												+ (this.state.sectionOpenVenue ? " open" : " closed")
-												+ (this.state.eventData.venue
-													|| (this.state.newVenueName
-														&& this.state.newVenueAddress1
-														&& this.state.newVenueCity
-														&& this.state.newVenueTimeZone.timezone_id)
-												 ? " ok" : "")}
-											data-section="Venue"
-											onClick={this.toggleSection}
-										>
-											<span>Venue</span>
-										</h3>
+										<div className="inputGroup">
+											<label htmlFor="description">Description <em>(recommended, but optional)</em></label>
+											<textarea
+												id="description"
+												name="description"
+												data-handler="eventData"
+												required={false}
+												value={this.state.eventData.description}
+												onChange={this.handleInputChange}
+											/>
+										</div>
 
-										<div className={"formSection" + (this.state.sectionOpenVenue ? " open" : " closed")}>
+									</FormSection>
 
+									<FormSection
+										checked={!!this.state.eventData.venue
+											|| (!!this.state.newVenueName
+												&& !!this.state.newVenueAddress1
+												&& !!this.state.newVenueCity
+												&& !!this.state.newVenueCountry.code
+												&& !!this.state.newVenueTimeZone.id)}
+										status={this.state.sectionOpenVenue}
+										name="Venue"
+										label="Venue"
+										toggle={this.toggleSection}
+									>
+
+										<div className="inputGroup">
 											<Select
 												className="Select"
 												classNamePrefix="Select"
 												name="venue"
-												value={this.state.selectedVenue}
+												value={this.state.eventData.venue}
 												onChange={this.handleVenueChange}
 												options={this.state.venueList}
 												getOptionLabel={this.getVenueLabel}
 												isSearchable={true}
 												isClearable={true}
 											/>
-
-											{this.state.eventData.venue === 0 ?
-
-												<React.Fragment>
-
-													<div className="inputGroup">
-														<label htmlFor="newVenueName">Name</label>
-														<input
-															id="newVenueName"
-															name="newVenueName"
-															data-handler="newVenue"
-															type="text"
-															required={true}
-															value={this.state.newVenueName}
-															onChange={this.handleInputChange}
-														/>
-													</div>
-
-													<div className="inputGroup">
-														<label htmlFor="newVenueAddress1">Street Address</label>
-														<input
-															id="newVenueAddress1"
-															name="newVenueAddress1"
-															data-handler="newVenue"
-															type="text"
-															required={true}
-															value={this.state.newVenueAddress1}
-															onChange={this.handleInputChange}
-														/>
-													</div>
-
-													<div className="inputGroup">
-														<label htmlFor="newVenueAddress2">Address Line 2 <em>(optional)</em></label>
-														<input
-															id="newVenueAddress2"
-															name="newVenueAddress2"
-															data-handler="newVenue"
-															type="text"
-															required={false}
-															value={this.state.newVenueAddress2}
-															onChange={this.handleInputChange}
-														/>
-													</div>
-
-													<div className="inputGroup">
-														<label htmlFor="newVenueCity">City</label>
-														<input
-															id="newVenueCity"
-															name="newVenueCity"
-															data-handler="newVenue"
-															type="text"
-															required={true}
-															value={this.state.newVenueCity}
-															onChange={this.handleInputChange}
-														/>
-													</div>
-
-													<div className="inputGroup">
-														<label htmlFor="newVenueCountry">Country</label>
-														<Select
-															id="newVenueCountry"
-															name="newVenueCountry"
-															className="Select searchSelectCountries"
-															classNamePrefix="Select"
-															value={this.state.newVenueCountry}
-															onChange={this.handleCountryChange}
-															options={this.state.countryList}
-															getOptionLabel={this.getCountryOptionLabel}
-															isSearchable={true}
-															isClearable={true}
-														/>
-													</div>
-
-													{(this.state.newVenueCountry && this.state.regionLists[this.state.newVenueCountry.country_code]) ?
-														<div className="inputGroup selectRegion">
-															<label htmlFor="newVenueRegion">{this.state.newVenueCountry.country_region_type}</label>
-															<Select
-																id="newVenueRegion"
-																name="newVenueRegion"
-																className="Select searchSelectRegions"
-																classNamePrefix="Select"
-																value={this.state.newVenueRegion}
-																onChange={this.handleRegionChange}
-																options={this.state.newVenueCountry
-																	&& this.state.newVenueCountry.country_code
-																	&& this.state.regionLists[this.state.newVenueCountry.country_code]
-																	? this.state.regionLists[this.state.newVenueCountry.country_code]
-																	: []}
-																getOptionLabel={this.getRegionOptionLabel}
-																isSearchable={true}
-																isClearable={true}
-															/>
-														</div>
-
-													: ""}
-
-													<div className="inputGroup">
-														<label htmlFor="newVenuePostcode">Postal Code <em>(optional, but suggested)</em></label>
-														<input
-															id="newVenuePostcode"
-															name="newVenuePostcode"
-															data-handler="newVenue"
-															type="text"
-															required={false}
-															value={this.state.newVenuePostcode}
-															onChange={this.handleInputChange}
-														/>
-													</div>
-
-													<div className="inputGroup selectTimeZone">
-														<label htmlFor="newVenueTimeZone">Time Zone</label>
-														<Select
-															id="newVenueTimeZone"
-															name="newVenueTimeZone"
-															className="Select"
-															classNamePrefix="Select"
-															value={this.state.newVenueTimeZone}
-															onChange={this.handleTimeZoneChange}
-															options={this.state.timeZoneList}
-															getOptionLabel={this.getTimeZoneLabel}
-															isSearchable={true}
-															isClearable={true}
-														/>
-													</div>
-
-													<div className="inputGroup">
-														<label htmlFor="newVenueLink">Website <em>(optional)</em></label>
-														<input
-															id="newVenueLink"
-															name="newVenueLink"
-															data-handler="newVenue"
-															type="url"
-															required={false}
-															value={this.state.newVenueLink}
-															onChange={this.handleInputChange}
-														/>
-													</div>
-
-													<div className="inputGroup">
-														<label htmlFor="newVenueDescription">Description <em>(optional)</em></label>
-														<textarea
-															id="newVenueDescription"
-															name="newVenueDescription"
-															data-handler="newVenue"
-															required={false}
-															value={this.state.newVenueDescription}
-															onChange={this.handleInputChange}
-														/>
-													</div>
-
-												</React.Fragment>
-
-											: ""}
-
 										</div>
 
-									</div>
+										{this.state.eventData.venue.id === 0 ?
 
-									<div>
+											<React.Fragment>
 
-										<h3
-											className={"formSectionHeader"
-												+ (this.state.sectionOpenDays ? " open" : " closed")
-												+ (this.state.editingDays.filter((day: IDerbyEventDay) =>
-													day.id > 0 || day.editing === false).length ? " ok" : "")}
-											data-section="Days"
-											onClick={this.toggleSection}
-										>
-											<span>Event Days</span> ({this.state.editingDays.filter((day: IDerbyEventDay) =>
-												day.id > 0 || day.editing === false).length})
-										</h3>
-
-										<div className={"formSection" + (this.state.sectionOpenDays ? " open" : " closed")}>
-
-											<div className="eventDays">
-
-												{ !this.state.editingDays.length ?
-													<p>There are currently no days for this event.  Please add at least one.</p>
-												: ""}
-
-												<ul className={"eventDayList" + (this.state.editingDays.length ? "" : " empty")}>
-													{this.state.editingDays
-														.sort((day1: IDerbyEventDay, day2: IDerbyEventDay) =>
-															day1.sortValue > day2.sortValue ? 1 : day1.sortValue < day2.sortValue ? -1 : 0)
-														.map((day: IDerbyEventDay) => (
-														<li key={day.id} data-day-id={day.id} className={day.editing ? "editing" : ""}>
-															<dl>
-																<dt>Date:</dt>
-																<dd>{day.dateObject.format("MMM D, Y")}</dd>
-																<dt>Start time:</dt>
-																<dd>{day.startTime ? moment(day.startTime, "H:mm").format("h:mm a") : "(not set)"}</dd>
-																<dt>Doors open:</dt>
-																<dd>{day.doorsTime ? moment(day.doorsTime, "H:mm").format("h:mm a") : "(not set)"}</dd>
-																<dt>Description:</dt>
-																<dd>{day.description || "(none)"}</dd>
-															</dl>
-
-															<div className="dayForm">
-
-																<div className="calendarContainer" data-day-id={day.id} id={`date_day_${day.id}`}>
-																	{ day.editing ?
-																		<DayPickerSingleDateController
-																			date={day.dateObject}
-																			focused={this.state.focused}
-																			hideKeyboardShortcutsPanel={true}
-																			numberOfMonths={1}
-																			enableOutsideDays={false}
-																			initialVisibleMonth={() => day.dateObject}
-																			isOutsideRange={(date: moment.Moment) => this.isDisabledDate(date, day.id)}
-																			keepOpenOnDateSelect={true}
-																			onDateChange={(date: moment.Moment) => this.onDateChange(date, day.id)}
-																			onFocusChange={this.handleFocusChange}
-																			noBorder={true}
-																		/>
-																	: ""}
-																</div>
-
-																<div className="inputGroup half">
-																	<label htmlFor={`startTime_day_${day.id}`}>Start Time</label>
-																	<input
-																		id={`startTime_day_${day.id}`}
-																		name={`startTime_day_${day.id}`}
-																		data-handler="eventDay"
-																		data-day-id={day.id}
-																		type="time"
-																		required={true}
-																		value={day.startTime}
-																		onChange={this.handleInputChange}
-																	/>
-																</div>
-
-																<div className="inputGroup half">
-																	<label htmlFor={`doorsTime_day_${day.id}`}>Doors Open <em>(optional)</em></label>
-																	<input
-																		id={`doorsTime_day_${day.id}`}
-																		name={`doorsTime_day_${day.id}`}
-																		data-handler="eventDay"
-																		data-day-id={day.id}
-																		type="time"
-																		required={false}
-																		value={day.doorsTime}
-																		onChange={this.handleInputChange}
-																	/>
-																</div>
-
-																<div className="inputGroup">
-																	<label htmlFor={`description_day_${day.id}`}>Description <em>(optional)</em></label>
-																	<textarea
-																		id={`description_day_${day.id}`}
-																		name={`description_day_${day.id}`}
-																		data-handler="eventDay"
-																		data-day-id={day.id}
-																		required={false}
-																		value={day.description}
-																		onChange={this.handleInputChange}
-																	/>
-																</div>
-
-															</div>
-
-															<div className="buttonRow operationButtons">
-																<button
-																	className="smallButton"
-																	onClick={this.editDay}
-																	data-day-id={day.id}
-																>
-																	Edit
-																</button>
-																<button
-																	className="smallButton"
-																	onClick={this.deleteDay}
-																	data-day-id={day.id}
-																>
-																	Delete
-																</button>
-															</div>
-
-															<div className="buttonRow editingButtons">
-																<button
-																	className="smallButton"
-																	disabled={!(day.date && day.startTime && day.dateObject.isValid())}
-																	onClick={this.saveDay}
-																	data-day-id={day.id}
-																>
-																	Done
-																</button>
-																<button className="smallButton" onClick={this.cancelDayEdit} data-day-id={day.id}>Cancel</button>
-															</div>
-														</li>
-													))}
-												</ul>
-
-												<div className="buttonRow">
-													<button className="smallButton" onClick={this.addDay}>Add day</button>
+												<div className="inputGroup">
+													<label htmlFor="newVenueName">Name</label>
+													<input
+														id="newVenueName"
+														name="newVenueName"
+														data-handler="newVenue"
+														data-statevar="newVenueName"
+														type="text"
+														required={true}
+														value={this.state.newVenueName}
+														onChange={this.handleInputChange}
+													/>
 												</div>
 
+												<AddressFields
+													prefix="address"
+													address1={({
+														handler: this.handleInputChange,
+														stateVar: "newVenueAddress1",
+														value: this.state.newVenueAddress1,
+													})}
+													address2={({
+														handler: this.handleInputChange,
+														stateVar: "newVenueAddress2",
+														value: this.state.newVenueAddress2,
+													})}
+													city={({
+														handler: this.handleInputChange,
+														stateVar: "newVenueCity",
+														value: this.state.newVenueCity,
+													})}
+													country={({
+														handler: this.handleCountryChange,
+														label: this.getCountryOptionLabel,
+														list: this.state.countryList,
+														value: this.state.newVenueCountry,
+													})}
+													region={({
+														handler: this.handleRegionChange,
+														label: this.getRegionOptionLabel,
+														value: this.state.newVenueRegion,
+													})}
+													postcode={({
+														handler: this.handleInputChange,
+														stateVar: "newVenuePostcode",
+														value: this.state.newVenuePostcode,
+													})}
+												/>
+
+												<div className="inputGroup selectTimeZone">
+													<label htmlFor="timezone">Time Zone</label>
+													<Select
+														id="timezone"
+														name="timezone"
+														className="Select"
+														classNamePrefix="Select"
+														value={this.state.newVenueTimeZone}
+														onChange={this.handleTimeZoneChange}
+														options={this.state.timeZoneList}
+														getOptionLabel={this.getTimeZoneLabel}
+														isSearchable={true}
+														isClearable={true}
+													/>
+												</div>
+
+												<div className="inputGroup">
+													<label htmlFor="link">Website <em>(optional)</em></label>
+													<input
+														id="link"
+														name="link"
+														data-handler="newVenue"
+														data-statevar="link"
+														type="url"
+														required={false}
+														value={this.state.newVenueLink}
+														onChange={this.handleInputChange}
+													/>
+												</div>
+
+												<div className="inputGroup">
+													<label htmlFor="newVenueDescription">Description <em>(optional)</em></label>
+													<textarea
+														id="newVenueDescription"
+														name="newVenueDescription"
+														data-handler="newVenue"
+														data-statevar="newVenueDescription"
+														required={false}
+														value={this.state.newVenueDescription}
+														onChange={this.handleInputChange}
+													/>
+												</div>
+
+											</React.Fragment>
+
+										: ""}
+
+									</FormSection>
+
+									<FormSection
+										checked={!!this.state.editingDays
+											.filter((day: IDerbyEventDay) =>
+												day.id > 0 || day.editing === false).length}
+										count={this.state.editingDays
+											.filter((day: IDerbyEventDay) =>
+												day.id > 0 || day.editing === false).length}
+										status={this.state.sectionOpenDays}
+										name="Days"
+										label="Event Days"
+										toggle={this.toggleSection}
+									>
+
+										<div className="eventDays">
+
+											{ !this.state.editingDays.length ?
+												<p>There are currently no days for this event.  Please add at least one.</p>
+											: ""}
+
+											<ul className={"eventDayList" + (this.state.editingDays.length ? "" : " empty")}>
+												{this.state.editingDays
+													.sort((day1: IDerbyEventDay, day2: IDerbyEventDay) =>
+														day1.sortValue > day2.sortValue ? 1 : day1.sortValue < day2.sortValue ? -1 : 0)
+													.map((day: IDerbyEventDay) => (
+													<li key={day.id} data-day_id={day.id} className={day.editing ? "editing" : ""}>
+														<dl>
+															<dt>Date:</dt>
+															<dd>{day.dateObject.format("MMM D, Y")}</dd>
+															<dt>Start time:</dt>
+															<dd>{day.startTime ? moment(day.startTime, "H:mm").format("h:mm a") : "(not set)"}</dd>
+															<dt>Doors open:</dt>
+															<dd>{day.doorsTime ? moment(day.doorsTime, "H:mm").format("h:mm a") : "(not set)"}</dd>
+															<dt>Description:</dt>
+															<dd>{day.description || "(none)"}</dd>
+														</dl>
+
+														<div className="dayForm">
+
+															<div
+																className="calendarContainer"
+																data-day_id={day.id}
+																id={`date_day_${day.id}`}
+															>
+																{ day.editing ?
+
+																	<EventDayPicker
+																		day={day}
+																		focused={this.state.focused}
+																		isOutsideRange={this.isDisabledDate}
+																		onDateChange={this.onDateChange}
+																		onFocusChange={this.handleFocusChange}
+																	/>
+
+																: null}
+
+															</div>
+
+															<div className="inputGroup half">
+																<label htmlFor={`startTime_day_${day.id}`}>Start Time</label>
+																<input
+																	id={`startTime_day_${day.id}`}
+																	name={`startTime_day_${day.id}`}
+																	data-handler="eventDay"
+																	data-day_id={day.id}
+																	type="time"
+																	required={true}
+																	value={day.startTime}
+																	onChange={this.handleInputChange}
+																/>
+															</div>
+
+															<div className="inputGroup half">
+																<label htmlFor={`doorsTime_day_${day.id}`}>Doors Open <em>(optional)</em></label>
+																<input
+																	id={`doorsTime_day_${day.id}`}
+																	name={`doorsTime_day_${day.id}`}
+																	data-handler="eventDay"
+																	data-day_id={day.id}
+																	type="time"
+																	required={false}
+																	value={day.doorsTime}
+																	onChange={this.handleInputChange}
+																/>
+															</div>
+
+															<div className="inputGroup">
+																<label htmlFor={`description_day_${day.id}`}>Description <em>(optional)</em></label>
+																<textarea
+																	id={`description_day_${day.id}`}
+																	name={`description_day_${day.id}`}
+																	data-handler="eventDay"
+																	data-day_id={day.id}
+																	required={false}
+																	value={day.description}
+																	onChange={this.handleInputChange}
+																/>
+															</div>
+
+														</div>
+
+														<div className="buttonRow operationButtons">
+															<button
+																className="smallButton"
+																onClick={this.editDay}
+																data-day_id={day.id}
+															>
+																Edit
+															</button>
+															<button
+																className="smallButton"
+																onClick={this.deleteDay}
+																data-day_id={day.id}
+															>
+																Delete
+															</button>
+														</div>
+
+														<div className="buttonRow editingButtons">
+															<button
+																className="smallButton"
+																disabled={!(day.date && day.startTime && day.dateObject.isValid())}
+																onClick={this.saveDay}
+																data-day_id={day.id}
+															>
+																Done
+															</button>
+															<button className="smallButton" onClick={this.cancelDayEdit} data-day_id={day.id}>Cancel</button>
+														</div>
+													</li>
+												))}
+											</ul>
+
+											<div className="buttonRow">
+												<button className="smallButton" onClick={this.addDay}>Add day</button>
 											</div>
 
 										</div>
 
-									</div>
+									</FormSection>
 
-									<div>
+									<FormSection
+										checked={!!(
+											this.state.selectedFeatures
+											.filter((feature: string) =>
+												feature.split("-")[0] === "derbytype").length
+											+ this.state.selectedFeatures
+											.filter((feature: string) =>
+												feature.split("-")[0] === "track").length
+											)}
+										count={this.state.selectedFeatures.length}
+										status={this.state.sectionOpenFeatures}
+										name="Features"
+										label="Event Features"
+										toggle={this.toggleSection}
+									>
 
-										<h3
-											className={"formSectionHeader"
-												+ (this.state.sectionOpenFeatures ? " open" : " closed")
-												+ (this.state.selectedFeatures.filter((feature: string) => feature.split("-")[0] === "derbytype").length
-													&& this.state.selectedFeatures.filter((feature: string) => feature.split("-")[0] === "track").length
+										<FeatureIconSet
+											data={[
+												{
+													items: this.state.eventFeatures.tracks,
+													label: "Tracks (at least one)",
+													type: "track",
+												},
+												{
+													items: this.state.eventFeatures.derbytypes,
+													label: "Derby Types (at least one)",
+													type: "derbytype",
+												},
+												{
+													items: this.state.eventFeatures.sanctions,
+													label: "Sanctions (optional)",
+													type: "sanction",
+												},
+											]}
+											selected={this.state.selectedFeatures}
+											toggle={this.toggleFeatureIcon}
+										/>
 
-
-													? " ok" : "")}
-											data-section="Features"
-											onClick={this.toggleSection}
-										>
-											<span>Event Features</span> ({this.state.selectedFeatures.length})
-										</h3>
-
-										<div className={"formSection" + (this.state.sectionOpenFeatures ? " open" : " closed")}>
-
-											{this.state.eventFeatures.tracks ?
-												<div className="derbyFeatures">
-													{(this.state.eventFeatures.tracks.length ?
-														<span className="eventIconGroup eventIconTracks">
-															<span className="label">Tracks <em>(at least one)</em></span>
-															{this.state.eventFeatures.tracks.map((icon: IDerbyTrack) => (
-																<FeatureIcon
-																	imageClass={this.state.selectedFeatures.indexOf("track-" + icon.track_id) > -1 ? "selected" : ""}
-																	abbreviation={icon.track_abbreviation}
-																	id={icon.track_id}
-																	key={icon.track_id}
-																	title={icon.title}
-																	featureType="track"
-																	toggleFunction={this.toggleFeatureIcon}
-																/>
-															))}
-														</span>
-														: "" )}
-
-													{(this.state.eventFeatures.derbytypes.length ?
-														<span className="eventIconGroup eventIconDerbytypes">
-															<span className="label">Derby Types <em>(at least one)</em></span>
-															{this.state.eventFeatures.derbytypes.map((icon: IDerbyType) => (
-																<FeatureIcon
-																	imageClass={this.state.selectedFeatures.indexOf("derbytype-" + icon.derbytype_id) > -1 ? "selected" : ""}
-																	abbreviation={icon.derbytype_abbreviation}
-																	id={icon.derbytype_id}
-																	key={icon.derbytype_id}
-																	title={icon.title}
-																	featureType="derbytype"
-																	toggleFunction={this.toggleFeatureIcon}
-																/>
-															))}
-														</span>
-														: "" )}
-
-													{(this.state.eventFeatures.sanctions.length ?
-														<span className="eventIconGroup eventIconSanctions">
-															<span className="label">Sanctions <em>(optional)</em></span>
-															{this.state.eventFeatures.sanctions.map((icon: IDerbySanction) => (
-																<FeatureIcon
-																	imageClass={this.state.selectedFeatures.indexOf("sanction-" + icon.sanction_id) > -1 ? "selected" : ""}
-																	abbreviation={icon.sanction_abbreviation}
-																	id={icon.sanction_id}
-																	key={icon.sanction_id}
-																	title={icon.title}
-																	featureType="sanction"
-																	toggleFunction={this.toggleFeatureIcon}
-																/>
-															))}
-														</span>
-														: "" )}
-												</div>
-											: ""}
-
-										</div>
-
-									</div>
+									</FormSection>
 
 								</div>
 
@@ -740,8 +627,8 @@ export default class EventForm<Props> extends React.Component<IProps> {
 												&& (!this.state.newVenueName
 													|| !this.state.newVenueAddress1
 													|| !this.state.newVenueCity
-													|| !this.state.newVenueCountry.country_code
-													|| !this.state.newVenueTimeZone.timezone_id)
+													|| !this.state.newVenueCountry.code
+													|| !this.state.newVenueTimeZone.id)
 												)
 											|| !this.state.editingDays.length
 											|| (!this.state.selectedFeatures.filter((feature: string) => feature.split("-")[0] === "derbytype").length
@@ -776,7 +663,9 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 		if (editingDays.length) {
 
-			nextDate = moment(editingDays.map((day: IDerbyEventDay) => day.dateObject)
+			nextDate = moment(editingDays
+				.map((day: IDerbyEventDay) =>
+					day.dateObject)
 				.sort((day1: moment.Moment, day2: moment.Moment) =>
 					day1.isBefore(day2) ? 1 : day1.isAfter(day2) ? -1 : 0)[0]
 				.format("Y-MM-DD"))
@@ -808,17 +697,21 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 		event.preventDefault();
 
-		const id = Number(event.currentTarget.getAttribute("data-day-id"));
+		const id = Number(event.currentTarget.dataset.day_id);
 		const editingDays = this.state.editingDays;
-		const days = editingDays.filter((day: IDerbyEventDay) => day.id !== id);
+		const days = editingDays
+			.filter((day: IDerbyEventDay) =>
+				day.id !== id);
 
 		if (id > 0) {
-			const originalDay: IDerbyEventDay = this.state.eventData.days.filter((day: IDerbyEventDay) => day.id === id)[0];
 
-			days.push({
-				dateObject: moment(originalDay.dateObject),
-				...originalDay,
-			});
+			const originalDay: IDerbyEventDay = mapDaysForEditing(
+				this.state.eventData.days
+					.filter((day: IDerbyEventDay) =>
+						day.id === id))[0];
+
+			days.push(originalDay);
+
 		}
 
 		this.setState({
@@ -831,11 +724,15 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 		event.preventDefault();
 
-		const id = Number(event.currentTarget.getAttribute("data-day-id"));
+		const id = Number(event.currentTarget.dataset.day_id);
 		const eventData = this.state.eventData;
 
-		const eventDays = eventData.days.filter((day: IDerbyEventDay) => day.id !== id);
-		const editingDays = this.state.editingDays.filter((day: IDerbyEventDay) => day.id !== id);
+		const eventDays = eventData.days
+			.filter((day: IDerbyEventDay) =>
+				day.id !== id);
+		const editingDays = this.state.editingDays
+			.filter((day: IDerbyEventDay) =>
+				day.id !== id);
 
 		eventData.days = eventDays;
 
@@ -850,11 +747,15 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 		event.preventDefault();
 
-		const id = Number(event.currentTarget.getAttribute("data-day-id"));
+		const id = Number(event.currentTarget.dataset.day_id);
 
 		const editingDays = this.state.editingDays;
-		const thisDay = editingDays.filter((day: IDerbyEventDay) => day.id === id)[0];
-		const days = editingDays.filter((day: IDerbyEventDay) => day.id !== id);
+		const thisDay = editingDays
+			.filter((day: IDerbyEventDay) =>
+				day.id === id)[0];
+		const days = editingDays
+			.filter((day: IDerbyEventDay) =>
+				day.id !== id);
 
 		thisDay.editing = true;
 
@@ -868,20 +769,20 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 	getCountryOptionLabel(option: IGeoCountry) {
 
-		return option.country_name || "(type here to search list)";
+		return option.name || "(type here to search list)";
 
 	}
 
 	getRegionOptionLabel(option: IGeoRegion) {
 
-		return option.region_name || "(type here to search list)";
+		return option.name || "(type here to search list)";
 
 	}
 
 	getTimeZoneLabel(timezone: ITimeZone) {
 
-		if (timezone && timezone.timezone_name) {
-			return timezone.timezone_name;
+		if (timezone && timezone.name) {
+			return timezone.name;
 		} else {
 			return "(Type here to search time zones)";
 		}
@@ -891,7 +792,13 @@ export default class EventForm<Props> extends React.Component<IProps> {
 	getVenueLabel(venue: IDerbyVenue) {
 
 		if (venue && venue.name) {
-			return `${venue.name} - ${venue.location}`;
+			return `${venue.name} - ${venue.city}${
+				venue.region && venue.region.abbreviation ?
+					`, ${venue.region.abbreviation}`
+				: ""}${
+					venue.country && venue.country.code ?
+						`, ${venue.country.code}`
+					: ""}`;
 		} else {
 			return "(Type here to search venues)";
 		}
@@ -917,13 +824,15 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 	handleFocusChange({ focused }: { focused: boolean }) {
 
-		this.setState({ focused });
+		this.setState({
+			focused,
+		});
 
 	}
 
 	handleInputChange <T extends keyof IEventFormState>(event: React.ChangeEvent<any>) {
 
-		switch (event.currentTarget.getAttribute("data-handler")) {
+		switch (event.currentTarget.dataset.handler) {
 
 			case "eventData":
 
@@ -938,20 +847,9 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 				break;
 
-			case "newVenue":
-
-				const venueField: (keyof IEventFormState) = event.currentTarget.name;
-				const newState = {
-					[venueField]: event.currentTarget.value,
-				};
-
-				this.setState(newState as { [P in T]: IEventFormState[P]; });
-
-				break;
-
 			case "eventDay":
 
-				const id = Number(event.currentTarget.getAttribute("data-day-id"));
+				const id = Number(event.currentTarget.dataset.day_id);
 				const dayField: (keyof IDerbyEventDay) = event.currentTarget.getAttribute("id").split("_")[0];
 
 				const editingDays = this.state.editingDays.filter((day: IDerbyEventDay) => day.id !== id);
@@ -966,6 +864,19 @@ export default class EventForm<Props> extends React.Component<IProps> {
 				});
 
 				break;
+
+			default: // new venue data
+
+				const fieldName: (keyof IEventFormState) =
+					event.currentTarget.dataset.statevar ?
+						event.currentTarget.dataset.statevar as keyof IEventFormState
+					: event.currentTarget.name as keyof IEventFormState;
+
+				const newState = {
+					[fieldName]: event.currentTarget.value,
+				};
+
+				this.setState(newState as { [P in T]: IEventFormState[P]; });
 
 		}
 
@@ -983,12 +894,10 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 		const eventData = this.state.eventData;
 
-		eventData.venue = venue ? venue.id : null;
+		eventData.venue = venue || {} as IDerbyVenue;
 
 		this.setState({
 			eventData,
-			newVenueTimeZone: {} as ITimeZone,
-			selectedVenue: venue || {} as IDerbyVenue,
 		});
 
 	}
@@ -1003,9 +912,10 @@ export default class EventForm<Props> extends React.Component<IProps> {
 		}
 
 		const usedDates = this.state.editingDays
-			.filter((day: IDerbyEventDay) => day.id !== id)
+			.filter((day: IDerbyEventDay) =>
+				day.id !== id)
 			.map((usedDay: IDerbyEventDay) =>
-			usedDay.dateObject.format("Y-MM-DD"));
+				usedDay.dateObject.format("Y-MM-DD"));
 
 		return usedDates.indexOf(compareDate.format("Y-MM-DD")) > -1;
 	}
@@ -1013,8 +923,12 @@ export default class EventForm<Props> extends React.Component<IProps> {
 	onDateChange(date: moment.Moment, id: number) {
 
 		const editingDays = this.state.editingDays;
-		const thisDay = editingDays.filter((day: IDerbyEventDay) => day.id === id)[0];
-		const days = editingDays.filter((day: IDerbyEventDay) => day.id !== id);
+		const thisDay = editingDays
+			.filter((day: IDerbyEventDay) =>
+				day.id === id)[0];
+		const days = editingDays
+			.filter((day: IDerbyEventDay) =>
+				day.id !== id);
 
 		thisDay.dateObject = date;
 		thisDay.date = date.format("MMM D, Y");
@@ -1031,20 +945,21 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 		event.preventDefault();
 
-		const id = Number(event.currentTarget.getAttribute("data-day-id"));
+		const id = Number(event.currentTarget.dataset.day_id);
 		const eventData = this.state.eventData;
-		const editedDay = this.state.editingDays.filter((day: IDerbyEventDay) => day.id === id)[0];
-		const editingDays = this.state.editingDays.filter((day: IDerbyEventDay) => day.id !== id);
-		const days = eventData.days.filter((day: IDerbyEventDay) => day.id !== id);
+		const editedDay = this.state.editingDays
+			.filter((day: IDerbyEventDay) =>
+				day.id === id)[0];
+		const editingDays = this.state.editingDays
+			.filter((day: IDerbyEventDay) =>
+				day.id !== id);
+		const days = eventData.days
+			.filter((day: IDerbyEventDay) =>
+				day.id !== id);
 
 		const newDate = moment(editedDay.date, "MMM D, Y");
 
-		days.push({
-			...editedDay,
-			dateObject: newDate,
-			editing: false,
-			sortValue: newDate.format("Y-MM-DD"),
-		});
+		days.push(mapDayForStorage(editedDay));
 		eventData.days = days;
 
 		editingDays.push({
@@ -1061,13 +976,16 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 	}
 
-	toggleFeatureIcon(icon: string) {
+	toggleFeatureIcon(event: React.MouseEvent<HTMLDivElement>) {
+
+		event.preventDefault();
 
 		const selectedFeatures = this.state.selectedFeatures;
-		const iconIndex = selectedFeatures.indexOf(icon);
+		const feature = event.currentTarget.dataset.feature;
+		const iconIndex = selectedFeatures.indexOf(feature);
 
 		if (iconIndex === -1) {
-			selectedFeatures.push(icon);
+			selectedFeatures.push(feature);
 		} else {
 			selectedFeatures.splice(iconIndex, 1);
 		}
@@ -1082,7 +1000,7 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 		event.preventDefault();
 
-		const sectionToggle: (keyof IEventFormState) = `sectionOpen${event.currentTarget.getAttribute("data-section")}` as (keyof IEventFormState);
+		const sectionToggle: (keyof IEventFormState) = `sectionOpen${event.currentTarget.dataset.section}` as (keyof IEventFormState);
 
 		const currentState = this.state[sectionToggle];
 
@@ -1096,284 +1014,110 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 	loadData() {
 
-		let allVenues: IDerbyVenue[];
-		let countryList: IGeoCountry[] = [];
-		let eventSanctions: IDerbySanction[] = [];
-		let eventTracks: IDerbyTrack[] = [];
-		let eventTypes: IDerbyType[] = [];
-		let promiseError = false;
-		const promises: Array<Promise<any>> = [];
-		let regionLists: IGeoRegionList = {};
-		let selectedVenue = {} as IDerbyVenue;
-		let timeZones: ITimeZone[] = [];
+		const dataPromises: Array<Promise<any>> = [
+			getGeography(),
+			getDerbySanctions(),
+			getDerbyTracks(),
+			getDerbyTypes(),
+			getTimeZones(),
+			loadVenues(),
+		];
 
-		promises.push(getGeography()
-			.then((dataResponse: IGeoData) => {
-				countryList = dataResponse.countries;
-				regionLists = dataResponse.regions;
-			}).catch((error) => {
-				console.error(error);
-				promiseError = true;
-			}));
+		const isEdit = !!this.props.match.params.eventId;
 
-		promises.push(getTimeZones()
-			.then((dataResponse: ITimeZone[]) => {
-				timeZones = dataResponse;
-			}).catch((error) => {
-				console.error(error);
-				promiseError = true;
-			}));
+		if (isEdit) {
+			dataPromises.push(getEventDetails(this.props.match.params.eventId));
+		}
 
-		promises.push(getDerbySanctions()
-			.then((dataResponse: IDerbySanction[]) => {
-				eventSanctions = dataResponse;
-			}).catch((error) => {
-				console.error(error);
-				promiseError = true;
-			}));
+		const loadData = this.addPromise(
+			Promise.all(dataPromises));
 
-		promises.push(getDerbyTracks()
-			.then((dataResponse: IDerbyTrack[]) => {
-				eventTracks = dataResponse;
-			}).catch((error) => {
-				console.error(error);
-				promiseError = true;
-			}));
+		loadData
+			.then((data: [IGeoCountry[], IDerbyFeature[], IDerbyFeature[], IDerbyFeature[], ITimeZone[], IDerbyVenue[], IDerbyEvent]) => {
 
-		promises.push(getDerbyTypes()
-			.then((dataResponse: IDerbyType[]) => {
-				eventTypes = dataResponse;
-			}).catch((error) => {
-				console.error(error);
-				promiseError = true;
-			}));
+				const [countryList, derbySanctions, derbyTracks, derbyTypes, timeZoneList, venueList, eventData] = data;
 
-		promises.push(
-			axios.get(`${this.props.apiLocation}venues/getAllVenues`,
-				{
-					cancelToken: this.axiosSignal.token,
-					withCredentials: true,
-				})
-				.then((result) => {
+				venueList.unshift({
+					city: "fill form below)",
+					id: 0,
+					name: "(Add new venue",
+				} as IDerbyVenue);
 
-					allVenues = result.data
-						.map((venue: IDBDerbyVenue) => ({
-							city: venue.venue_city,
-							country: venue.venue_country,
-							id: venue.venue_id,
-							location: `${venue.venue_city}${venue.region_abbreviation ? ", " + venue.region_abbreviation : ""}, ${venue.venue_country}`,
-							name: venue.venue_name,
-							region: venue.venue_region,
-							user: venue.venue_user,
-						}));
+				let initialEventData: IDerbyEvent = {
+					days: [] as IDerbyEventDay[],
+					description: "",
+					host: "",
+					id: 0,
+					link: "",
+					name: "",
+					venue: {} as IDerbyVenue,
+				};
 
-					allVenues.unshift({
-						id: 0,
-						location: "fill form below)",
-						name: "(Add new venue",
-					} as IDerbyVenue);
+				if (isEdit) {
 
-				}).catch((error) => {
-					console.error(error);
-					promiseError = true;
+					initialEventData = {
+						days: eventData.days,
+						description: eventData.description || "",
+						host: eventData.host || "",
+						id: eventData.id,
+						link: eventData.link || "",
+						name: eventData.name || "",
+						venue: venueList.filter((venue) =>
+							venue.id === eventData.venue.id)[0],
+					};
 
-					if (!axios.isCancel(error)) {
-						this.setState({
-							dataError: true,
-							loading: false,
-						});
-					}
+				}
 
-				}));
+				let selectedFeatures: string[] = [];
 
+				if (eventData.features.derbytypes && eventData.features.derbytypes.length) {
+					selectedFeatures = selectedFeatures.concat(eventData.features.derbytypes
+						.map((derbytype) =>
+							`derbytype-${derbytype.id}`));
+				}
 
-		Promise.all(promises).then(() => {
+				if (eventData.features.sanctions && eventData.features.sanctions.length) {
+					selectedFeatures = selectedFeatures.concat(eventData.features.sanctions
+						.map((sanction) =>
+							`sanction-${sanction.id}`));
+				}
 
-			if (!promiseError) {
+				if (eventData.features.tracks && eventData.features.tracks.length) {
+					selectedFeatures = selectedFeatures.concat(eventData.features.tracks
+						.map((track) =>
+							`track-${track.id}`));
+				}
 
 				this.setState({
 					countryList,
+					editingDays: isEdit ?
+						mapDaysForEditing(eventData.days)
+						: [],
+					eventData: Object.assign({}, initialEventData),
 					eventFeatures: {
-						derbytypes: eventTypes,
-						sanctions: eventSanctions,
-						tracks: eventTracks,
+						derbytypes: derbyTypes,
+						sanctions: derbySanctions,
+						tracks: derbyTracks,
 					},
-					regionLists,
-					timeZoneList: timeZones,
-					venueList: allVenues,
+					initialEventData: Object.assign({}, initialEventData),
+					initialSelectedFeatures: ([]).concat(selectedFeatures),
+					loading: false,
+					selectedFeatures: ([]).concat(selectedFeatures),
+					timeZoneList,
+					venueList,
 				});
 
-				if (this.props.match.params.eventId) {
+			})
+			.catch((error) => {
+				console.error(error);
 
-					axios.get(`${this.props.apiLocation}events/getEventDetails/${this.props.match.params.eventId}`,
-						{
-							cancelToken: this.axiosSignal.token,
-							withCredentials: true,
-						})
-						.then((result) => {
+				this.setState({
+					dataError: true,
+					loading: false,
+				});
 
-							if (result.data &&
-								(result.data.event_user === this.props.loggedInUserId
-									|| checkUserRole("reviewer"))
-								) {
-
-								const eventResult: IDBDerbyEvent = result.data;
-
-								const eventDays = eventResult.days.map((day) => ({
-										date: moment.utc(day.eventday_start_venue).format("MMM D, Y"),
-										dateObject: moment.utc(day.eventday_start_venue),
-										description: day.eventday_description || "",
-										doorsTime: day.eventday_doors_venue
-											&& day.eventday_doors_venue < day.eventday_start_venue
-											? moment.utc(day.eventday_doors_venue).format("HH:mm")
-											: "",
-										editing: false,
-										id: day.eventday_id,
-										sortValue: moment.utc(day.eventday_start_venue).format("Y-MM-DD"),
-										startTime: moment.utc(day.eventday_start_venue).format("HH:mm"),
-									}));
-
-								const initialEventDays = eventResult.days.map((day) => ({
-										date: moment.utc(day.eventday_start_venue).format("MMM D, Y"),
-										dateObject: moment.utc(day.eventday_start_venue),
-										description: day.eventday_description || "",
-										doorsTime: day.eventday_doors_venue
-											&& day.eventday_doors_venue < day.eventday_start_venue
-											? moment.utc(day.eventday_doors_venue).format("HH:mm")
-											: "",
-										editing: false,
-										id: day.eventday_id,
-										sortValue: moment.utc(day.eventday_start_venue).format("Y-MM-DD"),
-										startTime: moment.utc(day.eventday_start_venue).format("HH:mm"),
-									}));
-
-								const editingDays = eventResult.days.map((day) => ({
-										date: moment.utc(day.eventday_start_venue).format("MMM D, Y"),
-										dateObject: moment.utc(day.eventday_start_venue),
-										description: day.eventday_description || "",
-										doorsTime: day.eventday_doors_venue
-											&& day.eventday_doors_venue < day.eventday_start_venue
-											? moment.utc(day.eventday_doors_venue).format("HH:mm")
-											: "",
-										editing: false,
-										id: day.eventday_id,
-										sortValue: moment.utc(day.eventday_start_venue).format("Y-MM-DD"),
-										startTime: moment.utc(day.eventday_start_venue).format("HH:mm"),
-									}));
-
-
-								const selectedFeatures = [] as string[];
-
-								if (eventResult.derbytypes) {
-
-									for (const derbytype of eventResult.derbytypes.split(",")) {
-										selectedFeatures.push(`derbytype-${derbytype.trim()}`);
-									}
-
-								}
-
-								if (eventResult.sanctions) {
-
-									for (const sanction of eventResult.sanctions.split(",")) {
-										selectedFeatures.push(`sanction-${sanction.trim()}`);
-									}
-
-								}
-
-								if (eventResult.tracks) {
-
-									for (const track of eventResult.tracks.split(",")) {
-										selectedFeatures.push(`track-${track.trim()}`);
-									}
-
-								}
-
-								if (eventResult.event_venue) {
-
-									selectedVenue = allVenues.filter((venue: IDerbyVenue) => venue.id === eventResult.event_venue)[0];
-
-								}
-
-								const eventData = {
-									days: eventDays || [],
-									description: eventResult.event_description || "",
-									host: eventResult.event_host || "",
-									id: eventResult.event_id,
-									link: eventResult.event_link || "",
-									name: eventResult.event_name || "",
-									venue: eventResult.venue_id || null as number,
-								};
-
-								const initialEventData = {
-									days: initialEventDays || [],
-									description: eventResult.event_description || "",
-									host: eventResult.event_host || "",
-									id: eventResult.event_id,
-									link: eventResult.event_link || "",
-									name: eventResult.event_name || "",
-									venue: eventResult.venue_id || null as number,
-								};
-
-								this.setState({
-									editingDays,
-									eventData,
-									initialEventData,
-									initialSelectedFeatures: JSON.parse(JSON.stringify(selectedFeatures)),
-									loading: false,
-									selectedFeatures,
-									selectedVenue,
-								});
-
-								this.props.setPageTitle({
-									detail: `Edit Event: ${eventResult.event_name ? eventResult.event_name : eventResult.event_host}`,
-								});
-
-							} else {
-								// no result, likely bad event ID in URL
-
-								this.setState({
-									dataError: true,
-									loading: false,
-								});
-
-							}
-
-						}).catch((error) => {
-							console.error(error);
-
-							if (!axios.isCancel(error)) {
-								this.setState({
-									dataError: true,
-									loading: false,
-								});
-							}
-
-						});
-
-					} else {
-
-						this.setState({
-							editingDays: [],
-							eventData: {
-								address1: "",
-								address2: "",
-								city: "",
-								days: [] as IDerbyEventDay[],
-								description: "",
-								host: "",
-								id: 0,
-								link: "",
-								name: "",
-								venue: null as number,
-							},
-							loading: false,
-						});
-
-					}
-
-			}
-
-		});
+			})
+			.finally(loadData.clear);
 
 	}
 
@@ -1414,9 +1158,16 @@ export default class EventForm<Props> extends React.Component<IProps> {
 		checkDataChange("link");
 		checkDataChange("name");
 
-		if (this.state.eventData.venue) {
+		if (this.state.eventData.venue && this.state.eventData.venue.id) {
 
-			checkDataChange("venue");
+			if (this.state.eventData.venue.id !== this.state.initialEventData.venue.id) {
+
+				dataChanges.data.push({
+					field: "venue",
+					value: this.state.eventData.venue.id,
+				});
+
+			}
 
 		} else {
 
@@ -1424,14 +1175,21 @@ export default class EventForm<Props> extends React.Component<IProps> {
 				address1: this.state.newVenueAddress1 || null,
 				address2: this.state.newVenueAddress2 || null,
 				city: this.state.newVenueCity || null,
-				country: this.state.newVenueCountry.country_code,
+				country: this.state.newVenueCountry.code,
 				description: this.state.newVenueDescription || null,
 				link: this.state.newVenueLink || null,
 				name: this.state.newVenueName || null,
 				postcode: this.state.newVenuePostcode || null,
-				region: this.state.newVenueRegion.region_id || null,
-				timezone: this.state.newVenueTimeZone.timezone_id,
+				region: this.state.newVenueRegion.id || null,
+				timezone: this.state.newVenueTimeZone.id,
 			};
+
+			Object.keys(dataChanges.newVenueData)
+				.forEach((key: keyof INewDerbyVenue) => {
+					if (dataChanges.newVenueData[key] === undefined) {
+						delete dataChanges.newVenueData[key];
+					}
+				});
 
 		}
 
@@ -1451,21 +1209,29 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 		}
 
-		const validDays = this.state.eventData.days.filter((day: IDerbyEventDay) =>
-			day.date && day.dateObject.isValid() && day.startTime);
+		const validDays = this.state.eventData.days
+			.filter((day: IDerbyEventDay) =>
+				day.date && day.dateObject.isValid() && day.startTime);
 
-		const dayIds = this.state.eventData.days.map((day: IDerbyEventDay) => day.id);
+		const dayIds = this.state.eventData.days
+			.map((day: IDerbyEventDay) =>
+				day.id);
 
 		dataChanges.days = dataChanges.days.concat(
 			validDays
-				.filter((day: IDerbyEventDay) => day.id < 0 )
+				.filter((day: IDerbyEventDay) =>
+					day.id < 0 )
 				.map((day: IDerbyEventDay) => ({
 					id: null as number,
 					operation: "add",
 					value: {
-						datetime: `${day.dateObject.format("Y-MM-DD")} ${day.startTime}:00`,
+						datetime: `${day.dateObject.format("Y-MM-DD")} ${
+								moment(day.startTime, "h:mm a").format("hh:mm:00")
+							}`,
 						description: day.description,
-						doors: `${day.dateObject.format("Y-MM-DD")} ${day.doorsTime}:00`,
+						doors: `${day.dateObject.format("Y-MM-DD")} ${
+								moment(day.doorsTime, "h:mm a").format("hh:mm:00")
+							}`,
 					},
 				})));
 
@@ -1473,17 +1239,21 @@ export default class EventForm<Props> extends React.Component<IProps> {
 
 			dataChanges.days = dataChanges.days.concat(
 				this.state.initialEventData.days
-					.filter((day: IDerbyEventDay) => dayIds.indexOf(day.id) === -1 )
+					.filter((day: IDerbyEventDay) =>
+						dayIds.indexOf(day.id) === -1 )
 					.map((day: IDerbyEventDay) => ({
 						id: day.id,
 						operation: "delete",
 						value: {},
 					})));
 
-			for (const editedDay of validDays.filter((day: IDerbyEventDay) => day.id > 0 )) {
+			for (const editedDay of validDays
+					.filter((day: IDerbyEventDay) =>
+						day.id > 0 )) {
 
 				const initialDay = this.state.initialEventData.days
-					.filter((day: IDerbyEventDay) => day.id === editedDay.id )[0];
+					.filter((day: IDerbyEventDay) =>
+						day.id === editedDay.id )[0];
 
 				if (editedDay.date !== initialDay.date
 					|| editedDay.startTime !== initialDay.startTime
@@ -1531,33 +1301,26 @@ export default class EventForm<Props> extends React.Component<IProps> {
 			|| dataChanges.features.delete.length
 			|| dataChanges.newVenueData) {
 
+			const saveChange = this.addPromise(
+				saveVenueChange(dataChanges, this.state.eventData.id));
 
-			axios.put(`${this.props.apiLocation}events/saveChanges`, {
-				changeObject: JSON.stringify(dataChanges),
-				id: this.state.eventData.id || 0,
-			},
-			{
-				cancelToken: this.axiosSignal.token,
-				withCredentials: true,
-			})
-			.then((result) => {
+			saveChange
+				.then((result) => {
 
-				this.setState({
-					processing: false,
-					submitSuccess: true,
-				});
+					this.setState({
+						processing: false,
+						submitSuccess: true,
+					});
 
 
-			}).catch((error) => {
+				}).catch((error) => {
 
-				if (!axios.isCancel(error)) {
 					this.setState({
 						processing: false,
 						submitError: "There was an error submitting your changes. Please try again.",
 					});
-				}
 
-			});
+				});
 
 		} else {
 
