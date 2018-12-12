@@ -10,7 +10,7 @@ import { ITimeZone } from "interfaces/time";
 import { IDerbyVenue, INewDerbyVenue } from "interfaces/venue";
 
 import { mapDayForStorage, mapDaysForEditing } from "services/eventDayService";
-import { getEventDetails, saveVenueChange } from "services/eventService";
+import { getEventDetails, saveEventChange } from "services/eventService";
 import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/featureService";
 import { getGeography } from "services/geoService";
 import { getTimeZones } from "services/timeService";
@@ -1302,7 +1302,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 			|| dataChanges.newVenueData) {
 
 			const saveChange = this.addPromise(
-				saveVenueChange(dataChanges, this.state.eventData.id));
+				saveEventChange(dataChanges, this.state.eventData.id));
 
 			saveChange
 				.then((result) => {

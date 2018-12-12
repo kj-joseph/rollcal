@@ -362,7 +362,7 @@ const mapEvent = (
 
 	});
 
-export const saveVenueChange = (
+export const saveEventChange = (
 	changes: IDerbyEventChangeObject,
 	id: number = 0,
 ): Promise<void> =>
