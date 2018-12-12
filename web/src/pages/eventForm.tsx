@@ -9,8 +9,9 @@ import { IProps } from "interfaces/redux";
 import { ITimeZone } from "interfaces/time";
 import { IDerbyVenue, INewDerbyVenue } from "interfaces/venue";
 
+import { saveEventChange } from "services/changeService";
 import { mapDayForStorage, mapDaysForEditing } from "services/eventDayService";
-import { getEventDetails, saveEventChange } from "services/eventService";
+import { getEventDetails } from "services/eventService";
 import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/featureService";
 import { getGeography } from "services/geoService";
 import { getTimeZones } from "services/timeService";
