@@ -4,7 +4,6 @@ import { callApi } from "services/apiService";
 
 import { mapDays } from "services/eventDayService";
 import { filterDerbyTypes, filterSanctions, filterTracks, getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/featureService";
-import { filterLocationsByString } from "services/geoService";
 import { formatDateRange } from "services/timeService";
 import { mapUser } from "services/userService";
 import { mapVenue } from "services/venueService";
@@ -61,113 +60,6 @@ export const getEventDetails = (
 
 	});
 
-export const getSearchObject = (
-	search: string,
-): Promise<ISearchObject> =>
-
-	new Promise((resolve, reject, onCancel) => {
-
-		if (!search) {
-			resolve({} as ISearchObject);
-		}
-
-		const promises: Array<Promise<void>> = [];
-		const searchObject: ISearchObject = {} as ISearchObject;
-		const usedParts: string[] = [];
-
-		for (const searchPart of search.split("/")) {
-
-			if (!searchPart
-				|| !searchPart.match(/^(?:locations|distance|derbytypes|endDate|sanctions|startDate|tracks)\([^\)]+\)/) ) {
-				continue;
-			}
-
-			const [, label, value] = searchPart.match(/^([a-zA-Z]+)\((.*)\)/);
-
-			// only use the first instance of a search type
-			if (usedParts.indexOf(label) > -1) {
-				continue;
-			} else {
-				usedParts.push(label);
-			}
-
-			switch (label) {
-
-				case "startDate":
-				case "endDate":
-
-					searchObject[label] = value;
-
-					break;
-
-				case "distance":
-					const [, , , , , distanceString, distanceUnits] = value.split("~");
-
-					searchObject.address = value;
-					searchObject.distance = Number(distanceString);
-					searchObject.distanceUnits = distanceUnits === "km" ? "km" : "mi";
-
-					break;
-
-				case "locations":
-
-					promises.push(
-						filterLocationsByString(value)
-							.then((locations) => {
-								searchObject.locations = locations;
-							}));
-
-					break;
-
-				case "derbytypes":
-
-					promises.push(
-						filterDerbyTypes(value.split(","))
-							.then((derbytypes) => {
-								searchObject.derbytypes = derbytypes;
-							}));
-
-					break;
-
-				case "sanctions":
-
-					promises.push(
-						filterSanctions(value.split(","))
-							.then((sanctions) => {
-								searchObject.sanctions = sanctions;
-							}));
-
-					break;
-
-				case "tracks":
-
-					promises.push(
-						filterTracks(value.split(","))
-							.then((tracks) => {
-								searchObject.tracks = tracks;
-							}));
-
-					break;
-
-			}
-
-			const loadData = Promise.all(promises)
-				.then(() => {
-					if (searchObject.address && searchObject.distance && searchObject.distanceUnits) {
-						delete searchObject.locations;
-					}
-
-					resolve(searchObject);
-				});
-
-			onCancel(() => {
-				loadData.cancel();
-			});
-
-		}
-
-	});
-
 export const loadEvents = (
 	search: ISearchObject,
 	count: number | "all" = "all",
@@ -218,7 +110,7 @@ export const loadEvents = (
 
 				if (search.address) {
 
-					// distance search takes precedence over location search
+					// ignore locations if searching by address
 					delete apiSearch.locations;
 
 					const [address1, city, regionAbbr, postcode, countryCode, distanceString, distanceUnits]
@@ -393,16 +285,3 @@ export const saveEventChange = (
 		});
 
 	});
-
-export const searchEventsByString = (
-	searchString: string = undefined,
-	count: number | "all" = "all",
-	start: number = 0,
-): Promise<{
-	events: IDerbyEvent[],
-	search: ISearchObject,
-	total: number,
-}> =>
-
-	getSearchObject(searchString)
-		.then((searchObject) => loadEvents(searchObject, count, start));

@@ -2,7 +2,8 @@ import RCComponent from "components/rcComponent";
 import React from "react";
 
 import { mapEventsToBoxList } from "services/boxListService";
-import { loadEvents, searchEventsByString } from "services/eventService";
+import { loadEvents } from "services/eventService";
+import { searchEventsByString } from "services/searchService";
 import { formatDateRange } from "services/timeService";
 
 import BoxList from "components/boxList";

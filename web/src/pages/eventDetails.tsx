@@ -4,6 +4,7 @@ import FormatText from "react-format-text";
 import { Link } from "react-router-dom";
 
 import { getEventDetails } from "services/eventService";
+import { getSearchUrl } from "services/searchService";
 
 import FeatureIconSet from "components/featureIconSet";
 import Flag from "components/flag";
@@ -66,9 +67,10 @@ export default class EventDetails extends RCComponent<IProps> {
 				{this.props.match.params.eventId ?
 
 				<React.Fragment>
+
 					{this.props.lastSearch ?
 						<p className="backToLink">
-							<Link to={`${this.props.lastSearch}`}>
+							<Link to={getSearchUrl(this.props.lastSearch)}>
 								&laquo; Back to search results
 							</Link>
 						</p>
@@ -79,6 +81,7 @@ export default class EventDetails extends RCComponent<IProps> {
 							</Link>
 						</p>
 					}
+
 					{this.state.loading ?
 
 						<div className="loader" />
