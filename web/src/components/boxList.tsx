@@ -61,55 +61,102 @@ export default class BoxList extends React.Component<IBoxListProps> {
 				>
 
 					{this.props.data.map((item: IBoxListItem) => (
+
 						<li
 							key={item.changeId || item.id}
-							className={this.props.listType === "display" && item.user === this.props.loggedInUserId ? "myEvent" : ""}
+							className={this.props.listType === "display"
+								&& item.user === this.props.loggedInUserId ?
+									"myEvent"
+								: ""}
 						>
-							{this.props.listType === "display" && item.user === this.props.loggedInUserId ?
-								<ReactSVG className="myEventIcon" src={MyEventIcon} title="You created this event" />
-							: ""}
+							{this.props.listType === "display"
+								&& item.user === this.props.loggedInUserId ?
+
+								<ReactSVG
+									className="myEventIcon"
+									src={MyEventIcon}
+									title="You created this event"
+								/>
+
+							: null}
 
 							{item.submittedDuration && item.submittedTime ?
+
 								<React.Fragment>
 									<p className="submittedTime">
-										<strong>{item.id ? "Change" : `New ${this.props.itemType.substring(0, this.props.itemType.length - 1)}`}</strong>
+										<strong>{item.id ?
+											"Change"
+											: `New ${this.props.itemType.substring(0, this.props.itemType.length - 1)}`
+										}</strong>
 										<br />
 										<span title={item.submittedTime}>{item.submittedDuration} ago</span>{" "}
 										by <strong>{item.user.userName}</strong>
 									</p>
 								</React.Fragment>
+
 							: ""}
 
 							{this.props.listType === "edit" ?
+
 								<div className="buttonRow">
+
 									{this.props.editFunction ?
-										<button type="button" data-item-id={item.id} onClick={this.props.editFunction} className="smallButton">Edit</button>
+										<button
+											type="button"
+											data-item-id={item.id}
+											onClick={this.props.editFunction}
+											className="smallButton"
+										>
+											Edit
+										</button>
 									: ""}
+
 									{this.props.deleteFunction ?
-										<button type="button" data-item-id={item.id} onClick={this.props.deleteFunction} className="smallButton pinkButton">Delete</button>
-									: ""}
+										<button
+										type="button"
+										data-item-id={item.id}
+										onClick={this.props.deleteFunction}
+										className="smallButton pinkButton">
+											Delete
+										</button>
+									: null}
+
 								</div>
+
 							: this.props.listType === "review" ?
+
 								<div className="buttonRow">
-									<button type="button" data-change-id={item.changeId} onClick={this.props.reviewFunction} className="smallButton">Review</button>
+									<button
+										type="button"
+										data-change-id={item.changeId}
+										onClick={this.props.reviewFunction}
+										className="smallButton"
+									>
+										Review
+									</button>
 								</div>
-							: ""}
+
+							: null}
 
 							<p className="listDate"><strong>{item.dates}</strong></p>
+
 							{this.props.itemType === "events" ?
 								<p className="listLocation">{item.location}
+
 									{!this.props.noIcons && item.country ?
 										<Flag country={item.country} />
-									: ""}
+									: null}
+
 									{this.props.distance && item.distance ?
 										<span className="distance">({
 											Math.round(item.distance *
 												(this.props.distanceUnits === "km" ? this.state.kmConverter : 1 ))
 												.toLocaleString()
 										} {this.props.distanceUnits})</span>
-									: ""}
+									: null}
+
 								</p>
-							: ""}
+							: null}
 
 							<h2>
 								{this.props.itemType === "events" ?
@@ -151,16 +198,29 @@ export default class BoxList extends React.Component<IBoxListProps> {
 					))}
 				</ul>
 
-				{this.props.paginate && this.props.totalItems && this.props.loadMoreFunction
-				 && this.props.data.length < this.props.totalItems ?
+				{this.props.paginate
+					&& this.props.totalItems
+					&& this.props.loadMoreFunction
+				 	&& this.props.data.length < this.props.totalItems ?
 
 				 	(this.props.loadingMore ?
 						<div className="loader loadingMore" />
 					:
 						<div className="buttonRow center">
-							<button className="largeButton" onClick={this.props.loadMoreFunction}>Load more</button>
+							<button
+								className="largeButton"
+								onClick={this.props.loadMoreFunction}
+							>
+								Load more
+							</button>
+
 							{this.props.loadAllFunction ?
-								<button className="largeButton" onClick={this.props.loadAllFunction}>Load all</button>
+								<button
+									className="largeButton"
+									onClick={this.props.loadAllFunction}
+								>
+									Load all
+								</button>
 							: ""}
 						</div>
 					)
