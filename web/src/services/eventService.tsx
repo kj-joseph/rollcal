@@ -45,8 +45,19 @@ export const getEventDetails = (
 			"get",
 			`events/getEventDetails/${id}`,
 		)
-			.then((eventData: IDBDerbyEvent) =>
-				mapEvent(eventData))
+			.then((eventData: IDBDerbyEvent) => {
+
+				if (eventData) {
+
+					return mapEvent(eventData);
+
+				} else {
+
+					reject(new Error("Event not found"));
+
+				}
+
+			})
 
 			.then((event: IDerbyEvent) =>
 				resolve(event))
