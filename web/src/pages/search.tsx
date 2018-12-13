@@ -795,7 +795,6 @@ export default class Search extends RCComponent<IProps> {
 	submitSearch() {
 
 		const searchObject: ISearchObject = {};
-		const promises: Array<Promise<any>> = [];
 
 		if (this.state.startDate) {
 

@@ -3,13 +3,13 @@ import store from "redux/store";
 import { callApi } from "services/apiService";
 
 import { mapDays } from "services/eventDayService";
-import { filterDerbyTypes, filterSanctions, filterTracks, getDerbySanctions, getDerbyTracks, getDerbyTypes, mapFeatures } from "services/featureService";
+import { getDerbySanctions, getDerbyTracks, getDerbyTypes, mapFeatures } from "services/featureService";
 import { formatDateRange } from "services/timeService";
 import { mapUser } from "services/userService";
 import { mapVenue } from "services/venueService";
 
-import { IDBDerbyEvent, IDerbyEvent, ISearchObject } from "interfaces/event";
-import { IDerbyFeature, IDerbyFeatures } from "interfaces/feature";
+import { IDBDerbyEvent, IDBDerbyEventChange, IDerbyEvent, ISearchObject } from "interfaces/event";
+import { IDerbyFeatures } from "interfaces/feature";
 
 import moment from "moment";
 
@@ -202,21 +202,28 @@ export const loadEvents = (
 
 	});
 
-const mapEvent = (
-	data: IDBDerbyEvent,
+export const mapEvent = (
+	data: IDBDerbyEvent | IDBDerbyEventChange,
+	includeFeatures: boolean = true,
 ): Promise<IDerbyEvent> =>
 
 	new Promise((resolve, reject, onCancel) => {
 
-		const loadData =
-			mapFeatures({
-				derbytypes: data.derbytypes ? data.derbytypes.split(",") : [],
-				sanctions: data.sanctions ? data.sanctions.split(",") : [],
-				tracks: data.tracks ? data.tracks.split(",") : [],
-			})
-				.then((features) => {
+		const dataPromises = includeFeatures ?
+			[
+				mapFeatures({
+					derbytypes: data.derbytypes ? data.derbytypes.split(",") : [],
+					sanctions: data.sanctions ? data.sanctions.split(",") : [],
+					tracks: data.tracks ? data.tracks.split(",") : [],
+				}),
+			]
+			: [];
 
-					resolve ({
+		const loadData =
+			Promise.all(dataPromises)
+				.then((featureResponse: [IDerbyFeatures]) => {
+
+					const event: IDerbyEvent = {
 						dates: formatDateRange({
 								end: moment.utc(data.event_last_day),
 								start: moment.utc(data.event_first_day),
@@ -225,7 +232,6 @@ const mapEvent = (
 							mapDays(data.days)
 							: undefined,
 						description: data.event_description,
-						features,
 						host: data.event_host,
 						id: data.event_id,
 						link: data.event_link,
@@ -235,7 +241,15 @@ const mapEvent = (
 						name: data.event_name,
 						user: mapUser(data),
 						venue: mapVenue(data),
-					});
+					};
+
+					if (includeFeatures) {
+
+						event.features = featureResponse[0];
+
+					}
+
+					resolve (event);
 
 		});
 

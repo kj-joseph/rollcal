@@ -69,6 +69,7 @@ export default class BoxList extends React.Component<IBoxListProps> {
 									"myEvent"
 								: ""}
 						>
+
 							{this.props.listType === "display"
 								&& item.user === this.props.loggedInUserId ?
 

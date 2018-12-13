@@ -62,42 +62,10 @@ export interface IDerbyEvent {
 
 export interface IDerbyEventChange extends IDerbyEvent {
 	changeId: number;
-	dayChanges: Array<{
-		id: number,
-		new?: {
-			date?: string,
-			description?: string,
-			doors?: string,
-			start?: string,
-		},
-		old?: {
-			date?: string,
-			description?: string,
-			doors?: string,
-			start?: string,
-		},
-		startDate: string,
-		status: string,
-	}>;
-	featureChanges?: {
-		derbytypes?: Array<{
-			name: string,
-			status: string,
-		}>,
-		sanctions?: Array<{
-			name: string,
-			status: string,
-		}>,
-		tracks?: Array<{
-			name: string,
-			status: string,
-		}>,
-	};
-	newVenue?: INewDerbyVenue;
+	changeObject: IDerbyEventChangeObject;
 	submittedDuration: string;
 	submittedTime: string;
-	username: string;
-	userId?: number;
+	submitter: IUserInfo;
 }
 
 export interface IDerbyEventChangeObject {
@@ -105,20 +73,22 @@ export interface IDerbyEventChangeObject {
 		field: string,
 		value: any,
 	}>;
-	days: Array<{
-		id: number,
-		operation: string,
-		value: {
-			datetime?: string,
-			description?: string,
-			doors?: string,
-		},
-	}>;
+	days: IDerbyEventChangeObjectDay[];
 	features: {
 		add: string[],
 		delete: string[],
 	};
 	newVenueData?: INewDerbyVenue;
+}
+
+export interface IDerbyEventChangeObjectDay {
+	id: number;
+	operation: string;
+	value: {
+		datetime?: string;
+		description?: string;
+		doors?: string;
+	};
 }
 
 export interface IDerbyEventDay {
