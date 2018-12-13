@@ -1,23 +1,26 @@
+import RCComponent from "components/rcComponent";
 import React from "react";
 import FormatText from "react-format-text";
 import { Link } from "react-router-dom";
 
-import axios from "axios";
-
 import moment from "moment";
 
-import { IDBDerbyEventChange, IDerbyEvent, IDerbyEventChange, IDerbyEventChangeObject } from "interfaces/event";
-import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
-import { IGeoCountry, IGeoData, IGeoRegionList, ITimeZone } from "interfaces/geo";
+import { IDerbyEvent, IDerbyEventChange, IDerbyEventChangeObjectDayChange } from "interfaces/event";
+import { IDerbyFeature } from "interfaces/feature";
+import { IGeoCountry } from "interfaces/geo";
 import { IProps } from "interfaces/redux";
-import { IDBDerbyVenue, IDerbyVenue, INewDerbyVenue } from "interfaces/venue";
+import { ITimeZone } from "interfaces/time";
+import { IDerbyVenue } from "interfaces/venue";
 
+import { approveEventChange, getEventChange, rejectEventChange } from "services/eventChangeService";
 import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/featureService";
 import { getGeography } from "services/geoService";
 import { getTimeZones } from "services/timeService";
 import { checkUserRole } from "services/userService";
+import { buildVenueLocation, getVenueDetails } from "services/venueService";
 
 import CompareValues from "components/compareValues";
+import FormSection from "components/formSection";
 
 import Modal from "react-modal";
 Modal.setAppElement("#root");
@@ -39,7 +42,7 @@ interface IReviewEventChangeState {
 	userId: number;
 }
 
-export default class ReviewEventChange extends React.Component<IProps> {
+export default class ReviewEventChange extends RCComponent<IProps> {
 
 	state: IReviewEventChangeState = {
 		dataError: false,
@@ -54,8 +57,6 @@ export default class ReviewEventChange extends React.Component<IProps> {
 		status: null,
 		userId: null,
 	};
-
-	axiosSignal = axios.CancelToken.source();
 
 	constructor(props: IProps) {
 		super(props);
@@ -105,10 +106,6 @@ export default class ReviewEventChange extends React.Component<IProps> {
 
 	}
 
-	componentWillUnmount() {
-		this.axiosSignal.cancel();
-	}
-
 	render() {
 
 		return (
@@ -123,7 +120,13 @@ export default class ReviewEventChange extends React.Component<IProps> {
 
 				<div className={`dashboard reviewEventChange ${this.state.eventData.id ? "" : "newEvent"}`}>
 
-					<h1>{this.state.initialLoad ? `Review ${this.state.eventData.id ? "Event Change" : "New Event"}` : ""}</h1>
+					<h1>
+						{this.state.initialLoad ?
+							`Review ${this.state.eventData.id ?
+								"Event Change"
+							: "New Event"}`
+						: null}
+					</h1>
 
 					{this.state.loading ?
 
@@ -150,7 +153,7 @@ export default class ReviewEventChange extends React.Component<IProps> {
 									<span className="new">New data</span>
 								</p>
 							</div>
-						: ""}
+						: null}
 
 						{this.state.eventChanges.changeId ?
 
@@ -159,70 +162,65 @@ export default class ReviewEventChange extends React.Component<IProps> {
 								<div className="entryForm">
 									<div className="formContainer">
 
-										<div>
-											<h3 className="formSectionHeader noOpener"><span>Basic Event Information</span></h3>
-											<div className="formSection">
+										<FormSection label="Basic Event Information">
 
-												<dl className="changeDetails">
+											<dl className="changeDetails">
 
-													<CompareValues
-														label="Name"
-														oldValue={this.state.eventData.name}
-														newValue={this.state.eventChanges.name}
-													/>
+												<CompareValues
+													label="Name"
+													oldValue={this.state.eventData.name}
+													newValue={this.state.eventChanges.name}
+												/>
 
-													<CompareValues
-														label="Host"
-														oldValue={this.state.eventData.host}
-														newValue={this.state.eventChanges.host}
-													/>
+												<CompareValues
+													label="Host"
+													oldValue={this.state.eventData.host}
+													newValue={this.state.eventChanges.host}
+												/>
 
-													<CompareValues
-														label="Web Page"
-														oldValue={this.state.eventData.link}
-														newValue={this.state.eventChanges.link}
-													/>
+												<CompareValues
+													label="Web Page"
+													oldValue={this.state.eventData.link}
+													newValue={this.state.eventChanges.link}
+												/>
 
-													<CompareValues
-														addFormatting={true}
-														label="Description"
-														oldValue={this.state.eventData.description}
-														newValue={this.state.eventChanges.description}
-													/>
+												<CompareValues
+													addFormatting={true}
+													label="Description"
+													oldValue={this.state.eventData.description}
+													newValue={this.state.eventChanges.description}
+												/>
 
-												</dl>
+											</dl>
 
-											</div>
-										</div>
+										</FormSection>
 
-										<div>
-											<h3 className="formSectionHeader noOpener"><span>Venue</span></h3>
-											<div className="formSection">
+										<FormSection label="Venue">
 
-												<dl className="changeDetails">
+											<dl className="changeDetails">
 
-													{this.state.eventChanges.newVenue ?
-														<React.Fragment>
+												{this.state.eventChanges.newVenue ?
+													<React.Fragment>
 
-															{this.state.eventData.venue ?
-																<React.Fragment>
+														{this.state.eventData.venue && this.state.eventData.venue.id ?
+															<React.Fragment>
 
-																	<dt>Old Venue:</dt>
+																<dt>Old Venue:</dt>
 
-																	<dd>
-																		<span className="old removed">
-																			{this.state.eventData.venueName}<br />
-																			{this.state.eventData.venueLocation}
-																		</span>
-																	</dd>
+																<dd>
+																	<span className="old removed">
+																		{this.state.eventData.venue.name}<br />
+																		{buildVenueLocation(this.state.eventData.venue)}
+																	</span>
+																</dd>
 
-																</React.Fragment>
-															: ""}
+															</React.Fragment>
+														: null}
 
-															<dt>Adding New Venue:</dt>
+														<dt>Adding New Venue:</dt>
 
-															<dd>
-																<span className="new">
+														<dd>
+															<span className="new">
 																{this.state.eventChanges.newVenue.name}<br />
 																{this.state.eventChanges.newVenue.address1}<br />
 																{this.state.eventChanges.newVenue.address2 ?
@@ -230,202 +228,215 @@ export default class ReviewEventChange extends React.Component<IProps> {
 																		{this.state.eventChanges.newVenue.address2}
 																		<br />
 																	</React.Fragment>
-																: ""}
-																{this.state.eventChanges.newVenue.location}<br />
-																{this.state.eventChanges.newVenue.country}<br />
-																</span>
-															</dd>
+																: null}
+																{buildVenueLocation(this.state.eventChanges.newVenue)}<br />
+																{this.state.eventChanges.newVenue.country.name}<br />
+															</span>
+														</dd>
 
-															{this.state.eventChanges.newVenue.link ?
-																<React.Fragment>
-																	<dt>New Venue Web Site:</dt>
-																	<dd><span className="new">
-																		{this.state.eventChanges.newVenue.link}
-																	</span></dd>
-																</React.Fragment>
-															: ""}
-															{this.state.eventChanges.newVenue.description ?
-																<React.Fragment>
-																	<dt>New Venue Description:</dt>
-																	<dd><span className="new">
-																		<FormatText>{this.state.eventChanges.newVenue.description}</FormatText>
-																	</span></dd>
-																</React.Fragment>
-															: ""}
-															{this.state.eventChanges.newVenue.timezone ?
-																<React.Fragment>
-																	<dt>New Venue Time Zone:</dt>
-																	<dd><span className="new">
-																		{this.state.eventChanges.newVenue.timezone}
-																	</span></dd>
-																</React.Fragment>
-															: ""}
+														{this.state.eventChanges.newVenue.link ?
+															<React.Fragment>
+																<dt>New Venue Web Site:</dt>
+																<dd><span className="new">
+																	{this.state.eventChanges.newVenue.link}
+																</span></dd>
+															</React.Fragment>
+														: null}
 
-														</React.Fragment>
+														{this.state.eventChanges.newVenue.description ?
+															<React.Fragment>
+																<dt>New Venue Description:</dt>
+																<dd><span className="new">
+																	<FormatText>{this.state.eventChanges.newVenue.description}</FormatText>
+																</span></dd>
+															</React.Fragment>
+														: null}
 
-													: this.state.eventChanges.venue
-														&& this.state.eventChanges.venue !== this.state.eventData.venue ?
+														{this.state.eventChanges.newVenue.timezone ?
+															<React.Fragment>
+																<dt>New Venue Time Zone:</dt>
+																<dd><span className="new">
+																	{this.state.eventChanges.newVenue.timezone.name}
+																</span></dd>
+															</React.Fragment>
+														: null}
 
-														<React.Fragment>
-															<dt>{!this.state.eventData.id ? "Existing " : ""}Venue:</dt>
+													</React.Fragment>
 
-															<dd>
-																{this.state.eventData.venue ?
-																	<React.Fragment>
-																		<span className="old removed">
-																			{this.state.eventData.venueName}<br />
-																			{this.state.eventData.venueLocation}</span>
-																			<br />
-																	</React.Fragment>
-																: ""}
-																<span className="new">{this.state.eventChanges.venueName}<br />{this.state.eventChanges.venueLocation}</span><br />
-															</dd>
+												: this.state.eventChanges.venue
+													&& this.state.eventChanges.venue !== this.state.eventData.venue ?
 
-														</React.Fragment>
-
-													:
-
-														<React.Fragment>
-															<dt>Venue:</dt>
-
-															<dd>
-																<span className="old">{this.state.eventData.venueName}<br />{this.state.eventData.venueLocation}</span>
-															</dd>
-														</React.Fragment>
-
-													}
-
-												</dl>
-
-											</div>
-										</div>
-
-										<div>
-											<h3 className="formSectionHeader noOpener"><span>Event Days</span></h3>
-											<div className="formSection">
-
-												<dl className="changeDetails">
-
-												{this.state.eventChanges.dayChanges.map((day) => (
-													<React.Fragment key={day.id}>
-
+													<React.Fragment>
 														<dt>
-															{day.status === "delete" ?
-																<span className="old removed">{day.old.date}</span>
-															:
-																<CompareValues
-																	inline={true}
-																	oldValue={day.old.date}
-																	newValue={day.new.date}
-																/>
-															}{day.status === "delete" ? "" :
-																day.status === "add" && this.state.eventData.id ? " (new):"
-																: ":"}
-
+															{!this.state.eventData.id ?
+																"Existing "
+															: null}
+															Venue:
 														</dt>
 
 														<dd>
-															{day.status !== "delete" ?
+															{this.state.eventData.venue && this.state.eventData.venue.id ?
+
 																<React.Fragment>
-																<em>Start time:</em>{" "}
-																<CompareValues
-																	inline={true}
-																	oldValue={day.old.start}
-																	newValue={day.new.start}
-																/><br />
-
-																<em>Doors open:</em>{" "}
-																{day.old.doors || day.new.doors ?
-																<CompareValues
-																	inline={true}
-																	oldValue={day.old.doors}
-																	newValue={day.new.doors}
-																/>
-																:
-																	<span className="nodata">(none)</span>
-																}<br />
-
-																<em>Description:</em><br />
-																{day.old.description || day.new.description ?
-																	<CompareValues
-																		addFormatting={true}
-																		inline={true}
-																		oldValue={day.old.description}
-																		newValue={day.new.description}
-																	/>
-																:
-																	<span className="nodata">(none)</span>
-																}
+																	<span className="old removed">
+																		{this.state.eventData.venue.name}<br />
+																		{buildVenueLocation(this.state.eventData.venue)}
+																	</span><br />
 																</React.Fragment>
-															:
-																<span className="nodata">(deleted)</span>
-															}
+
+															: null}
+
+															<span className="new">
+																{this.state.eventChanges.venue.name}<br />
+																{buildVenueLocation(this.state.eventChanges.venue)}
+															</span><br />
 
 														</dd>
 
 													</React.Fragment>
-												))}
 
-												</dl>
+												:
 
-											</div>
-										</div>
+													<React.Fragment>
+														<dt>Venue:</dt>
 
-										<div>
-											<h3 className="formSectionHeader noOpener"><span>Event Features</span></h3>
-											<div className="formSection">
+														<dd>
+															<span className="old">
+																{this.state.eventData.venue.name}<br />
+																{buildVenueLocation(this.state.eventData.venue)}
+															</span>
+														</dd>
+													</React.Fragment>
+
+												}
+
+											</dl>
+
+										</FormSection>
+
+										<FormSection label="Event Days">
+
+											<dl className="changeDetails">
+
+											{this.state.eventChanges.dayChanges.map((day) => (
+												<React.Fragment key={day.id}>
+
+													<dt>
+														{day.status === "delete" ?
+															<span className="old removed">{day.old.date}</span>
+														:
+															<CompareValues
+																inline={true}
+																oldValue={day.old.date}
+																newValue={day.new.date}
+															/>
+														}{day.status === "delete" ? "" :
+															day.status === "add" && this.state.eventData.id ? " (new):"
+															: ":"}
+
+													</dt>
+
+													<dd>
+														{day.status !== "delete" ?
+															<React.Fragment>
+															<em>Start time:</em>{" "}
+															<CompareValues
+																inline={true}
+																oldValue={day.old.start}
+																newValue={day.new.start}
+															/><br />
+
+															<em>Doors open:</em>{" "}
+															{day.old.doors || day.new.doors ?
+															<CompareValues
+																inline={true}
+																oldValue={day.old.doors}
+																newValue={day.new.doors}
+															/>
+															:
+																<span className="nodata">(none)</span>
+															}<br />
+
+															<em>Description:</em><br />
+															{day.old.description || day.new.description ?
+																<CompareValues
+																	addFormatting={true}
+																	inline={true}
+																	oldValue={day.old.description}
+																	newValue={day.new.description}
+																/>
+															:
+																<span className="nodata">(none)</span>
+															}
+															</React.Fragment>
+														:
+															<span className="nodata">(deleted)</span>
+														}
+
+													</dd>
+
+												</React.Fragment>
+											))}
+
+											</dl>
+
+										</FormSection>
+
+										<FormSection label="Event Features">
 
 											<dl className="changeDetails">
 
 												<dt>Derby types:</dt>
 												<dd>
-													{this.state.eventChanges.features.derbytypes.map((derbytype) => (
-														<React.Fragment key={derbytype.name}>
-															{derbytype.status === "add" ?
-																<span className="new">{derbytype.name}</span>
-															: derbytype.status === "delete" ?
-																<span className="old removed">{derbytype.name}</span>
-															:
-																<span className="old">{derbytype.name}</span>
-															}<br />
-														</React.Fragment>
-													))}
+													{this.state.eventChanges.featureChanges.derbytypes
+														.map((derbytype) => (
+															<React.Fragment key={derbytype.name}>
+																{derbytype.status === "add" ?
+																	<span className="new">{derbytype.name}</span>
+																: derbytype.status === "delete" ?
+																	<span className="old removed">{derbytype.name}</span>
+																:
+																	<span className="old">{derbytype.name}</span>
+																}<br />
+															</React.Fragment>
+														))}
 												</dd>
 
 												<dt>Sanctions:</dt>
 												<dd>
-													{this.state.eventChanges.features.sanctions.map((sanction) => (
-														<React.Fragment key={sanction.name}>
-															{sanction.status === "add" ?
-																<span className="new">{sanction.name}</span>
-															: sanction.status === "delete" ?
-																<span className="old removed">{sanction.name}</span>
-															:
-																<span className="old">{sanction.name}</span>
-															}<br />
-														</React.Fragment>
-													))}
+													{this.state.eventChanges.featureChanges.sanctions
+														.map((sanction) => (
+															<React.Fragment key={sanction.name}>
+																{sanction.status === "add" ?
+																	<span className="new">{sanction.name}</span>
+																: sanction.status === "delete" ?
+																	<span className="old removed">{sanction.name}</span>
+																:
+																	<span className="old">{sanction.name}</span>
+																}<br />
+															</React.Fragment>
+														))}
 												</dd>
 
 												<dt>Tracks:</dt>
 												<dd>
-													{this.state.eventChanges.features.tracks.map((track) => (
-														<React.Fragment key={track.name}>
-															{track.status === "add" ?
-																<span className="new">{track.name}</span>
-															: track.status === "delete" ?
-																<span className="old removed">{track.name}</span>
-															:
-																<span className="old">{track.name}</span>
-															}<br />
-														</React.Fragment>
-													))}
+													{this.state.eventChanges.featureChanges.tracks
+														.map((track) => (
+															<React.Fragment key={track.name}>
+																{track.status === "add" ?
+																	<span className="new">{track.name}</span>
+																: track.status === "delete" ?
+																	<span className="old removed">{track.name}</span>
+																:
+																	<span className="old">{track.name}</span>
+																}<br />
+															</React.Fragment>
+														))}
 												</dd>
 
 											</dl>
 
-											</div>
-										</div>
+										</FormSection>
 
 									</div>
 
@@ -514,12 +525,10 @@ export default class ReviewEventChange extends React.Component<IProps> {
 			loading: true,
 		});
 
-		axios.post(`${this.props.apiLocation}events/approveChange/${this.props.match.params.changeId}`,
-			{},
-			{
-				cancelToken: this.axiosSignal.token,
-				withCredentials: true,
-			})
+		const approval = this.addPromise(
+			approveEventChange(this.props.match.params.changeId));
+
+		approval
 			.then((result) => {
 
 				this.setState({
@@ -528,16 +537,15 @@ export default class ReviewEventChange extends React.Component<IProps> {
 				});
 
 			}).catch((error) => {
+
 				console.error(error);
+				this.setState({
+					errorMessage: "Something went wrong.  Please reload the page and try again.",
+					loading: false,
+				});
 
-				if (!axios.isCancel(error)) {
-					this.setState({
-						errorMessage: "Something went wrong.  Please reload the page and try again.",
-						loading: false,
-					});
-				}
-
-			});
+			})
+			.finally(approval.clear);
 
 	}
 
@@ -579,13 +587,11 @@ export default class ReviewEventChange extends React.Component<IProps> {
 			modalOpen: false,
 		});
 
-		axios.post(`${this.props.apiLocation}events/rejectChange/${this.props.match.params.changeId}`,
-			{ comment: this.state.rejectComment },
-			{
-				cancelToken: this.axiosSignal.token,
-				withCredentials: true,
-			})
-			.then((result) => {
+		const rejection = this.addPromise(
+			rejectEventChange(this.props.match.params.changeId, this.state.rejectComment));
+
+		rejection
+			.then(() => {
 
 				this.setState({
 					loading: false,
@@ -593,16 +599,15 @@ export default class ReviewEventChange extends React.Component<IProps> {
 				});
 
 			}).catch((error) => {
+
 				console.error(error);
+				this.setState({
+					errorMessage: "Something went wrong.  Please reload the page and try again.",
+					loading: false,
+				});
 
-				if (!axios.isCancel(error)) {
-					this.setState({
-						errorMessage: "Something went wrong.  Please reload the page and try again.",
-						loading: false,
-					});
-				}
-
-			});
+			})
+			.finally(rejection.clear);
 
 	}
 
@@ -612,135 +617,56 @@ export default class ReviewEventChange extends React.Component<IProps> {
 			loading: true,
 		});
 
-		let countryList = [] as IGeoCountry[];
-		let derbytypesList = [] as IDerbyType[];
-		let promiseError = false;
-		const promises: Array<Promise<any>> = [];
-		let regionLists = {} as IGeoRegionList;
-		let sanctionsList = [] as IDerbySanction[];
-		let timeZones = [] as ITimeZone[];
-		let tracksList = [] as IDerbyTrack[];
-		let venueList = [] as IDerbyVenue[];
+		const loadData = this.addPromise(
+			Promise.all([
+				getGeography(),
+				getTimeZones(),
+				getDerbySanctions(),
+				getDerbyTracks(),
+				getDerbyTypes(),
+			]));
 
-		promises.push(getGeography()
-			.then((dataResponse: IGeoData) => {
-				countryList = dataResponse.countries;
-				regionLists = dataResponse.regions;
-			}).catch((error) => {
-				console.error(error);
-				promiseError = true;
-			}));
+		loadData
+			.then((data: [
+					IGeoCountry[],
+					ITimeZone[],
+					IDerbyFeature[],
+					IDerbyFeature[],
+					IDerbyFeature[]
+				]) => {
 
-		promises.push(getTimeZones()
-			.then((dataResponse: ITimeZone[]) => {
-				timeZones = dataResponse;
-			}).catch((error) => {
-				console.error(error);
-				promiseError = true;
-			}));
+				const [countryList, timeZones, sanctionsList, tracksList, derbytypesList] = data;
 
-		promises.push(getDerbySanctions()
-			.then((dataResponse: IDerbySanction[]) => {
-				sanctionsList = dataResponse;
-			}).catch((error) => {
-				console.error(error);
-				promiseError = true;
-			}));
+				const loadChange = this.addPromise(
+					getEventChange(this.props.match.params.changeId));
 
-		promises.push(getDerbyTracks()
-			.then((dataResponse: IDerbyTrack[]) => {
-				tracksList = dataResponse;
-			}).catch((error) => {
-				console.error(error);
-				promiseError = true;
-			}));
+				loadChange
+					.then((eventData: IDerbyEventChange) => {
 
-		promises.push(getDerbyTypes()
-			.then((dataResponse: IDerbyType[]) => {
-				derbytypesList = dataResponse;
-			}).catch((error) => {
-				console.error(error);
-				promiseError = true;
-			}));
+						const eventChanges = Object.assign({}, eventData);
 
-		promises.push(
-			axios.get(`${this.props.apiLocation}venues/getAllVenues`,
-				{
-					cancelToken: this.axiosSignal.token,
-					withCredentials: true,
-				})
-				.then((dataResponse) => {
-					venueList = dataResponse.data.map((venue: IDBDerbyVenue) => ({
-						city: venue.venue_city,
-						country: venue.venue_country,
-						id: venue.venue_id,
-						name: venue.venue_name,
-						region: venue.region_abbreviation,
-					}));
-				}).catch((error) => {
-					console.error(error);
-					promiseError = true;
-				}));
+						let venuePromise: Array<Promise<any>> = [];
 
-		Promise.all(promises).then(() => {
+						if (eventData.changeObject) {
 
-			if (!promiseError) {
-
-				axios.get(`${this.props.apiLocation}events/getChange/${this.props.match.params.changeId}`,
-					{
-						cancelToken: this.axiosSignal.token,
-						withCredentials: true,
-					})
-					.then((result) => {
-
-						const eventResult: IDBDerbyEventChange = result.data;
-
-						const eventData: IDerbyEvent = eventResult.changed_item_id ?
-							{
-								country: eventResult.country_code,
-								days: eventResult.days.map((day) => ({
-									date: moment.utc(day.eventday_start_venue).format("MMM D"),
-									description: day.eventday_description || undefined,
-									doorsTime: day.eventday_doors_venue
-										&& day.eventday_doors_venue < day.eventday_start_venue
-										? moment.utc(day.eventday_doors_venue).format("h:mm a")
-										: undefined,
-									id: day.eventday_id,
-									startTime: moment.utc(day.eventday_start_venue).format("h:mm a"),
-								})),
-								description: eventResult.event_description,
-								host: eventResult.event_host,
-								id: eventResult.event_id,
-								link: eventResult.event_link,
-								name: eventResult.event_name,
-								venue: eventResult.venue_id,
-								venueLocation: `${eventResult.venue_city}${eventResult.region_abbreviation ?
-									", " + eventResult.region_abbreviation : ""}, ${eventResult.country_code}`,
-								venueName: eventResult.venue_name,
-							}
-						: {} as IDerbyEvent;
-
-						const eventChanges: IDerbyEventChange = {
-							changeId: eventResult.change_id,
-							dayChanges: [],
-							id: eventResult.change_id,
-							name: eventResult.event_name,
-							submittedDuration: moment.duration(moment(eventResult.change_submitted).diff(moment())).humanize(),
-							submittedTime: moment(eventResult.change_submitted).format("MMM D, Y h:mm a"),
-							user: eventResult.change_user,
-							username: eventResult.change_user_name,
-						};
-
-						if (eventResult.change_object) {
-
-							const changeObject: IDerbyEventChangeObject = JSON.parse(eventResult.change_object);
+							const changeObject = eventData.changeObject;
 
 							// Basic Info
 
 							for (const field of changeObject.data) {
 
 								const fieldName: (keyof IDerbyEventChange) = field.field as (keyof IDerbyEventChange);
-								eventChanges[fieldName] = field.value;
+
+								if (fieldName === "venue" && !changeObject.newVenueData) {
+
+									// Venue change to be handled in later code
+									venuePromise = [getVenueDetails(field.value)];
+
+								} else {
+
+									eventChanges[fieldName] = field.value;
+
+								}
 
 							}
 
@@ -748,7 +674,7 @@ export default class ReviewEventChange extends React.Component<IProps> {
 
 							if (changeObject.newVenueData) {
 
-								const newVenue: INewDerbyVenue = {} as INewDerbyVenue;
+								eventChanges.newVenue = {} as IDerbyVenue;
 
 								for (const key in changeObject.newVenueData) {
 									if (changeObject.newVenueData.hasOwnProperty(key)) {
@@ -756,20 +682,41 @@ export default class ReviewEventChange extends React.Component<IProps> {
 										switch (key) {
 
 											case "country":
-												newVenue[key] = countryList.filter(
-													(country) => country.country_code === changeObject.newVenueData[key])[0].country_name;
+												eventChanges.newVenue.country = countryList
+													.filter((country) =>
+														country.code === changeObject.newVenueData.country)[0];
+
 												break;
 
 											case "region":
-												if (changeObject.newVenueData[key] ) {
-													newVenue[key] = regionLists[changeObject.newVenueData.country || eventData.country].filter(
-														(region) => region.region_id === changeObject.newVenueData[key])[0].region_abbreviation;
+												if (changeObject.newVenueData.region) {
+
+													const countryObject = countryList
+														.filter((country) =>
+															country.code === (changeObject.newVenueData.country || eventData.venue.country))[0];
+
+													if (countryObject && countryObject.regions && countryObject.regions.length) {
+
+														const regionObject = countryObject.regions
+															.filter((region) =>
+																region.id === changeObject.newVenueData.region)[0];
+
+														if (regionObject && regionObject.id) {
+
+															eventChanges.newVenue.region = regionObject;
+
+														}
+
+													}
+
 												}
+
 												break;
 
 											case "timezone":
-												newVenue[key] = timeZones.filter(
-													(tz) => tz.timezone_id === changeObject.newVenueData[key])[0].timezone_name;
+												eventChanges.newVenue.timezone = timeZones.filter(
+													(tz: ITimeZone) =>
+														tz.id === changeObject.newVenueData.timezone)[0];
 												break;
 
 											case "address1":
@@ -780,38 +727,26 @@ export default class ReviewEventChange extends React.Component<IProps> {
 											case "postcode":
 											case "name":
 
-												newVenue[key] = changeObject.newVenueData[key];
+												eventChanges.newVenue[key] = changeObject.newVenueData[key];
+
 												break;
 
 										}
 
-										newVenue.location = `${newVenue.city}${newVenue.region ?
-											", " + newVenue.region : ""}${newVenue.postcode ?
-											", " + newVenue.postcode : ""}`;
-
-										eventChanges.newVenue = newVenue;
-
 									}
 								}
-
-							} else if (eventChanges.venue) {
-
-								const venueObject = venueList.filter(
-									(venue) => venue.id === eventChanges.venue)[0];
-
-								eventChanges.venueName = venueObject.name;
-								eventChanges.venueLocation = `${venueObject.city}${venueObject.region ?
-									", " + venueObject.region : ""}, ${venueObject.country}`;
 
 							}
 
 							// Event Days
 
+							eventChanges.dayChanges = [];
+
 							if (eventData.days) {
 
 								for (const day of eventData.days) {
 
-									const dayData = {
+									const dayData: IDerbyEventChangeObjectDayChange = {
 										id: day.id,
 										new: {},
 										old: {
@@ -820,13 +755,14 @@ export default class ReviewEventChange extends React.Component<IProps> {
 											doors: day.doorsTime,
 											start: day.startTime,
 										},
-										startDate: moment.utc(day.dateObject).format("Y-MM-DD"),
+										startDate: day.dateObject.format("Y-MM-DD"),
 										status: "unchanged",
 									};
 
 									const newDay = changeObject.days.filter((d) => d.id === day.id);
 
 									if (newDay.length) {
+
 										dayData.status = newDay[0].operation;
 										if (newDay[0].operation === "change") {
 											dayData.new = {
@@ -888,45 +824,72 @@ export default class ReviewEventChange extends React.Component<IProps> {
 								tracks: [] as Array<{name: string, status: string}>,
 							};
 
-							if (eventResult.derbytypes) {
-								features.derbytypes =
-									derbytypesList
-										.filter((dt: IDerbyType) => eventResult.derbytypes.split(",").indexOf(dt.derbytype_id.toString()) > -1 )
-										.map((dt: IDerbyType) => ({
-											name: dt.derbytype_name,
-											status: changeObject.features.delete.indexOf(`derbytype-${dt.derbytype_id}`) > -1 ?  "delete" : "unchanged",
-										}));
-							}
+							if (eventData.features) {
 
-							if (eventResult.sanctions) {
-								features.sanctions =
-									sanctionsList
-										.filter((s: IDerbySanction) => eventResult.sanctions.split(",").indexOf(s.sanction_id.toString()) > -1 )
-										.map((s: IDerbySanction) => ({
-											name: s.sanction_name,
-											status: changeObject.features.delete.indexOf(`sanction-${s.sanction_id}`) > -1 ?  "delete" : "unchanged",
-										}));
-							}
+								if (eventData.features.derbytypes) {
 
-							if (eventResult.tracks) {
-								features.tracks =
-									tracksList
-										.filter((t: IDerbyTrack) => eventResult.tracks.split(",").indexOf(t.track_id.toString()) > -1 )
-										.map((t: IDerbyTrack) => ({
-											name: t.track_name,
-											status: changeObject.features.delete.indexOf(`track-${t.track_id}`) > -1 ?  "delete" : "unchanged",
-										}));
+									const derbytypes = eventData.features.derbytypes
+										.map((dt) => dt.id);
+
+									features.derbytypes =
+										derbytypesList
+											.filter((dt) =>
+												derbytypes.indexOf(dt.id) > -1)
+											.map((dt) => ({
+												name: dt.name,
+												status: changeObject.features.delete.indexOf(`derbytype-${dt.id}`) > -1 ?
+													"delete"
+													: "unchanged",
+											}));
+								}
+
+								if (eventData.features.sanctions) {
+
+									const sanctions = eventData.features.sanctions
+										.map((dt) => dt.id);
+
+									features.sanctions =
+										sanctionsList
+											.filter((dt) =>
+												sanctions.indexOf(dt.id) > -1)
+											.map((dt) => ({
+												name: dt.name,
+												status: changeObject.features.delete.indexOf(`sanction-${dt.id}`) > -1 ?
+													"delete"
+													: "unchanged",
+											}));
+								}
+
+								if (eventData.features.tracks) {
+
+									const tracks = eventData.features.tracks
+										.map((dt) => dt.id);
+
+									features.tracks =
+										tracksList
+											.filter((dt) =>
+												tracks.indexOf(dt.id) > -1)
+											.map((dt) => ({
+												name: dt.name,
+												status: changeObject.features.delete.indexOf(`track-${dt.id}`) > -1 ?
+													"delete"
+													: "unchanged",
+											}));
+								}
+
 							}
 
 							for (const feature of changeObject.features.add) {
-								const featureItem = feature.split("-");
+								const [ type, id ] = feature.split("-");
 
-								switch (featureItem[0]) {
+								switch (type) {
 
 									case "derbytype":
 										features.derbytypes.push({
 											name: derbytypesList
-												.filter((dt: IDerbyType) => dt.derbytype_id.toString() === featureItem[1])[0].derbytype_name,
+												.filter((dt) =>
+													dt.id.toString() === id)
+												[0].name,
 											status: "add",
 										});
 										break;
@@ -934,7 +897,9 @@ export default class ReviewEventChange extends React.Component<IProps> {
 									case "sanction":
 										features.sanctions.push({
 											name: sanctionsList
-												.filter((s: IDerbySanction) => s.sanction_id.toString() === featureItem[1])[0].sanction_name,
+												.filter((s) =>
+													s.id.toString() === id)
+												[0].name,
 											status: "add",
 										});
 										break;
@@ -942,7 +907,9 @@ export default class ReviewEventChange extends React.Component<IProps> {
 									case "track":
 										features.tracks.push({
 											name: tracksList
-												.filter((t: IDerbyTrack) => t.track_id.toString() === featureItem[1])[0].track_name,
+												.filter((t) =>
+													t.id.toString() === id)
+												[0].name,
 											status: "add",
 										});
 										break;
@@ -954,38 +921,66 @@ export default class ReviewEventChange extends React.Component<IProps> {
 							features.sanctions.sort((a, b) => a.name > b.name ? 1 : a.name < b.name ? -1 : 0);
 							features.tracks.sort((a, b) => a.name > b.name ? 1 : a.name < b.name ? -1 : 0);
 
-							eventChanges.features = features;
+							eventChanges.featureChanges = features;
 
-							this.setState({
-								eventChanges,
-								eventData,
-								initialLoad: true,
-								loading: false,
-							});
+							// Handle venue lookup from earlier
+
+							const getVenueData = this.addPromise(
+								Promise.all(venuePromise));
+
+							getVenueData
+								.then((venueData: [
+									IDerbyVenue | null
+								]) => {
+
+									if (venuePromise.length) {
+
+										eventChanges.venue = venueData[0];
+
+									}
+
+									this.setState({
+										eventChanges,
+										eventData,
+										initialLoad: true,
+										loading: false,
+									});
+
+								})
+								.catch((error) => {
+
+									throw(error);
+
+								});
 
 						} else {
 
-							this.setState({
-								dataError: true,
-								loading: false,
-							});
+							throw(new Error("Error loading data; bad venue change id?"));
 
 						}
 
-					}).catch((error) => {
+					})
+					.catch((error) => {
+
 						console.error(error);
+						this.setState({
+							dataError: true,
+							loading: false,
+						});
 
-						if (!axios.isCancel(error)) {
-							this.setState({
-								dataError: true,
-								loading: false,
-							});
-						}
+					})
+					.finally(loadChange.clear);
 
-					});
-				}
+			}).catch((error) => {
 
-		});
+				console.error(error);
+				this.setState({
+					dataError: true,
+					loading: false,
+				});
+
+			})
+			.finally(loadData.clear);
 
 	}
 

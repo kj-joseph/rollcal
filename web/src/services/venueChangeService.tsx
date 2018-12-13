@@ -99,7 +99,9 @@ const mapVenueChange = (
 
 	Object.assign(mapVenue(data), {
 		changeId: data.change_id,
-		changeObject: JSON.parse(data.change_object),
+		changeObject: data.change_object ?
+			JSON.parse(data.change_object)
+			: undefined as IDerbyVenueChangeObject,
 		submittedDuration: moment.duration(moment(data.change_submitted).diff(moment())).humanize(),
 		submittedTime: moment(data.change_submitted).format("MMM D, Y h:mm a"),
 		submitter: {

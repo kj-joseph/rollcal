@@ -37,7 +37,6 @@ export interface IDerbyVenue {
 	distance?: number;
 	id: number;
 	link?: string;
-	location?: string;
 	name: string;
 	postcode: string;
 	region: IGeoRegion;
@@ -60,7 +59,6 @@ export interface IDerbyVenueChangeObject {
 	country?: string;
 	description?: string;
 	link?: string;
-	location?: string;
 	name?: string;
 	postcode?: string;
 	region?: number | string;

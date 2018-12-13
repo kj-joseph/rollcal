@@ -1,7 +1,7 @@
 import React from "react";
 
 interface IFormSectionProps {
-	checked: boolean;
+	checked?: boolean;
 	count?: number;
 	label: string;
 	name?: string;
@@ -21,7 +21,9 @@ export default class FeatureIcon extends React.Component<IFormSectionProps> {
 
 			<div
 				className={"formSection"
-					+ (this.props.toggle && this.props.status ? " open" : " closed")
+					+ (this.props.toggle ?
+						this.props.status ? " open" : " closed"
+						: "")
 					+ (this.props.checked ? " ok" : "")
 					+ (this.props.toggle ? "" : " noOpener")}
 			>

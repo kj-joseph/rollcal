@@ -7,6 +7,43 @@ import { mapCountry, mapRegion } from "services/geoService";
 import { mapTimezone } from "services/timeService";
 import { mapUser } from "services/userService";
 
+export const buildLocation = (
+	address: {
+		address1?: string,
+		city: string,
+		country: string,
+		region?: string,
+	},
+): string =>
+
+	`${address.address1 ?
+		`${address.address1}, `
+	: ""}${address.city}${address.region ?
+		`, ${address.region}`
+	: ""}, ${address.country}`;
+
+export const buildVenueLocation = (
+	venue: IDerbyVenue,
+	format: "long" | "short" = "short",
+	includeStreet = false,
+	): string =>
+
+		buildLocation({
+			address1: includeStreet ?
+				venue.address1
+				: undefined,
+			city: venue.city,
+			country: format === "long" ?
+				venue.country.name
+				: venue.country.code,
+			region: venue.region && venue.region.abbreviation ?
+				format === "long" ?
+					venue.region.name
+					: venue.region.abbreviation
+				: undefined,
+		});
+
+
 export const getVenueDetails = (
 	id: number,
 ): Promise<IDerbyVenue> =>
