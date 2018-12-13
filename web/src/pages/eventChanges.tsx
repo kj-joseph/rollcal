@@ -144,14 +144,31 @@ export default class EventChanges extends RCComponent<IProps> {
 		getList
 			.then((changeList) =>
 
-				Promise.all(mapEventChangesToBoxList(changeList)))
+				mapEventChangesToBoxList(changeList))
 
-			.then((changeList) => {
+			.then((changePromises) => {
 
-				this.setState({
-					eventChanges: changeList,
-					loading: false,
-				});
+				const getListItems = this.addPromise(
+					Promise.all(changePromises));
+
+				getListItems
+					.then((changeList) => {
+
+						this.setState({
+							eventChanges: changeList,
+							loading: false,
+						});
+
+					})
+					.catch((error) => {
+
+						console.error(error);
+						this.setState({
+							dataError: true,
+						});
+
+					})
+					.finally(getListItems.clear);
 
 			})
 

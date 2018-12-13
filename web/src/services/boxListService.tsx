@@ -21,7 +21,7 @@ export const mapEventChangesToBoxList = (
 
 				const dataChanges = mapChangeData(event.changeObject.data);
 
-				return Promise.all([
+				const changePromise = Promise.all([
 					!event.id && !event.changeObject.newVenueData ?
 						getVenueDetails(dataChanges.venue)
 					: undefined,
@@ -125,8 +125,13 @@ export const mapEventChangesToBoxList = (
 
 					});
 
-			}));
+				onCancel(() => {
+					changePromise.cancel();
+				});
 
+				return changePromise;
+
+			}));
 
 export const mapEventsToBoxList = (events: IDerbyEvent[]): IBoxListItem[] =>
 
