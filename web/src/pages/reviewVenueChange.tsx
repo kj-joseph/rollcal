@@ -335,7 +335,8 @@ export default class ReviewVenueChange extends RCComponent<IProps> {
 					loading: false,
 				});
 
-			});
+			})
+			.finally(approval.clear);
 
 	}
 
@@ -398,7 +399,8 @@ export default class ReviewVenueChange extends RCComponent<IProps> {
 					loading: false,
 				});
 
-			});
+			})
+			.finally(rejection.clear);
 
 	}
 
