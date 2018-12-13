@@ -142,7 +142,7 @@ export const getSearchUrl = (
 
 	if (search.address) {
 
-		queryParts.push(`address(${search.address}`);
+		queryParts.push(search.address);
 
 	} else if (search.locations) {
 
