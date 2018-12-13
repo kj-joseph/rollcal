@@ -5,6 +5,7 @@ import { mapEventsToBoxList } from "services/boxListService";
 import { loadEvents } from "services/eventService";
 import { searchEventsByString } from "services/searchService";
 import { formatDateRange } from "services/timeService";
+import { buildLocation } from "services/venueService";
 
 import BoxList from "components/boxList";
 
@@ -195,14 +196,16 @@ export default class Events extends RCComponent<IProps> {
 
 	displaySearchAddress(address: string) {
 
-		const [address1, city, regionAbbr, postcode, countryCode]
+		const [address1, city, region, postcode, country]
 			= address.split("~");
 
-		return `${address1}, ${city}${
-			regionAbbr ? `, ${regionAbbr}` : ""
-		}${
-			postcode ? ` ${postcode}` : ""
-		} ${countryCode}`;
+		return buildLocation({
+			address1,
+			city,
+			country,
+			postcode,
+			region,
+		});
 
 	}
 

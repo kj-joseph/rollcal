@@ -16,7 +16,7 @@ import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/featu
 import { getGeography } from "services/geoService";
 import { getTimeZones } from "services/timeService";
 import { checkUserRole } from "services/userService";
-import { loadVenues } from "services/venueService";
+import { buildVenueLocation, loadVenues } from "services/venueService";
 
 import "react-dates/initialize";
 
@@ -792,17 +792,11 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 	getVenueLabel(venue: IDerbyVenue) {
 
-		if (venue && venue.name) {
-			return `${venue.name} - ${venue.city}${
-				venue.region && venue.region.abbreviation ?
-					`, ${venue.region.abbreviation}`
-				: ""}${
-					venue.country && venue.country.code ?
-						`, ${venue.country.code}`
-					: ""}`;
-		} else {
-			return "(Type here to search venues)";
-		}
+		return venue && venue.name ?
+			!venue.country || !venue.country.code ?
+				`${venue.name} - ${venue.city}`
+			: buildVenueLocation(venue)
+		: "(Type here to search venues)";
 
 	}
 

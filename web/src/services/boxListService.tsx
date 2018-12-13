@@ -6,7 +6,7 @@ import { IDerbyVenue, IDerbyVenueChange } from "interfaces/venue";
 
 import { mapChangeData } from "services/eventChangeService";
 import { formatDateRange } from "services/timeService";
-import { getVenueDetails } from "services/venueService";
+import { buildLocation, buildVenueLocation, getVenueDetails } from "services/venueService";
 
 import moment from "moment";
 
@@ -36,9 +36,7 @@ export const mapEventChangesToBoxList = (
 								dates: event.dates,
 								host: event.name ? event.host : undefined,
 								id: event.id,
-								location: `${event.venue.city}${
-										event.venue.region && event.venue.region.abbreviation ? ", " + event.venue.region.abbreviation : ""
-									}, ${event.venue.country.code}`,
+								location: buildVenueLocation(event.venue),
 								name: event.name ? event.name : event.host,
 								submittedDuration: event.submittedDuration,
 								submittedTime: event.submittedTime,
@@ -92,19 +90,15 @@ export const mapEventChangesToBoxList = (
 
 								}
 
-								newLocation = `${event.changeObject.newVenueData.city
-									}${regionAbbr ?
-										`, ${regionAbbr}`
-									: ""}, ${
-									event.changeObject.newVenueData.country}`;
+								newLocation = buildLocation({
+									city: event.changeObject.newVenueData.city,
+									country: event.changeObject.newVenueData.country,
+									region: regionAbbr,
+								});
 
 							} else {
 
-								newLocation = `${venueData[0].city
-									}${venueData[0].region && venueData[0].region.abbreviation ?
-										`, ${venueData[0].region.abbreviation}`
-									: ""}, ${
-									venueData[0].country.code}`;
+								newLocation = buildVenueLocation(venueData[0]);
 
 							}
 
@@ -146,11 +140,7 @@ export const mapVenueChangesToBoxList = (
 					changeId: venue.changeId,
 					country: venue.country,
 					id: venue.id,
-					location: `${venue.city}${
-							venue.region && venue.region.abbreviation ?
-								`, ${venue.region.abbreviation}`
-							: ""
-						}, ${venue.country.code}`,
+					location: buildVenueLocation(venue),
 					name: venue.name,
 					submittedDuration: venue.submittedDuration,
 					submittedTime: venue.submittedTime,
@@ -189,11 +179,11 @@ export const mapVenueChangesToBoxList = (
 					changeId: venue.changeId,
 					country: countryObject,
 					id: undefined,
-					location: `${venue.changeObject.city}${
-							regionAbbr ?
-								`, ${regionAbbr}`
-							: ""
-						}, ${venue.changeObject.country}`,
+					location: buildLocation({
+						city: venue.changeObject.city,
+						country: venue.changeObject.country,
+						region: regionAbbr,
+					}),
 					name: venue.changeObject.name,
 					submittedDuration: venue.submittedDuration,
 					submittedTime: venue.submittedTime,
@@ -214,9 +204,7 @@ export const mapEventsToBoxList = (events: IDerbyEvent[]): IBoxListItem[] =>
 		features: event.features,
 		host: event.name ? event.host : undefined,
 		id: event.id,
-		location: `${event.venue.city}${
-				event.venue.region && event.venue.region.abbreviation ? ", " + event.venue.region.abbreviation : ""
-			}, ${event.venue.country.code}`,
+		location: buildVenueLocation(event.venue),
 		name: event.name ? event.name : event.host,
 		user: event.user,
 	}));
@@ -226,9 +214,7 @@ export const mapVenuesToBoxList = (venues: IDerbyVenue[]): IBoxListItem[] =>
 	venues.map((venue): IBoxListItem => ({
 		country: venue.country,
 		id: venue.id,
-		location: `${venue.city}${
-				venue.region && venue.region.abbreviation ? ", " + venue.region.abbreviation : ""
-			}, ${venue.country.code}`,
+		location: buildVenueLocation(venue),
 		name: venue.name,
 		user: venue.user,
 	}));

@@ -12,6 +12,7 @@ export const buildLocation = (
 		address1?: string,
 		city: string,
 		country: string,
+		postcode?: string,
 		region?: string,
 	},
 ): string =>
@@ -20,6 +21,8 @@ export const buildLocation = (
 		`${address.address1}, `
 	: ""}${address.city}${address.region ?
 		`, ${address.region}`
+	: ""}${address.postcode ?
+		` ${address.postcode}`
 	: ""}, ${address.country}`;
 
 export const buildVenueLocation = (

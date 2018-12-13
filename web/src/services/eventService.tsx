@@ -6,7 +6,7 @@ import { mapDays } from "services/eventDayService";
 import { getDerbySanctions, getDerbyTracks, getDerbyTypes, mapFeatures } from "services/featureService";
 import { formatDateRange } from "services/timeService";
 import { mapUser } from "services/userService";
-import { mapVenue } from "services/venueService";
+import { buildLocation, mapVenue } from "services/venueService";
 
 import { IDBDerbyEvent, IDBDerbyEventChange, IDerbyEvent, ISearchObject } from "interfaces/event";
 import { IDerbyFeatures } from "interfaces/feature";
@@ -127,21 +127,23 @@ export const loadEvents = (
 					const [
 						address1,
 						city,
-						regionAbbr,
+						region,
 						postcode,
-						countryCode,
+						country,
 						distanceString,
 						distanceUnits,
 					]
 						= search.address.split("~");
 
-					apiSearch.address = `${address1}, ${city}${
-						regionAbbr ? `, ${regionAbbr}` : ""
-					}${
-						postcode ? ` ${postcode}` : ""
-					}`;
+					apiSearch.address = buildLocation({
+						address1,
+						city,
+						country,
+						postcode,
+						region,
+					});
 
-					apiSearch.country = countryCode;
+					apiSearch.country = country;
 					apiSearch.distance = Number(distanceString) / (distanceUnits === "km" ? state.kmConverter : 1);
 
 				}
