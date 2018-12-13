@@ -7,8 +7,8 @@ import { IProps } from "interfaces/redux";
 import { IDerbyVenueChange } from "interfaces/venue";
 
 import { mapVenueChangesToBoxList } from "services/boxListService";
-import { getVenueChangeList } from "services/changeService";
 import { checkUserRole } from "services/userService";
+import { getVenueChangeList } from "services/venueChangeService";
 
 import BoxList from "components/boxList";
 

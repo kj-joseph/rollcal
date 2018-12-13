@@ -1,25 +1,24 @@
+import RCComponent from "components/rcComponent";
 import React from "react";
 import { Link } from "react-router-dom";
 
-import axios from "axios";
-
-import moment from "moment";
-
-import { IGeoCountry, IGeoData, IGeoRegion, IGeoRegionList, ITimeZone } from "interfaces/geo";
+import { IGeoCountry } from "interfaces/geo";
 import { IProps } from "interfaces/redux";
-import { IDBDerbyVenueChange, IDerbyVenue, IDerbyVenueChange } from "interfaces/venue";
+import { ITimeZone } from "interfaces/time";
+import { IDerbyVenue, IDerbyVenueChange } from "interfaces/venue";
 
 import { getGeography } from "services/geoService";
 import { getTimeZones } from "services/timeService";
 import { checkUserRole } from "services/userService";
+import { approveVenueChange, getVenueChange, rejectVenueChange } from "services/venueChangeService";
 
 import Modal from "react-modal";
 Modal.setAppElement("#root");
 
+import CompareValues from "components/compareValues";
+
 import CloseIcon from "images/times-circle.svg";
 import ReactSVG from "react-svg";
-
-import CompareValues from "components/compareValues";
 
 interface IReviewVenueChangeState {
 	dataError: boolean;
@@ -35,7 +34,7 @@ interface IReviewVenueChangeState {
 	venueData: IDerbyVenue;
 }
 
-export default class ReviewVenueChange extends React.Component<IProps> {
+export default class ReviewVenueChange extends RCComponent<IProps> {
 
 	state: IReviewVenueChangeState = {
 		dataError: false,
@@ -50,8 +49,6 @@ export default class ReviewVenueChange extends React.Component<IProps> {
 		venueChanges: {} as IDerbyVenueChange,
 		venueData: {} as IDerbyVenue,
 	};
-
-	axiosSignal = axios.CancelToken.source();
 
 	constructor(props: IProps) {
 		super(props);
@@ -99,10 +96,6 @@ export default class ReviewVenueChange extends React.Component<IProps> {
 
 		}
 
-	}
-
-	componentWillUnmount() {
-		this.axiosSignal.cancel();
 	}
 
 	render() {
@@ -187,12 +180,13 @@ export default class ReviewVenueChange extends React.Component<IProps> {
 											inline={true}
 										/>
 
-										{this.state.venueData.region || this.state.venueChanges.region ?
+										{(this.state.venueData.region && this.state.venueData.region.abbreviation)
+											|| (this.state.venueChanges.region && this.state.venueChanges.region.abbreviation) ?
 											<React.Fragment>
 												{", "}
 												<CompareValues
-													oldValue={this.state.venueData.region}
-													newValue={this.state.venueChanges.region}
+													oldValue={this.state.venueData.region.abbreviation}
+													newValue={this.state.venueChanges.region.abbreviation}
 													inline={true}
 												/>
 											</React.Fragment>
@@ -210,8 +204,8 @@ export default class ReviewVenueChange extends React.Component<IProps> {
 										: ""}<br />
 
 										<CompareValues
-											oldValue={this.state.venueData.countryName}
-											newValue={this.state.venueChanges.countryName}
+											oldValue={this.state.venueData.country.name}
+											newValue={this.state.venueChanges.country.name}
 											inline={true}
 										/>
 
@@ -233,8 +227,8 @@ export default class ReviewVenueChange extends React.Component<IProps> {
 
 									<CompareValues
 										label="Time Zone"
-										oldValue={this.state.venueData.timezone}
-										newValue={this.state.venueChanges.timezone}
+										oldValue={this.state.venueData.timezone.name}
+										newValue={this.state.venueChanges.timezone.name}
 									/>
 
 								</dl>
@@ -322,13 +316,11 @@ export default class ReviewVenueChange extends React.Component<IProps> {
 			loading: true,
 		});
 
-		axios.post(`${this.props.apiLocation}venues/approveChange/${this.props.match.params.changeId}`,
-			{},
-			{
-				cancelToken: this.axiosSignal.token,
-				withCredentials: true,
-			})
-			.then((result) => {
+		const approval = this.addPromise(
+			approveVenueChange(this.props.match.params.changeId));
+
+		approval
+			.then(() => {
 
 				this.setState({
 					loading: false,
@@ -336,14 +328,12 @@ export default class ReviewVenueChange extends React.Component<IProps> {
 				});
 
 			}).catch((error) => {
-				console.error(error);
 
-				if (!axios.isCancel(error)) {
-					this.setState({
-						errorMessage: "Something went wrong.  Please reload the page and try again.",
-						loading: false,
-					});
-				}
+				console.error(error);
+				this.setState({
+					errorMessage: "Something went wrong.  Please reload the page and try again.",
+					loading: false,
+				});
 
 			});
 
@@ -389,13 +379,11 @@ export default class ReviewVenueChange extends React.Component<IProps> {
 			modalOpen: false,
 		});
 
-		axios.post(`${this.props.apiLocation}venues/rejectChange/${this.props.match.params.changeId}`,
-			{ comment: this.state.rejectComment },
-			{
-				cancelToken: this.axiosSignal.token,
-				withCredentials: true,
-			})
-			.then((result) => {
+		const rejection = this.addPromise(
+			rejectVenueChange(this.props.match.params.changeId, this.state.rejectComment));
+
+		rejection
+			.then(() => {
 
 				this.setState({
 					loading: false,
@@ -403,14 +391,12 @@ export default class ReviewVenueChange extends React.Component<IProps> {
 				});
 
 			}).catch((error) => {
-				console.error(error);
 
-				if (!axios.isCancel(error)) {
-					this.setState({
-						errorMessage: "Something went wrong.  Please reload the page and try again.",
-						loading: false,
-					});
-				}
+				console.error(error);
+				this.setState({
+					errorMessage: "Something went wrong.  Please reload the page and try again.",
+					loading: false,
+				});
 
 			});
 
@@ -422,151 +408,114 @@ export default class ReviewVenueChange extends React.Component<IProps> {
 			loading: true,
 		});
 
-		let countryList = [] as IGeoCountry[];
-		let promiseError = false;
-		const promises: Array<Promise<any>> = [];
-		let regionLists = {} as IGeoRegionList;
-		let timeZones = [] as ITimeZone[];
+		const loadData = this.addPromise(
+			Promise.all([
+				getGeography(),
+				getTimeZones(),
+				getVenueChange(this.props.match.params.changeId),
+			]));
 
-		promises.push(getGeography()
-			.then((dataResponse: IGeoData) => {
-				countryList = dataResponse.countries;
-				regionLists = dataResponse.regions;
-			}).catch((error) => {
-				console.error(error);
-				promiseError = true;
-			}));
+		loadData
+			.then((data: [
+				IGeoCountry[],
+				ITimeZone[],
+				IDerbyVenueChange
+			]) => {
 
-		promises.push(getTimeZones()
-			.then((dataResponse: ITimeZone[]) => {
-				timeZones = dataResponse;
-			}).catch((error) => {
-				console.error(error);
-				promiseError = true;
-			}));
+				const [countryList, timeZones, venueData] = data;
+				const venueChanges = Object.assign({}, venueData);
 
-		Promise.all(promises).then(() => {
+				if (venueData && venueData.changeObject) {
 
-			if (!promiseError) {
+					const changeObject = venueData.changeObject;
 
-				axios.get(`${this.props.apiLocation}venues/getChange/${this.props.match.params.changeId}`,
-					{
-						cancelToken: this.axiosSignal.token,
-						withCredentials: true,
-					})
-					.then((result) => {
+					for (const key in changeObject) {
+						if (changeObject.hasOwnProperty(key)) {
 
-						const venueResult: IDBDerbyVenueChange = result.data;
+							switch (key) {
 
-						const venueData: IDerbyVenue = venueResult.changed_item_id ?
-							{
-								address1: venueResult.venue_address1,
-								address2: venueResult.venue_address2,
-								city: venueResult.venue_city,
-								country: venueResult.country_code,
-								countryName: venueResult.country_name,
-								description: venueResult.venue_description,
-								id: venueResult.venue_id,
-								link: venueResult.venue_link,
-								name: venueResult.venue_name,
-								postcode: venueResult.venue_postcode,
-								region: venueResult.region_abbreviation,
-								timezone: timeZones.filter((tz: ITimeZone) => tz.timezone_id === venueResult.venue_timezone)[0].timezone_name,
-							}
-						: {} as IDerbyVenue;
+								case "country":
+									venueChanges.country = countryList
+										.filter((country) =>
+											country.code === changeObject.country)[0];
 
-						const venueChanges: IDerbyVenueChange = {
-							address1: undefined,
-							address2: undefined,
-							changeId: venueResult.change_id,
-							changedItemId: venueResult.venue_id,
-							city: undefined,
-							country: undefined,
-							id: venueResult.venue_id,
-							name: undefined,
-							postcode: undefined,
-							region: undefined,
-							submittedDuration: moment.duration(moment(venueResult.change_submitted).diff(moment())).humanize(),
-							submittedTime: moment(venueResult.change_submitted).format("MMM D, Y h:mm a"),
-							timezone: undefined,
-							user: venueResult.change_user,
-							username: venueResult.change_user_name,
-						};
+									break;
 
-						if (venueResult.change_object) {
+								case "region":
+									if (changeObject.region) {
 
-							const changeObject = JSON.parse(venueResult.change_object);
+										const countryObject = countryList
+											.filter((country) =>
+												country.code === (changeObject.country || venueData.country))[0];
 
-							for (const key in changeObject) {
-								if (changeObject.hasOwnProperty(key)) {
+										if (countryObject && countryObject.regions && countryObject.regions.length) {
 
-									switch (key) {
+											const regionObject = countryObject.regions
+												.filter((region) =>
+													region.id === changeObject.region)[0];
 
-										case "country":
-											venueChanges.country = changeObject.country;
-											venueChanges.countryName = countryList.filter(
-												(country: IGeoCountry) => country.country_code === changeObject[key])[0].country_name;
-											break;
+											if (regionObject && regionObject.id) {
 
-										case "region":
-											if (changeObject.region) {
-												venueChanges.region = regionLists[changeObject.country || venueData.country].filter(
-													(region: IGeoRegion) => region.region_id === changeObject[key])[0].region_abbreviation;
+												venueChanges.region = regionObject;
+
 											}
-											break;
 
-										case "timezone":
-											venueChanges.timezone = timeZones.filter(
-												(tz: ITimeZone) => tz.timezone_id === changeObject[key])[0].timezone_name;
-											break;
-
-										case "address1":
-										case "address2":
-										case "city":
-										case "description":
-										case "link":
-										case "postcode":
-										case "name":
-
-											venueChanges[key] = changeObject[key];
-											break;
+										}
 
 									}
 
-								}
+									break;
+
+								case "timezone":
+									venueChanges.timezone = timeZones.filter(
+										(tz: ITimeZone) =>
+											tz.id === changeObject.timezone)[0];
+									break;
+
+								case "address1":
+								case "address2":
+								case "city":
+								case "description":
+								case "link":
+								case "postcode":
+								case "name":
+
+									venueChanges[key] = changeObject[key];
+
+									break;
+
 							}
 
-							this.setState({
-								initialLoad: true,
-								loading: false,
-								venueChanges,
-								venueData,
-							});
-
-						} else {
-
-							this.setState({
-								dataError: true,
-								loading: false,
-							});
-
 						}
+					}
 
-
-					}).catch((error) => {
-						console.error(error);
-
-						if (!axios.isCancel(error)) {
-							this.setState({
-								dataError: true,
-								loading: false,
-							});
-						}
-
+					this.setState({
+						initialLoad: true,
+						loading: false,
+						venueChanges,
+						venueData,
 					});
+
+				} else {
+
+					this.setState({
+						dataError: true,
+						loading: false,
+					});
+
 				}
 
-		});
+
+			}).catch((error) => {
+				console.error(error);
+
+				this.setState({
+					dataError: true,
+					loading: false,
+				});
+
+			})
+			.finally(loadData.clear);
 
 	}
 

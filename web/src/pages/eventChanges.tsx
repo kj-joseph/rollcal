@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { IProps } from "interfaces/redux";
 
 import { mapEventChangesToBoxList } from "services/boxListService";
-import { getEventChangeList } from "services/changeService";
+import { getEventChangeList } from "services/eventChangeService";
 import { checkUserRole } from "services/userService";
 
 import BoxList from "components/boxList";

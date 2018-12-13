@@ -15,7 +15,7 @@ import moment from "moment";
 
 export const deleteEvent = (
 	id: number,
-): Promise<IDerbyEvent> =>
+): Promise<void> =>
 
 	new Promise((resolve, reject, onCancel) => {
 

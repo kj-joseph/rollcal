@@ -9,7 +9,7 @@ import { IProps } from "interfaces/redux";
 import { ITimeZone } from "interfaces/time";
 import { IDerbyVenue, INewDerbyVenue } from "interfaces/venue";
 
-import { saveEventChange } from "services/changeService";
+import { saveEventChange } from "services/eventChangeService";
 import { mapDayForStorage, mapDaysForEditing } from "services/eventDayService";
 import { getEventDetails } from "services/eventService";
 import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/featureService";

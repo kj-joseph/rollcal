@@ -4,7 +4,7 @@ import { IBoxListItem } from "interfaces/boxList";
 import { IDerbyEvent, IDerbyEventChange } from "interfaces/event";
 import { IDerbyVenue, IDerbyVenueChange } from "interfaces/venue";
 
-import { mapChangeData } from "services/changeService";
+import { mapChangeData } from "services/eventChangeService";
 import { formatDateRange } from "services/timeService";
 import { getVenueDetails } from "services/venueService";
 

@@ -7,10 +7,10 @@ import { IProps } from "interfaces/redux";
 import { ITimeZone } from "interfaces/time";
 import { IDerbyVenue, IDerbyVenueChangeObject } from "interfaces/venue";
 
-import { saveVenueChange } from "services/changeService";
 import { getGeography } from "services/geoService";
 import { getTimeZones } from "services/timeService";
 import { checkUserRole } from "services/userService";
+import { saveVenueChange } from "services/venueChangeService";
 import { getVenueDetails } from "services/venueService";
 
 import AddressFields from "components/addressFields";
