@@ -114,10 +114,11 @@ export default class BoxList extends React.Component<IBoxListProps> {
 
 									{this.props.deleteFunction ?
 										<button
-										type="button"
-										data-item-id={item.id}
-										onClick={this.props.deleteFunction}
-										className="smallButton pinkButton">
+											type="button"
+											data-item-id={item.id}
+											onClick={this.props.deleteFunction}
+											className="smallButton pinkButton"
+										>
 											Delete
 										</button>
 									: null}

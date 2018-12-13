@@ -2,7 +2,7 @@ import store from "redux/store";
 
 import { IBoxListItem } from "interfaces/boxList";
 import { IDerbyEvent, IDerbyEventChange } from "interfaces/event";
-import { IDerbyVenue } from "interfaces/venue";
+import { IDerbyVenue, IDerbyVenueChange } from "interfaces/venue";
 
 import { mapChangeData } from "services/changeService";
 import { formatDateRange } from "services/timeService";
@@ -132,6 +132,78 @@ export const mapEventChangesToBoxList = (
 				return changePromise;
 
 			}));
+
+export const mapVenueChangesToBoxList = (
+	venues: IDerbyVenueChange[],
+): IBoxListItem[] =>
+
+	venues
+		.map((venue) => {
+
+			if (venue.id) {
+
+				return {
+					changeId: venue.changeId,
+					country: venue.country,
+					id: venue.id,
+					location: `${venue.city}${
+							venue.region && venue.region.abbreviation ?
+								`, ${venue.region.abbreviation}`
+							: ""
+						}, ${venue.country.code}`,
+					name: venue.name,
+					submittedDuration: venue.submittedDuration,
+					submittedTime: venue.submittedTime,
+					user: venue.submitter,
+				};
+
+			} else {
+
+				const state = store.getState();
+
+				let regionAbbr = "";
+
+				const countryObject = state.dataGeography
+					.filter((country) =>
+						country.code === venue.changeObject.country)[0];
+
+				if (venue.changeObject.region) {
+
+					if (countryObject && countryObject.regions && countryObject.regions.length) {
+
+						const regionObject = countryObject.regions
+							.filter((region) =>
+								region.id === venue.changeObject.region)[0];
+
+						if (regionObject) {
+
+							regionAbbr = regionObject.abbreviation;
+
+						}
+
+					}
+
+				}
+
+				return {
+					changeId: venue.changeId,
+					country: countryObject,
+					id: undefined,
+					location: `${venue.changeObject.city}${
+							regionAbbr ?
+								`, ${regionAbbr}`
+							: ""
+						}, ${venue.changeObject.country}`,
+					name: venue.changeObject.name,
+					submittedDuration: venue.submittedDuration,
+					submittedTime: venue.submittedTime,
+					user: venue.submitter,
+				};
+
+			}
+
+		});
+
 
 export const mapEventsToBoxList = (events: IDerbyEvent[]): IBoxListItem[] =>
 

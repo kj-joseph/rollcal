@@ -1,16 +1,13 @@
+import RCComponent from "components/rcComponent";
 import React from "react";
 import { Link } from "react-router-dom";
 
-import axios from "axios";
-
-import moment from "moment";
-
 import { IBoxListItem } from "interfaces/boxList";
-import { IGeoCountry, IGeoRegion } from "interfaces/geo";
 import { IProps } from "interfaces/redux";
-import { IDBDerbyVenueChange, IDerbyVenueChange, IDerbyVenueChangeObject } from "interfaces/venue";
+import { IDerbyVenueChange } from "interfaces/venue";
 
-import { getGeography } from "services/geoService";
+import { mapVenueChangesToBoxList } from "services/boxListService";
+import { getVenueChangeList } from "services/changeService";
 import { checkUserRole } from "services/userService";
 
 import BoxList from "components/boxList";
@@ -22,7 +19,7 @@ interface IVenueChangesState {
 	venueChanges: IBoxListItem[];
 }
 
-export default class VenueChanges extends React.Component<IProps> {
+export default class VenueChanges extends RCComponent<IProps> {
 
 	state: IVenueChangesState = {
 		loading: true,
@@ -30,8 +27,6 @@ export default class VenueChanges extends React.Component<IProps> {
 		userId: null,
 		venueChanges: [],
 	};
-
-	axiosSignal = axios.CancelToken.source();
 
 	constructor(props: IProps) {
 		super(props);
@@ -75,10 +70,6 @@ export default class VenueChanges extends React.Component<IProps> {
 
 		}
 
-	}
-
-	componentWillUnmount() {
-		this.axiosSignal.cancel();
 	}
 
 	render() {
@@ -151,126 +142,29 @@ export default class VenueChanges extends React.Component<IProps> {
 			loading: true,
 		});
 
-		let countryList = [] as IGeoCountry[];
-		let promiseError = false;
-		const promises: Array<Promise<any>> = [];
-		let regionLists = {} as IGeoRegionList;
+		const getList = this.addPromise(
+			getVenueChangeList());
 
-		promises.push(getGeography()
-			.then((dataResponse: IGeoData) => {
-				countryList = dataResponse.countries;
-				regionLists = dataResponse.regions;
-			}).catch((error) => {
+		getList
+			.then((changeList: IDerbyVenueChange[]) => {
+
+				this.setState({
+					loading: false,
+					venueChanges: mapVenueChangesToBoxList(changeList),
+				});
+
+			})
+			.catch((error) => {
+
 				console.error(error);
-				promiseError = true;
-			}));
+				this.setState({
+					dataError: true,
+					loading: false,
+				});
 
-		Promise.all(promises).then(() => {
+			})
+			.finally(getList.clear);
 
-			if (!promiseError) {
-
-				axios.get(`${this.props.apiLocation}venues/getChangeList`,
-					{
-						cancelToken: this.axiosSignal.token,
-						withCredentials: true,
-					})
-					.then((result) => {
-
-						const venueChanges = result.data.map((change: IDBDerbyVenueChange) => {
-
-							if (change.changed_item_id) {
-
-								return {
-									changeId: change.change_id,
-									id: change.changed_item_id,
-									location: `${change.venue_city}${change.region_abbreviation ? ", " + change.region_abbreviation : ""}, ${change.country_code}`,
-									name: change.venue_name,
-									submittedDuration: moment.duration(moment(change.change_submitted).diff(moment())).humanize(),
-									submittedTime: moment(change.change_submitted).format("MMM D, Y h:mm a"),
-									user: change.change_user,
-									username: change.change_user_name,
-								};
-
-							} else {
-
-								const changeObject: IDerbyVenueChangeObject = JSON.parse(change.change_object);
-								const venueChangeObject: IDerbyVenueChange = {
-									address1: undefined,
-									address2: undefined,
-									changeId: change.change_id,
-									changedItemId: change.changed_item_id,
-									city: undefined,
-									country: undefined,
-									id: change.changed_item_id,
-									name: undefined,
-									postcode: undefined,
-									region: undefined,
-									submittedDuration: moment.duration(moment(change.change_submitted).diff(moment())).humanize(),
-									submittedTime: moment(change.change_submitted).format("MMM D, Y h:mm a"),
-									timezone: undefined,
-									user: change.change_user,
-									username: change.change_user_name,
-								};
-
-								let cityString: string;
-								let countryCode: string;
-								let regionAbbr: string;
-
-								for (const key in changeObject) {
-									if (changeObject.hasOwnProperty(key)) {
-
-										switch (key) {
-
-											case "city":
-												cityString = changeObject[key];
-												break;
-
-											case "country":
-												countryCode = countryList.filter(
-													(country: IGeoCountry) => country.country_code === changeObject[key])[0].country_code;
-												break;
-
-											case "name":
-												venueChangeObject[key] = changeObject[key];
-												break;
-
-											case "region":
-												if (changeObject[key] ) {
-													regionAbbr = regionLists[changeObject.country].filter(
-														(region: IGeoRegion) => region.region_id === changeObject[key])[0].region_abbreviation;
-												}
-												break;
-
-										}
-									}
-								}
-
-								venueChangeObject.location = `${cityString}${regionAbbr ? ", " + regionAbbr : ""}, ${countryCode}`;
-
-								return venueChangeObject;
-
-							}
-
-						});
-
-						this.setState({
-							loading: false,
-							venueChanges,
-						});
-
-					}).catch((error) => {
-						console.error(error);
-
-						if (!axios.isCancel(error)) {
-							this.setState({
-								loading: false,
-							});
-						}
-
-					});
-				}
-
-		});
 	}
 
 }

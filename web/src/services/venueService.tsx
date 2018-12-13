@@ -1,7 +1,7 @@
 import { callApi } from "services/apiService";
 
 import { IDBDerbyEvent } from "interfaces/event";
-import { IDBDerbyVenue, IDerbyVenue, IDerbyVenueChangeObject } from "interfaces/venue";
+import { IDBDerbyVenue, IDerbyVenue } from "interfaces/venue";
 
 import { mapCountry, mapRegion } from "services/geoService";
 import { mapTimezone } from "services/timeService";
@@ -86,35 +86,3 @@ export const mapVenue = (
 	timezone: mapTimezone(data),
 	user: mapUser(data),
 });
-
-export const saveVenueChange = (
-	changes: IDerbyVenueChangeObject,
-	id: number = 0,
-): Promise<void> =>
-
-	new Promise((resolve, reject, onCancel) => {
-
-		const apiCall = callApi(
-			"put",
-			"venues/saveChanges",
-			{
-				changeObject: JSON.stringify(changes),
-				id,
-			},
-		);
-
-		apiCall
-			.then(() => {
-
-				resolve();
-
-			})
-			.catch((error) =>
-
-				reject(error));
-
-		onCancel(() => {
-			apiCall.cancel();
-		});
-
-	});

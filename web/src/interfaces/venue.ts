@@ -47,11 +47,10 @@ export interface IDerbyVenue {
 
 export interface IDerbyVenueChange extends IDerbyVenue {
 	changeId: number;
-	changedItemId: number;
+	changeObject: IDerbyVenueChangeObject;
 	submittedDuration: string;
 	submittedTime: string;
-	username: string;
-	userId?: number;
+	submitter: IUserInfo;
 }
 
 export interface IDerbyVenueChangeObject {

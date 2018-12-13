@@ -38,7 +38,7 @@ export default class FeatureIconSet extends React.Component<IFeatureSetProps> {
 
 		return(
 
-			this.props.data && this.props.data.length ?
+			this.props.data && this.props.data.length ? (
 
 				<div className="featureIcons">
 
@@ -90,7 +90,7 @@ export default class FeatureIconSet extends React.Component<IFeatureSetProps> {
 
 				</div>
 
-			: null
+			) : null
 
 		);
 

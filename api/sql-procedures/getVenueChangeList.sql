@@ -1,8 +1,8 @@
 BEGIN
 
-select ch.change_id, ch.changed_item_id, ch.change_submitted, ch.change_object, ch.change_user,
-	u.user_name as change_user_name,
-    v.venue_name, v.venue_city, c.country_code, r.region_abbreviation
+select ch.change_id, ch.changed_item_id, ch.change_submitted, ch.change_object,
+	ch.change_user, u.user_name as change_user_name,
+    v.*, c.*, r.*
 
 from changes ch
 	join users u
@@ -16,7 +16,7 @@ from changes ch
 
 where ch.changed_item_type = "venue"
 	and change_status = "submitted"
-	and u.user_id != user
+	-- and u.user_id != user
 
 order by ch.change_submitted;
 

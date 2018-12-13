@@ -165,6 +165,7 @@ export default class EventChanges extends RCComponent<IProps> {
 						console.error(error);
 						this.setState({
 							dataError: true,
+							loading: false,
 						});
 
 					})
@@ -177,6 +178,7 @@ export default class EventChanges extends RCComponent<IProps> {
 				console.error(error);
 				this.setState({
 					dataError: true,
+					loading: false,
 				});
 
 			})
