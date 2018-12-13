@@ -16,12 +16,24 @@ where event_id = user;
 
 if @event_user = user then
 
-	delete from event_derbytypes where event = id;
-	delete from event_sanctions where event = id;
-	delete from event_tracks where event = id;
+	delete from event_derbytypes
+		where event = id;
 
-	delete from eventdays where eventday_event = id;
-	delete from events where event_id = id;
+	delete from event_sanctions
+		where event = id;
+
+	delete from event_tracks
+		where event = id;
+
+	delete from eventdays
+		where eventday_event = id;
+
+	delete from events
+		where event_id = id;
+
+	delete from changes
+		where changed_item_id = id
+			and changed_item_type = "event";
 
 	commit;
 
