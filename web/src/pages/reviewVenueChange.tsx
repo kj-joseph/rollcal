@@ -112,7 +112,11 @@ export default class ReviewVenueChange extends RCComponent<IProps> {
 
 				<div className={`dashboard reviewVenueChange ${this.state.venueData.id ? "" : "newVenue"}`}>
 
-					<h1>{this.state.initialLoad ? `Review ${this.state.venueData.id ? "Venue Change" : "New Venue"}` : ""}</h1>
+					<h1>
+						{this.state.initialLoad ?
+							`Review ${this.state.venueData.id ? "Venue Change" : "New Venue"}`
+						: null}
+					</h1>
 
 					{this.state.loading ?
 
@@ -139,7 +143,7 @@ export default class ReviewVenueChange extends RCComponent<IProps> {
 									<span className="new">New data</span>
 								</p>
 							</div>
-						: ""}
+						: null}
 
 						{this.state.venueChanges.changeId ?
 
@@ -172,7 +176,7 @@ export default class ReviewVenueChange extends RCComponent<IProps> {
 												/>
 												<br />
 											</React.Fragment>
-										: ""}
+										: null}
 
 										<CompareValues
 											oldValue={this.state.venueData.city}
@@ -190,7 +194,7 @@ export default class ReviewVenueChange extends RCComponent<IProps> {
 													inline={true}
 												/>
 											</React.Fragment>
-										: ""}
+										: null}
 
 										{this.state.venueData.postcode || this.state.venueChanges.postcode ?
 											<React.Fragment>
@@ -201,7 +205,7 @@ export default class ReviewVenueChange extends RCComponent<IProps> {
 													inline={true}
 												/>
 											</React.Fragment>
-										: ""}<br />
+										: null}<br />
 
 										<CompareValues
 											oldValue={this.state.venueData.country.name}

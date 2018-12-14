@@ -99,7 +99,7 @@ export default class ForgotPassword extends RCComponent<IProps> {
 								&& (document.getElementById("passwordForm") as HTMLFormElement).checkValidity()
 								&& this.state.password !== this.state.passwordConfirm ?
 								<p className="error">The two passwords don't match.</p>
-							: ""}
+							: null}
 						</div>
 
 						<p className="formError">{this.state.formError}</p>
@@ -124,8 +124,7 @@ export default class ForgotPassword extends RCComponent<IProps> {
 
 					<p>Your password has been reset.</p>
 
-				: ""
-				}
+				: null}
 			</React.Fragment>
 		);
 

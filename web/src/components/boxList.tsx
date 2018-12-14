@@ -95,7 +95,7 @@ export default class BoxList extends React.Component<IBoxListProps> {
 									</p>
 								</React.Fragment>
 
-							: ""}
+							: null}
 
 							{this.props.listType === "edit" ?
 
@@ -110,7 +110,7 @@ export default class BoxList extends React.Component<IBoxListProps> {
 										>
 											Edit
 										</button>
-									: ""}
+									: null}
 
 									{this.props.deleteFunction ?
 										<button
@@ -172,8 +172,8 @@ export default class BoxList extends React.Component<IBoxListProps> {
 
 							{this.props.itemType === "venues" ?
 								<p className="listLocation">{item.location}</p>
-							: ""}
-							{(item.host) ?	<h3>Hosted by {item.host}</h3> : ""}
+							: null}
+							{(item.host) ?	<h3>Hosted by {item.host}</h3> : null}
 
 							{this.props.itemType === "events" && item.features && !this.props.noIcons ?
 
@@ -194,7 +194,7 @@ export default class BoxList extends React.Component<IBoxListProps> {
 									]}
 								/>
 
-							: ""}
+							: null}
 
 						</li>
 					))}
@@ -223,11 +223,11 @@ export default class BoxList extends React.Component<IBoxListProps> {
 								>
 									Load all
 								</button>
-							: ""}
+							: null}
 						</div>
 					)
 
-				: ""}
+				: null}
 
 			</React.Fragment>
 

@@ -101,7 +101,7 @@ export default class EventDetails extends RCComponent<IProps> {
 								<div className="buttonRow cornerButton">
 									<button type="button" onClick={this.editEvent} className="largeButton">Edit Event</button>
 								</div>
-							: ""}
+							: null}
 
 							<div className="data">
 
@@ -126,14 +126,13 @@ export default class EventDetails extends RCComponent<IProps> {
 												: "Event"} website
 											</a>
 										</p>
-										: ""
-									}
+									: null}
+
 								</div>
 
 								{(this.state.eventData.description) ?
 									<p><FormatText>{this.state.eventData.description}</FormatText></p>
-									: ""
-								}
+								: null}
 
 								<div className="eventVenueInfo">
 									<address>
@@ -146,7 +145,7 @@ export default class EventDetails extends RCComponent<IProps> {
 												</span>
 												<br />
 											</React.Fragment>
-										: ""}
+										: null}
 										{this.state.eventData.venue.city} {
 											this.state.eventData.venue.region && this.state.eventData.venue.region.abbreviation ?
 												this.state.eventData.venue.region.abbreviation
@@ -197,7 +196,7 @@ export default class EventDetails extends RCComponent<IProps> {
 										<p>
 											<strong>Start time:</strong> {this.state.eventData.days[0].startTime}
 											{this.state.eventData.days[0].doorsTime
-												? ` (Doors: ${this.state.eventData.days[0].doorsTime})` : ""}
+												? ` (Doors: ${this.state.eventData.days[0].doorsTime})` : null}
 										</p>
 									</div>
 
@@ -206,8 +205,10 @@ export default class EventDetails extends RCComponent<IProps> {
 								<p><em>All times shown are local to the venue.</em></p>
 
 								<p className="eventUser">
-									Event added by {this.state.eventData.user.userName
-										}{this.state.eventData.user.userId === this.props.loggedInUserId ? " (thank you!)" : ""}
+									Event added by {this.state.eventData.user.userName}
+									{this.state.eventData.user.userId === this.props.loggedInUserId ?
+										" (thank you!)"
+									: null}
 								</p>
 
 							</div>

@@ -87,6 +87,7 @@ export default class Events extends RCComponent<IProps> {
 	render() {
 
 		return (
+
 			<React.Fragment>
 				{this.state.isSearch ?
 					<React.Fragment>
@@ -188,9 +189,9 @@ export default class Events extends RCComponent<IProps> {
 
 					</React.Fragment>
 
-				: ""
-				}
+				: null}
 			</React.Fragment>
+
 		);
 	}
 

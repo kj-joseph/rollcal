@@ -61,13 +61,13 @@ export default class FeatureIconSet extends React.Component<IFeatureSetProps> {
 												featureGroup.label.singular
 											: featureGroup.label.plural ?
 												featureGroup.label.plural
-											: ""
+											: null
 										}
 
 
 									</span>
 
-								: ""}
+								: null}
 
 								{featureGroup.items.map((item) => (
 
@@ -84,7 +84,7 @@ export default class FeatureIconSet extends React.Component<IFeatureSetProps> {
 
 							</span>
 
-						: ""
+						: null
 
 					))}
 

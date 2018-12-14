@@ -429,7 +429,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 											</React.Fragment>
 
-										: ""}
+										: null}
 
 									</FormSection>
 
@@ -450,7 +450,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 											{ !this.state.editingDays.length ?
 												<p>There are currently no days for this event.  Please add at least one.</p>
-											: ""}
+											: null}
 
 											<ul className={"eventDayList" + (this.state.editingDays.length ? "" : " empty")}>
 												{this.state.editingDays
@@ -616,9 +616,10 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 								</div>
 
 								<div className="buttonRow">
-								{ this.state.submitError ?
-									<p className="error">{this.state.submitError}</p>
-								: ""}
+
+									{ this.state.submitError ?
+										<p className="error">{this.state.submitError}</p>
+									: null}
 
 									<button
 										type="submit"

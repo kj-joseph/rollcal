@@ -110,7 +110,7 @@ export default class UserAccount extends RCComponent<IProps> {
 								</Link>
 							</p>
 
-						: ""}
+						: null}
 
 						<div className="userAccount">
 
@@ -222,11 +222,11 @@ export default class UserAccount extends RCComponent<IProps> {
 										<p>Since you changed your email address, you have been logged out.
 											An email has been sent to your new address in order to confirm your account.</p>
 
-									: ""}
+									: null}
 
 								</React.Fragment>
 
-							: ""}
+							: null}
 
 						</div>
 

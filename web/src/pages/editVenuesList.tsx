@@ -123,7 +123,7 @@ export default class EditVenuesList extends RCComponent<IProps> {
 							</a>
 							</div>
 
-						: ""}
+						: null}
 
 						{this.state.venueData.length ?
 

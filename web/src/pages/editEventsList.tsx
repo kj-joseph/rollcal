@@ -139,7 +139,7 @@ export default class EditEventsList extends RCComponent<IProps> {
 							</a>
 							</div>
 
-						: ""}
+						: null}
 
 						{this.state.eventData.length ?
 
@@ -199,7 +199,7 @@ export default class EditEventsList extends RCComponent<IProps> {
 
 											<p className="error">{this.state.modalError}</p>
 
-										: ""}
+										: null}
 
 									</React.Fragment>
 

@@ -99,7 +99,7 @@ export default class Dashboard extends React.Component<IProps> {
 							<Link to="/dashboard/events/changes">Review Event Changes</Link>
 						</li>
 
-					: " "}
+					: null}
 
 					{this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("reviewer") > -1 ?
 
@@ -107,7 +107,7 @@ export default class Dashboard extends React.Component<IProps> {
 							<Link to="/dashboard/venues/changes">Review Venue Changes</Link>
 						</li>
 
-					: " "}
+					: null}
 
 					{this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("admin") > -1 ?
 
@@ -115,7 +115,7 @@ export default class Dashboard extends React.Component<IProps> {
 							<Link to="/dashboard/admin">User Admin</Link>
 						</li>
 
-					: " "}
+					: null}
 
 				</ul>
 

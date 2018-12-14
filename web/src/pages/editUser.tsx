@@ -200,9 +200,11 @@ export default class EditUser extends RCComponent<IProps> {
 							</div>
 
 							<div className="buttonRow">
+
 								{ this.state.saveError ?
 									<p className="error">There was an error while saving.  Please try again.</p>
-								: ""}
+								: null}
+
 								<button
 									className="largeButton"
 									type="submit"
@@ -212,6 +214,7 @@ export default class EditUser extends RCComponent<IProps> {
 								>
 									Save
 								</button>
+
 							</div>
 
 						</form>

@@ -262,7 +262,7 @@ export default class VenueForm extends RCComponent<IProps> {
 
 								{ this.state.submitError ?
 									<p className="error">{this.state.submitError}</p>
-								: ""}
+								: null}
 
 								<div className="buttonRow">
 									<button

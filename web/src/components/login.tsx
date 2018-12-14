@@ -156,7 +156,11 @@ class Login extends RCComponent<IProps> {
 
 					: this.state.modalStatus === "forgot" ?
 
-						<form id="forgotForm" onSubmit={this.submitForgot} className={this.state.loading ? "disabled" : ""}>
+						<form
+							id="forgotForm"
+							onSubmit={this.submitForgot}
+							className={this.state.loading ? "disabled" : ""}
+						>
 
 							<h2>Forgot Password</h2>
 
@@ -190,7 +194,11 @@ class Login extends RCComponent<IProps> {
 
 					: this.state.modalStatus === "register" ?
 
-						<form id="registerForm" onSubmit={this.submitRegistration} className={this.state.loading ? "disabled" : ""}>
+						<form
+							id="registerForm"
+							onSubmit={this.submitRegistration}
+							className={this.state.loading ? "disabled" : ""}
+						>
 
 							<h2>Create an Account</h2>
 
@@ -304,11 +312,11 @@ class Login extends RCComponent<IProps> {
 
 						</div>
 
-					: ""}
+					: null}
 
 					{ this.state.loading ?
 						<div className={"loader medium" + (this.state.loading ? "" : " disabled")} />
-					: ""}
+					: null}
 
 				</div>
 

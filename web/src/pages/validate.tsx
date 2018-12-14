@@ -43,6 +43,7 @@ export default class Validate extends RCComponent<IProps> {
 		return (
 			<React.Fragment>
 				<h1>Account Validation</h1>
+
 				{ this.state.status === "validating" ?
 					<div className="loader" />
 
@@ -55,8 +56,8 @@ export default class Validate extends RCComponent<IProps> {
 						if it doesn't work, <Link to="/contact" title="Contact">give us a shout</Link>.
 					</p>
 
-				: ""
-				}
+				: null}
+
 			</React.Fragment>
 		);
 

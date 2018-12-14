@@ -161,14 +161,18 @@ export default class Search extends RCComponent<IProps> {
 									<p className="dateRange">
 										<strong>Filter by Date:</strong>
 										{this.state.dateRangeDisplay}
-										{(this.state.dateRangeDisplay || this.state.startDate) && !this.state.endDate ? " – (all)" : ""}
-										{this.state.startDate && this.state.endDate && this.state.startDate.format("Y-MM-DD") === this.state.endDate.format("Y-MM-DD") ? " (only)" : ""}
+										{(this.state.dateRangeDisplay || this.state.startDate) && !this.state.endDate ?
+											" – (all)"
+										: null}
+										{this.state.startDate && this.state.endDate && this.state.startDate.format("Y-MM-DD") === this.state.endDate.format("Y-MM-DD") ?
+											" (only)"
+										: null}
 										{this.state.startDate ?
 											<React.Fragment>
 												<br />
 												<button className="smallButton" onClick={this.clearDates}>Clear dates</button>
 											</React.Fragment>
-										: ""}
+										: null}
 									</p>
 
 									<DayPickerRangeController
@@ -250,10 +254,12 @@ export default class Search extends RCComponent<IProps> {
 													}
 													onClick={this.addCountry}
 												>
-													Add {this.state.countrySelectValue ? this.state.countrySelectValue.name : ""} to Location List
+													Add {this.state.countrySelectValue ?
+														this.state.countrySelectValue.name
+													: null} to Location List
 												</button>
 											</div>
-										: ""}
+										: null}
 
 										{(this.state.countrySelectValue
 											&& this.state.countrySelectValue.regions
@@ -286,13 +292,15 @@ export default class Search extends RCComponent<IProps> {
 															!this.state.regionSelectValue.id}
 														onClick={this.addRegion}
 													>
-														Add {this.state.regionSelectValue ? this.state.regionSelectValue.name : ""} to Location List
+														Add {this.state.regionSelectValue ?
+															this.state.regionSelectValue.name
+														: null} to Location List
 													</button>
 												</div>
 
 											</React.Fragment>
 
-										: ""}
+										: null}
 
 										<div className="selectedLocationsContainer">
 
@@ -322,27 +330,27 @@ export default class Search extends RCComponent<IProps> {
 
 																{country.regions && country.regions.length ?
 																	<ul className={"selectedRegions" + country.code}>
-																	{country.regions
-																		.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)
-																		.map((region) => (
+																		{country.regions
+																			.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)
+																			.map((region) => (
 
-																		<li key={region.id}>
-																			{region.name}
+																			<li key={region.id}>
+																				{region.name}
 
-																			<ReactSVG
-																				className="removeGeoButton"
-																				src={CloseIcon}
-																				data-country={region.country}
-																				data-region={region.id}
-																				title={`remove ${region.name}`}
-																				onClick={this.removeRegion}
-																			/>
+																				<ReactSVG
+																					className="removeGeoButton"
+																					src={CloseIcon}
+																					data-country={region.country}
+																					data-region={region.id}
+																					title={`remove ${region.name}`}
+																					onClick={this.removeRegion}
+																				/>
 
-																		</li>
-																	))}
+																			</li>
+																		))}
 																	</ul>
-																: ""
-																}
+
+																: null}
 
 															</li>
 														))}
@@ -421,7 +429,7 @@ export default class Search extends RCComponent<IProps> {
 
 									</div>
 
-								: ""}
+								: null}
 
 							</div>
 
@@ -452,7 +460,7 @@ export default class Search extends RCComponent<IProps> {
 								/>
 
 
-							: ""}
+							: null}
 
 						</div>
 

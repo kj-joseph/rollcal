@@ -68,7 +68,11 @@ export default class Contact extends RCComponent<IProps> {
 
 				{ this.state.status === "form" ?
 
-					<form id="contactForm" onSubmit={this.submitContact} className={this.state.submitting ? "disabled" : ""}>
+					<form
+						id="contactForm"
+						onSubmit={this.submitContact}
+						className={this.state.submitting ? "disabled" : ""}
+					>
 
 						<p>Have a question?  Got an error?  Want to help out?  Let us know by filling out the form below</p>
 
@@ -128,11 +132,11 @@ export default class Contact extends RCComponent<IProps> {
 
 					<p>Your message was sent!  We'll get back to you as soon as possible.</p>
 
-				: ""}
+				: null}
 
 				{ this.state.submitting ?
 					<div className="loader" />
-				: ""}
+				: null}
 
 			</div>
 		);

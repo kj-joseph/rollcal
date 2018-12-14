@@ -171,7 +171,7 @@ export default class AdminDashboard extends RCComponent<IProps> {
 
 						<div className="loader medium" />
 
-					: ""}
+					: null}
 
 
 				</div>
