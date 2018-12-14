@@ -28,7 +28,7 @@ export default class SiteMenu extends React.Component<IProps> {
 
 		return (
 
-			<React.Fragment>
+			<>
 
 				<div className="siteMenu">
 					<ul>
@@ -92,7 +92,7 @@ export default class SiteMenu extends React.Component<IProps> {
 					</ul>
 				</div>
 
-			</React.Fragment>
+			</>
 		);
 
 	}

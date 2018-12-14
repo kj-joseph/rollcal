@@ -51,7 +51,8 @@ export default class ForgotPassword extends RCComponent<IProps> {
 	render() {
 
 		return (
-			<React.Fragment>
+
+			<>
 				<h1>Set New Password</h1>
 
 				{ this.state.status === "loading" || this.state.status === "submitting" ?
@@ -125,7 +126,8 @@ export default class ForgotPassword extends RCComponent<IProps> {
 					<p>Your password has been reset.</p>
 
 				: null}
-			</React.Fragment>
+			</>
+
 		);
 
 	}

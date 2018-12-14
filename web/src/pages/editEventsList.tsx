@@ -99,7 +99,7 @@ export default class EditEventsList extends RCComponent<IProps> {
 
 		return (
 
-			<React.Fragment>
+			<>
 
 				<p className="backToLink">
 					<Link to="/dashboard">
@@ -115,7 +115,7 @@ export default class EditEventsList extends RCComponent<IProps> {
 
 					:
 
-					<React.Fragment>
+					<>
 
 						<div className="buttonRow cornerButton">
 							<button type="button" onClick={this.addEvent} className="largeButton">New Event</button>
@@ -177,7 +177,7 @@ export default class EditEventsList extends RCComponent<IProps> {
 
 								:
 
-									<React.Fragment>
+									<>
 
 										<ReactSVG
 											className="modalClose"
@@ -201,7 +201,7 @@ export default class EditEventsList extends RCComponent<IProps> {
 
 										: null}
 
-									</React.Fragment>
+									</>
 
 								}
 
@@ -209,13 +209,13 @@ export default class EditEventsList extends RCComponent<IProps> {
 
 						</Modal>
 
-					</React.Fragment>
+					</>
 
 					}
 
 				</div>
 
-			</React.Fragment>
+			</>
 
 		);
 

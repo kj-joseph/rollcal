@@ -207,17 +207,17 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 						( this.state.eventData.id ?
 
-							<React.Fragment>
+							<>
 								<h2>Submission successful!  Thank you!</h2>
 								<p>Your changes to this event have been submitted.  Once one of our crack staff reviews your changes, we'll let you know.  Thanks for your help!</p>
-							</React.Fragment>
+							</>
 
 						:
 
-							<React.Fragment>
+							<>
 								<h2>Submission successful!  Thank you!</h2>
 								<p>Your new event has been submitted.  Once one of our crack staff reviews it, we'll let you know.  Thanks for your help!</p>
-							</React.Fragment>
+							</>
 
 						)
 
@@ -229,7 +229,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 					:
 
-						<React.Fragment>
+						<>
 
 							<Callout title="Important!">
 								<p>Make sure to click the <strong>Submit Changes</strong> button at the bottom of the page to save your changes.</p>
@@ -333,7 +333,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 										{this.state.eventData.venue.id === 0 ?
 
-											<React.Fragment>
+											<>
 
 												<div className="inputGroup">
 													<label htmlFor="newVenueName">Name</label>
@@ -427,7 +427,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 													/>
 												</div>
 
-											</React.Fragment>
+											</>
 
 										: null}
 
@@ -646,7 +646,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 							</form>
 
-						</React.Fragment>
+						</>
 
 					}
 

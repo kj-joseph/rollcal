@@ -102,7 +102,7 @@ export default class ReviewVenueChange extends RCComponent<IProps> {
 
 		return (
 
-			<React.Fragment>
+			<>
 
 				<p className="backToLink">
 					<Link to="/dashboard/venues/changes">
@@ -132,7 +132,7 @@ export default class ReviewVenueChange extends RCComponent<IProps> {
 
 					:
 
-					<React.Fragment>
+					<>
 
 						{this.state.venueData.id ?
 							<div className="callout">
@@ -147,7 +147,7 @@ export default class ReviewVenueChange extends RCComponent<IProps> {
 
 						{this.state.venueChanges.changeId ?
 
-							<React.Fragment>
+							<>
 
 								<dl className="changeDetails">
 
@@ -168,14 +168,14 @@ export default class ReviewVenueChange extends RCComponent<IProps> {
 										/><br />
 
 										{this.state.venueData.address2 || this.state.venueChanges.address2 ?
-											<React.Fragment>
+											<>
 												<CompareValues
 													oldValue={this.state.venueData.address2}
 													newValue={this.state.venueChanges.address2}
 													inline={true}
 												/>
 												<br />
-											</React.Fragment>
+											</>
 										: null}
 
 										<CompareValues
@@ -186,25 +186,25 @@ export default class ReviewVenueChange extends RCComponent<IProps> {
 
 										{(this.state.venueData.region && this.state.venueData.region.abbreviation)
 											|| (this.state.venueChanges.region && this.state.venueChanges.region.abbreviation) ?
-											<React.Fragment>
+											<>
 												{", "}
 												<CompareValues
 													oldValue={this.state.venueData.region.abbreviation}
 													newValue={this.state.venueChanges.region.abbreviation}
 													inline={true}
 												/>
-											</React.Fragment>
+											</>
 										: null}
 
 										{this.state.venueData.postcode || this.state.venueChanges.postcode ?
-											<React.Fragment>
+											<>
 												{" "}
 												<CompareValues
 													oldValue={this.state.venueData.postcode}
 													newValue={this.state.venueChanges.postcode}
 													inline={true}
 												/>
-											</React.Fragment>
+											</>
 										: null}<br />
 
 										<CompareValues
@@ -243,7 +243,7 @@ export default class ReviewVenueChange extends RCComponent<IProps> {
 									<button type="button" className="largeButton pinkButton" onClick={this.openRejectModal}>Reject</button>
 								</div>
 
-							</React.Fragment>
+							</>
 
 						:
 
@@ -252,7 +252,7 @@ export default class ReviewVenueChange extends RCComponent<IProps> {
 						}
 
 
-					</React.Fragment>
+					</>
 
 					}
 
@@ -306,7 +306,7 @@ export default class ReviewVenueChange extends RCComponent<IProps> {
 
 				</Modal>
 
-			</React.Fragment>
+			</>
 
 		);
 

@@ -76,7 +76,7 @@ export default class VenueChanges extends RCComponent<IProps> {
 
 		return (
 
-			<React.Fragment>
+			<>
 
 				<p className="backToLink">
 					<Link to="/dashboard">
@@ -92,7 +92,7 @@ export default class VenueChanges extends RCComponent<IProps> {
 
 					:
 
-					<React.Fragment>
+					<>
 
 						<h1>Submitted Venue Changes</h1>
 
@@ -116,13 +116,13 @@ export default class VenueChanges extends RCComponent<IProps> {
 						}
 
 
-					</React.Fragment>
+					</>
 
 					}
 
 				</div>
 
-			</React.Fragment>
+			</>
 
 		);
 

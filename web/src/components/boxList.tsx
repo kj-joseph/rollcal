@@ -52,7 +52,7 @@ export default class BoxList extends React.Component<IBoxListProps> {
 
 		return(
 
-			<React.Fragment>
+			<>
 
 				<ul
 					className={`boxList ${
@@ -83,7 +83,7 @@ export default class BoxList extends React.Component<IBoxListProps> {
 
 							{item.submittedDuration && item.submittedTime ?
 
-								<React.Fragment>
+								<>
 									<p className="submittedTime">
 										<strong>{item.id ?
 											"Change"
@@ -93,7 +93,7 @@ export default class BoxList extends React.Component<IBoxListProps> {
 										<span title={item.submittedTime}>{item.submittedDuration} ago</span>{" "}
 										by <strong>{item.user.userName}</strong>
 									</p>
-								</React.Fragment>
+								</>
 
 							: null}
 
@@ -229,7 +229,7 @@ export default class BoxList extends React.Component<IBoxListProps> {
 
 				: null}
 
-			</React.Fragment>
+			</>
 
 		);
 

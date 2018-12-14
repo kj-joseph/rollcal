@@ -41,7 +41,7 @@ export default class Validate extends RCComponent<IProps> {
 	render() {
 
 		return (
-			<React.Fragment>
+			<>
 				<h1>Account Validation</h1>
 
 				{ this.state.status === "validating" ?
@@ -58,7 +58,7 @@ export default class Validate extends RCComponent<IProps> {
 
 				: null}
 
-			</React.Fragment>
+			</>
 		);
 
 	}

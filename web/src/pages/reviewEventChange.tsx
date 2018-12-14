@@ -110,7 +110,7 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 
 		return (
 
-			<React.Fragment>
+			<>
 
 				<p className="backToLink">
 					<Link to="/dashboard/events/changes">
@@ -142,7 +142,7 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 
 					:
 
-					<React.Fragment>
+					<>
 
 						{this.state.eventData.id ?
 							<div className="callout">
@@ -157,7 +157,7 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 
 						{this.state.eventChanges.changeId ?
 
-							<React.Fragment>
+							<>
 
 								<div className="entryForm">
 									<div className="formContainer">
@@ -200,10 +200,10 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 											<dl className="changeDetails">
 
 												{this.state.eventChanges.newVenue ?
-													<React.Fragment>
+													<>
 
 														{this.state.eventData.venue && this.state.eventData.venue.id ?
-															<React.Fragment>
+															<>
 
 																<dt>Old Venue:</dt>
 
@@ -214,7 +214,7 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 																	</span>
 																</dd>
 
-															</React.Fragment>
+															</>
 														: null}
 
 														<dt>Adding New Venue:</dt>
@@ -224,10 +224,10 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 																{this.state.eventChanges.newVenue.name}<br />
 																{this.state.eventChanges.newVenue.address1}<br />
 																{this.state.eventChanges.newVenue.address2 ?
-																	<React.Fragment>
+																	<>
 																		{this.state.eventChanges.newVenue.address2}
 																		<br />
-																	</React.Fragment>
+																	</>
 																: null}
 																{buildVenueLocation(this.state.eventChanges.newVenue)}<br />
 																{this.state.eventChanges.newVenue.country.name}<br />
@@ -235,38 +235,38 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 														</dd>
 
 														{this.state.eventChanges.newVenue.link ?
-															<React.Fragment>
+															<>
 																<dt>New Venue Web Site:</dt>
 																<dd><span className="new">
 																	{this.state.eventChanges.newVenue.link}
 																</span></dd>
-															</React.Fragment>
+															</>
 														: null}
 
 														{this.state.eventChanges.newVenue.description ?
-															<React.Fragment>
+															<>
 																<dt>New Venue Description:</dt>
 																<dd><span className="new">
 																	<FormatText>{this.state.eventChanges.newVenue.description}</FormatText>
 																</span></dd>
-															</React.Fragment>
+															</>
 														: null}
 
 														{this.state.eventChanges.newVenue.timezone ?
-															<React.Fragment>
+															<>
 																<dt>New Venue Time Zone:</dt>
 																<dd><span className="new">
 																	{this.state.eventChanges.newVenue.timezone.name}
 																</span></dd>
-															</React.Fragment>
+															</>
 														: null}
 
-													</React.Fragment>
+													</>
 
 												: this.state.eventChanges.venue
 													&& this.state.eventChanges.venue !== this.state.eventData.venue ?
 
-													<React.Fragment>
+													<>
 														<dt>
 															{!this.state.eventData.id ?
 																"Existing "
@@ -277,12 +277,12 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 														<dd>
 															{this.state.eventData.venue && this.state.eventData.venue.id ?
 
-																<React.Fragment>
+																<>
 																	<span className="old removed">
 																		{this.state.eventData.venue.name}<br />
 																		{buildVenueLocation(this.state.eventData.venue)}
 																	</span><br />
-																</React.Fragment>
+																</>
 
 															: null}
 
@@ -293,11 +293,11 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 
 														</dd>
 
-													</React.Fragment>
+													</>
 
 												:
 
-													<React.Fragment>
+													<>
 														<dt>Venue:</dt>
 
 														<dd>
@@ -306,7 +306,7 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 																{buildVenueLocation(this.state.eventData.venue)}
 															</span>
 														</dd>
-													</React.Fragment>
+													</>
 
 												}
 
@@ -338,37 +338,37 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 
 													<dd>
 														{day.status !== "delete" ?
-															<React.Fragment>
-															<em>Start time:</em>{" "}
-															<CompareValues
-																inline={true}
-																oldValue={day.old.start}
-																newValue={day.new.start}
-															/><br />
-
-															<em>Doors open:</em>{" "}
-															{day.old.doors || day.new.doors ?
-															<CompareValues
-																inline={true}
-																oldValue={day.old.doors}
-																newValue={day.new.doors}
-															/>
-															:
-																<span className="nodata">(none)</span>
-															}<br />
-
-															<em>Description:</em><br />
-															{day.old.description || day.new.description ?
+															<>
+																<em>Start time:</em>{" "}
 																<CompareValues
-																	addFormatting={true}
 																	inline={true}
-																	oldValue={day.old.description}
-																	newValue={day.new.description}
+																	oldValue={day.old.start}
+																	newValue={day.new.start}
+																/><br />
+
+																<em>Doors open:</em>{" "}
+																{day.old.doors || day.new.doors ?
+																<CompareValues
+																	inline={true}
+																	oldValue={day.old.doors}
+																	newValue={day.new.doors}
 																/>
-															:
-																<span className="nodata">(none)</span>
-															}
-															</React.Fragment>
+																:
+																	<span className="nodata">(none)</span>
+																}<br />
+
+																<em>Description:</em><br />
+																{day.old.description || day.new.description ?
+																	<CompareValues
+																		addFormatting={true}
+																		inline={true}
+																		oldValue={day.old.description}
+																		newValue={day.new.description}
+																	/>
+																:
+																	<span className="nodata">(none)</span>
+																}
+															</>
 														:
 															<span className="nodata">(deleted)</span>
 														}
@@ -448,7 +448,7 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 
 								</div>
 
-							</React.Fragment>
+							</>
 
 						:
 
@@ -457,7 +457,7 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 						}
 
 
-					</React.Fragment>
+					</>
 
 					}
 
@@ -511,7 +511,7 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 
 				</Modal>
 
-			</React.Fragment>
+			</>
 
 		);
 

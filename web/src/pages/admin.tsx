@@ -77,7 +77,7 @@ export default class AdminDashboard extends RCComponent<IProps> {
 
 		return (
 
-			<React.Fragment>
+			<>
 
 				<p className="backToLink">
 					<Link to="/dashboard">
@@ -176,7 +176,7 @@ export default class AdminDashboard extends RCComponent<IProps> {
 
 				</div>
 
-			</React.Fragment>
+			</>
 
 		);
 

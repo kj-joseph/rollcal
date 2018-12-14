@@ -62,11 +62,11 @@ export default class EventDetails extends RCComponent<IProps> {
 
 		return (
 
-			<React.Fragment>
+			<>
 
 				{this.props.match.params.eventId ?
 
-				<React.Fragment>
+				<>
 
 					{this.props.lastSearch ?
 						<p className="backToLink">
@@ -139,12 +139,12 @@ export default class EventDetails extends RCComponent<IProps> {
 										<strong>{this.state.eventData.venue.name}</strong><br />
 										{this.state.eventData.venue.address1}<br />
 										{(this.state.eventData.venue.address2) ?
-											<React.Fragment>
+											<>
 												<span>
 													{this.state.eventData.venue.address2}
 												</span>
 												<br />
-											</React.Fragment>
+											</>
 										: null}
 										{this.state.eventData.venue.city} {
 											this.state.eventData.venue.region && this.state.eventData.venue.region.abbreviation ?
@@ -177,7 +177,9 @@ export default class EventDetails extends RCComponent<IProps> {
 									<div className="eventDays">
 										<h4>Days</h4>
 										<dl>
-										{this.state.eventData.days.map((day: IDerbyEventDay) => (
+										{this.state.eventData.days
+											.map((day: IDerbyEventDay) => (
+
 											<React.Fragment key={day.date}>
 												<dt><strong>{day.date}:</strong>{moment(day.startTime, "HH:mm:00").format("h:mm a")}
 													{day.doorsTime ?
@@ -186,6 +188,7 @@ export default class EventDetails extends RCComponent<IProps> {
 												</dt>
 												<dd><FormatText>{day.description}</FormatText></dd>
 											</React.Fragment>
+
 										))}
 										</dl>
 									</div>
@@ -246,7 +249,7 @@ export default class EventDetails extends RCComponent<IProps> {
 
 					}
 
-				</React.Fragment>
+				</>
 
 				:
 
@@ -257,7 +260,7 @@ export default class EventDetails extends RCComponent<IProps> {
 
 				}
 
-			</React.Fragment>
+			</>
 
 		);
 

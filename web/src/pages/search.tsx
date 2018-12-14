@@ -147,13 +147,13 @@ export default class Search extends RCComponent<IProps> {
 
 		return (
 
-			<React.Fragment>
+			<>
 				<h1>Search Events</h1>
 
 				{ this.state.loading ?
 					<div className="loader" />
 				:
-					<React.Fragment>
+					<>
 						<div className="searchForm">
 							<div className="searchDatesLocations">
 
@@ -168,10 +168,10 @@ export default class Search extends RCComponent<IProps> {
 											" (only)"
 										: null}
 										{this.state.startDate ?
-											<React.Fragment>
+											<>
 												<br />
 												<button className="smallButton" onClick={this.clearDates}>Clear dates</button>
-											</React.Fragment>
+											</>
 										: null}
 									</p>
 
@@ -265,7 +265,7 @@ export default class Search extends RCComponent<IProps> {
 											&& this.state.countrySelectValue.regions
 											&& this.state.countrySelectValue.regions.length) ?
 
-											<React.Fragment>
+											<>
 												<div className="inputGroup">
 													<label htmlFor="searchSelectRegions">or select a {this.state.countrySelectValue.regionType}:</label>
 
@@ -298,7 +298,7 @@ export default class Search extends RCComponent<IProps> {
 													</button>
 												</div>
 
-											</React.Fragment>
+											</>
 
 										: null}
 
@@ -310,7 +310,7 @@ export default class Search extends RCComponent<IProps> {
 												{!this.state.selectedLocations.length ?
 													<li>All</li>
 												:
-													<React.Fragment>
+													<>
 
 														{this.state.selectedLocations
 															.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)
@@ -354,7 +354,7 @@ export default class Search extends RCComponent<IProps> {
 
 															</li>
 														))}
-													</React.Fragment>
+													</>
 												}
 											</ul>
 
@@ -483,10 +483,10 @@ export default class Search extends RCComponent<IProps> {
 							</button>
 						</div>
 
-					</React.Fragment>
+					</>
 				}
 
-			</React.Fragment>
+			</>
 		);
 
 	}
@@ -770,12 +770,12 @@ export default class Search extends RCComponent<IProps> {
 
 	}
 
-	renderMonthHeader(date: {month: moment.Moment}) {
+	renderMonthHeader(date: {month: moment.Moment}): JSX.Element {
 
 		return (
-			<React.Fragment>
+			<>
 				<span className="monthLong">{date.month.format("MMMM")}</span><span className="monthShort">{date.month.format("MMM")}</span> {date.month.format("Y")}
-			</React.Fragment>
+			</>
 		);
 
 	}

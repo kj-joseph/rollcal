@@ -101,7 +101,7 @@ export default class EditUser extends RCComponent<IProps> {
 
 		return (
 
-			<React.Fragment>
+			<>
 
 				<p className="backToLink">
 					<Link to="/dashboard/admin">
@@ -223,7 +223,7 @@ export default class EditUser extends RCComponent<IProps> {
 
 				</div>
 
-			</React.Fragment>
+			</>
 
 		);
 

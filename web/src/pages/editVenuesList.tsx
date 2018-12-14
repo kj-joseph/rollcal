@@ -83,7 +83,7 @@ export default class EditVenuesList extends RCComponent<IProps> {
 
 		return (
 
-			<React.Fragment>
+			<>
 
 				<p className="backToLink">
 					<Link to="/dashboard">
@@ -99,7 +99,7 @@ export default class EditVenuesList extends RCComponent<IProps> {
 
 					:
 
-					<React.Fragment>
+					<>
 
 						<div className="buttonRow cornerButton">
 							<button type="button" onClick={this.addVenue} className="largeButton">New Venue</button>
@@ -146,13 +146,13 @@ export default class EditVenuesList extends RCComponent<IProps> {
 
 						}
 
-					</React.Fragment>
+					</>
 
 					}
 
 				</div>
 
-			</React.Fragment>
+			</>
 
 		);
 

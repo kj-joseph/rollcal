@@ -24,10 +24,10 @@ export default class CompareValues extends React.Component<ICompareValuesProps> 
 				return "";
 			} else {
 				return (
-					<React.Fragment>
+					<>
 						<dt>{this.props.label}:</dt>
 						<dd><span className="nodata">(none)</span></dd>
-					</React.Fragment>
+					</>
 				);
 			}
 
@@ -35,17 +35,17 @@ export default class CompareValues extends React.Component<ICompareValuesProps> 
 
 			if (this.props.inline) {
 				return (
-					<React.Fragment>
+					<>
 						<span className="new">
 							{ this.props.addFormatting ?
 								<FormatText>{this.props.newValue}</FormatText>
 							: this.props.newValue}
 						</span>
-					</React.Fragment>
+					</>
 				);
 			} else {
 				return (
-					<React.Fragment>
+					<>
 						<dt>{this.props.label}:</dt>
 						<dd>
 							<span className="new">
@@ -54,7 +54,7 @@ export default class CompareValues extends React.Component<ICompareValuesProps> 
 								: this.props.newValue}
 							</span>
 						</dd>
-					</React.Fragment>
+					</>
 				);
 			}
 
@@ -62,17 +62,17 @@ export default class CompareValues extends React.Component<ICompareValuesProps> 
 
 			if (this.props.inline) {
 				return (
-					<React.Fragment>
+					<>
 						<span className="old">
 							{ this.props.addFormatting ?
 								<FormatText>{this.props.oldValue}</FormatText>
 							: this.props.oldValue}
 						</span>
-					</React.Fragment>
+					</>
 				);
 			} else {
 				return (
-					<React.Fragment>
+					<>
 						<dt>{this.props.label}:</dt>
 						<dd>
 							<span className="old">
@@ -81,7 +81,7 @@ export default class CompareValues extends React.Component<ICompareValuesProps> 
 								: this.props.oldValue}
 							</span>
 						</dd>
-					</React.Fragment>
+					</>
 				);
 			}
 
@@ -89,17 +89,17 @@ export default class CompareValues extends React.Component<ICompareValuesProps> 
 
 			if (this.props.inline) {
 				return (
-					<React.Fragment>
+					<>
 						<span className="old removed">
 							{ this.props.addFormatting ?
 								<FormatText>{this.props.oldValue}</FormatText>
 							: this.props.oldValue}
 						</span>
-					</React.Fragment>
+					</>
 				);
 			} else {
 				return (
-					<React.Fragment>
+					<>
 						<dt>{this.props.label}:</dt>
 						<dd>
 							<span className="old removed">
@@ -108,7 +108,7 @@ export default class CompareValues extends React.Component<ICompareValuesProps> 
 								: this.props.oldValue}
 							</span>
 						</dd>
-					</React.Fragment>
+					</>
 				);
 			}
 
@@ -126,7 +126,7 @@ export default class CompareValues extends React.Component<ICompareValuesProps> 
 					);
 				} else {
 					return (
-						<React.Fragment>
+						<>
 							<dt>{this.props.label}:</dt>
 							<dd>
 								<span className="old">
@@ -135,7 +135,7 @@ export default class CompareValues extends React.Component<ICompareValuesProps> 
 									: this.props.oldValue}
 								</span>
 							</dd>
-						</React.Fragment>
+						</>
 					);
 				}
 
@@ -143,7 +143,7 @@ export default class CompareValues extends React.Component<ICompareValuesProps> 
 
 				if (this.props.inline) {
 					return (
-						<React.Fragment>
+						<>
 							<span className="old removed">
 								{ this.props.addFormatting ?
 									<FormatText>{this.props.oldValue}</FormatText>
@@ -154,11 +154,11 @@ export default class CompareValues extends React.Component<ICompareValuesProps> 
 									<FormatText>{this.props.newValue}</FormatText>
 								: this.props.newValue}
 							</span>
-						</React.Fragment>
+						</>
 					);
 				} else {
 					return (
-						<React.Fragment>
+						<>
 							<dt>{this.props.label}:</dt>
 							<dd>
 							<span className="old removed">
@@ -172,7 +172,7 @@ export default class CompareValues extends React.Component<ICompareValuesProps> 
 								: this.props.newValue}
 							</span>
 							</dd>
-						</React.Fragment>
+						</>
 					);
 				}
 

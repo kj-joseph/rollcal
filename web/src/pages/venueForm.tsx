@@ -130,17 +130,17 @@ export default class VenueForm extends RCComponent<IProps> {
 
 						( this.state.venueData.id ?
 
-							<React.Fragment>
+							<>
 								<h2>Submission successful!  Thank you!</h2>
 								<p>Your changes to this venue have been submitted.  Once one of our crack staff reviews your changes, we'll let you know.  Thanks for your help!</p>
-							</React.Fragment>
+							</>
 
 						:
 
-							<React.Fragment>
+							<>
 								<h2>Submission successful!  Thank you!</h2>
 								<p>Your new venue has been submitted.  Once one of our crack staff reviews it, we'll let you know.  Thanks for your help!</p>
-							</React.Fragment>
+							</>
 
 						)
 
@@ -152,7 +152,7 @@ export default class VenueForm extends RCComponent<IProps> {
 
 					:
 
-						<React.Fragment>
+						<>
 
 							<Callout title="Important!">
 								<p>
@@ -282,7 +282,7 @@ export default class VenueForm extends RCComponent<IProps> {
 
 							</form>
 
-						</React.Fragment>
+						</>
 
 					}
 

@@ -92,7 +92,7 @@ export default class UserAccount extends RCComponent<IProps> {
 
 		return (
 
-			<React.Fragment>
+			<>
 
 				{this.state.processing ?
 
@@ -100,7 +100,7 @@ export default class UserAccount extends RCComponent<IProps> {
 
 				:
 
-					<React.Fragment>
+					<>
 
 						{this.state.status !== "successLogout" ?
 
@@ -118,7 +118,7 @@ export default class UserAccount extends RCComponent<IProps> {
 
 							{this.state.status === "form" ?
 
-								<React.Fragment>
+								<>
 
 									<form
 										id="accountForm"
@@ -209,11 +209,11 @@ export default class UserAccount extends RCComponent<IProps> {
 
 									</form>
 
-								</React.Fragment>
+								</>
 
 							: this.state.status === "success" || this.state.status === "successLogout" ?
 
-								<React.Fragment>
+								<>
 
 									<p>Your account changes were successful!</p>
 
@@ -224,17 +224,17 @@ export default class UserAccount extends RCComponent<IProps> {
 
 									: null}
 
-								</React.Fragment>
+								</>
 
 							: null}
 
 						</div>
 
-					</React.Fragment>
+					</>
 
 				}
 
-			</React.Fragment>
+			</>
 
 		);
 

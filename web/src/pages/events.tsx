@@ -88,9 +88,10 @@ export default class Events extends RCComponent<IProps> {
 
 		return (
 
-			<React.Fragment>
+			<>
 				{this.state.isSearch ?
-					<React.Fragment>
+
+					<>
 						<h1>Search Results</h1>
 						{this.state.loading ?
 							""
@@ -154,10 +155,11 @@ export default class Events extends RCComponent<IProps> {
 
 						</div>
 						}
-					</React.Fragment>
+					</>
 				:
 					<h1>Upcoming Events</h1>
 				}
+
 				{this.state.loading ?
 					<div className="loader" />
 
@@ -169,7 +171,7 @@ export default class Events extends RCComponent<IProps> {
 
 				: this.state.listItemsTotal ?
 
-					<React.Fragment>
+					<>
 
 						<p className="listCount">Showing {this.state.eventList.length} of {this.state.listItemsTotal} events</p>
 
@@ -187,10 +189,11 @@ export default class Events extends RCComponent<IProps> {
 							totalItems={this.state.listItemsTotal}
 						/>
 
-					</React.Fragment>
+					</>
 
 				: null}
-			</React.Fragment>
+
+			</>
 
 		);
 	}
