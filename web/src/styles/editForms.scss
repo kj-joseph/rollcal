@@ -259,15 +259,11 @@
 
 	}
 
-	.featureIcons {
-		margin-top: 0;
-	}
-
 }
 
 @include respond-to("xsmall") {
 
-	.featureIcons {
+	.entryForm .featureIcons {
 		svg {
 			height: 75px;
 			margin: 0 5px;
