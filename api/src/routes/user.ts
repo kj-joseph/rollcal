@@ -184,10 +184,10 @@ router.get("/getRolesList", (req: Request, res: Response) => {
 router.post("/getSession", upload.array(), checkSession("user"), (req: IRequestWithSession, res: Response) => {
 
 	res.status(200).json({
-		email: req.session.user.email,
-		id: req.session.user.id,
-		roles: req.session.user.roles,
-		username: req.session.user.username,
+		user_email: req.session.user.email,
+		user_id: req.session.user.id,
+		user_name: req.session.user.username,
+		user_roles: req.session.user.roles,
 	});
 
 });
@@ -230,10 +230,10 @@ router.post("/login", upload.array(), (req: IRequestWithSession, res: Response) 
 
 					res.locals.connection.end();
 					res.status(200).json({
-						email: loginResult.user_email,
-						id: loginResult.user_id,
-						roles: loginResult.user_roles ? loginResult.user_roles.split(",") : [],
-						username: loginResult.user_name,
+						user_email: loginResult.user_email,
+						user_id: loginResult.user_id,
+						user_name: loginResult.user_name,
+						user_roles: loginResult.user_roles ? loginResult.user_roles.split(",") : [],
 					});
 
 				}
@@ -548,9 +548,7 @@ router.post("/account/validate", upload.array(), (req: Request, res: Response) =
 				if (results[0].map((row: {}) => ({...row}))[0].validated) {
 
 					res.locals.connection.end();
-					res.status(200).json({
-						validated: true,
-					});
+					res.status(200).json();
 
 				} else {
 

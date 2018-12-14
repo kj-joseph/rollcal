@@ -1,6 +1,6 @@
 BEGIN
 
-set @select = "select distinct e.*, c.*, v.*, tz.timezone_zone, u.user_id, u.user_name";
+set @select = "select distinct e.*, c.*, v.*, tz.*, u.user_id, u.user_name";
 
 set @from = "
 	from events e inner join eventdays on eventday_event = event_id,
@@ -98,7 +98,10 @@ execute stmt;
 deallocate prepare stmt;
 
 set @query = concat(
-	"select eventlist.*, ed.*, derbytypeslist.list as derbytypes, sanctionslist.list as sanctions, trackslist.list as tracks",
+	"select eventlist.*,
+	convert_tz(ed.event_first_day, 'UTC', eventlist.timezone_zone) as event_first_day,
+	convert_tz(ed.event_last_day, 'UTC', eventlist.timezone_zone) as event_last_day,
+	derbytypeslist.list as derbytypes, sanctionslist.list as sanctions, trackslist.list as tracks",
 	" from (
 	", @select, @from, @where, @group, "
 	) eventlist

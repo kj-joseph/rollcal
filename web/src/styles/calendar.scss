@@ -6,6 +6,12 @@
 		color: $pink;
 	}
 
+	.DayPicker_transitionContainer__horizontal {
+		-webkit-transition: none;
+		-moz-transition: none;
+		transition: none;
+	}
+
 	.DayPickerNavigation_button {
 		border: none;
 		border-radius: 0;

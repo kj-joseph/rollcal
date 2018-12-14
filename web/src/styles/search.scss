@@ -60,14 +60,6 @@
 			}
 		}
 
-		.searchSelectCountries {
-			z-index: 65
-		}
-
-		.searchSelectRegions {
-			z-index: 62
-		}
-
 		.searchLocations {
 			min-width: 240px;
 			max-width: 400px;
@@ -75,7 +67,7 @@
 			.selectedLocationsContainer {
 				margin-top: 1em;
 				padding-bottom: 10px;
-				border: 1px solid $blue;
+				border: 1px solid $pink;
 
 				.selectedLocationsHeader {
 					font-size: 1.4rem;
@@ -83,7 +75,7 @@
 					font-weight: bold;
 					margin-bottom: 10px;
 					padding: 3px 10px;
-					background: $blue;
+					background: $pink;
 				}
 
 				ul.selectedLocations {
@@ -133,36 +125,36 @@
 
 	}
 
-}
+	.featureIcons {
+		margin-bottom: 2em;
 
-.derbyFeatures {
-	margin-bottom: 2em;
-
-	.eventIconGroup {
-		display: block;
-		margin-bottom: 1em;
-
-		.label {
+		.featureIconGroup {
 			display: block;
-			font-weight: bold;
-			margin-bottom: .5em;
+			margin-bottom: 1em;
+
+			.label {
+				display: block;
+				font-weight: bold;
+				margin-bottom: .5em;
+			}
+
 		}
 
-	}
+		.featureIcon, .featureIcon div {
+			display: inline;
+		}
 
-	.featureIcon, .featureIcon div {
-		display: inline;
-	}
+		svg {
+			opacity: .4;
+			height: 60px;
+			margin-right: 10px;
+			cursor: pointer;
+		}
 
-	svg {
-		opacity: .4;
-		height: 60px;
-		margin-right: 10px;
-		cursor: pointer;
-	}
+		.featureIcon.selected svg {
+			opacity: 1;
+		}
 
-	.featureIcon.selected svg {
-		opacity: 1;
 	}
 
 }
@@ -170,7 +162,7 @@
 
 @include respond-to("xsmall") {
 
-	.derbyFeatures {
+	.searchForm .featureIcons {
 		svg {
 			height: 75px;
 			margin: 0 5px;
@@ -181,7 +173,7 @@
 
 @include respond-to("small") {
 
-	.derbyFeatures {
+	.searchForm .featureIcons {
 		svg {
 			height: 90px;
 		}
@@ -200,11 +192,11 @@
 			margin-right: 40px;
 		}
 
-	}
+		.featureIcons {
+			margin-top: .3em;
+			width: calc(50%);
+		}
 
-	.derbyFeatures {
-		margin-top: .3em;
-		width: calc(50%);
 	}
 
 }

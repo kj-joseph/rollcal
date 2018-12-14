@@ -1,22 +1,26 @@
 import React from "react";
 import { render } from "react-dom";
-import { BrowserRouter, NavLink, Route, Switch } from "react-router-dom";
+import { NavLink, Route, Router, Switch } from "react-router-dom";
 import ReactSVG from "react-svg";
 
-import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
-import { IGeoData, ITimeZone } from "interfaces/geo";
-import { IPageTitle, IProps, IReduxActions, IReduxActionType } from "interfaces/redux";
-import { IUserInfo, IUserRole } from "interfaces/user";
-
-import { connect, Provider } from "react-redux";
-import { Dispatch } from "redux";
-import reduxActions from "redux/actions";
+import { IProps } from "interfaces/redux";
+import { Provider } from "react-redux";
+import { connectClass } from "redux/connect";
 import store from "redux/store";
 
-import { checkLoginStatus } from "components/lib/auth";
+import history from "components/history";
+import { checkLoginStatus } from "services/userService";
 
 import Analytics from "react-ga";
 Analytics.initialize("UA-2467744-6");
+
+// Use bluebird
+import * as Promise from "bluebird";
+Promise.config({
+	cancellation: true,
+	warnings: false,
+});
+global.Promise = Promise;
 
 // load css for modules
 import "flag-icon-css/sass/flag-icon.scss";
@@ -25,17 +29,20 @@ import "react-dates/lib/css/_datepicker.css";
 // load site css
 import "styles/main.scss";
 
-import ".htaccess";
+// load static files
+import "static/.htaccess";
 require.context("images/favicon", true);
-import "robots.txt";
+import "static/robots.txt";
 
 // load feature images
 require.context("images/derbytypes", true);
 require.context("images/sanctions", true);
 require.context("images/tracks", true);
 
-// load header images; png is for emails
+// load image referenced by emails
 import "images/header-logo.png";
+
+// load header images
 import HeaderLogo from "images/header-logo.svg";
 import LoginIconSolid from "images/menu/user-circle-solid.svg";
 import LoginIconOutline from "images/menu/user-circle.svg";
@@ -44,7 +51,7 @@ interface ISiteState {
 	url: string;
 }
 
-class ConnectedSiteRouter extends React.Component<IProps> {
+class AppRouter extends React.Component < IProps > {
 
 	state: ISiteState = {
 		url: null,
@@ -60,9 +67,18 @@ class ConnectedSiteRouter extends React.Component<IProps> {
 
 		if (!this.props.sessionInitialized) {
 
-			checkLoginStatus(this.props.apiLocation, this.props.setUserInfo).then(() => {
-				this.props.setSessionState(true);
-			});
+			checkLoginStatus()
+				.then(() => {
+
+					this.props.setSessionState(true);
+
+				})
+				.catch(() => {
+
+					// allow the page to continue if the status cannot be verified
+					this.props.setSessionState(true);
+
+				});
 
 		}
 
@@ -95,8 +111,36 @@ class ConnectedSiteRouter extends React.Component<IProps> {
 
 					} else if (part) {
 
-						const values = part.match(/^(derbytypes|sanctions|tracks|locations)\(([^\)]+)\)/);
-						searchURL.push(`${values[1]}=${values[2]}`);
+						const values = part.match(/^(derbytypes|sanctions|tracks|locations|distance)\(([^\)]+)\)/);
+
+						if (values) {
+
+							if (values[1] === "distance") {
+
+								const [
+									,
+									,
+									regionAbbr,
+									,
+									countryCode,
+									distanceString,
+									distanceUnits,
+								]
+									= values[2].split("~");
+
+								searchURL.push(`distance=/${countryCode}${
+									regionAbbr ?
+										`/${regionAbbr}`
+									: ""
+									}/${distanceString}+${distanceUnits}`);
+
+							} else {
+
+								searchURL.push(`${values[1]}=${values[2]}`);
+
+							}
+
+						}
 
 					}
 
@@ -120,7 +164,7 @@ class ConnectedSiteRouter extends React.Component<IProps> {
 		}
 	}
 
-	openLoginModal(event?: React.MouseEvent<HTMLAnchorElement>) {
+	openLoginModal(event?: React.MouseEvent < HTMLAnchorElement > ) {
 
 		if (event) {
 			event.preventDefault();
@@ -135,9 +179,9 @@ class ConnectedSiteRouter extends React.Component<IProps> {
 
 		return (
 
-			<BrowserRouter>
+			<Router history={history}>
 
-				<div id="pageWrapper" className={typeof(process.env.ENV) !== "undefined" ? `env-${process.env.ENV}` : ""}>
+				<div id="pageWrapper">
 					<div id="siteHeader">
 						<NavLink to="/" title="Roll-Cal.com">
 							<ReactSVG id="siteLogo" src={HeaderLogo} />
@@ -146,15 +190,17 @@ class ConnectedSiteRouter extends React.Component<IProps> {
 							<SiteMenuComponent />
 						</div>
 						<div id="loginUserIconMobile">
-						{this.props.loggedIn ?
-							<NavLink to="/dashboard" title="Dashboard" activeClassName="activeIcon">
-								<ReactSVG src={LoginIconSolid} />
-							</NavLink>
-						:
-							<a href="" onClick={this.openLoginModal} title="Login / Register">
-								<ReactSVG src={LoginIconOutline} />
-							</a>
-						}
+							{this.props.sessionInitialized ?
+								(this.props.loggedIn ?
+									<NavLink to="/dashboard" title="Dashboard" activeClassName="activeIcon">
+										<ReactSVG src={LoginIconSolid} />
+									</NavLink>
+								:
+									<a href="" onClick={this.openLoginModal} title="Login / Register">
+										<ReactSVG src={LoginIconOutline} />
+									</a>
+								)
+							: null}
 						</div>
 					</div>
 					<div id="siteMenuMobile">
@@ -172,8 +218,8 @@ class ConnectedSiteRouter extends React.Component<IProps> {
 								<Route path="/dashboard/events/changes" component={EventChangesPage} exact={true} />
 								<Route path="/dashboard/venues/changes/:changeId(\d+)" component={ReviewVenueChangePage} exact={true} />
 								<Route path="/dashboard/venues/changes" component={VenueChangesPage} exact={true} />
-								<Route path="/dashboard/events/:all(all)?" component={UserEventsPage} exact={true} />
-								<Route path="/dashboard/venues/:all(all)?" component={UserVenuesPage} exact={true} />
+								<Route path="/dashboard/events/:all(all)?" component={EditEventsListPage} exact={true} />
+								<Route path="/dashboard/venues/:all(all)?" component={EditVenuesListPage} exact={true} />
 								<Route path="/dashboard/account" component={UserAccountPage} exact={true} />
 								<Route path="/dashboard/admin/user/:id" component={EditUserPage} exact={true} />
 								<Route path="/dashboard/admin" component={AdminDashboardPage} exact={true} />
@@ -263,101 +309,80 @@ class ConnectedSiteRouter extends React.Component<IProps> {
 
 				</div>
 
-			 </BrowserRouter>
+			 </Router>
 
 		);
 	}
 
 }
 
-const mapStateToProps = (reduxState: IProps) => {
-	return reduxState;
-};
+const SiteRouter = connectClass(AppRouter);
 
-const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>): IReduxActions => {
-	return {
-		clearUserInfo: () => dispatch(reduxActions.clearUserInfo()),
-		saveDataDerbyTypes: (data: IDerbyType[]) => dispatch(reduxActions.saveDataDerbyTypes(data)),
-		saveDataGeography: (data: IGeoData) => dispatch(reduxActions.saveDataGeography(data)),
-		saveDataSanctions: (data: IDerbySanction[]) => dispatch(reduxActions.saveDataSanctions(data)),
-		saveDataTracks: (data: IDerbyTrack[]) => dispatch(reduxActions.saveDataTracks(data)),
-		saveLastSearch: (search: string) => dispatch(reduxActions.saveLastSearch(search)),
-		saveRolesList: (data: IUserRole[]) => dispatch(reduxActions.saveRolesList(data)),
-		saveTimeZones: (data: ITimeZone[]) => dispatch(reduxActions.saveTimeZones(data)),
-		setLoginModalState: (loginModalState: boolean) => dispatch(reduxActions.setLoginModalState(loginModalState)),
-		setPageTitle: (data: IPageTitle) => dispatch(reduxActions.setPageTitle(data)),
-		setSessionState: (sessionInitialized: boolean) => dispatch(reduxActions.setSessionState(sessionInitialized)),
-		setUserInfo: (userState: IUserInfo) => dispatch(reduxActions.setUserInfo(userState)),
-	};
-};
+import AdminDashboard from "pages/admin";
+const AdminDashboardPage = connectClass(AdminDashboard);
 
-const SiteRouter = connect(mapStateToProps, mapDispatchToProps)(ConnectedSiteRouter);
+import Contact from "pages/contact";
+const ContactPage = connectClass(Contact);
 
-import AdminDashboard from "components/pages/admin";
-const AdminDashboardPage = connect(mapStateToProps, mapDispatchToProps)(AdminDashboard);
+import Dashboard from "pages/dashboard";
+const DashboardPage = connectClass(Dashboard);
 
-import Contact from "components/pages/contact";
-const ContactPage = connect(mapStateToProps, mapDispatchToProps)(Contact);
+import EditEventsList from "pages/editEventsList";
+const EditEventsListPage = connectClass(EditEventsList);
 
-import Dashboard from "components/pages/dashboard";
-const DashboardPage = connect(mapStateToProps, mapDispatchToProps)(Dashboard);
+import EditUser from "pages/editUser";
+const EditUserPage = connectClass(EditUser);
 
-import EditUser from "components/pages/editUser";
-const EditUserPage = connect(mapStateToProps, mapDispatchToProps)(EditUser);
+import EditVenuesList from "pages/editVenuesList";
+const EditVenuesListPage = connectClass(EditVenuesList);
 
-import EventDetails from "components/pages/eventDetails";
-const EventDetailsPage = connect(mapStateToProps, mapDispatchToProps)(EventDetails);
+import EventDetails from "pages/eventDetails";
+const EventDetailsPage = connectClass(EventDetails);
 
-import EventChanges from "components/pages/eventChanges";
-const EventChangesPage = connect(mapStateToProps, mapDispatchToProps)(EventChanges);
+import EventChanges from "pages/eventChanges";
+const EventChangesPage = connectClass(EventChanges);
 
-import EventForm from "components/pages/eventForm";
-const EventFormPage = connect(mapStateToProps, mapDispatchToProps)(EventForm);
+import EventForm from "pages/eventForm";
+const EventFormPage = connectClass(EventForm);
 
-import Events from "components/pages/events";
-const EventsPage = connect(mapStateToProps, mapDispatchToProps)(Events);
+import Events from "pages/events";
+const EventsPage = connectClass(Events);
 
-import Faq from "components/pages/faq";
-const FaqPage = connect(mapStateToProps, mapDispatchToProps)(Faq);
+import Faq from "pages/faq";
+const FaqPage = connectClass(Faq);
 
-import ForgotPassword from "components/pages/forgotPassword";
-const ForgotPasswordPage = connect(mapStateToProps, mapDispatchToProps)(ForgotPassword);
+import ForgotPassword from "pages/forgotPassword";
+const ForgotPasswordPage = connectClass(ForgotPassword);
 
-import ReviewEventChange from "components/pages/reviewEventChange";
-const ReviewEventChangePage = connect(mapStateToProps, mapDispatchToProps)(ReviewEventChange);
+import ReviewEventChange from "pages/reviewEventChange";
+const ReviewEventChangePage = connectClass(ReviewEventChange);
 
-import ReviewVenueChange from "components/pages/reviewVenueChange";
-const ReviewVenueChangePage = connect(mapStateToProps, mapDispatchToProps)(ReviewVenueChange);
+import ReviewVenueChange from "pages/reviewVenueChange";
+const ReviewVenueChangePage = connectClass(ReviewVenueChange);
 
-import Search from "components/pages/search";
-const SearchPage = connect(mapStateToProps, mapDispatchToProps)(Search);
+import Search from "pages/search";
+const SearchPage = connectClass(Search);
 
-import UserAccount from "components/pages/userAccount";
-const UserAccountPage = connect(mapStateToProps, mapDispatchToProps)(UserAccount);
+import UserAccount from "pages/userAccount";
+const UserAccountPage = connectClass(UserAccount);
 
-import UserEvents from "components/pages/userEvents";
-const UserEventsPage = connect(mapStateToProps, mapDispatchToProps)(UserEvents);
+import Validate from "pages/validate";
+const ValidatePage = connectClass(Validate);
 
-import UserVenues from "components/pages/userVenues";
-const UserVenuesPage = connect(mapStateToProps, mapDispatchToProps)(UserVenues);
+import VenueChanges from "pages/venueChanges";
+const VenueChangesPage = connectClass(VenueChanges);
 
-import Validate from "components/pages/validate";
-const ValidatePage = connect(mapStateToProps, mapDispatchToProps)(Validate);
+import VenueForm from "pages/venueForm";
+const VenueFormPage = connectClass(VenueForm);
 
-import VenueChanges from "components/pages/venueChanges";
-const VenueChangesPage = connect(mapStateToProps, mapDispatchToProps)(VenueChanges);
+import Login from "components/login";
+const LoginModal = connectClass(Login);
 
-import VenueForm from "components/pages/venueForm";
-const VenueFormPage = connect(mapStateToProps, mapDispatchToProps)(VenueForm);
+import SiteMenu from "components/siteMenu";
+const SiteMenuComponent = connectClass(SiteMenu);
 
-import Login from "components/partials/login";
-const LoginModal = connect(mapStateToProps, mapDispatchToProps)(Login);
-
-import SiteMenu from "components/partials/siteMenu";
-const SiteMenuComponent = connect(mapStateToProps, mapDispatchToProps)(SiteMenu);
-
-import Error404 from "components/status/404";
-const NotFoundPage = connect(mapStateToProps, mapDispatchToProps)(Error404);
+import Error404 from "status/404";
+const NotFoundPage = connectClass(Error404);
 
 render(
 	<Provider store={store}>

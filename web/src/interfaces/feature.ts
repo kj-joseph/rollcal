@@ -1,7 +1,31 @@
+export interface IDBDerbySanction {
+	sanction_abbreviation: string;
+	sanction_id: number;
+	sanction_name: string;
+}
+
+export interface IDBDerbyTrack {
+	track_abbreviation: string;
+	track_id: number;
+	track_name: string;
+}
+
+export interface IDBDerbyType {
+	derbytype_abbreviation: string;
+	derbytype_id: number;
+	derbytype_name: string;
+}
+
+export interface IDerbyFeature {
+	abbreviation: string;
+	id: number;
+	name: string;
+}
+
 export interface IDerbyFeatures {
-	derbytypes: IDerbyType[];
-	sanctions: IDerbySanction[];
-	tracks: IDerbyTrack[];
+	derbytypes: IDerbyFeature[];
+	sanctions: IDerbyFeature[];
+	tracks: IDerbyFeature[];
 }
 
 export interface IDerbyIcon {
@@ -15,23 +39,3 @@ export interface IDerbyIcons {
 	tracks: IDerbyIcon[];
 }
 
-export interface IDerbySanction {
-	title: string;
-	sanction_abbreviation: string;
-	sanction_id: number;
-	sanction_name: string;
-}
-
-export interface IDerbyTrack {
-	title: string;
-	track_abbreviation: string;
-	track_id: number;
-	track_name: string;
-}
-
-export interface IDerbyType {
-	title: string;
-	derbytype_abbreviation: string;
-	derbytype_id: number;
-	derbytype_name: string;
-}

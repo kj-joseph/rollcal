@@ -1,9 +1,8 @@
 BEGIN
 
-select ch.change_id, ch.changed_item_id, ch.change_submitted, ch.change_object, ch.change_user,
-	u.user_name as change_user_name,
-    e.event_name, e.event_host,
-    v.venue_city, c.country_code, r.region_abbreviation,
+select ch.change_id, ch.changed_item_id, ch.change_submitted, ch.change_object,
+	ch.change_user, u.user_name as change_user_name,
+    e.*, v.*, c.*, r.*,
     ed.event_first_day, ed.event_last_day
 
 from changes ch
@@ -22,7 +21,7 @@ from changes ch
 
 where ch.changed_item_type = "event"
 	and change_status = "submitted"
-	and u.user_id != user
+	-- and u.user_id != user
 
 order by ch.change_submitted;
 

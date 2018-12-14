@@ -39,11 +39,11 @@
 
 	}
 
-	.eventIcons {
+	.featureIcons {
 
 		margin-top: 1.5em;
 
-		.eventIconGroup {
+		.featureIconGroup {
 			display: block;
 			margin-bottom: 10px;
 
@@ -60,13 +60,20 @@
 			}
 		}
 
-		.icon, .icon div {
+		.featureIcon {
 			display: inline;
+			margin-right: 10px;
+
+			div {
+				display: inline;
+			}
+
+			svg {
+				height: 60px;
+			}
+
 		}
 
-		svg {
-			height: 60px;
-		}
 	}
 
 }
@@ -95,7 +102,7 @@
 
 }
 
-@include respond-to("xsmall") {
+@include respond-to("small") {
 
 	.eventDetails {
 		display: flex;
@@ -106,28 +113,21 @@
 			width: 60%
 		}
 
-		.eventIcons {
+		.featureIcons {
 			text-align: center;
 			margin-top: 2.2em;
 
-			svg {
-				height: 75px;
+			.featureIcon {
 				margin: 0 5px;
+
+				svg {
+					height: 90px;
+				}
+
 			}
 
 		}
 
-	}
-
-}
-
-@include respond-to("small") {
-
-	.eventDetails {
-
-		.eventIcons svg {
-			height: 90px;
-		}
 	}
 
 }

@@ -16,6 +16,7 @@ module.exports = merge(common, {
 			"process.env.ROLLCAL_ALLOW_ORIGIN": JSON.stringify("https://dev.roll-cal.com")
 		}),
 		new webpack.EnvironmentPlugin([
+			"FEEDBACK_EMAIL",
 			"GOOGLE_GEOCODE_KEY",
 			"ROLLCAL_DEV_DBHOST",
 			"ROLLCAL_DEV_DBNAME",

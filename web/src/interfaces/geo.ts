@@ -1,4 +1,4 @@
-export interface IGeoCountry {
+export interface IDBGeoCountry {
 	country_code: string;
 	country_name: string;
 	country_flag: string;
@@ -6,12 +6,7 @@ export interface IGeoCountry {
 	disabled?: boolean;
 }
 
-export interface IGeoData {
-	countries: IGeoCountry[];
-	regions: IGeoRegionList;
-}
-
-export interface IGeoRegion {
+export interface IDBGeoRegion {
 	disabled?: boolean;
 	region_id: number;
 	region_country: string;
@@ -19,12 +14,24 @@ export interface IGeoRegion {
 	region_abbreviation: string;
 }
 
-export interface IGeoRegionList {
-	[key: string]: IGeoRegion[];
+export interface IGeoCountry {
+	code: string;
+	disabled?: boolean;
+	flag: string;
+	name: string;
+	regionType?: string;
+	regions?: IGeoRegion[];
 }
 
-export interface ITimeZone {
-	timezone_id: number;
-	timezone_name: string;
-	timezone_zone: string;
+export interface IGeoCountryFilter {
+	code: string;
+	regions?: string[];
+}
+
+export interface IGeoRegion {
+	abbreviation: string;
+	country: string;
+	disabled?: boolean;
+	id: number;
+	name: string;
 }

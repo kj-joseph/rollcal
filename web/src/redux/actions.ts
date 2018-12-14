@@ -1,6 +1,8 @@
-import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
-import { IGeoData, ITimeZone } from "interfaces/geo";
+import { ISearchObject } from "interfaces/event";
+import { IDerbyFeature } from "interfaces/feature";
+import { IGeoCountry } from "interfaces/geo";
 import { IPageTitle, IReduxActionType } from "interfaces/redux";
+import { ITimeZone } from "interfaces/time";
 import { IUserInfo, IUserRole } from "interfaces/user";
 
 export default {
@@ -10,27 +12,27 @@ export default {
 		type: "CLEAR_USER_INFO",
 	}),
 
-	saveDataDerbyTypes: (data: IDerbyType[]): IReduxActionType => ({
+	saveDataDerbyTypes: (data: IDerbyFeature[]): IReduxActionType => ({
 		payload: data,
 		type: "SAVE_DATA_DERBYTYPES",
 	}),
 
-	saveDataGeography: (data: IGeoData): IReduxActionType => ({
+	saveDataGeography: (data: IGeoCountry[]): IReduxActionType => ({
 		payload: data,
 		type: "SAVE_DATA_GEOGRAPHY",
 	}),
 
-	saveDataSanctions: (data: IDerbySanction[]): IReduxActionType => ({
+	saveDataSanctions: (data: IDerbyFeature[]): IReduxActionType => ({
 		payload: data,
 		type: "SAVE_DATA_SANCTIONS",
 	}),
 
-	saveDataTracks: (data: IDerbyTrack[]): IReduxActionType => ({
+	saveDataTracks: (data: IDerbyFeature[]): IReduxActionType => ({
 		payload: data,
 		type: "SAVE_DATA_TRACKS",
 	}),
 
-	saveLastSearch: (search: string): IReduxActionType => ({
+	saveLastSearch: (search: ISearchObject): IReduxActionType => ({
 		payload: search,
 		type: "SAVE_LAST_SEARCH",
 	}),
