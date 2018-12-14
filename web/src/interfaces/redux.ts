@@ -53,7 +53,6 @@ export interface IReduxStore {
 	loggedInUserName: string;
 	loggedInUserRoles: string[];
 	loginModalOpen: false;
-	page: "home";
 	pageTitle: IPageTitle;
 	rolesList: IUserRole[];
 	sessionInitialized: false;

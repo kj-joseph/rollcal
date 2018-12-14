@@ -16,7 +16,6 @@ const initialState: IReduxStore = {
 	loggedInUserName: "",
 	loggedInUserRoles: null,
 	loginModalOpen: false,
-	page: "home",
 	pageTitle: {
 		detail: null,
 		page: null,
