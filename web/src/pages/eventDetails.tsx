@@ -266,11 +266,13 @@ export default class EventDetails extends RCComponent<IProps> {
 
 	}
 
-	editEvent(event: React.MouseEvent<HTMLButtonElement>) {
+	editEvent(event: React.MouseEvent<HTMLButtonElement>): void {
+
 		this.props.history.push(`/dashboard/events/edit/${this.props.match.params.eventId}`);
+
 	}
 
-	loadData() {
+	loadData(): void {
 
 		const getEventData = this.addPromise(
 			getEventDetails(this.props.match.params.eventId));

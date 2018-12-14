@@ -97,7 +97,7 @@ export default class SiteMenu extends React.Component<IProps> {
 
 	}
 
-	openLoginModal(event?: React.MouseEvent<HTMLAnchorElement>) {
+	openLoginModal(event?: React.MouseEvent<HTMLAnchorElement>): void {
 
 		if (event) {
 			event.preventDefault();

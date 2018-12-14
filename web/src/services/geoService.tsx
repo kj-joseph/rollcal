@@ -6,7 +6,9 @@ import { IDBDerbyEvent } from "interfaces/event";
 import { IDBGeoCountry, IDBGeoRegion, IGeoCountry, IGeoCountryFilter, IGeoRegion } from "interfaces/geo";
 import { IDBDerbyVenue } from "interfaces/venue";
 
-export const filterLocations = (search: IGeoCountryFilter[]): Promise<IGeoCountry[]> =>
+export const filterLocations = (
+	search: IGeoCountryFilter[],
+): Promise<IGeoCountry[]> =>
 
 	new Promise((resolve, reject, onCancel) => {
 
@@ -59,7 +61,9 @@ export const filterLocations = (search: IGeoCountryFilter[]): Promise<IGeoCountr
 
 	});
 
-export const filterLocationsByString = (locations: string): Promise<IGeoCountry[]> => {
+export const filterLocationsByString = (
+	locations: string,
+): Promise<IGeoCountry[]> => {
 
 	const countrySearch: IGeoCountryFilter[] = [];
 
@@ -84,7 +88,8 @@ export const filterLocationsByString = (locations: string): Promise<IGeoCountry[
 
 };
 
-export const getGeography = (): Promise<IGeoCountry[]> =>
+export const getGeography = ()
+	: Promise<IGeoCountry[]> =>
 
 	new Promise((resolve, reject, onCancel) => {
 
@@ -141,14 +146,18 @@ export const getGeography = (): Promise<IGeoCountry[]> =>
 
 	});
 
-export const mapCountry = (data: IDBDerbyEvent | IDBDerbyVenue): IGeoCountry => ({
+export const mapCountry = (
+	data: IDBDerbyEvent | IDBDerbyVenue,
+): IGeoCountry => ({
 	code: data.country_code,
 	flag: data.country_flag,
 	name: data.country_name,
 	regionType: data.country_region_type,
 });
 
-export const mapRegion = (data: IDBDerbyEvent | IDBDerbyVenue): IGeoRegion => ({
+export const mapRegion = (
+	data: IDBDerbyEvent | IDBDerbyVenue,
+): IGeoRegion => ({
 	abbreviation: data.region_abbreviation,
 	country: data.region_country,
 	id: data.region_id,

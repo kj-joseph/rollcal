@@ -143,7 +143,7 @@ export default class Contact extends RCComponent<IProps> {
 
 	}
 
-	handleInputChange <T extends keyof IContactState>(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+	handleInputChange <T extends keyof IContactState>(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
 
 		const fieldName: (keyof IContactState) = event.currentTarget.name as (keyof IContactState);
 		const newState = {
@@ -154,7 +154,7 @@ export default class Contact extends RCComponent<IProps> {
 
 	}
 
-	submitContact(event: React.MouseEvent<HTMLFormElement>) {
+	submitContact(event: React.MouseEvent<HTMLFormElement>): void {
 
 		event.preventDefault();
 

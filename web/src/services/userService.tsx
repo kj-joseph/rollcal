@@ -208,7 +208,8 @@ export const getUserDetails = (
 
 	});
 
-export const getUserRoleList = (): Promise<IUserRole[]> =>
+export const getUserRoleList = ()
+	: Promise<IUserRole[]> =>
 
 	new Promise((resolve, reject, onCancel) => {
 
@@ -282,7 +283,9 @@ export const login = (
 
 	});
 
-export const logout = (redirect = true): Promise<void> =>
+export const logout = (
+	redirect = true,
+): Promise<void> =>
 
 	callApi(
 		"get",
@@ -305,7 +308,9 @@ export const logout = (redirect = true): Promise<void> =>
 
 		});
 
-export const mapUser = (data: IDBUserInfo | IDBDerbyEvent | IDBDerbyVenue): IUserInfo => ({
+export const mapUser = (
+	data: IDBUserInfo | IDBDerbyEvent | IDBDerbyVenue,
+): IUserInfo => ({
 	userId: data.user_id,
 	userName: data.user_name,
 });

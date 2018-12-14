@@ -229,15 +229,15 @@ export default class EditUser extends RCComponent<IProps> {
 
 	}
 
-	getRoleLabel = (role: IUserRole) => {
+	getRoleLabel = (role: IUserRole): string => {
 	  return role.name;
 	}
 
-	getRoleValue = (role: IUserRole) => {
+	getRoleValue = (role: IUserRole): string => {
 	  return role.id.toString();
 	}
 
-	handleInputChange <T extends keyof IAdminDashboardState>(event: React.ChangeEvent<HTMLInputElement>) {
+	handleInputChange <T extends keyof IAdminDashboardState>(event: React.ChangeEvent<HTMLInputElement>): void {
 
 		const fieldName: (keyof IAdminDashboardState) = event.currentTarget.name as (keyof IAdminDashboardState);
 		const newState = ({
@@ -247,7 +247,7 @@ export default class EditUser extends RCComponent<IProps> {
 
 	}
 
-	handleRoleChange(selected: IUserRole[]) {
+	handleRoleChange(selected: IUserRole[]): void {
 
 		// "user" role is required
 		if (!selected.filter((role) => role.name === "user").length) {
@@ -260,7 +260,7 @@ export default class EditUser extends RCComponent<IProps> {
 
 	}
 
-	handleStatusChange(status: IUserStatus) {
+	handleStatusChange(status: IUserStatus): void {
 
 		this.setState({
 			editUserStatus: status,
@@ -268,7 +268,7 @@ export default class EditUser extends RCComponent<IProps> {
 
 	}
 
-	submitForm(event: React.MouseEvent<HTMLFormElement>) {
+	submitForm(event: React.MouseEvent<HTMLFormElement>): void {
 
 		event.preventDefault();
 
@@ -309,7 +309,7 @@ export default class EditUser extends RCComponent<IProps> {
 
 	}
 
-	loadData() {
+	loadData(): void {
 
 		const getUserData = this.addPromise(
 			getUserDetails(this.props.match.params.id));

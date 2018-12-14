@@ -292,25 +292,25 @@ export default class VenueForm extends RCComponent<IProps> {
 
 	}
 
-	getCountryOptionLabel(option: IGeoCountry) {
+	getCountryOptionLabel(option: IGeoCountry): string {
 
 		return option.name || "(type here to search list)";
 
 	}
 
-	getRegionOptionLabel(option: IGeoRegion) {
+	getRegionOptionLabel(option: IGeoRegion): string {
 
 		return option.name || "(type here to search list)";
 
 	}
 
-	getTimeZoneLabel(option: ITimeZone) {
+	getTimeZoneLabel(option: ITimeZone): string {
 
 		return option.name || "(type here to search list)";
 
 	}
 
-	handleCountryChange(country: IGeoCountry) {
+	handleCountryChange(country: IGeoCountry): void {
 
 		const venueData = Object.assign(this.state.venueData, {
 			country: country || {} as IGeoCountry,
@@ -323,7 +323,7 @@ export default class VenueForm extends RCComponent<IProps> {
 
 	}
 
-	handleInputChange(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+	handleInputChange(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
 
 		const venueData = this.state.venueData;
 		const fieldName: (keyof IDerbyVenue) =
@@ -338,7 +338,7 @@ export default class VenueForm extends RCComponent<IProps> {
 
 	}
 
-	handleRegionChange(region: IGeoRegion) {
+	handleRegionChange(region: IGeoRegion): void {
 
 		const venueData = Object.assign(this.state.venueData, {
 			region: region || {} as IGeoRegion,
@@ -350,7 +350,7 @@ export default class VenueForm extends RCComponent<IProps> {
 
 	}
 
-	handleTimeZoneChange(timezone: ITimeZone) {
+	handleTimeZoneChange(timezone: ITimeZone): void {
 
 		const venueData = Object.assign(this.state.venueData, {
 			timezone: timezone || {} as ITimeZone,
@@ -363,7 +363,7 @@ export default class VenueForm extends RCComponent<IProps> {
 
 	}
 
-	loadData() {
+	loadData(): void {
 
 		const dataPromises: Array<Promise<any>> = [
 			getGeography(),
@@ -455,7 +455,7 @@ export default class VenueForm extends RCComponent<IProps> {
 
 	}
 
-	submitVenueForm(event: React.MouseEvent<HTMLFormElement>) {
+	submitVenueForm(event: React.MouseEvent<HTMLFormElement>): void {
 
 		event.preventDefault();
 

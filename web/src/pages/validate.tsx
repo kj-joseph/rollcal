@@ -63,7 +63,7 @@ export default class Validate extends RCComponent<IProps> {
 
 	}
 
-	loadData() {
+	loadData(): void {
 
 		const validation = this.addPromise(
 			validateAccount(this.state.validationCode));

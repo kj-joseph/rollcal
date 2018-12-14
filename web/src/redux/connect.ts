@@ -9,7 +9,7 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import reduxActions from "redux/actions";
 
-const mapStateToProps = (reduxState: IProps) => {
+const mapStateToProps = (reduxState: IProps): IProps => {
 	return reduxState;
 };
 
@@ -30,5 +30,5 @@ const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>): IReduxActions
 	};
 };
 
-export const connectClass = (reactClass: React.ComponentClass) =>
+export const connectClass = (reactClass: React.ComponentClass): React.ComponentClass =>
 	connect(mapStateToProps, mapDispatchToProps)(reactClass);

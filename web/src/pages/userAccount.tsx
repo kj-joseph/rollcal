@@ -240,7 +240,7 @@ export default class UserAccount extends RCComponent<IProps> {
 
 	}
 
-	checkFormValidity() {
+	checkFormValidity(): boolean {
 
 		const formValidates = (document.getElementById("accountForm") as HTMLFormElement).checkValidity();
 
@@ -261,7 +261,7 @@ export default class UserAccount extends RCComponent<IProps> {
 		return formValidates && fieldsChecked && hasChanges && passwordOk && newPasswordsMatch;
 	}
 
-	checkEmail(email: string) {
+	checkEmail(email: string): void {
 
 		this.setState({
 			accountEmailChecking: true,
@@ -308,7 +308,7 @@ export default class UserAccount extends RCComponent<IProps> {
 
 	}
 
-	checkUsername(username: string) {
+	checkUsername(username: string): void {
 
 		this.setState({
 			accountUsernameChecking: true,
@@ -356,7 +356,7 @@ export default class UserAccount extends RCComponent<IProps> {
 
 	}
 
-	handleInputChange <T extends keyof IUserAccountState>(event: React.ChangeEvent<HTMLInputElement>) {
+	handleInputChange <T extends keyof IUserAccountState>(event: React.ChangeEvent<HTMLInputElement>): void {
 
 		const fieldName: (keyof IUserAccountState) = event.currentTarget.name as (keyof IUserAccountState);
 		const newState = ({
@@ -402,7 +402,7 @@ export default class UserAccount extends RCComponent<IProps> {
 
 	}
 
-	submitAccountForm(event: React.MouseEvent<HTMLFormElement>) {
+	submitAccountForm(event: React.MouseEvent<HTMLFormElement>): void {
 		event.preventDefault();
 
 		if (!!this.state.accountNewPassword && this.state.accountNewPassword !== this.state.accountNewPasswordConfirm) {
@@ -475,7 +475,7 @@ export default class UserAccount extends RCComponent<IProps> {
 		}
 	}
 
-	logout(event?: React.MouseEvent<HTMLButtonElement>) {
+	logout(event?: React.MouseEvent<HTMLButtonElement>): void {
 
 		if (event) {
 			event.preventDefault();

@@ -35,7 +35,8 @@ export const formatDateRange = (
 
 };
 
-export const getTimeZones = (): Promise<ITimeZone[]> =>
+export const getTimeZones = ()
+	: Promise<ITimeZone[]> =>
 
 	new Promise((resolve, reject, onCancel) => {
 

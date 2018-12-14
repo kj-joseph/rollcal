@@ -182,7 +182,7 @@ export default class AdminDashboard extends RCComponent<IProps> {
 
 	}
 
-	handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+	handleInputChange(event: React.ChangeEvent<HTMLInputElement>): void {
 
 		this.setState({
 			searchTerm: event.currentTarget.value,
@@ -190,7 +190,7 @@ export default class AdminDashboard extends RCComponent<IProps> {
 
 	}
 
-	submitSearch(event: React.MouseEvent<HTMLFormElement>) {
+	submitSearch(event: React.MouseEvent<HTMLFormElement>): void {
 
 		event.preventDefault();
 

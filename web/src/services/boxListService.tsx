@@ -195,7 +195,9 @@ export const mapVenueChangesToBoxList = (
 		});
 
 
-export const mapEventsToBoxList = (events: IDerbyEvent[]): IBoxListItem[] =>
+export const mapEventsToBoxList = (
+	events: IDerbyEvent[],
+): IBoxListItem[] =>
 
 	events.map((event): IBoxListItem => ({
 		country: event.venue.country,
@@ -209,7 +211,9 @@ export const mapEventsToBoxList = (events: IDerbyEvent[]): IBoxListItem[] =>
 		user: event.user,
 	}));
 
-export const mapVenuesToBoxList = (venues: IDerbyVenue[]): IBoxListItem[] =>
+export const mapVenuesToBoxList = (
+	venues: IDerbyVenue[],
+): IBoxListItem[] =>
 
 	venues.map((venue): IBoxListItem => ({
 		country: venue.country,

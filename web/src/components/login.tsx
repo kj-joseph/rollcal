@@ -326,7 +326,7 @@ class Login extends RCComponent<IProps> {
 
 	}
 
-	changeStatusClearState(page: string) {
+	changeStatusClearState(page: string): void {
 
 		this.setState({
 			errorMessage: "",
@@ -342,7 +342,7 @@ class Login extends RCComponent<IProps> {
 
 	}
 
-	checkEmail(email: string) {
+	checkEmail(email: string): void {
 
 		this.setState({
 			registerEmailChecking: true,
@@ -389,7 +389,7 @@ class Login extends RCComponent<IProps> {
 
 	}
 
-	checkUsername(username: string) {
+	checkUsername(username: string): void {
 
 		this.setState({
 			registerUsernameChecking: true,
@@ -436,7 +436,7 @@ class Login extends RCComponent<IProps> {
 
 	}
 
-	closeLoginModal(event?: React.MouseEvent<any>) {
+	closeLoginModal(event?: React.MouseEvent<any>): void {
 
 		if (event) {
 			event.preventDefault();
@@ -447,7 +447,7 @@ class Login extends RCComponent<IProps> {
 
 	}
 
-	handleInputChange <T extends keyof ILoginState>(event: React.ChangeEvent<HTMLInputElement>) {
+	handleInputChange <T extends keyof ILoginState>(event: React.ChangeEvent<HTMLInputElement>): void {
 
 		const formId: string = (
 			this.state.modalStatus === "login" ? "loginForm"
@@ -502,28 +502,28 @@ class Login extends RCComponent<IProps> {
 
 	}
 
-	goToForgot(event: React.MouseEvent<HTMLAnchorElement>) {
+	goToForgot(event: React.MouseEvent<HTMLAnchorElement>): void {
 		event.preventDefault();
 
 		this.changeStatusClearState("forgot");
 
 	}
 
-	goToLogin(event: React.MouseEvent<HTMLAnchorElement>) {
+	goToLogin(event: React.MouseEvent<HTMLAnchorElement>): void {
 		event.preventDefault();
 
 		this.changeStatusClearState("login");
 
 	}
 
-	goToRegister(event: React.MouseEvent<HTMLAnchorElement>) {
+	goToRegister(event: React.MouseEvent<HTMLAnchorElement>): void {
 		event.preventDefault();
 
 		this.changeStatusClearState("register");
 
 	}
 
-	submitForgot(event: React.MouseEvent<HTMLFormElement>) {
+	submitForgot(event: React.MouseEvent<HTMLFormElement>): void {
 		event.preventDefault();
 
 		this.setState({
@@ -555,7 +555,7 @@ class Login extends RCComponent<IProps> {
 
 	}
 
-	submitLogin(event: React.MouseEvent<HTMLFormElement>) {
+	submitLogin(event: React.MouseEvent<HTMLFormElement>): void {
 		event.preventDefault();
 
 		this.setState({
@@ -595,7 +595,7 @@ class Login extends RCComponent<IProps> {
 
 	}
 
-	submitRegistration(event: React.MouseEvent<HTMLFormElement>) {
+	submitRegistration(event: React.MouseEvent<HTMLFormElement>): void {
 		event.preventDefault();
 
 		this.setState({

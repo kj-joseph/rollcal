@@ -158,14 +158,14 @@ export default class EditVenuesList extends RCComponent<IProps> {
 
 	}
 
-	addVenue() {
+	addVenue(): void {
 
 		this.props.history.push("/dashboard/venues/add");
 
 	}
 
 
-	editVenue(event: React.MouseEvent<HTMLButtonElement>) {
+	editVenue(event: React.MouseEvent<HTMLButtonElement>): void {
 
 		event.preventDefault();
 
@@ -173,7 +173,7 @@ export default class EditVenuesList extends RCComponent<IProps> {
 
 	}
 
-	toggleShowAll(event: React.MouseEvent<HTMLElement>) {
+	toggleShowAll(event: React.MouseEvent<HTMLElement>): void {
 
 		event.preventDefault();
 
@@ -183,7 +183,7 @@ export default class EditVenuesList extends RCComponent<IProps> {
 
 	}
 
-	loadData(isReviewer = false) {
+	loadData(isReviewer = false): void {
 
 		this.setState({
 			loading: true,

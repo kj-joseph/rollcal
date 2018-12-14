@@ -227,7 +227,7 @@ export default class EditEventsList extends RCComponent<IProps> {
 
 	}
 
-	closeDeleteModal(event?: React.MouseEvent<any>) {
+	closeDeleteModal(event?: React.MouseEvent<any>): void {
 
 		if (event) {
 			event.preventDefault();
@@ -240,7 +240,7 @@ export default class EditEventsList extends RCComponent<IProps> {
 
 	}
 
-	confirmDeleteEvent(event: React.MouseEvent<HTMLButtonElement>) {
+	confirmDeleteEvent(event: React.MouseEvent<HTMLButtonElement>): void {
 
 		event.preventDefault();
 
@@ -273,7 +273,7 @@ export default class EditEventsList extends RCComponent<IProps> {
 
 	}
 
-	deleteEvent(event: React.MouseEvent<HTMLButtonElement>) {
+	deleteEvent(event: React.MouseEvent<HTMLButtonElement>): void {
 
 		event.preventDefault();
 
@@ -284,7 +284,7 @@ export default class EditEventsList extends RCComponent<IProps> {
 
 	}
 
-	editEvent(event: React.MouseEvent<HTMLButtonElement>) {
+	editEvent(event: React.MouseEvent<HTMLButtonElement>): void {
 
 		event.preventDefault();
 
@@ -292,7 +292,7 @@ export default class EditEventsList extends RCComponent<IProps> {
 
 	}
 
-	toggleShowAll(event: React.MouseEvent<HTMLElement>) {
+	toggleShowAll(event: React.MouseEvent<HTMLElement>): void {
 
 		event.preventDefault();
 
@@ -302,7 +302,7 @@ export default class EditEventsList extends RCComponent<IProps> {
 
 	}
 
-	loadData(isReviewer = false) {
+	loadData(isReviewer = false): void {
 
 		this.setState({
 			loading: true,

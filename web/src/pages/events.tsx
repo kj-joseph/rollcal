@@ -198,7 +198,7 @@ export default class Events extends RCComponent<IProps> {
 		);
 	}
 
-	displaySearchAddress(address: string) {
+	displaySearchAddress(address: string): string {
 
 		const [address1, city, region, postcode, country]
 			= address.split("~");
@@ -213,7 +213,7 @@ export default class Events extends RCComponent<IProps> {
 
 	}
 
-	initialLoad() {
+	initialLoad(): void {
 
 		this.setState({
 			eventList: [],
@@ -260,7 +260,7 @@ export default class Events extends RCComponent<IProps> {
 
 	loadAll(
 		event: React.MouseEvent<HTMLButtonElement>,
-	) {
+	): void {
 		event.preventDefault();
 		this.loadPage(null, true);
 	}
@@ -268,7 +268,7 @@ export default class Events extends RCComponent<IProps> {
 	loadPage(
 		event?: React.MouseEvent<HTMLButtonElement>,
 		loadAll = false,
-	) {
+	): void {
 		if (event) {
 			event.preventDefault();
 		}

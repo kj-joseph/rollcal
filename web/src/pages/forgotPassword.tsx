@@ -132,7 +132,7 @@ export default class ForgotPassword extends RCComponent<IProps> {
 
 	}
 
-	handleInputChange <T extends keyof IForgotPasswordState>(event: React.ChangeEvent<HTMLInputElement>) {
+	handleInputChange <T extends keyof IForgotPasswordState>(event: React.ChangeEvent<HTMLInputElement>): void {
 
 		const fieldName: (keyof IForgotPasswordState) = event.currentTarget.name as (keyof IForgotPasswordState);
 		const newState = {
@@ -143,7 +143,7 @@ export default class ForgotPassword extends RCComponent<IProps> {
 
 	}
 
-	submitPassword(event: React.MouseEvent<HTMLFormElement>) {
+	submitPassword(event: React.MouseEvent<HTMLFormElement>): void {
 
 		event.preventDefault();
 
@@ -177,7 +177,7 @@ export default class ForgotPassword extends RCComponent<IProps> {
 
 	}
 
-	loadData() {
+	loadData(): void {
 
 		const checkCode = this.addPromise(
 			checkForgotPassword(this.state.validationCode));

@@ -124,7 +124,7 @@ const getSearchObject = (
 
 export const getSearchUrl = (
 	search: ISearchObject,
-) => {
+): string => {
 
 	const queryParts = [];
 

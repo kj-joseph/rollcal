@@ -517,7 +517,7 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 
 	}
 
-	approveChange(event: React.MouseEvent<HTMLButtonElement>) {
+	approveChange(event: React.MouseEvent<HTMLButtonElement>): void {
 
 		event.preventDefault();
 
@@ -549,7 +549,7 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 
 	}
 
-	closeModal() {
+	closeModal(): void {
 
 		this.setState({
 			modalOpen: false,
@@ -558,7 +558,7 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 
 	}
 
-	handleInputChange <T extends keyof IReviewEventChangeState>(event: React.ChangeEvent<HTMLTextAreaElement>) {
+	handleInputChange <T extends keyof IReviewEventChangeState>(event: React.ChangeEvent<HTMLTextAreaElement>): void {
 
 		const fieldName: (keyof IReviewEventChangeState) = event.currentTarget.name as (keyof IReviewEventChangeState);
 		const newState = ({
@@ -568,7 +568,7 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 
 	}
 
-	openRejectModal(event: React.MouseEvent<HTMLButtonElement>) {
+	openRejectModal(event: React.MouseEvent<HTMLButtonElement>): void {
 
 		event.preventDefault();
 
@@ -578,7 +578,7 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 
 	}
 
-	rejectChange(event: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>) {
+	rejectChange(event: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>): void {
 
 		event.preventDefault();
 
@@ -611,7 +611,7 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 
 	}
 
-	loadData() {
+	loadData(): void {
 
 		this.setState({
 			loading: true,

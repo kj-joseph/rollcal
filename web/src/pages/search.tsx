@@ -491,7 +491,7 @@ export default class Search extends RCComponent<IProps> {
 
 	}
 
-	addCountry(event: React.MouseEvent<HTMLButtonElement>) {
+	addCountry(event: React.MouseEvent<HTMLButtonElement>): void {
 		event.preventDefault();
 
 		const country = Object.assign({}, this.state.countrySelectValue);
@@ -513,7 +513,7 @@ export default class Search extends RCComponent<IProps> {
 
 	}
 
-	addRegion(event: React.MouseEvent<HTMLButtonElement>) {
+	addRegion(event: React.MouseEvent<HTMLButtonElement>): void {
 		event.preventDefault();
 
 		const countryList: IGeoCountry[] = ([]).concat(this.state.countryList);
@@ -547,7 +547,44 @@ export default class Search extends RCComponent<IProps> {
 
 	}
 
-	clearDates() {
+	changeCountrySelect(country: IGeoCountry): void {
+
+		this.setState({
+			countrySelectValue: country || {} as IGeoCountry,
+			regionSelectValue: {} as IGeoRegion,
+		});
+
+	}
+
+	changeLocationTab(event: React.MouseEvent<HTMLSpanElement>): void {
+
+		event.preventDefault();
+
+		this.setState({
+			locationTab: event.currentTarget.dataset.tab,
+		});
+
+	}
+
+	changeUnits(event: React.MouseEvent<HTMLSpanElement>): void {
+
+		event.preventDefault();
+
+		this.setState({
+			distanceUnits: event.currentTarget.dataset.unit,
+		});
+
+	}
+
+	changeRegionSelect(region: IGeoRegion): void {
+
+		this.setState({
+			regionSelectValue: region || {} as IGeoRegion,
+		});
+
+	}
+
+	clearDates(): void {
 
 		this.setState({
 			dateRangeDisplay: formatDateRange({
@@ -560,7 +597,7 @@ export default class Search extends RCComponent<IProps> {
 
 	}
 
-	determineStartMonth() {
+	determineStartMonth(): moment.Moment {
 
 		if (this.state.startDate) {
 			return this.state.startDate;
@@ -570,56 +607,19 @@ export default class Search extends RCComponent<IProps> {
 
 	}
 
-	changeCountrySelect(country: IGeoCountry) {
-
-		this.setState({
-			countrySelectValue: country || {} as IGeoCountry,
-			regionSelectValue: {} as IGeoRegion,
-		});
-
-	}
-
-	changeLocationTab(event: React.MouseEvent<HTMLSpanElement>) {
-
-		event.preventDefault();
-
-		this.setState({
-			locationTab: event.currentTarget.dataset.tab,
-		});
-
-	}
-
-	changeUnits(event: React.MouseEvent<HTMLSpanElement>) {
-
-		event.preventDefault();
-
-		this.setState({
-			distanceUnits: event.currentTarget.dataset.unit,
-		});
-
-	}
-
-	changeRegionSelect(region: IGeoRegion) {
-
-		this.setState({
-			regionSelectValue: region || {} as IGeoRegion,
-		});
-
-	}
-
-	getCountryOptionLabel(option: IGeoCountry) {
+	getCountryOptionLabel(option: IGeoCountry): string {
 
 		return option.name || "(type here to search list)";
 
 	}
 
-	getRegionOptionLabel(option: IGeoRegion) {
+	getRegionOptionLabel(option: IGeoRegion): string {
 
 		return option.name || "(type here to search list)";
 
 	}
 
-	handleAddressCountryChange(country: IGeoCountry) {
+	handleAddressCountryChange(country: IGeoCountry): void {
 
 		this.setState({
 			addressCountry: country || {} as IGeoCountry,
@@ -628,7 +628,7 @@ export default class Search extends RCComponent<IProps> {
 
 	}
 
-	handleAddressRegionChange(region: IGeoRegion) {
+	handleAddressRegionChange(region: IGeoRegion): void {
 
 		this.setState({
 			addressRegion: region || {} as IGeoRegion,
@@ -636,13 +636,13 @@ export default class Search extends RCComponent<IProps> {
 
 	}
 
-	handleFocusChange(focusedInput: FocusedInputShape) {
+	handleFocusChange(focusedInput: FocusedInputShape): void {
 
 		this.setState({ focusedInput });
 
 	}
 
-	handleInputChange <T extends keyof ISearchState>(event: React.ChangeEvent<HTMLInputElement>) {
+	handleInputChange <T extends keyof ISearchState>(event: React.ChangeEvent<HTMLInputElement>): void {
 
 		const fieldName: (keyof ISearchState) =
 			event.currentTarget.dataset.statevar ?
@@ -672,7 +672,7 @@ export default class Search extends RCComponent<IProps> {
 
 	}
 
-	isBeforeToday(date: moment.Moment) {
+	isBeforeToday(date: moment.Moment): boolean {
 
 		const todaysDate = moment({hour: 0, minute: 0, seconds: 0, milliseconds: 0});
 		const day = date.hours(0).minute(0).seconds(0);
@@ -680,18 +680,18 @@ export default class Search extends RCComponent<IProps> {
 		return day < todaysDate;
 	}
 
-	isCountryOptionDisabled(option: IGeoCountry) {
+	isCountryOptionDisabled(option: IGeoCountry): boolean {
 
 		return option.disabled;
 
 	}
 
-	isRegionOptionDisabled(option: IGeoRegion) {
+	isRegionOptionDisabled(option: IGeoRegion): boolean {
 
 		return option.disabled;
 	}
 
-	onDatesChange(dates: {startDate: moment.Moment, endDate: moment.Moment}) {
+	onDatesChange(dates: {startDate: moment.Moment, endDate: moment.Moment}): void {
 
 		this.setState({
 			dateRangeDisplay: formatDateRange({
@@ -704,7 +704,7 @@ export default class Search extends RCComponent<IProps> {
 
 	}
 
-	removeCountry(event: React.MouseEvent<HTMLDivElement>) {
+	removeCountry(event: React.MouseEvent<HTMLDivElement>): void {
 
 		event.preventDefault();
 
@@ -736,7 +736,7 @@ export default class Search extends RCComponent<IProps> {
 
 	}
 
-	removeRegion(event: React.MouseEvent<HTMLDivElement>) {
+	removeRegion(event: React.MouseEvent<HTMLDivElement>): void {
 
 		event.preventDefault();
 
@@ -780,7 +780,7 @@ export default class Search extends RCComponent<IProps> {
 
 	}
 
-	toggleFeatureIcon(event: React.MouseEvent<HTMLDivElement>) {
+	toggleFeatureIcon(event: React.MouseEvent<HTMLDivElement>): void {
 
 		event.preventDefault();
 
@@ -800,7 +800,7 @@ export default class Search extends RCComponent<IProps> {
 
 	}
 
-	submitSearch() {
+	submitSearch(): void {
 
 		const searchObject: ISearchObject = {};
 
@@ -860,7 +860,7 @@ export default class Search extends RCComponent<IProps> {
 
 	}
 
-	loadData() {
+	loadData(): void {
 
 		const getData = this.addPromise(
 			Promise.all([

@@ -1,7 +1,7 @@
 import { IReduxActionType, IReduxStore } from "interfaces/redux";
 import initialState from "redux/init";
 
-const rootReducer = (state = initialState, action: IReduxActionType) => {
+const rootReducer = (state = initialState, action: IReduxActionType): IReduxStore => {
 
 	const newState: IReduxStore = JSON.parse(JSON.stringify(state));
 

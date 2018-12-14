@@ -656,7 +656,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 	}
 
-	addDay(event: React.MouseEvent<HTMLButtonElement>) {
+	addDay(event: React.MouseEvent<HTMLButtonElement>): void {
 
 		event.preventDefault();
 
@@ -695,7 +695,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 	}
 
-	cancelDayEdit(event: React.MouseEvent<HTMLButtonElement>) {
+	cancelDayEdit(event: React.MouseEvent<HTMLButtonElement>): void {
 
 		event.preventDefault();
 
@@ -722,7 +722,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 	}
 
-	deleteDay(event: React.MouseEvent<HTMLButtonElement>) {
+	deleteDay(event: React.MouseEvent<HTMLButtonElement>): void {
 
 		event.preventDefault();
 
@@ -745,7 +745,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 	}
 
-	editDay(event: React.MouseEvent<HTMLButtonElement>) {
+	editDay(event: React.MouseEvent<HTMLButtonElement>): void {
 
 		event.preventDefault();
 
@@ -769,19 +769,19 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 	}
 
-	getCountryOptionLabel(option: IGeoCountry) {
+	getCountryOptionLabel(option: IGeoCountry): string {
 
 		return option.name || "(type here to search list)";
 
 	}
 
-	getRegionOptionLabel(option: IGeoRegion) {
+	getRegionOptionLabel(option: IGeoRegion): string {
 
 		return option.name || "(type here to search list)";
 
 	}
 
-	getTimeZoneLabel(timezone: ITimeZone) {
+	getTimeZoneLabel(timezone: ITimeZone): string {
 
 		if (timezone && timezone.name) {
 			return timezone.name;
@@ -791,7 +791,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 	}
 
-	getVenueLabel(venue: IDerbyVenue) {
+	getVenueLabel(venue: IDerbyVenue): string {
 
 		return venue && venue.name ?
 			!venue.country || !venue.country.code ?
@@ -801,7 +801,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 	}
 
-	handleCountryChange(country: IGeoCountry) {
+	handleCountryChange(country: IGeoCountry): void {
 
 		this.setState({
 			newVenueCountry: country || {} as IGeoCountry,
@@ -810,7 +810,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 	}
 
-	handleRegionChange(region: IGeoRegion) {
+	handleRegionChange(region: IGeoRegion): void {
 
 		this.setState({
 			newVenueRegion: region || {} as IGeoRegion,
@@ -818,7 +818,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 	}
 
-	handleFocusChange({ focused }: { focused: boolean }) {
+	handleFocusChange({ focused }: { focused: boolean }): void {
 
 		this.setState({
 			focused,
@@ -826,7 +826,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 	}
 
-	handleInputChange <T extends keyof IEventFormState>(event: React.ChangeEvent<any>) {
+	handleInputChange <T extends keyof IEventFormState>(event: React.ChangeEvent<any>): void {
 
 		switch (event.currentTarget.dataset.handler) {
 
@@ -878,7 +878,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 	}
 
-	handleTimeZoneChange(timezone: ITimeZone) {
+	handleTimeZoneChange(timezone: ITimeZone): void {
 
 		this.setState({
 			newVenueTimeZone: timezone || {} as ITimeZone,
@@ -886,7 +886,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 	}
 
-	handleVenueChange(venue: IDerbyVenue) {
+	handleVenueChange(venue: IDerbyVenue): void {
 
 		const eventData = this.state.eventData;
 
@@ -898,7 +898,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 	}
 
-	isDisabledDate(date: moment.Moment, id: number) {
+	isDisabledDate(date: moment.Moment, id: number): boolean {
 
 		const todaysDate = moment({hour: 0, minute: 0, seconds: 0, milliseconds: 0});
 		const compareDate = date.hours(0).minute(0).seconds(0);
@@ -916,7 +916,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 		return usedDates.indexOf(compareDate.format("Y-MM-DD")) > -1;
 	}
 
-	onDateChange(date: moment.Moment, id: number) {
+	onDateChange(date: moment.Moment, id: number): void {
 
 		const editingDays = this.state.editingDays;
 		const thisDay = editingDays
@@ -937,7 +937,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 	}
 
-	saveDay(event: React.MouseEvent<HTMLButtonElement>) {
+	saveDay(event: React.MouseEvent<HTMLButtonElement>): void {
 
 		event.preventDefault();
 
@@ -972,7 +972,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 	}
 
-	toggleFeatureIcon(event: React.MouseEvent<HTMLDivElement>) {
+	toggleFeatureIcon(event: React.MouseEvent<HTMLDivElement>): void {
 
 		event.preventDefault();
 
@@ -992,7 +992,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 	}
 
-	toggleSection <T extends keyof IEventFormState>(event: React.MouseEvent<HTMLHeadingElement>) {
+	toggleSection <T extends keyof IEventFormState>(event: React.MouseEvent<HTMLHeadingElement>): void {
 
 		event.preventDefault();
 
@@ -1008,7 +1008,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 	}
 
-	loadData() {
+	loadData(): void {
 
 		const dataPromises: Array<Promise<any>> = [
 			getGeography(),
@@ -1133,7 +1133,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 	}
 
-	submitEventForm(event: React.MouseEvent<HTMLFormElement>) {
+	submitEventForm(event: React.MouseEvent<HTMLFormElement>): void {
 
 		event.preventDefault();
 

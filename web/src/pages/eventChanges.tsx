@@ -128,7 +128,7 @@ export default class EventChanges extends RCComponent<IProps> {
 
 	}
 
-	reviewChange(event: React.MouseEvent<HTMLButtonElement>) {
+	reviewChange(event: React.MouseEvent<HTMLButtonElement>): void {
 
 		event.preventDefault();
 
@@ -136,7 +136,7 @@ export default class EventChanges extends RCComponent<IProps> {
 
 	}
 
-	loadData() {
+	loadData(): void {
 
 		const getList = this.addPromise(
 			getEventChangeList());

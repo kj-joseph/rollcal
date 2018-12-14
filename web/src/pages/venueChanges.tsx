@@ -128,7 +128,7 @@ export default class VenueChanges extends RCComponent<IProps> {
 
 	}
 
-	reviewChange(event: React.MouseEvent<HTMLButtonElement>) {
+	reviewChange(event: React.MouseEvent<HTMLButtonElement>): void {
 
 		event.preventDefault();
 
@@ -136,7 +136,7 @@ export default class VenueChanges extends RCComponent<IProps> {
 
 	}
 
-	loadData() {
+	loadData(): void {
 
 		this.setState({
 			loading: true,
