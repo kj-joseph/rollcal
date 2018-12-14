@@ -36,9 +36,9 @@ interface IEventFormState {
 	editingDays: IDerbyEventDay[];
 	eventData: IDerbyEvent;
 	eventFeatures: {
-		derbytypes: IDerbyFeature[],
-		sanctions: IDerbyFeature[],
-		tracks: IDerbyFeature[],
+		derbytypes: IDerbyFeature[];
+		sanctions: IDerbyFeature[];
+		tracks: IDerbyFeature[];
 	};
 	focused: boolean;
 	initialEventData: IDerbyEvent;
