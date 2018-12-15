@@ -3,7 +3,7 @@ import store from "redux/store";
 import axios, { AxiosRequestConfig } from "axios";
 
 export const callApi = (
-	method: "delete" | "get" | "post" | "put",
+	method: "delete" | "get" | "patch" | "post" | "put",
 	path: string,
 	params: {
 		[key: string]: any,

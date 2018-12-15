@@ -1,10 +1,8 @@
-import { Response } from "express";
-
-import { IRequestWithSession } from "interfaces";
+import { Request, Response } from "express";
 
 export const checkSession = (role: string) => {
 
-	return (req: IRequestWithSession, res: Response, next: any ) => {
+	return (req: Request, res: Response, next: any ) => {
 
 		if (!req.session
 			|| !req.session.user

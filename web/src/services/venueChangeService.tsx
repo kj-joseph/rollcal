@@ -14,8 +14,8 @@ export const approveVenueChange = (
 	new Promise((resolve, reject, onCancel) => {
 
 		const apiCall = callApi(
-			"post",
-			`venues/approveChange/${id}`,
+			"put",
+			`venue-change/${id}/approval`,
 		)
 			.then(() =>
 				resolve())
@@ -37,7 +37,7 @@ export const getVenueChange = (
 
 		const apiCall = callApi(
 			"get",
-			`venues/getChange/${id}`,
+			`venue-change/${id}`,
 		)
 			.then((changeData) => {
 
@@ -66,7 +66,7 @@ export const getVenueChangeList = ()
 
 				const apiCall = callApi(
 					"get",
-					"venues/getChangeList",
+					"venue-changes",
 				);
 
 				onCancel(() => {
@@ -118,8 +118,8 @@ export const rejectVenueChange = (
 	new Promise((resolve, reject, onCancel) => {
 
 		const apiCall = callApi(
-			"post",
-			`venues/rejectChange/${id}`,
+			"put",
+			`venue-change/${id}/rejection`,
 			{
 				comment,
 			},
@@ -144,8 +144,8 @@ export const saveVenueChange = (
 	new Promise((resolve, reject, onCancel) => {
 
 		const apiCall = callApi(
-			"put",
-			"venues/saveChanges",
+			"post",
+			"venue-change",
 			{
 				changeObject: JSON.stringify(changes),
 				id,

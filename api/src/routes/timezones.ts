@@ -3,13 +3,10 @@ import { MysqlError } from "mysql";
 
 const router = Router();
 
-
 router.get("/", (req: Request, res: Response) => {
 
 	res.locals.connection
-		.query(req.query.user ?
-			`call getVenuesByUser(${res.locals.connection.escape(req.query.user)})`
-			: "call getAllVenues()",
+		.query("call getTimeZones()",
 		(error: MysqlError, results: any) => {
 
 			if (error) {
@@ -24,9 +21,7 @@ router.get("/", (req: Request, res: Response) => {
 				res.status(200).json(results[0].map((row: {}) => ({...row})));
 
 			}
-
 		});
 });
-
 
 export default router;

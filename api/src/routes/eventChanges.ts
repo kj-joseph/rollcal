@@ -1,21 +1,21 @@
 import { Request, Response, Router } from "express";
 import { MysqlError } from "mysql";
 
+import { checkSession } from "lib/checkSession";
+
 const router = Router();
 
 
-router.get("/", (req: Request, res: Response) => {
+router.get("/", checkSession("reviewer"), (req: Request, res: Response) => {
 
 	res.locals.connection
-		.query(req.query.user ?
-			`call getVenuesByUser(${res.locals.connection.escape(req.query.user)})`
-			: "call getAllVenues()",
+		.query(`call getEventChangeList(${res.locals.connection.escape(req.session.user.id)})`,
+
 		(error: MysqlError, results: any) => {
 
 			if (error) {
-				console.error(error);
-
 				res.locals.connection.end();
+				console.error(error);
 				res.status(500).send();
 
 			} else {
@@ -24,8 +24,8 @@ router.get("/", (req: Request, res: Response) => {
 				res.status(200).json(results[0].map((row: {}) => ({...row})));
 
 			}
-
 		});
+
 });
 
 

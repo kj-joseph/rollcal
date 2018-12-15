@@ -3,7 +3,7 @@ import { MysqlError } from "mysql";
 
 const router = Router();
 
-router.get("/getDerbyTypes", (req: Request, res: Response) => {
+router.get("/derbytypes", (req: Request, res: Response) => {
 
 	res.locals.connection.query("call getDerbyTypes()",
 		(error: MysqlError, results: any) => {
@@ -23,7 +23,7 @@ router.get("/getDerbyTypes", (req: Request, res: Response) => {
 		});
 });
 
-router.get("/getSanctionTypes", (req: Request, res: Response) => {
+router.get("/sanctions", (req: Request, res: Response) => {
 
 	res.locals.connection.query("call getSanctions()",
 		(error: MysqlError, results: any) => {
@@ -44,7 +44,7 @@ router.get("/getSanctionTypes", (req: Request, res: Response) => {
 		});
 });
 
-router.get("/getTracks", (req: Request, res: Response) => {
+router.get("/tracks", (req: Request, res: Response) => {
 
 	res.locals.connection.query("call GetTracks()",
 		(error: MysqlError, results: any) => {

@@ -1,15 +1,16 @@
 import { Request, Response, Router } from "express";
 import { MysqlError } from "mysql";
 
+import { checkSession } from "lib/checkSession";
+
 const router = Router();
 
 
-router.get("/", (req: Request, res: Response) => {
+router.get("/", checkSession("admin"), (req: Request, res: Response) => {
 
 	res.locals.connection
-		.query(req.query.user ?
-			`call getVenuesByUser(${res.locals.connection.escape(req.query.user)})`
-			: "call getAllVenues()",
+		.query(`call searchUsers(${res.locals.connection.escape(req.query.search)})`,
+
 		(error: MysqlError, results: any) => {
 
 			if (error) {
@@ -26,6 +27,7 @@ router.get("/", (req: Request, res: Response) => {
 			}
 
 		});
+
 });
 
 

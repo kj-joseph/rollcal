@@ -16,7 +16,7 @@ export const checkEmail = (
 
 		const apiCall = callApi(
 			"get",
-			"user/checkEmail",
+			"user",
 			{
 				email,
 				id,
@@ -46,8 +46,8 @@ export const checkForgotPassword = (
 	new Promise((resolve, reject, onCancel) => {
 
 		const apiCall = callApi(
-			"post",
-			"user/checkForgotPassword",
+			"get",
+			"forgot-password",
 			{
 				validationCode: code,
 			},
@@ -77,8 +77,8 @@ export const checkLoginStatus = (): Promise<boolean> =>
 	new Promise((resolve, reject, onCancel) => {
 
 		const apiCall = callApi(
-			"post",
-			"user/getSession",
+			"get",
+			"session",
 		)
 			.then((result: IDBUserInfo) => {
 
@@ -114,7 +114,7 @@ export const checkUsername = (
 
 		const apiCall = callApi(
 			"get",
-			"user/checkUsername",
+			"user",
 			{
 				id,
 				username,
@@ -174,7 +174,7 @@ export const getUserDetails = (
 
 		const apiCall = callApi(
 			"get",
-			`admin/getUserDetailsById/${id}`,
+			`user/${id}`,
 		)
 			.then((result: IDBUserInfo) => {
 
@@ -223,7 +223,7 @@ export const getUserRoleList = ()
 
 			const apiCall = callApi(
 				"get",
-				"user/getRolesList",
+				"roles",
 			)
 				.then((result: IUserRole[]) => {
 
@@ -255,7 +255,7 @@ export const login = (
 
 		const apiCall = callApi(
 			"post",
-			"user/login",
+			"session",
 			{
 				email,
 				password,
@@ -288,8 +288,8 @@ export const logout = (
 ): Promise<void> =>
 
 	callApi(
-		"get",
-		"user/logout",
+		"delete",
+		"session",
 	)
 		.then((result) => {
 
@@ -325,7 +325,7 @@ export const registerUser = (
 
 		const apiCall = callApi(
 			"post",
-			"user/register",
+			"user",
 			{
 				email,
 				password,
@@ -357,7 +357,10 @@ export const searchUsers = (
 
 		const apiCall = callApi(
 			"get",
-			`admin/searchUsers/${term}`,
+			"users",
+			{
+				search: term,
+			},
 		)
 			.then((response: IDBUserInfo[]) => {
 
@@ -392,8 +395,8 @@ export const setNewPassword = (
 	new Promise((resolve, reject, onCancel) => {
 
 		const apiCall = callApi(
-			"post",
-			"user/account/setNewPassword",
+			"put",
+			"user",
 			{
 				id,
 				password,
@@ -425,7 +428,7 @@ export const submitForgotPassword = (
 
 		const apiCall = callApi(
 			"post",
-			"user/submitForgotPassword",
+			"forgot-password",
 			{
 				email,
 			},
@@ -462,9 +465,8 @@ export const updateUserAsAdmin = (
 
 		const apiCall = callApi(
 			"put",
-			"admin/updateUser",
+			`user/${id}`,
 			Object.assign(changes, {
-				id,
 				roles: changes.roles.map((role) => role.id).join(","),
 			}),
 		)
@@ -499,10 +501,8 @@ export const updateUserProfile = (
 
 		const apiCall = callApi(
 			"put",
-			"user/account/update",
-			Object.assign(changes, {
-				id,
-			}),
+			`user/${id}`,
+			changes,
 		)
 			.then((response) => {
 
@@ -528,8 +528,8 @@ export const validateAccount = (
 	new Promise((resolve, reject, onCancel) => {
 
 		const apiCall = callApi(
-			"post",
-			"user/account/validate",
+			"put",
+			"validation",
 			{
 				validationCode: code,
 			},

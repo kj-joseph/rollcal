@@ -103,7 +103,7 @@ export const getGeography = ()
 
 			const apiCall = callApi(
 				"get",
-				"geography/getGeography",
+				"geography/countries",
 			)
 				.then((result) => {
 

@@ -55,7 +55,7 @@ export const getVenueDetails = (
 
 		const apiCall = callApi(
 			"get",
-			`venues/getVenueDetails/${id}`,
+			`venue/${id}`,
 		);
 
 		onCancel(() => {
@@ -86,7 +86,7 @@ export const loadVenues = (
 
 		const apiCall = callApi(
 			"get",
-			"venues/getVenues",
+			"venues",
 			{
 				user: userId || undefined,
 			},

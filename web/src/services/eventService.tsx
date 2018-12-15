@@ -21,7 +21,7 @@ export const deleteEvent = (
 
 		const apiCall = callApi(
 			"delete",
-			`events/deleteEvent/${id}`,
+			`event/${id}`,
 		)
 			.then(() =>
 				resolve())
@@ -43,7 +43,7 @@ export const getEventDetails = (
 
 		const apiCall = callApi(
 			"get",
-			`events/getEventDetails/${id}`,
+			`event/${id}`,
 		)
 			.then((eventData: IDBDerbyEvent) => {
 
@@ -155,7 +155,7 @@ export const loadEvents = (
 
 				const apiCall = callApi(
 					"get",
-					"events/search",
+					"events",
 					apiSearch,
 				);
 

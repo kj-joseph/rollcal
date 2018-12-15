@@ -3,7 +3,7 @@ import { MysqlError } from "mysql";
 
 const router = Router();
 
-router.get("/getGeography", (req: Request, res: Response) => {
+router.get("/countries", (req: Request, res: Response) => {
 
 	res.locals.connection
 		.query(`call getAllCountries();

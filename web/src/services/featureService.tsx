@@ -72,7 +72,7 @@ export const getDerbySanctions = (): Promise<IDerbyFeature[]> =>
 
 			const apiCall = callApi(
 				"get",
-				"eventFeatures/getSanctionTypes",
+				"feature/sanctions",
 			)
 				.then((result: IDBDerbySanction[]) => {
 
@@ -114,7 +114,7 @@ export const getDerbyTracks = (): Promise<IDerbyFeature[]> =>
 
 			const apiCall = callApi(
 				"get",
-				"eventFeatures/getTracks",
+				"feature/tracks",
 			)
 				.then((result: IDBDerbyTrack[]) => {
 
@@ -156,7 +156,7 @@ export const getDerbyTypes = (): Promise<IDerbyFeature[]> =>
 
 			const apiCall = callApi(
 				"get",
-				"eventFeatures/getDerbyTypes",
+				"feature/derbytypes",
 			)
 				.then((result: IDBDerbyType[]) => {
 

@@ -6,10 +6,7 @@ const router = Router();
 
 router.get("/", (req: Request, res: Response) => {
 
-	res.locals.connection
-		.query(req.query.user ?
-			`call getVenuesByUser(${res.locals.connection.escape(req.query.user)})`
-			: "call getAllVenues()",
+	res.locals.connection.query("call getRolesList()",
 		(error: MysqlError, results: any) => {
 
 			if (error) {
@@ -21,10 +18,17 @@ router.get("/", (req: Request, res: Response) => {
 			} else {
 
 				res.locals.connection.end();
-				res.status(200).json(results[0].map((row: {}) => ({...row})));
+				res.status(200).json(results[0].map((row: {
+					role_id: number,
+					role_name: string,
+					role_order: number,
+				}) => ({
+					id: row.role_id,
+					name: row.role_name,
+					order: row.role_order,
+				})));
 
 			}
-
 		});
 });
 

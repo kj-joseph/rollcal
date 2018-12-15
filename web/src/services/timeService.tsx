@@ -50,7 +50,7 @@ export const getTimeZones = ()
 
 			const apiCall = callApi(
 				"get",
-				"geography/getTimeZones",
+				"timezones",
 			)
 				.then((result: IDBTimeZone[]) => {
 

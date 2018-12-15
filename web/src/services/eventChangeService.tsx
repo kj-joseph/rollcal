@@ -14,8 +14,8 @@ export const approveEventChange = (
 	new Promise((resolve, reject, onCancel) => {
 
 		const apiCall = callApi(
-			"post",
-			`events/approveChange/${id}`,
+			"put",
+			`event-change/${id}/approval`,
 		)
 			.then(() =>
 				resolve())
@@ -37,7 +37,7 @@ export const getEventChange = (
 
 		const apiCall = callApi(
 			"get",
-			`events/getChange/${id}`,
+			`event-change/${id}`,
 		)
 			.then((changeData) => {
 
@@ -66,7 +66,7 @@ export const getEventChangeList = ()
 
 				callApi(
 					"get",
-					"events/getChangeList",
+					"event-changes",
 				))
 
 			.then((changeResult: IDBDerbyEventChange[]) => {
@@ -169,8 +169,8 @@ export const rejectEventChange = (
 	new Promise((resolve, reject, onCancel) => {
 
 		const apiCall = callApi(
-			"post",
-			`events/rejectChange/${id}`,
+			"put",
+			`event-change/${id}/reject`,
 			{
 				comment,
 			},
@@ -195,8 +195,8 @@ export const saveEventChange = (
 	new Promise((resolve, reject, onCancel) => {
 
 		const apiCall = callApi(
-			"put",
-			"events/saveChanges",
+			"post",
+			"event-change",
 			{
 				changeObject: JSON.stringify(changes),
 				id,
