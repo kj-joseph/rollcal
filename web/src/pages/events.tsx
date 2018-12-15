@@ -184,7 +184,7 @@ export default class Events extends RCComponent<IProps> {
 							loadMoreFunction={this.loadPage}
 							listType="display"
 							loadingMore={this.state.loadingMore}
-							loggedInUserId={this.props.loggedInUserId}
+							userId={this.props.user.id}
 							paginate={true}
 							totalItems={this.state.listItemsTotal}
 						/>

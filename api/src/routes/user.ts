@@ -6,6 +6,8 @@ import { checkSession } from "lib/checkSession";
 import { decryptCode, generateValidation } from "lib/crypto";
 import { sendEmailChangeEmail, sendValidationEmail } from "lib/email";
 
+import { IDBUserInfo, IUserInfo } from "interfaces/user";
+
 const router = Router();
 const upload = multer();
 
@@ -25,14 +27,27 @@ router.get("/:id", checkSession("admin"), (req: Request, res: Response) => {
 
 			} else {
 
-				res.locals.connection.end();
-				res.status(200).json(results[0].map((row: {[key: string]: any}) => ({
-					user_email: row.user_email,
-					user_id: row.user_id,
-					user_name: row.user_name,
-					user_roles: row.user_roles ? row.user_roles.split(",") : [],
-					user_status: row.user_status,
-				}))[0]);
+				const userData: IDBUserInfo = results[0].map((row: {}) => ({...row}))[0];
+
+				if (!userData || !userData.user_id) {
+
+					res.locals.connection.end();
+					res.status(205).send();
+
+				} else {
+
+					const userInfo: IUserInfo = {
+						email: userData.user_email,
+						id: userData.user_id,
+						name: userData.user_name,
+						roles: userData.user_roles,
+						status: userData.user_status,
+					};
+
+					res.locals.connection.end();
+					res.status(200).json(userInfo);
+
+				}
 
 			}
 

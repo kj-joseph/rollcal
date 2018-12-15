@@ -187,8 +187,8 @@ export default class ForgotPassword extends RCComponent<IProps> {
 
 				this.setState({
 					status: "form",
-					userId: result.userId,
-					userName: result.userName,
+					userId: result.id,
+					userName: result.name,
 				});
 
 			}).catch((error) => {

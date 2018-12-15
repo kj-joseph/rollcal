@@ -18,9 +18,9 @@ interface IContactState {
 export default class Contact extends RCComponent<IProps> {
 
 	state: IContactState = {
-		contactEmail: this.props.loggedInUserEmail || "",
+		contactEmail: this.props.user.email || "",
 		contactMessage: "",
-		contactName: this.props.loggedInUserName || "",
+		contactName: this.props.user.name || "",
 		formError: null,
 		status: "form",
 		submitting: false,
@@ -46,12 +46,12 @@ export default class Contact extends RCComponent<IProps> {
 
 	componentDidUpdate() {
 
-		if (this.props.loggedInUserId !== this.state.userId ) {
+		if (this.props.user.id !== this.state.userId ) {
 
 			this.setState({
-				contactEmail: this.props.loggedInUserEmail || "",
-				contactName: this.props.loggedInUserName || "",
-				userId: this.props.loggedInUserId,
+				contactEmail: this.props.user.email || "",
+				contactName: this.props.user.name || "",
+				userId: this.props.user.id,
 			});
 
 		}
@@ -83,7 +83,7 @@ export default class Contact extends RCComponent<IProps> {
 								name="contactName"
 								type="text"
 								required={true}
-								disabled={this.state.submitting || !!this.props.loggedInUserName}
+								disabled={this.state.submitting || !!this.props.user.name}
 								value={this.state.contactName}
 								onChange={this.handleInputChange}
 							/>
@@ -96,7 +96,7 @@ export default class Contact extends RCComponent<IProps> {
 								name="contactEmail"
 								type="email"
 								required={true}
-								disabled={this.state.submitting || !!this.props.loggedInUserEmail}
+								disabled={this.state.submitting || !!this.props.user.email}
 								value={this.state.contactEmail}
 								onChange={this.handleInputChange}
 							/>

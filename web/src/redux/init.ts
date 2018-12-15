@@ -1,5 +1,6 @@
 import { ISearchObject } from "interfaces/event";
 import { IReduxStore } from "interfaces/redux";
+import { IUserInfo } from "interfaces/user";
 
 const initialState: IReduxStore = {
 	apiLocation: process.env.API_URL,
@@ -11,10 +12,6 @@ const initialState: IReduxStore = {
 	lastSearch: {} as ISearchObject,
 	listPageLength: 9,
 	loggedIn: false,
-	loggedInUserEmail: "",
-	loggedInUserId: null,
-	loggedInUserName: "",
-	loggedInUserRoles: null,
 	loginModalOpen: false,
 	pageTitle: {
 		detail: null,
@@ -23,6 +20,7 @@ const initialState: IReduxStore = {
 	rolesList: [],
 	sessionInitialized: false,
 	timeZones: [],
+	user: {} as IUserInfo,
 	userStatusList: [
 		"active",
 		"unvalidated",

@@ -3,6 +3,8 @@ import { MysqlError } from "mysql";
 
 import { checkSession } from "lib/checkSession";
 
+import { IDBUserInfo, IUserInfo } from "interfaces/user";
+
 const router = Router();
 
 
@@ -21,8 +23,28 @@ router.get("/", checkSession("admin"), (req: Request, res: Response) => {
 
 			} else {
 
-				res.locals.connection.end();
-				res.status(200).json(results[0].map((row: {}) => ({...row})));
+				const userData: IDBUserInfo[] = results[0].map((row: {}) => ({...row}));
+
+				if (!userData || !userData.length) {
+
+					res.locals.connection.end();
+					res.status(205).send();
+
+				} else {
+
+					const userList: IUserInfo[] = userData
+						.map((user) => ({
+							email: user.user_email,
+							id: user.user_id,
+							name: user.user_name,
+							roles: user.user_roles,
+							status: user.user_status,
+						}));
+
+					res.locals.connection.end();
+					res.status(200).json(userList);
+
+				}
 
 			}
 

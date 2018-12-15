@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { checkEmail, checkUsername, logout, updateUserProfile } from "services/userService";
 
 import { IProps } from "interfaces/redux";
+import { IUserInfo } from "interfaces/user";
 
 interface IUserAccountState {
 	accountCurrentPassword: string;
@@ -34,23 +35,23 @@ export default class UserAccount extends RCComponent<IProps> {
 
 	state: IUserAccountState = {
 		accountCurrentPassword: "",
-		accountEmail: this.props.loggedInUserEmail,
+		accountEmail: this.props.user.email,
 		accountEmailChecked: false,
 		accountEmailChecking: false,
 		accountEmailError: null,
 		accountEmailOk: true,
-		accountId: this.props.loggedInUserId,
+		accountId: this.props.user.id,
 		accountNewPassword: "",
 		accountNewPasswordConfirm: "",
-		accountUsername: this.props.loggedInUserName,
+		accountUsername: this.props.user.name,
 		accountUsernameChecked: false,
 		accountUsernameChecking: false,
 		accountUsernameError: null,
 		accountUsernameOk: true,
 		errorMessage: null,
-		initialAccountEmail: this.props.loggedInUserEmail,
-		initialAccountId: this.props.loggedInUserId,
-		initialAccountUsername: this.props.loggedInUserName,
+		initialAccountEmail: this.props.user.email,
+		initialAccountId: this.props.user.id,
+		initialAccountUsername: this.props.user.name,
 		path: window.location.pathname,
 		processing: false,
 		status: "form",
@@ -269,7 +270,7 @@ export default class UserAccount extends RCComponent<IProps> {
 		});
 
 		const emailCheck = this.addPromise(
-			checkEmail(email, this.props.loggedInUserId));
+			checkEmail(email, this.props.user.id));
 
 		emailCheck
 			.then((emailRegistered) => {
@@ -316,7 +317,7 @@ export default class UserAccount extends RCComponent<IProps> {
 		});
 
 		const usernameCheck = this.addPromise(
-			checkUsername(username, this.props.loggedInUserId));
+			checkUsername(username, this.props.user.id));
 
 		usernameCheck
 			.then((usernameUsed) => {
@@ -419,7 +420,7 @@ export default class UserAccount extends RCComponent<IProps> {
 
 			const userUpdate = this.addPromise(
 				updateUserProfile(
-					this.props.loggedInUserId,
+					this.props.user.id,
 					{
 						currentPassword: this.state.accountCurrentPassword || undefined,
 						email: this.state.accountEmail !== this.state.initialAccountEmail
@@ -434,9 +435,9 @@ export default class UserAccount extends RCComponent<IProps> {
 				));
 
 			userUpdate
-				.then((result) => {
+				.then((userInfo: IUserInfo) => {
 
-					if (result.validationCode) {
+					if (userInfo.validationCode) {
 
 						this.setState({
 							processing: false,
@@ -452,13 +453,9 @@ export default class UserAccount extends RCComponent<IProps> {
 							status: "success",
 						});
 
-						this.props.setUserInfo({
-							loggedIn: true,
-							userEmail: result.email,
-							userId: result.id,
-							userName: result.username,
-							userRoles: result.roles,
-						});
+						const savedUserInfo = Object.assign(userInfo, {});
+						delete savedUserInfo.validationCode;
+						this.props.setUserInfo(savedUserInfo);
 
 					}
 

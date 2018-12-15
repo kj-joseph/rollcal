@@ -55,47 +55,14 @@ export const checkForgotPassword = (
 			.then((response: IDBUserInfo) => {
 
 				resolve({
-					userId: response.user_id,
-					userName: response.user_name,
+					id: response.user_id,
+					name: response.user_name,
 				});
 
 			})
 			.catch((error) => {
 
 				reject(error);
-
-			});
-
-		onCancel(() => {
-			apiCall.cancel();
-		});
-
-	});
-
-export const checkLoginStatus = (): Promise<boolean> =>
-
-	new Promise((resolve, reject, onCancel) => {
-
-		const apiCall = callApi(
-			"get",
-			"session",
-		)
-			.then((result: IDBUserInfo) => {
-
-				store.dispatch(actions.setUserInfo({
-					loggedIn: true,
-					userEmail: result.user_email,
-					userId: result.user_id,
-					userName: result.user_name,
-					userRoles: result.user_roles,
-				}));
-
-				resolve();
-
-			})
-			.catch((error) => {
-
-				reject(new Error("User not logged in."));
 
 			});
 
@@ -142,7 +109,7 @@ export const checkUserRole = (
 ): boolean => {
 
 	const state = store.getState();
-	return state.loggedInUserRoles.indexOf(role) > -1;
+	return state.user.roles.indexOf(role) > -1;
 
 };
 
@@ -176,23 +143,17 @@ export const getUserDetails = (
 			"get",
 			`user/${id}`,
 		)
-			.then((result: IDBUserInfo) => {
+			.then((userInfo: IUserInfo) => {
 
-				if (result.user_id === state.loggedInUserId
-					|| (result.user_roles.indexOf("admin") > -1)
+				if (userInfo.id === state.user.id
+					|| (userInfo.roles.indexOf("admin") > -1)
 						&& !checkUserRole("superadmin")) {
 
 					reject(new Error("Access to this user denied."));
 
 				} else {
 
-					resolve({
-						userEmail: result.user_email,
-						userId: result.user_id,
-						userName: result.user_name,
-						userRoles: result.user_roles,
-						userStatus: result.user_status,
-					});
+					resolve(userInfo);
 				}
 
 			})
@@ -246,6 +207,32 @@ export const getUserRoleList = ()
 
 	});
 
+export const getUserSession = (): Promise<boolean> =>
+
+	new Promise((resolve, reject, onCancel) => {
+
+		const apiCall = callApi(
+			"get",
+			"session",
+		)
+			.then((userInfo: IUserInfo) => {
+
+				store.dispatch(actions.setUserInfo(userInfo));
+				resolve();
+
+			})
+			.catch((error) => {
+
+				reject(new Error("User not logged in."));
+
+			});
+
+		onCancel(() => {
+			apiCall.cancel();
+		});
+
+	});
+
 export const login = (
 	email: string,
 	password: string,
@@ -261,14 +248,9 @@ export const login = (
 				password,
 			},
 		)
-			.then((result: IDBUserInfo) => {
+			.then((userInfo: IUserInfo) => {
 
-				resolve({
-					userEmail: result.user_email,
-					userId: result.user_id,
-					userName: result.user_name,
-					userRoles: result.user_roles,
-				});
+				resolve(userInfo);
 
 			})
 			.catch((error) => {
@@ -311,8 +293,8 @@ export const logout = (
 export const mapUser = (
 	data: IDBUserInfo | IDBDerbyEvent | IDBDerbyVenue,
 ): IUserInfo => ({
-	userId: data.user_id,
-	userName: data.user_name,
+	id: data.user_id,
+	name: data.user_name,
 });
 
 export const registerUser = (
@@ -362,16 +344,9 @@ export const searchUsers = (
 				search: term,
 			},
 		)
-			.then((response: IDBUserInfo[]) => {
+			.then((userList: IUserInfo[]) => {
 
-				resolve(response
-					.map((user): IUserInfo => ({
-						userEmail: user.user_email,
-						userId: user.user_id,
-						userName: user.user_name,
-						userRoles: user.user_roles,
-						userStatus: user.user_status,
-					})));
+				resolve(userList);
 
 			})
 			.catch((error) => {
@@ -467,7 +442,9 @@ export const updateUserAsAdmin = (
 			"put",
 			`user/${id}`,
 			Object.assign(changes, {
-				roles: changes.roles.map((role) => role.id).join(","),
+				roles: changes.roles
+					.map((role) => role.id)
+					.join(","),
 			}),
 		)
 			.then((response) => {

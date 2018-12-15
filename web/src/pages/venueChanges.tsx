@@ -57,14 +57,14 @@ export default class VenueChanges extends RCComponent<IProps> {
 			this.props.history.push("/dashboard");
 
 		} else if (window.location.pathname !== this.state.path
-			|| this.props.loggedInUserId !== this.state.userId ) {
+			|| this.props.user.id !== this.state.userId ) {
 
 			this.setState({
 				path: window.location.pathname,
-				userId: this.props.loggedInUserId,
+				userId: this.props.user.id,
 			});
 
-			if (this.props.loggedInUserId) {
+			if (this.props.user.id) {
 				this.loadData();
 			}
 
@@ -104,7 +104,7 @@ export default class VenueChanges extends RCComponent<IProps> {
 								data={this.state.venueChanges}
 								itemType="venues"
 								listType="review"
-								loggedInUserId={this.props.loggedInUserId}
+								userId={this.props.user.id}
 								noIcons={true}
 								reviewFunction={this.reviewChange}
 							/>

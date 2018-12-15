@@ -11,10 +11,10 @@ const upload = multer();
 router.get("/", upload.array(), checkSession("user"), (req: Request, res: Response) => {
 
 	res.status(200).json({
-		user_email: req.session.user.email,
-		user_id: req.session.user.id,
-		user_name: req.session.user.username,
-		user_roles: req.session.user.roles,
+		email: req.session.user.email,
+		id: req.session.user.id,
+		name: req.session.user.username,
+		roles: req.session.user.roles,
 	});
 
 });

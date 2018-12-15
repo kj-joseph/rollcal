@@ -105,8 +105,8 @@ const mapVenueChange = (
 		submittedDuration: moment.duration(moment(data.change_submitted).diff(moment())).humanize(),
 		submittedTime: moment(data.change_submitted).format("MMM D, Y h:mm a"),
 		submitter: {
-			userId: data.change_user,
-			userName: data.change_user_name,
+			id: data.change_user,
+			name: data.change_user_name,
 		},
 	});
 

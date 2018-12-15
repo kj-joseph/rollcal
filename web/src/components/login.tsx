@@ -569,15 +569,9 @@ class Login extends RCComponent<IProps> {
 			));
 
 		loginAttempt
-			.then((result: IUserInfo) => {
+			.then((userInfo: IUserInfo) => {
 
-				this.props.setUserInfo({
-					loggedIn: true,
-					userEmail: result.userEmail,
-					userId: result.userId,
-					userName: result.userName,
-					userRoles: result.userRoles,
-				});
+				this.props.setUserInfo(userInfo);
 
 				this.changeStatusClearState("login");
 				this.props.setLoginModalState(false);

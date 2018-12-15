@@ -44,11 +44,11 @@ export default class Dashboard extends React.Component<IProps> {
 			this.props.history.push("/");
 
 		} else if (window.location.pathname !== this.state.path
-			|| this.props.loggedInUserId !== this.state.userId ) {
+			|| this.props.user.id !== this.state.userId ) {
 
 			this.setState({
 				path: window.location.pathname,
-				userId: this.props.loggedInUserId,
+				userId: this.props.user.id,
 			});
 
 		}
@@ -67,7 +67,7 @@ export default class Dashboard extends React.Component<IProps> {
 
 				<h1>Dashboard</h1>
 
-				<h2>Hi, {this.props.loggedInUserName}!</h2>
+				<h2>Hi, {this.props.user.name}!</h2>
 
 				<p>Welcome to your dashboard.  Please choose a function from the list below:</p>
 
@@ -93,7 +93,7 @@ export default class Dashboard extends React.Component<IProps> {
 						<Link to="/dashboard/venues">Edit Venues</Link>
 					</li>
 
-					{this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("reviewer") > -1 ?
+					{this.props.user.roles && this.props.user.roles.indexOf("reviewer") > -1 ?
 
 						<li className="separatorBefore">
 							<Link to="/dashboard/events/changes">Review Event Changes</Link>
@@ -101,7 +101,7 @@ export default class Dashboard extends React.Component<IProps> {
 
 					: null}
 
-					{this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("reviewer") > -1 ?
+					{this.props.user.roles && this.props.user.roles.indexOf("reviewer") > -1 ?
 
 						<li>
 							<Link to="/dashboard/venues/changes">Review Venue Changes</Link>
@@ -109,7 +109,7 @@ export default class Dashboard extends React.Component<IProps> {
 
 					: null}
 
-					{this.props.loggedInUserRoles && this.props.loggedInUserRoles.indexOf("admin") > -1 ?
+					{this.props.user.roles && this.props.user.roles.indexOf("admin") > -1 ?
 
 						<li className="separatorBefore">
 							<Link to="/dashboard/admin">User Admin</Link>

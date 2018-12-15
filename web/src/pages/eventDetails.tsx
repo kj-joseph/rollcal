@@ -97,7 +97,7 @@ export default class EventDetails extends RCComponent<IProps> {
 
 						<div className="eventDetails">
 
-							{this.state.eventData.user.userId === this.props.loggedInUserId ?
+							{this.state.eventData.user.id === this.props.user.id ?
 								<div className="buttonRow cornerButton">
 									<button type="button" onClick={this.editEvent} className="largeButton">Edit Event</button>
 								</div>
@@ -208,8 +208,8 @@ export default class EventDetails extends RCComponent<IProps> {
 								<p><em>All times shown are local to the venue.</em></p>
 
 								<p className="eventUser">
-									Event added by {this.state.eventData.user.userName}
-									{this.state.eventData.user.userId === this.props.loggedInUserId ?
+									Event added by {this.state.eventData.user.name}
+									{this.state.eventData.user.id === this.props.user.id ?
 										" (thank you!)"
 									: null}
 								</p>
@@ -238,7 +238,7 @@ export default class EventDetails extends RCComponent<IProps> {
 										items: this.state.eventData.features.sanctions,
 										label: {
 											plural: "Sanctions",
-											singular: "sanction",
+											singular: "Sanction",
 										},
 										type: "sanction",
 									},

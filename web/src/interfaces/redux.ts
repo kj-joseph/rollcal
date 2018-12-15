@@ -47,15 +47,12 @@ export interface IReduxStore {
 	kmConverter: number;
 	lastSearch: ISearchObject;
 	listPageLength: number;
-	loggedIn: false;
-	loggedInUserEmail: string;
-	loggedInUserId: number;
-	loggedInUserName: string;
-	loggedInUserRoles: string[];
+	loggedIn: boolean;
 	loginModalOpen: false;
 	pageTitle: IPageTitle;
 	rolesList: IUserRole[];
-	sessionInitialized: false;
+	sessionInitialized: boolean;
 	timeZones: ITimeZone[];
+	user: IUserInfo;
 	userStatusList: string[];
 }
