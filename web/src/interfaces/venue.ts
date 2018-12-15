@@ -28,6 +28,14 @@ export interface IDBDerbyVenueChange extends IDBDerbyVenue {
 	changed_item_id: number;
 }
 
+export interface IDBVenueAddress {
+	country_flag: string;
+	region_abbreviation?: string;
+	venue_address1: string;
+	venue_city: string;
+	venue_postcode?: string;
+}
+
 export interface IDerbyVenue {
 	address1: string;
 	address2?: string;
