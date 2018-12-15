@@ -1,6 +1,8 @@
 import { Request, Response, Router } from "express";
 import { MysqlError } from "mysql";
 
+import { IDBUserRole, IUserRole } from "interfaces/user";
+
 const router = Router();
 
 
@@ -17,16 +19,26 @@ router.get("/", (req: Request, res: Response) => {
 
 			} else {
 
-				res.locals.connection.end();
-				res.status(200).json(results[0].map((row: {
-					role_id: number,
-					role_name: string,
-					role_order: number,
-				}) => ({
-					id: row.role_id,
-					name: row.role_name,
-					order: row.role_order,
-				})));
+				const result: IDBUserRole[] = results[0];
+
+				if (!result || !result.length) {
+
+					res.locals.connection.end();
+					res.status(205).json();
+
+				} else {
+
+					const roleList: IUserRole[] = result
+						.map((row) => ({
+							id: row.role_id,
+							name: row.role_name,
+							order: row.role_order,
+						}));
+
+					res.locals.connection.end();
+					res.status(200).json(roleList);
+
+				}
 
 			}
 		});
