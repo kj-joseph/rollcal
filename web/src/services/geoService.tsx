@@ -3,7 +3,7 @@ import store from "redux/store";
 import { callApi } from "services/apiService";
 
 import { IDBDerbyEvent } from "interfaces/event";
-import { IDBGeoCountry, IDBGeoRegion, IGeoCountry, IGeoCountryFilter, IGeoRegion } from "interfaces/geo";
+import { IGeoCountry, IGeoCountryFilter, IGeoRegion } from "interfaces/geo";
 import { IDBDerbyVenue } from "interfaces/venue";
 
 export const filterLocations = (
@@ -105,28 +105,7 @@ export const getGeography = ()
 				"get",
 				"geography/countries",
 			)
-				.then((result) => {
-
-					const countries: IDBGeoCountry[] = result.countries;
-					const regions: IDBGeoRegion[] = result.regions;
-
-					const countryList = countries
-						.map((country): IGeoCountry => ({
-							code: country.country_code,
-							flag: country.country_flag,
-							name: country.country_name,
-							regionType: country.country_region_type,
-							regions: country.country_region_type ?
-								regions
-									.filter((region) => region.region_country === country.country_code)
-									.map((region) => ({
-										abbreviation: region.region_abbreviation,
-										country: region.region_country,
-										id: region.region_id,
-										name: region.region_name,
-									}))
-								: undefined,
-						}));
+				.then((countryList: IGeoCountry[]) => {
 
 					store.dispatch(actions.saveDataGeography(countryList));
 					resolve(countryList);
