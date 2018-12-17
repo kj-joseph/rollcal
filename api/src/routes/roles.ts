@@ -1,6 +1,8 @@
 import { Request, Response, Router } from "express";
 import { MysqlError } from "mysql";
 
+import { mapRole } from "mapping/roleMaps";
+
 import { IDBUserRole, IUserRole } from "interfaces/user";
 
 const router = Router();
@@ -29,11 +31,7 @@ router.get("/", (req: Request, res: Response) => {
 				} else {
 
 					const roleList: IUserRole[] = result
-						.map((row) => ({
-							id: row.role_id,
-							name: row.role_name,
-							order: row.role_order,
-						}));
+						.map((row) => mapRole(row));
 
 					res.locals.connection.end();
 					res.status(200).json(roleList);

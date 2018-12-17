@@ -3,6 +3,8 @@ import { MysqlError } from "mysql";
 
 import { IDBGeoCountry, IDBGeoRegion, IGeoCountry } from "interfaces/geo";
 
+import { mapGeography } from "mapping/geoMaps";
+
 const router = Router();
 
 router.get("/countries", (req: Request, res: Response) => {
@@ -32,23 +34,7 @@ router.get("/countries", (req: Request, res: Response) => {
 
 				} else {
 
-					const countryList: IGeoCountry[] = countries
-						.map((country): IGeoCountry => ({
-							code: country.country_code,
-							flag: country.country_flag,
-							name: country.country_name,
-							regionType: country.country_region_type,
-							regions: country.country_region_type ?
-								regions
-									.filter((region) => region.region_country === country.country_code)
-									.map((region) => ({
-										abbreviation: region.region_abbreviation,
-										country: region.region_country,
-										id: region.region_id,
-										name: region.region_name,
-									}))
-								: undefined,
-						}));
+					const countryList: IGeoCountry[] = mapGeography(countries, regions);
 
 					res.locals.connection.end();
 					res.status(200).json(countryList);
