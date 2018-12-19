@@ -3,6 +3,8 @@ import { MysqlError } from "mysql";
 
 import { IDBDerbyVenue, IDerbyVenue } from "interfaces/venue";
 
+import { dbArray } from "lib/db";
+
 import { mapVenue } from "mapping/venueMaps";
 
 const router = Router();
@@ -24,7 +26,7 @@ router.get("/", (req: Request, res: Response) => {
 
 			} else {
 
-				const venueData: IDBDerbyVenue[] = response[0];
+				const venueData: IDBDerbyVenue[] = dbArray(response[0]);
 
 				if (!venueData || !venueData.length) {
 

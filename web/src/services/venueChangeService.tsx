@@ -3,7 +3,6 @@ import { callApi } from "services/apiService";
 import { IDBDerbyVenueChange, IDerbyVenueChange, IDerbyVenueChangeObject } from "interfaces/venue";
 
 import { getGeography } from "services/geoService";
-import { mapVenue } from "services/venueService";
 
 import moment from "moment";
 
@@ -39,9 +38,11 @@ export const getVenueChange = (
 			"get",
 			`venue-change/${id}`,
 		)
-			.then((changeData) => {
+			.then((response) => {
 
-				resolve(mapVenueChange(changeData));
+				const venueChange: IDerbyVenueChange = response.data;
+
+				resolve(venueChange);
 
 			})
 			.catch((error) =>
@@ -76,11 +77,11 @@ export const getVenueChangeList = ()
 				return apiCall;
 
 			})
-			.then((changeResult: IDBDerbyVenueChange[]) => {
+			.then((response) => {
 
-				resolve (changeResult
-					.map((changeItem) =>
-						mapVenueChange(changeItem)));
+				const changeList: IDerbyVenueChange[] = response.data;
+
+				resolve(changeList);
 
 			})
 			.catch((error) =>
@@ -91,23 +92,6 @@ export const getVenueChangeList = ()
 			getGeo.cancel();
 		});
 
-	});
-
-const mapVenueChange = (
-	data: IDBDerbyVenueChange,
-): IDerbyVenueChange =>
-
-	Object.assign(mapVenue(data), {
-		changeId: data.change_id,
-		changeObject: data.change_object ?
-			JSON.parse(data.change_object)
-			: undefined as IDerbyVenueChangeObject,
-		submittedDuration: moment.duration(moment(data.change_submitted).diff(moment())).humanize(),
-		submittedTime: moment(data.change_submitted).format("MMM D, Y h:mm a"),
-		submitter: {
-			id: data.change_user,
-			name: data.change_user_name,
-		},
 	});
 
 export const rejectVenueChange = (

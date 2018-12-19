@@ -1,12 +1,12 @@
 import { IDBDerbyEvent } from "interfaces/event";
-import { IDBDerbyVenue, IDerbyVenue } from "interfaces/venue";
+import { IDBDerbyVenue, IDBDerbyVenueChange, IDerbyVenue } from "interfaces/venue";
 
 import { mapCountry, mapRegion } from "mapping/geoMaps";
 import { mapTimezone } from "mapping/timeMaps";
 import { mapUser } from "mapping/userMaps";
 
 export const mapVenue = (
-	data: IDBDerbyEvent | IDBDerbyVenue,
+	data: IDBDerbyEvent | IDBDerbyVenue | IDBDerbyVenueChange,
 ): IDerbyVenue => ({
 	address1: data.venue_address1,
 	address2: data.venue_address2,

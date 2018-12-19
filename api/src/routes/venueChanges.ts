@@ -2,6 +2,11 @@ import { Request, Response, Router } from "express";
 import { MysqlError } from "mysql";
 
 import { checkSession } from "lib/checkSession";
+import { dbArray } from "lib/db";
+
+import { mapVenueChange } from "mapping/venueChangeMaps";
+
+import { IDBDerbyVenueChange } from "interfaces/venue";
 
 const router = Router();
 
@@ -21,8 +26,23 @@ router.get("/", checkSession("reviewer"), (req: Request, res: Response) => {
 
 			} else {
 
-				res.locals.connection.end();
-				res.status(200).json(results[0].map((row: {}) => ({...row})));
+				const changeData: IDBDerbyVenueChange[] = dbArray(results[0]);
+
+				if (!changeData || !changeData.length) {
+
+					res.locals.connection.end();
+					res.status(205).send();
+
+				} else {
+
+					const changeList = changeData
+						.map((change) =>
+							mapVenueChange(change));
+
+					res.locals.connection.end();
+					res.status(200).json(changeList);
+
+				}
 
 			}
 		});

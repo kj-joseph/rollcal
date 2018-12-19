@@ -6,8 +6,13 @@ import { IGeocode } from "interfaces/geo";
 import { IDBVenueAddress } from "interfaces/venue";
 
 import { checkSession } from "lib/checkSession";
+import { dbObject } from "lib/db";
 import { sendChangeApprovalEmail, sendChangeRejectionEmail } from "lib/email";
 import { getGeocode } from "lib/googleMaps";
+
+import { IDBDerbyVenueChange } from "interfaces/venue";
+
+import { mapVenueChange } from "mapping/venueChangeMaps";
 
 const router = Router();
 const upload = multer();
@@ -58,8 +63,22 @@ router.get("/:changeId", checkSession("reviewer"), (req: Request, res: Response)
 
 			} else {
 
-				res.locals.connection.end();
-				res.status(200).json(results[0].map((row: {}) => ({...row}))[0]);
+				const changeData: IDBDerbyVenueChange = dbObject(results[0]);
+
+				if (!changeData || !changeData.change_id) {
+
+					res.locals.connection.end();
+					res.status(404).send();
+
+				} else {
+
+					const changeList = mapVenueChange(changeData);
+
+					res.locals.connection.end();
+					res.status(200).json(changeList);
+
+				}
+
 
 			}
 		});
