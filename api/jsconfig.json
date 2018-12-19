@@ -10,6 +10,11 @@
         "typeRoots": [
             "node_modules/@types"
         ],
+        "paths": {
+          "interfaces/*": [
+            "./../../web/src/interfaces/*"
+          ]
+        }
     },
     "include": [
         "./src/**/*"
