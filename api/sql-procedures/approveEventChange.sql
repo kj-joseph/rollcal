@@ -268,7 +268,7 @@ if @changeok = true then
 			set @featureType = substring_index(@featureItem, "-", 1);
 			set @featureId = substring_index(@featureItem, "-", -1);
 
-			set @query = concat("insert into event_", @featureType, "s (event, ", @featureType, ") "
+			set @query = concat("insert into event_features (event, feature) "
 				"values (", quote(@eventId), ", ", quote(@featureId), ");");
 
 			prepare stmt from @query;
@@ -293,8 +293,8 @@ if @changeok = true then
 			set @featureType = substring_index(@featureItem, "-", 1);
 			set @featureId = substring_index(@featureItem, "-", -1);
 
-			set @query = concat("delete from event_", @featureType, "s ",
-				"where ", @featureType, " = ", @featureId,
+			set @query = concat("delete from event_features ",
+				"where feature = ", @featureId,
 				" and event = ", @eventId, ";");
 
 			prepare stmt from @query;

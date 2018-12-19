@@ -3,7 +3,12 @@ import multer from "multer";
 import { MysqlError } from "mysql";
 
 import { decryptCode, generateValidation } from "lib/crypto";
+import { dbObject } from "lib/db";
 import { sendForgotPasswordEmail } from "lib/email";
+
+import { mapUser } from "mapping/userMaps";
+
+import { IDBUserInfo } from "interfaces/user";
 
 const router = Router();
 const upload = multer();
@@ -18,7 +23,7 @@ router.get("/", upload.array(), (req: Request, res: Response) => {
 		res.locals.connection
 			.query(`call checkForgotPassword(${res.locals.connection.escape(vObj.email)},
 				${res.locals.connection.escape(vObj.hash)})`,
-			(error: MysqlError, results: any) => {
+			(error: MysqlError, response: any) => {
 
 				if (error) {
 					console.error(error);
@@ -28,12 +33,14 @@ router.get("/", upload.array(), (req: Request, res: Response) => {
 
 				} else {
 
-					const userData = results[0].map((row: {}) => ({...row}))[0];
+					const userData: IDBUserInfo = dbObject(response[0]);
 
 					if (userData) {
 
+						const user = mapUser(userData);
+
 						res.locals.connection.end();
-						res.status(200).json(userData);
+						res.status(200).json(user);
 
 					} else {
 
@@ -60,11 +67,11 @@ router.post("/", upload.array(), (req: Request, res: Response) => {
 	res.locals.connection
 		.query(`call getUserDetailsFromEmail(${res.locals.connection.escape(req.body.email)})`,
 
-			(detailError: MysqlError, detailResults: any) => {
+			(detailError: MysqlError, detailResponse: any) => {
 
-				const userDetails = detailResults[0].map((row: {}) => ({...row}))[0];
+				const userData: IDBUserInfo = dbObject(detailResponse[0]);
 
-				if (detailError || !userDetails) {
+				if (detailError || !userData) {
 
 					res.locals.connection.end();
 					res.status(403).json({
@@ -75,16 +82,16 @@ router.post("/", upload.array(), (req: Request, res: Response) => {
 
 					const validation = generateValidation({
 						email: req.body.email,
-						username: userDetails.user_name,
+						username: userData.user_name,
 					});
 
 					res.locals.connection
 						.query(`call insertForgotPassword(
-							${res.locals.connection.escape(userDetails.user_id)},
+							${res.locals.connection.escape(userData.user_id)},
 							${res.locals.connection.escape(validation.hash)}
 							)`,
 
-							(insertError: MysqlError, insertResults: any) => {
+							(insertError: MysqlError, insertResponse: any) => {
 
 								if (insertError) {
 									console.error(insertError);
@@ -96,7 +103,7 @@ router.post("/", upload.array(), (req: Request, res: Response) => {
 
 								} else {
 
-									sendForgotPasswordEmail(req.body.email, userDetails.user_name, validation.encrypted)
+									sendForgotPasswordEmail(req.body.email, userData.user_name, validation.encrypted)
 										.then(() => {
 
 											res.locals.connection.end();

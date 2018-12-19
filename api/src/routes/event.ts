@@ -3,6 +3,11 @@ import multer from "multer";
 import { MysqlError } from "mysql";
 
 import { checkSession } from "lib/checkSession";
+import { dbArray, dbObject } from "lib/db";
+
+import { mapEvent } from "mapping/eventMaps";
+
+import { IDBDerbyEvent, IDBDerbyEventDay } from "interfaces/event";
 
 const router = Router();
 const upload = multer();
@@ -13,7 +18,7 @@ router.get("/:id", (req: Request, res: Response) => {
 		.query(`call getEventDetails(${res.locals.connection.escape(req.params.id)});
 			call getEventDays(${res.locals.connection.escape(req.params.id)})`,
 
-		(error: MysqlError, results: any) => {
+		(error: MysqlError, response: any) => {
 
 			if (error) {
 				res.locals.connection.end();
@@ -22,14 +27,19 @@ router.get("/:id", (req: Request, res: Response) => {
 
 			} else {
 
-				const eventResult = results[0].map((row: {}) => ({...row}))[0];
+				const eventData: IDBDerbyEvent = dbObject(response[0]);
 
-				if (eventResult) {
-					eventResult.days = results[2].map((row: {}) => ({...row}));
+				if (eventData) {
+
+					const days: IDBDerbyEventDay[] = dbArray(response[2]);
+					eventData.days = days;
+
 				}
 
+				const event = mapEvent(eventData);
+
 				res.locals.connection.end();
-				res.status(200).json(eventResult);
+				res.status(200).json(event);
 
 			}
 		});
@@ -44,11 +54,12 @@ router.delete("/:id", upload.array(), checkSession("user"), (req: Request, res: 
 				${res.locals.connection.escape(req.params.id)},
 				${res.locals.connection.escape(req.session.user.id)}
 			)`,
-			(error: MysqlError, results: any) => {
+			(error: MysqlError, response: any) => {
 
 				if (error) {
-					res.locals.connection.end();
+
 					console.error(error);
+					res.locals.connection.end();
 					res.status(500).send();
 
 				} else {

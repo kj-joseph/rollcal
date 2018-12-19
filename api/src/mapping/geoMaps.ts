@@ -1,15 +1,17 @@
+import { IDBDerbyEvent } from "interfaces/event";
 import { IDBGeoCountry, IDBGeoRegion, IGeoCountry, IGeoRegion } from "interfaces/geo";
+import { IDBDerbyVenue } from "interfaces/venue";
 
 export const mapCountry = (
-	countryData: IDBGeoCountry,
+	data: IDBGeoCountry | IDBDerbyEvent | IDBDerbyVenue,
 	regionData?: IDBGeoRegion[],
 ) => {
 
 	const country: IGeoCountry = {
-		code: countryData.country_code,
-		flag: countryData.country_flag,
-		name: countryData.country_name,
-		regionType: countryData.country_region_type,
+		code: data.country_code,
+		flag: data.country_flag,
+		name: data.country_name,
+		regionType: data.country_region_type,
 	};
 
 	if (regionData && regionData.length) {
@@ -38,10 +40,10 @@ export const mapGeography = (
 			));
 
 export const mapRegion = (
-	region: IDBGeoRegion,
+	data: IDBGeoRegion | IDBDerbyEvent | IDBDerbyVenue,
 ): IGeoRegion => ({
-	abbreviation: region.region_abbreviation,
-	country: region.region_country,
-	id: region.region_id,
-	name: region.region_name,
+	abbreviation: data.region_abbreviation,
+	country: data.region_country,
+	id: data.region_id,
+	name: data.region_name,
 });

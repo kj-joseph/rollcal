@@ -1,5 +1,5 @@
 import { ISearchObject } from "interfaces/event";
-import { IDerbyFeature } from "interfaces/feature";
+import { IDerbyFeatureType } from "interfaces/feature";
 import { IGeoCountry } from "interfaces/geo";
 import { ITimeZone } from "interfaces/time";
 import { IUserInfo, IUserRole } from "interfaces/user";
@@ -20,10 +20,8 @@ export interface IProps extends IReduxActions, IReduxStore, RouteComponentProps<
 
 export interface IReduxActions {
 	clearUserInfo: () => IReduxActionType;
-	saveDataDerbyTypes: (data: IDerbyFeature[]) => IReduxActionType;
-	saveDataGeography: (data: IGeoCountry[]) => IReduxActionType;
-	saveDataSanctions: (data: IDerbyFeature[]) => IReduxActionType;
-	saveDataTracks: (data: IDerbyFeature[]) => IReduxActionType;
+	saveCountryList: (data: IGeoCountry[]) => IReduxActionType;
+	saveFeatureLists: (data: IDerbyFeatureType[]) => IReduxActionType;
 	saveLastSearch: (search: ISearchObject) => IReduxActionType;
 	saveRolesList: (roles: IUserRole[]) => IReduxActionType;
 	saveTimeZones: (data: ITimeZone[]) => IReduxActionType;
@@ -40,10 +38,8 @@ export interface IReduxActionType {
 
 export interface IReduxStore {
 	apiLocation: string;
-	dataDerbyTypes: IDerbyFeature[];
-	dataGeography: IGeoCountry[];
-	dataSanctions: IDerbyFeature[];
-	dataTracks: IDerbyFeature[];
+	countryList: IGeoCountry[];
+	featureLists: IDerbyFeatureType[];
 	kmConverter: number;
 	lastSearch: ISearchObject;
 	listPageLength: number;

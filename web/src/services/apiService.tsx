@@ -1,6 +1,6 @@
 import store from "redux/store";
 
-import axios, { AxiosRequestConfig } from "axios";
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
 export const callApi = (
 	method: "delete" | "get" | "patch" | "post" | "put",
@@ -9,7 +9,7 @@ export const callApi = (
 		[key: string]: any,
 	} = {},
 )
-: Promise<any> =>
+: Promise<AxiosResponse> =>
 
 	new Promise((resolve, reject, onCancel) => {
 
@@ -50,7 +50,7 @@ export const callApi = (
 		axios(axiosRequest)
 			.then((result) => {
 
-				resolve(result.data);
+				resolve(result);
 
 			})
 			.catch((error) => {

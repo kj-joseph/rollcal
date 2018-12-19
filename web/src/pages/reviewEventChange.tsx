@@ -6,14 +6,14 @@ import { Link } from "react-router-dom";
 import moment from "moment";
 
 import { IDerbyEvent, IDerbyEventChange, IDerbyEventChangeObjectDayChange } from "interfaces/event";
-import { IDerbyFeature } from "interfaces/feature";
+import { IDerbyFeatureChange, IDerbyFeatureChanges, IDerbyFeatureType } from "interfaces/feature";
 import { IGeoCountry } from "interfaces/geo";
 import { IProps } from "interfaces/redux";
 import { ITimeZone } from "interfaces/time";
 import { IDerbyVenue } from "interfaces/venue";
 
 import { approveEventChange, getEventChange, rejectEventChange } from "services/eventChangeService";
-import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/featureService";
+import { findFeatureByString, getFeatures, mapFeaturesToArrays } from "services/featureService";
 import { getGeography } from "services/geoService";
 import { getTimeZones } from "services/timeService";
 import { checkUserRole } from "services/userService";
@@ -33,6 +33,7 @@ interface IReviewEventChangeState {
 	errorMessage: string;
 	eventChanges: IDerbyEventChange;
 	eventData: IDerbyEvent;
+	featureTypes: string[];
 	initialLoad: boolean;
 	loading: boolean;
 	modalOpen: boolean;
@@ -49,6 +50,7 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 		errorMessage: null,
 		eventChanges: {} as IDerbyEventChange,
 		eventData: {} as IDerbyEvent,
+		featureTypes: [],
 		initialLoad: false,
 		loading: true,
 		modalOpen: false,
@@ -386,53 +388,32 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 
 											<dl className="changeDetails">
 
-												<dt>Derby types:</dt>
-												<dd>
-													{this.state.eventChanges.featureChanges.derbytypes
-														.map((derbytype) => (
-															<React.Fragment key={derbytype.name}>
-																{derbytype.status === "add" ?
-																	<span className="new">{derbytype.name}</span>
-																: derbytype.status === "delete" ?
-																	<span className="old removed">{derbytype.name}</span>
-																:
-																	<span className="old">{derbytype.name}</span>
-																}<br />
-															</React.Fragment>
-														))}
-												</dd>
+												{Object.keys(this.state.eventChanges.featureChanges)
+													.map((type) => (
 
-												<dt>Sanctions:</dt>
-												<dd>
-													{this.state.eventChanges.featureChanges.sanctions
-														.map((sanction) => (
-															<React.Fragment key={sanction.name}>
-																{sanction.status === "add" ?
-																	<span className="new">{sanction.name}</span>
-																: sanction.status === "delete" ?
-																	<span className="old removed">{sanction.name}</span>
-																:
-																	<span className="old">{sanction.name}</span>
-																}<br />
-															</React.Fragment>
-														))}
-												</dd>
+														<React.Fragment key={type}>
+															<dt>
+																{this.state.eventChanges.featureChanges[type].name}
+															</dt>
 
-												<dt>Tracks:</dt>
-												<dd>
-													{this.state.eventChanges.featureChanges.tracks
-														.map((track) => (
-															<React.Fragment key={track.name}>
-																{track.status === "add" ?
-																	<span className="new">{track.name}</span>
-																: track.status === "delete" ?
-																	<span className="old removed">{track.name}</span>
-																:
-																	<span className="old">{track.name}</span>
-																}<br />
-															</React.Fragment>
-														))}
-												</dd>
+															<dd>
+																{this.state.eventChanges.featureChanges[type].features
+																	.map((feature) => (
+																		<React.Fragment key={feature.name}>
+																			{feature.status === "add" ?
+																				<span className="new">{feature.name}</span>
+																			: feature.status === "delete" ?
+																				<span className="old removed">{feature.name}</span>
+																			:
+																				<span className="old">{feature.name}</span>
+																			}<br />
+																		</React.Fragment>
+																	))}
+
+															</dd>
+														</React.Fragment>
+
+												))}
 
 											</dl>
 
@@ -621,21 +602,17 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 			Promise.all([
 				getGeography(),
 				getTimeZones(),
-				getDerbySanctions(),
-				getDerbyTracks(),
-				getDerbyTypes(),
+				getFeatures(),
 			]));
 
 		loadData
 			.then((data: [
 					IGeoCountry[],
 					ITimeZone[],
-					IDerbyFeature[],
-					IDerbyFeature[],
-					IDerbyFeature[]
+					IDerbyFeatureType[]
 				]) => {
 
-				const [countryList, timeZones, sanctionsList, tracksList, derbytypesList] = data;
+				const [countryList, timeZones, featuresLists] = data;
 
 				const loadChange = this.addPromise(
 					getEventChange(this.props.match.params.changeId));
@@ -755,7 +732,7 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 											doors: day.doorsTime,
 											start: day.startTime,
 										},
-										startDate: day.dateObject.format("Y-MM-DD"),
+										startDate: moment(day.dateObject).format("Y-MM-DD"),
 										status: "unchanged",
 									};
 
@@ -818,110 +795,93 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 
 							// features
 
-							const features = {
-								derbytypes: [] as Array<{name: string, status: string}>,
-								sanctions: [] as Array<{name: string, status: string}>,
-								tracks: [] as Array<{name: string, status: string}>,
-							};
+							const featureChanges: IDerbyFeatureChanges = {};
+							const featureTypes = featuresLists
+								.map((feature) =>
+									feature.code);
 
-							if (eventData.features) {
+							if (eventData.features
+								&& eventData.features.length) {
 
-								if (eventData.features.derbytypes) {
+								const featureArrays = mapFeaturesToArrays(eventData.features);
 
-									const derbytypes = eventData.features.derbytypes
-										.map((dt) => dt.id);
+								for (const type of featureTypes) {
+									if (featureArrays.hasOwnProperty(type)) {
 
-									features.derbytypes =
-										derbytypesList
-											.filter((dt) =>
-												derbytypes.indexOf(dt.id) > -1)
-											.map((dt) => ({
-												name: dt.name,
-												status: changeObject.features.delete.indexOf(`derbytype-${dt.id}`) > -1 ?
-													"delete"
-													: "unchanged",
-											}));
-								}
+										const featureType = featuresLists
+											.filter((fType) =>
+												fType.code === type)[0];
 
-								if (eventData.features.sanctions) {
+										const features = featureType.features
+											.filter((feature) =>
+												featureArrays[type].indexOf(feature.id.toString()) > -1);
 
-									const sanctions = eventData.features.sanctions
-										.map((dt) => dt.id);
+										featureChanges[type] = {
+											features: features
+												.map((item): IDerbyFeatureChange => ({
+													name: item.name,
+													status: changeObject.features.delete
+														.indexOf(`${type}-${item.id}`) > -1 ?
+															"delete"
+														: "unchanged",
+												})),
+											name: featureType.plural,
+										};
 
-									features.sanctions =
-										sanctionsList
-											.filter((dt) =>
-												sanctions.indexOf(dt.id) > -1)
-											.map((dt) => ({
-												name: dt.name,
-												status: changeObject.features.delete.indexOf(`sanction-${dt.id}`) > -1 ?
-													"delete"
-													: "unchanged",
-											}));
-								}
-
-								if (eventData.features.tracks) {
-
-									const tracks = eventData.features.tracks
-										.map((dt) => dt.id);
-
-									features.tracks =
-										tracksList
-											.filter((dt) =>
-												tracks.indexOf(dt.id) > -1)
-											.map((dt) => ({
-												name: dt.name,
-												status: changeObject.features.delete.indexOf(`track-${dt.id}`) > -1 ?
-													"delete"
-													: "unchanged",
-											}));
+									}
 								}
 
 							}
 
-							for (const feature of changeObject.features.add) {
-								const [ type, id ] = feature.split("-");
+							if (changeObject.features.add && changeObject.features.add.length) {
 
-								switch (type) {
+								for (const change of changeObject.features.add) {
 
-									case "derbytype":
-										features.derbytypes.push({
-											name: derbytypesList
-												.filter((dt) =>
-													dt.id.toString() === id)
-												[0].name,
-											status: "add",
-										});
-										break;
+									const [type ] = change.split("-");
+									const newFeature = findFeatureByString(change);
+									const newFeatureChange: IDerbyFeatureChange = {
+										name: newFeature.name,
+										status: "add",
+									};
 
-									case "sanction":
-										features.sanctions.push({
-											name: sanctionsList
-												.filter((s) =>
-													s.id.toString() === id)
-												[0].name,
-											status: "add",
-										});
-										break;
+									if (newFeature) {
 
-									case "track":
-										features.tracks.push({
-											name: tracksList
-												.filter((t) =>
-													t.id.toString() === id)
-												[0].name,
-											status: "add",
-										});
-										break;
+										const featureType = featuresLists
+											.filter((fType) =>
+												fType.code === type)[0];
+
+										if (featureChanges[type]) {
+
+											featureChanges[type].features.push(newFeatureChange);
+
+										} else {
+
+											featureChanges[type] = {
+												features: [{
+													name: newFeature.name,
+													status: "add",
+												}],
+												name: featureType.plural,
+											};
+										}
+
+									}
+
+								}
+
+							}
+
+							for (const type in featureChanges) {
+								if (featureChanges.hasOwnProperty(type)) {
+
+									featureChanges[type].features
+										.sort((a, b) =>
+											a.name > b.name ? 1 : a.name < b.name ? -1 : 0);
 
 								}
 							}
 
-							features.derbytypes.sort((a, b) => a.name > b.name ? 1 : a.name < b.name ? -1 : 0);
-							features.sanctions.sort((a, b) => a.name > b.name ? 1 : a.name < b.name ? -1 : 0);
-							features.tracks.sort((a, b) => a.name > b.name ? 1 : a.name < b.name ? -1 : 0);
-
-							eventChanges.featureChanges = features;
+							eventChanges.featureChanges = featureChanges;
 
 							// Handle venue lookup from earlier
 
@@ -942,6 +902,7 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 									this.setState({
 										eventChanges,
 										eventData,
+										featureTypes,
 										initialLoad: true,
 										loading: false,
 									});

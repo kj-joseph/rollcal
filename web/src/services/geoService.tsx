@@ -95,9 +95,9 @@ export const getGeography = ()
 
 		const state = store.getState();
 
-		if (state.dataGeography && state.dataGeography.length) {
+		if (state.countryList && state.countryList.length) {
 
-			resolve(state.dataGeography);
+			resolve(state.countryList);
 
 		} else {
 
@@ -105,9 +105,11 @@ export const getGeography = ()
 				"get",
 				"geography/countries",
 			)
-				.then((countryList: IGeoCountry[]) => {
+				.then((response) => {
 
-					store.dispatch(actions.saveDataGeography(countryList));
+					const countryList: IGeoCountry[] = response.data;
+
+					store.dispatch(actions.saveCountryList(countryList));
 					resolve(countryList);
 
 				})

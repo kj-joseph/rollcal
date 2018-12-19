@@ -119,7 +119,7 @@ export default class EditVenuesList extends RCComponent<IProps> {
 									className={this.state.showAll ? "" : "hidden"}
 									src={CheckIcon}
 								/>
-								Show All Events
+								Show All Venues
 							</a>
 							</div>
 

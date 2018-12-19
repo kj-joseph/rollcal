@@ -2,6 +2,9 @@ import { Request, Response, Router } from "express";
 import { MysqlError } from "mysql";
 
 import { checkSession } from "lib/checkSession";
+import { dbArray } from "lib/db";
+
+import { mapUser } from "mapping/userMaps";
 
 import { IDBUserInfo, IUserInfo } from "interfaces/user";
 
@@ -23,7 +26,7 @@ router.get("/", checkSession("admin"), (req: Request, res: Response) => {
 
 			} else {
 
-				const userData: IDBUserInfo[] = results[0].map((row: {}) => ({...row}));
+				const userData: IDBUserInfo[] = dbArray(results[0]);
 
 				if (!userData || !userData.length) {
 
@@ -33,13 +36,8 @@ router.get("/", checkSession("admin"), (req: Request, res: Response) => {
 				} else {
 
 					const userList: IUserInfo[] = userData
-						.map((user) => ({
-							email: user.user_email,
-							id: user.user_id,
-							name: user.user_name,
-							roles: user.user_roles,
-							status: user.user_status,
-						}));
+						.map((user) =>
+							mapUser(user));
 
 					res.locals.connection.end();
 					res.status(200).json(userList);

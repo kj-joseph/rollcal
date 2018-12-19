@@ -1,9 +1,11 @@
 import { Request, Response, Router } from "express";
 import { MysqlError } from "mysql";
 
+import { dbArray } from "lib/db";
+
 import { mapRole } from "mapping/roleMaps";
 
-import { IDBUserRole, IUserRole } from "interfaces/user";
+import { IDBUserRole } from "interfaces/user";
 
 const router = Router();
 
@@ -21,7 +23,7 @@ router.get("/", (req: Request, res: Response) => {
 
 			} else {
 
-				const result: IDBUserRole[] = results[0];
+				const result: IDBUserRole[] = dbArray(results[0]);
 
 				if (!result || !result.length) {
 
@@ -30,7 +32,7 @@ router.get("/", (req: Request, res: Response) => {
 
 				} else {
 
-					const roleList: IUserRole[] = result
+					const roleList = result
 						.map((row) => mapRole(row));
 
 					res.locals.connection.end();

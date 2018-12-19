@@ -2,7 +2,7 @@ export interface IDBUserInfo {
 	user_email: string;
 	user_id: number;
 	user_name: string;
-	user_roles: string[];
+	user_roles: string;
 	user_status: string;
 }
 

@@ -17,30 +17,16 @@ const rootReducer = (state = initialState, action: IReduxActionType): IReduxStor
 			return newState;
 			break;
 
-		case "SAVE_DATA_DERBYTYPES":
+		case "SAVE_COUNTRY_LIST":
 
-			newState.dataDerbyTypes = action.payload;
+			newState.countryList = action.payload;
 			return newState;
 
 			break;
 
-		case "SAVE_DATA_GEOGRAPHY":
+		case "SAVE_FEATURE_LISTS":
 
-			newState.dataGeography = action.payload;
-			return newState;
-
-			break;
-
-		case "SAVE_DATA_SANCTIONS":
-
-			newState.dataSanctions = action.payload;
-			return newState;
-
-			break;
-
-		case "SAVE_DATA_TRACKS":
-
-			newState.dataTracks = action.payload;
+			newState.featureLists = action.payload;
 			return newState;
 
 			break;

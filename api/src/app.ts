@@ -13,7 +13,7 @@ import eventRouter from "routes/event";
 import eventChangeRouter from "routes/eventChange";
 import eventChangesRouter from "routes/eventChanges";
 import eventsRouter from "routes/events";
-import featureRouter from "routes/feature";
+import featuresRouter from "routes/features";
 import forgotPasswordRouter from "routes/forgotPassword";
 import geographyRouter from "routes/geography";
 import rolesRouter from "routes/roles";
@@ -92,7 +92,8 @@ if ((process.env.ROLLCAL_DEV_DBHOST || process.env.ROLLCAL_STAGE_DBHOST || proce
 	}));
 
 	app.use("/email", emailRouter);
-	app.use("/feature", featureRouter);
+
+	app.use("/features", featuresRouter);
 
 	app.use("/event", eventRouter);
 	app.use("/events", eventsRouter);

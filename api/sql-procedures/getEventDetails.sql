@@ -3,24 +3,12 @@ BEGIN
 select e.*, c.*, vr.*, tz.*, u.user_id, u.user_name,
     convert_tz(ed.event_first_day, 'UTC', tz.timezone_zone) as event_first_day,
     convert_tz(ed.event_last_day, 'UTC', tz.timezone_zone) as event_last_day,
-    (select group_concat(distinct derbytype_id) as list
-    	from derbytypes dt, event_derbytypes edt
-     	where edt.event = id
-    	and edt.derbytype = dt.derbytype_id
-     	order by dt.derbytype_id
-    ) as derbytypes,
-    (select group_concat(distinct sanction_id) as list
-    	from sanctions s, event_sanctions es
-     	where es.event = id
-    	and es.sanction = s.sanction_id
-     	order by s.sanction_id
-    ) as sanctions,
-    (select group_concat(distinct track_id) as list
-    	from tracks t, event_tracks et
-     	where et.event = id
-    	and et.track = t.track_id
-     	order by t.track_id
-    ) as tracks
+    (select group_concat(ft.feature_type_code, '-', f.feature_id) as list
+            from features f, feature_types ft, event_features ef
+            where ef.feature = f.feature_id
+                and ft.feature_type_id = f.feature_type
+                and ef.event = id
+        ) as event_features
 from events e, countries c, users u, timezones tz,
 	(select * from venues left outer join regions on region_id = venue_region) vr,
     (select min(eventday_datetime) event_first_day, max(eventday_datetime) event_last_day

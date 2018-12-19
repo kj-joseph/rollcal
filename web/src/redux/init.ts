@@ -4,10 +4,8 @@ import { IUserInfo } from "interfaces/user";
 
 const initialState: IReduxStore = {
 	apiLocation: process.env.API_URL,
-	dataDerbyTypes: [],
-	dataGeography: [],
-	dataSanctions: [],
-	dataTracks: [],
+	countryList: [],
+	featureLists: [],
 	kmConverter: 1.60934,
 	lastSearch: {} as ISearchObject,
 	listPageLength: 9,

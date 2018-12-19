@@ -4,88 +4,38 @@ import { MysqlError } from "mysql";
 
 import { checkSession } from "lib/checkSession";
 import { decryptCode, generateValidation } from "lib/crypto";
+import { dbObject } from "lib/db";
 import { sendEmailChangeEmail, sendValidationEmail } from "lib/email";
 
-import { IDBUserInfo, IUserInfo } from "interfaces/user";
+import { IDBUserInfo } from "interfaces/user";
+
+import { mapUser } from "mapping/userMaps";
 
 const router = Router();
 const upload = multer();
 
 
-router.get("/:id", checkSession("admin"), (req: Request, res: Response) => {
-
-	res.locals.connection
-		.query(`call getUserDetailsById(${req.params.id})`,
-
-		(error: MysqlError, results: any) => {
-
-			if (error) {
-				console.error(error);
-
-				res.locals.connection.end();
-				res.status(500).send();
-
-			} else {
-
-				const userData: IDBUserInfo = results[0].map((row: {}) => ({...row}))[0];
-
-				if (!userData || !userData.user_id) {
-
-					res.locals.connection.end();
-					res.status(205).send();
-
-				} else {
-
-					const userInfo: IUserInfo = {
-						email: userData.user_email,
-						id: userData.user_id,
-						name: userData.user_name,
-						roles: userData.user_roles,
-						status: userData.user_status,
-					};
-
-					res.locals.connection.end();
-					res.status(200).json(userInfo);
-
-				}
-
-			}
-
-		});
-
-});
-
-
 router.get("/", upload.array(), (req: Request, res: Response) => {
+
+	let query = "";
 
 	if (req.query.email) {
 
-		res.locals.connection
-			.query(`call checkEmail(${res.locals.connection.escape(req.query.email)},
-				${res.locals.connection.escape(req.query.id) || null})`,
-			(error: MysqlError, results: any) => {
-
-				if (error) {
-					console.error(error);
-
-					res.locals.connection.end();
-					res.status(500).send();
-
-				} else {
-
-					res.locals.connection.end();
-					res.status(200).json(!!results[0].map((row: {}) => ({...row}))[0].count);
-
-				}
-
-			});
+		query = `call checkEmail(${res.locals.connection.escape(req.query.email)},
+			${res.locals.connection.escape(req.query.id) || null})`;
 
 	} else if (req.query.username) {
 
+		query = `call checkUsername(${res.locals.connection.escape(req.query.username)},
+			${res.locals.connection.escape(req.query.id) || null})`;
+
+	}
+
+	if (query) {
+
 		res.locals.connection
-			.query(`call checkUsername(${res.locals.connection.escape(req.query.username)},
-				${res.locals.connection.escape(req.query.id) || null})`,
-			(error: MysqlError, results: any) => {
+			.query(query,
+			(error: MysqlError, response: any) => {
 
 				if (error) {
 					console.error(error);
@@ -95,8 +45,19 @@ router.get("/", upload.array(), (req: Request, res: Response) => {
 
 				} else {
 
-					res.locals.connection.end();
-					res.status(200).json(!!results[0].map((row: {}) => ({...row}))[0].count);
+					const userCount: number = dbObject(response[0]).count;
+
+					if (!userCount) {
+
+						res.locals.connection.end();
+						res.status(205).json();
+
+					} else {
+
+						res.locals.connection.end();
+						res.status(200).json();
+
+					}
 
 				}
 
@@ -124,7 +85,7 @@ router.post("/", upload.array(), (req: Request, res: Response) => {
 			${res.locals.connection.escape(req.body.password)},
 			${res.locals.connection.escape(validation.hash)})`,
 
-		(error: MysqlError, results: any) => {
+		(error: MysqlError, response: any) => {
 
 			if (error) {
 				console.error(error);
@@ -155,6 +116,44 @@ router.post("/", upload.array(), (req: Request, res: Response) => {
 });
 
 
+router.get("/:id", checkSession("admin"), (req: Request, res: Response) => {
+
+	res.locals.connection
+		.query(`call getUserDetailsById(${req.params.id})`,
+
+		(error: MysqlError, response: any) => {
+
+			if (error) {
+				console.error(error);
+
+				res.locals.connection.end();
+				res.status(500).send();
+
+			} else {
+
+				const userData: IDBUserInfo = dbObject(response[0]);
+
+				if (!userData || !userData.user_id) {
+
+					res.locals.connection.end();
+					res.status(205).send();
+
+				} else {
+
+					const userInfo = mapUser(userData);
+
+					res.locals.connection.end();
+					res.status(200).json(userInfo);
+
+				}
+
+			}
+
+		});
+
+});
+
+
 router.put("/:id", checkSession("user"), upload.array(), (req: Request, res: Response) => {
 
 	if (req.session.user.roles.indexOf("admin")) {
@@ -168,7 +167,7 @@ router.put("/:id", checkSession("user"), upload.array(), (req: Request, res: Res
 				${res.locals.connection.escape(req.body.roles)}
 				)`,
 
-			(error: MysqlError, results: any) => {
+			(error: MysqlError, response: any) => {
 
 				if (error) {
 					console.error(error);
@@ -235,7 +234,7 @@ router.put("/:id", checkSession("user"), upload.array(), (req: Request, res: Res
 							and user_status = ${res.locals.connection.escape("active")}`
 						: "" }`,
 
-				(saveError: MysqlError, results: any) => {
+				(saveError: MysqlError, response: any) => {
 
 					if (saveError) {
 						console.error(saveError);
@@ -309,7 +308,7 @@ router.put("/", upload.array(), (req: Request, res: Response) => {
 				${res.locals.connection.escape(vObj.hash)},
 				${res.locals.connection.escape(req.body.password)}
 				)`,
-			(error: MysqlError, results: any) => {
+			(error: MysqlError, response: any) => {
 
 				if (error) {
 					console.error(error);
@@ -319,7 +318,9 @@ router.put("/", upload.array(), (req: Request, res: Response) => {
 
 				} else {
 
-					if (results[0].map((row: {}) => ({...row}))[0].success) {
+					const successful = dbObject(response[0]).success;
+
+					if (successful) {
 
 						res.locals.connection.end();
 						res.status(200).send();

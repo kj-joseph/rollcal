@@ -134,7 +134,7 @@ export default class Events extends RCComponent<IProps> {
 								}</p>
 
 							}
-
+{/*
 							<p><strong>Derby Type{!this.state.searchObject.derbytypes || this.state.searchObject.derbytypes.length !== 1 ? "s" : ""}:</strong> {
 								this.state.searchObject.derbytypes && this.state.searchObject.derbytypes.length ?
 									this.state.searchObject.derbytypes.length === this.props.dataDerbyTypes.length ? "all"
@@ -152,7 +152,7 @@ export default class Events extends RCComponent<IProps> {
 									this.state.searchObject.tracks.length === this.props.dataTracks.length ? "all"
 									: this.state.searchObject.tracks.map((track) => track.name).join(", ")
 								 : "all"}</p>
-
+*/}
 						</div>
 						}
 					</>
@@ -247,6 +247,8 @@ export default class Events extends RCComponent<IProps> {
 			})
 			.catch((error) => {
 
+				console.error(error);
+
 				this.setState({
 					dataError: true,
 					loading: false,
@@ -296,6 +298,8 @@ export default class Events extends RCComponent<IProps> {
 
 			})
 			.catch((error) => {
+
+				console.error(error);
 
 				this.setState({
 					dataError: true,

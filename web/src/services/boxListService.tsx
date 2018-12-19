@@ -33,7 +33,10 @@ export const mapEventChangesToBoxList = (
 							resolve ({
 								changeId: event.changeId,
 								country: event.venue.country,
-								dates: event.dates,
+								dates: formatDateRange({
+									end: moment(event.dates.end),
+									start: moment(event.dates.start),
+								}),
 								host: event.name ? event.host : undefined,
 								id: event.id,
 								location: buildVenueLocation(event.venue),
@@ -70,7 +73,7 @@ export const mapEventChangesToBoxList = (
 
 								if (event.changeObject.newVenueData.region) {
 
-									const countryObject = state.dataGeography
+									const countryObject = state.countryList
 										.filter((country) =>
 											country.code === event.changeObject.newVenueData.country)[0];
 
@@ -153,7 +156,7 @@ export const mapVenueChangesToBoxList = (
 
 				let regionAbbr = "";
 
-				const countryObject = state.dataGeography
+				const countryObject = state.countryList
 					.filter((country) =>
 						country.code === venue.changeObject.country)[0];
 
@@ -201,9 +204,12 @@ export const mapEventsToBoxList = (
 
 	events.map((event): IBoxListItem => ({
 		country: event.venue.country,
-		dates: event.dates,
+		dates: formatDateRange({
+			end: moment(event.dates.end),
+			start: moment(event.dates.start),
+		}),
 		distance: event.venue.distance,
-		features: event.features,
+		features: event.featureObjects,
 		host: event.name ? event.host : undefined,
 		id: event.id,
 		location: buildVenueLocation(event.venue),

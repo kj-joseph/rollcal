@@ -178,20 +178,8 @@ export default class BoxList extends React.Component<IBoxListProps> {
 							{this.props.itemType === "events" && item.features && !this.props.noIcons ?
 
 								<FeatureIconSet
-									data={[
-										{
-											items: item.features.tracks,
-											type: "track",
-										},
-										{
-											items: item.features.derbytypes,
-											type: "derbytype",
-										},
-										{
-											items: item.features.sanctions,
-											type: "sanction",
-										},
-									]}
+									data={item.features}
+									labels={false}
 								/>
 
 							: null}

@@ -3,7 +3,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 import { IDerbyEvent, IDerbyEventChangeObject, IDerbyEventDay } from "interfaces/event";
-import { IDerbyFeature } from "interfaces/feature";
+import { IDerbyFeatureType } from "interfaces/feature";
 import { IGeoCountry, IGeoRegion } from "interfaces/geo";
 import { IProps } from "interfaces/redux";
 import { ITimeZone } from "interfaces/time";
@@ -12,7 +12,7 @@ import { IDerbyVenue, INewDerbyVenue } from "interfaces/venue";
 import { saveEventChange } from "services/eventChangeService";
 import { mapDayForStorage, mapDaysForEditing } from "services/eventDayService";
 import { getEventDetails } from "services/eventService";
-import { getDerbySanctions, getDerbyTracks, getDerbyTypes } from "services/featureService";
+import { getFeatures } from "services/featureService";
 import { getGeography } from "services/geoService";
 import { getTimeZones } from "services/timeService";
 import { checkUserRole } from "services/userService";
@@ -35,11 +35,7 @@ interface IEventFormState {
 	dataError: boolean;
 	editingDays: IDerbyEventDay[];
 	eventData: IDerbyEvent;
-	eventFeatures: {
-		derbytypes: IDerbyFeature[];
-		sanctions: IDerbyFeature[];
-		tracks: IDerbyFeature[];
-	};
+	eventFeatures: IDerbyFeatureType[];
 	focused: boolean;
 	initialEventData: IDerbyEvent;
 	initialSelectedFeatures: string[];
@@ -77,11 +73,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 		dataError: false,
 		editingDays: [],
 		eventData: {} as IDerbyEvent,
-		eventFeatures: {
-			derbytypes: [],
-			sanctions: [],
-			tracks: [],
-		},
+		eventFeatures: [],
 		focused: true,
 		initialEventData: {} as IDerbyEvent,
 		initialSelectedFeatures: [],
@@ -460,7 +452,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 													<li key={day.id} data-day_id={day.id} className={day.editing ? "editing" : ""}>
 														<dl>
 															<dt>Date:</dt>
-															<dd>{day.dateObject.format("MMM D, Y")}</dd>
+															<dd>{moment(day.dateObject).format("MMM D, Y")}</dd>
 															<dt>Start time:</dt>
 															<dd>{day.startTime ? moment(day.startTime, "H:mm").format("h:mm a") : "(not set)"}</dd>
 															<dt>Doors open:</dt>
@@ -553,7 +545,9 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 														<div className="buttonRow editingButtons">
 															<button
 																className="smallButton"
-																disabled={!(day.date && day.startTime && day.dateObject.isValid())}
+																disabled={!(day.date
+																	&& day.startTime
+																	&& moment(day.dateObject).isValid())}
 																onClick={this.saveDay}
 																data-day_id={day.id}
 															>
@@ -590,23 +584,12 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 									>
 
 										<FeatureIconSet
-											data={[
-												{
-													items: this.state.eventFeatures.tracks,
-													label: "Tracks (at least one)",
-													type: "track",
-												},
-												{
-													items: this.state.eventFeatures.derbytypes,
-													label: "Derby Types (at least one)",
-													type: "derbytype",
-												},
-												{
-													items: this.state.eventFeatures.sanctions,
-													label: "Sanctions (optional)",
-													type: "sanction",
-												},
-											]}
+											data={this.state.eventFeatures}
+											labels={{
+												derbytype: ["Derby Types (at least one)"],
+												sanction: ["Sanctions (optional)"],
+												track: ["Tracks (at least one)"],
+											}}
 											selected={this.state.selectedFeatures}
 											toggle={this.toggleFeatureIcon}
 										/>
@@ -667,7 +650,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 			nextDate = moment(editingDays
 				.map((day: IDerbyEventDay) =>
-					day.dateObject)
+					moment(day.dateObject))
 				.sort((day1: moment.Moment, day2: moment.Moment) =>
 					day1.isBefore(day2) ? 1 : day1.isAfter(day2) ? -1 : 0)[0]
 				.format("Y-MM-DD"))
@@ -911,7 +894,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 			.filter((day: IDerbyEventDay) =>
 				day.id !== id)
 			.map((usedDay: IDerbyEventDay) =>
-				usedDay.dateObject.format("Y-MM-DD"));
+				moment(usedDay.dateObject).format("Y-MM-DD"));
 
 		return usedDates.indexOf(compareDate.format("Y-MM-DD")) > -1;
 	}
@@ -1012,9 +995,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 		const dataPromises: Array<Promise<any>> = [
 			getGeography(),
-			getDerbySanctions(),
-			getDerbyTracks(),
-			getDerbyTypes(),
+			getFeatures(),
 			getTimeZones(),
 			loadVenues(),
 		];
@@ -1031,9 +1012,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 		loadData
 			.then((data: [
 				IGeoCountry[],
-				IDerbyFeature[],
-				IDerbyFeature[],
-				IDerbyFeature[],
+				IDerbyFeatureType[],
 				ITimeZone[],
 				IDerbyVenue[],
 				IDerbyEvent
@@ -1041,9 +1020,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 				const [
 					countryList,
-					derbySanctions,
-					derbyTracks,
-					derbyTypes,
+					featuresLists,
 					timeZoneList,
 					venueList,
 					eventData,
@@ -1080,22 +1057,10 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 							venue.id === eventData.venue.id)[0],
 					};
 
-					if (eventData.features.derbytypes && eventData.features.derbytypes.length) {
-						selectedFeatures = selectedFeatures.concat(eventData.features.derbytypes
-							.map((derbytype) =>
-								`derbytype-${derbytype.id}`));
-					}
+					if (eventData.features && eventData.features.length) {
 
-					if (eventData.features.sanctions && eventData.features.sanctions.length) {
-						selectedFeatures = selectedFeatures.concat(eventData.features.sanctions
-							.map((sanction) =>
-								`sanction-${sanction.id}`));
-					}
+						selectedFeatures = ([]).concat(eventData.features);
 
-					if (eventData.features.tracks && eventData.features.tracks.length) {
-						selectedFeatures = selectedFeatures.concat(eventData.features.tracks
-							.map((track) =>
-								`track-${track.id}`));
 					}
 
 				}
@@ -1106,11 +1071,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 						mapDaysForEditing(eventData.days)
 						: [],
 					eventData: Object.assign({}, initialEventData),
-					eventFeatures: {
-						derbytypes: derbyTypes,
-						sanctions: derbySanctions,
-						tracks: derbyTracks,
-					},
+					eventFeatures: featuresLists,
 					initialEventData: Object.assign({}, initialEventData),
 					initialSelectedFeatures: ([]).concat(selectedFeatures),
 					loading: false,
@@ -1223,7 +1184,9 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 		const validDays = this.state.eventData.days
 			.filter((day: IDerbyEventDay) =>
-				day.date && day.dateObject.isValid() && day.startTime);
+				day.date
+				&& moment(day.dateObject).isValid()
+				&& day.startTime);
 
 		const dayIds = this.state.eventData.days
 			.map((day: IDerbyEventDay) =>
@@ -1237,11 +1200,11 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 					id: null as number,
 					operation: "add",
 					value: {
-						datetime: `${day.dateObject.format("Y-MM-DD")} ${
+						datetime: `${moment(day.dateObject).format("Y-MM-DD")} ${
 								moment(day.startTime, "h:mm a").format("hh:mm:00")
 							}`,
 						description: day.description,
-						doors: `${day.dateObject.format("Y-MM-DD")} ${
+						doors: `${moment(day.dateObject).format("Y-MM-DD")} ${
 								moment(day.doorsTime, "h:mm a").format("hh:mm:00")
 							}`,
 					},
@@ -1280,7 +1243,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 					if (editedDay.date !== initialDay.date
 						|| editedDay.startTime !== initialDay.startTime) {
-						edits.datetime = `${editedDay.dateObject.format("Y-MM-DD")} ${editedDay.startTime}:00`;
+						edits.datetime = `${moment(editedDay.dateObject).format("Y-MM-DD")} ${editedDay.startTime}:00`;
 					}
 
 					if (editedDay.description !== initialDay.description) {
@@ -1289,7 +1252,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 
 					if (editedDay.doorsTime !== initialDay.doorsTime) {
 						if (editedDay.doorsTime) {
-							edits.doors = `${editedDay.dateObject.format("Y-MM-DD")} ${editedDay.doorsTime}:00`;
+							edits.doors = `${moment(editedDay.dateObject).format("Y-MM-DD")} ${editedDay.doorsTime}:00`;
 						} else {
 							edits.doors = null;
 						}

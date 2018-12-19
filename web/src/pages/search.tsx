@@ -5,7 +5,7 @@ import Select from "react-select";
 import { DayPickerRangeController, FocusedInputShape } from "react-dates";
 import "react-dates/initialize";
 
-import { getDerbySanctions, getDerbyTracks, getDerbyTypes, mapFeaturesFromText } from "services/featureService";
+import { getFeatures } from "services/featureService";
 import { getGeography } from "services/geoService";
 import { getSearchUrl } from "services/searchService";
 import { formatDateRange } from "services/timeService";
@@ -15,7 +15,7 @@ import FeatureIconSet from "components/featureIconSet";
 import Flag from "components/flag";
 
 import { ISearchObject } from "interfaces/event";
-import { IDerbyFeature, IDerbyFeatures } from "interfaces/feature";
+import { IDerbyFeatureType } from "interfaces/feature";
 import { IGeoCountry, IGeoRegion } from "interfaces/geo";
 import { IProps } from "interfaces/redux";
 
@@ -52,7 +52,7 @@ interface ISearchState {
 	dateRangeDisplay: string;
 	distanceUnits: "mi" | "km";
 	endDate: moment.Moment;
-	eventFeatures: IDerbyFeatures;
+	featureLists: IDerbyFeatureType[];
 	focusedInput: FocusedInputShape;
 	loading: boolean;
 	locationTab: "distance" | "locations" | "none";
@@ -79,7 +79,7 @@ export default class Search extends RCComponent<IProps> {
 		}),
 		distanceUnits: "mi",
 		endDate: null,
-		eventFeatures: {} as IDerbyFeatures,
+		featureLists: [],
 		focusedInput: "startDate",
 		loading: true,
 		locationTab: "none",
@@ -433,28 +433,15 @@ export default class Search extends RCComponent<IProps> {
 
 							</div>
 
-							{this.state.eventFeatures.tracks.length
-								&& this.state.eventFeatures.derbytypes.length
-								&& this.state.eventFeatures.sanctions.length ?
+							{this.state.featureLists && this.state.featureLists.length ?
 
 								<FeatureIconSet
-									data={[
-										{
-											items: this.state.eventFeatures.tracks,
-											label: "Filter Tracks:",
-											type: "track",
-										},
-										{
-											items: this.state.eventFeatures.derbytypes,
-											label: "Filter Derby Types:",
-											type: "derbytype",
-										},
-										{
-											items: this.state.eventFeatures.sanctions,
-											label: "Filter Sanctions:",
-											type: "sanction",
-										},
-									]}
+									data={this.state.featureLists}
+									labels={{
+										derbytype: ["Filter Derby Types:"],
+										sanction: ["Filter Sanctions:"],
+										track: ["Filter Tracks:"],
+									}}
 									selected={this.state.selectedFeatures}
 									toggle={this.toggleFeatureIcon}
 								/>
@@ -834,29 +821,9 @@ export default class Search extends RCComponent<IProps> {
 
 		}
 
-		const filterFeatures = this.addPromise(
-			mapFeaturesFromText(this.state.selectedFeatures));
+		searchObject.features = this.state.selectedFeatures;
 
-		filterFeatures
-			.then((features: {
-				derbytypes: IDerbyFeature[],
-				sanctions: IDerbyFeature[],
-				tracks: IDerbyFeature[],
-			}) => {
-
-				searchObject.derbytypes = features.derbytypes;
-				searchObject.sanctions = features.sanctions;
-				searchObject.tracks = features.tracks;
-
-				this.props.history.push(getSearchUrl(searchObject));
-
-			})
-			.catch((error) => {
-
-				console.error(error);
-
-			})
-			.finally(filterFeatures.clear);
+		this.props.history.push(getSearchUrl(searchObject));
 
 	}
 
@@ -865,36 +832,24 @@ export default class Search extends RCComponent<IProps> {
 		const getData = this.addPromise(
 			Promise.all([
 				getGeography(),
-				getDerbySanctions(),
-				getDerbyTracks(),
-				getDerbyTypes(),
-
-
-				]));
+				getFeatures(),
+			]));
 
 		getData
 			.then((data: [
 				IGeoCountry[],
-				IDerbyFeature[],
-				IDerbyFeature[],
-				IDerbyFeature[]
+				IDerbyFeatureType[]
 			]) => {
 
 				const [
 					countryList,
-					eventSanctions,
-					eventTracks,
-					eventTypes,
+					featureLists,
 				]
 					= data;
 
 				this.setState({
 					countryList,
-					eventFeatures: {
-						derbytypes: eventTypes,
-						sanctions: eventSanctions,
-						tracks: eventTracks,
-					},
+					featureLists,
 				});
 
 				const startState = {
@@ -918,24 +873,9 @@ export default class Search extends RCComponent<IProps> {
 
 					}
 
-					if (this.props.lastSearch.derbytypes && this.props.lastSearch.derbytypes.length) {
+					if (this.props.lastSearch.features) {
 
-						startState.selectedFeatures = startState.selectedFeatures.concat(
-							this.props.lastSearch.derbytypes.map((derbytype) => `derbytype-${derbytype.id}`));
-
-					}
-
-					if (this.props.lastSearch.sanctions && this.props.lastSearch.sanctions.length) {
-
-						startState.selectedFeatures = startState.selectedFeatures.concat(
-							this.props.lastSearch.sanctions.map((sanction) => `sanction-${sanction.id}`));
-
-					}
-
-					if (this.props.lastSearch.tracks && this.props.lastSearch.tracks.length) {
-
-						startState.selectedFeatures = startState.selectedFeatures.concat(
-							this.props.lastSearch.tracks.map((track) => `track-${track.id}`));
+						startState.selectedFeatures = this.props.lastSearch.features;
 
 					}
 

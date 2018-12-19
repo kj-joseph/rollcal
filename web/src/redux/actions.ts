@@ -1,5 +1,5 @@
 import { ISearchObject } from "interfaces/event";
-import { IDerbyFeature } from "interfaces/feature";
+import { IDerbyFeatureType } from "interfaces/feature";
 import { IGeoCountry } from "interfaces/geo";
 import { IPageTitle, IReduxActionType } from "interfaces/redux";
 import { ITimeZone } from "interfaces/time";
@@ -12,24 +12,14 @@ export default {
 		type: "CLEAR_USER_INFO",
 	}),
 
-	saveDataDerbyTypes: (data: IDerbyFeature[]): IReduxActionType => ({
+	saveCountryList: (data: IGeoCountry[]): IReduxActionType => ({
 		payload: data,
-		type: "SAVE_DATA_DERBYTYPES",
+		type: "SAVE_COUNTRY_LIST",
 	}),
 
-	saveDataGeography: (data: IGeoCountry[]): IReduxActionType => ({
+	saveFeatureLists: (data: IDerbyFeatureType[]): IReduxActionType => ({
 		payload: data,
-		type: "SAVE_DATA_GEOGRAPHY",
-	}),
-
-	saveDataSanctions: (data: IDerbyFeature[]): IReduxActionType => ({
-		payload: data,
-		type: "SAVE_DATA_SANCTIONS",
-	}),
-
-	saveDataTracks: (data: IDerbyFeature[]): IReduxActionType => ({
-		payload: data,
-		type: "SAVE_DATA_TRACKS",
+		type: "SAVE_FEATURE_LISTS",
 	}),
 
 	saveLastSearch: (search: ISearchObject): IReduxActionType => ({

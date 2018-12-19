@@ -36,12 +36,12 @@ export const mapDaysForEditing = (
 ): IDerbyEventDay[] =>
 
 	data.map((day) => ({
-		date: day.dateObject.format("MMM D, Y"),
-		dateObject: day.dateObject,
+		date: moment(day.dateObject).format("MMM D, Y"),
+		dateObject: moment(day.dateObject),
 		description: day.description || "",
 		doorsTime: day.doorsTime || "",
 		editing: false,
 		id: day.id,
-		sortValue: day.dateObject.format("Y-MM-DD"),
+		sortValue: moment(day.dateObject).format("Y-MM-DD"),
 		startTime: day.startTime,
 	}));

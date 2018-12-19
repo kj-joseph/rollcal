@@ -3,9 +3,7 @@ import actions from "redux/actions";
 import store from "redux/store";
 import { callApi } from "services/apiService";
 
-import { IDBDerbyEvent } from "interfaces/event";
-import { IDBUserInfo, IUserInfo, IUserRole } from "interfaces/user";
-import { IDBDerbyVenue } from "interfaces/venue";
+import { IUserInfo, IUserRole } from "interfaces/user";
 
 export const checkEmail = (
 	email: string,
@@ -24,7 +22,7 @@ export const checkEmail = (
 		)
 			.then((response) => {
 
-				resolve(response);
+				resolve(response.status === 200);
 
 			})
 			.catch((error) => {
@@ -52,11 +50,12 @@ export const checkForgotPassword = (
 				validationCode: code,
 			},
 		)
-			.then((response: IDBUserInfo) => {
+			.then((response) => {
 
+				const userInfo: IUserInfo = response.data;
 				resolve({
-					id: response.user_id,
-					name: response.user_name,
+					id: userInfo.id,
+					name: userInfo.name,
 				});
 
 			})
@@ -89,7 +88,7 @@ export const checkUsername = (
 		)
 			.then((response) => {
 
-				resolve(response);
+				resolve(response.status === 200);
 
 			})
 			.catch((error) => {
@@ -143,7 +142,9 @@ export const getUserDetails = (
 			"get",
 			`user/${id}`,
 		)
-			.then((userInfo: IUserInfo) => {
+			.then((response) => {
+
+				const userInfo: IUserInfo = response.data;
 
 				if (userInfo.id === state.user.id
 					|| (userInfo.roles.indexOf("admin") > -1)
@@ -186,9 +187,10 @@ export const getUserRoleList = ()
 				"get",
 				"roles",
 			)
-				.then((result: IUserRole[]) => {
+				.then((response) => {
 
-					const roleList = result.filter((role) => role.name !== "superadmin");
+					const roles: IUserRole[] = response.data;
+					const roleList = roles.filter((role) => role.name !== "superadmin");
 					store.dispatch(actions.saveRolesList(roleList));
 					resolve(roleList);
 
@@ -215,8 +217,9 @@ export const getUserSession = (): Promise<boolean> =>
 			"get",
 			"session",
 		)
-			.then((userInfo: IUserInfo) => {
+			.then((response) => {
 
+				const userInfo: IUserInfo = response.data;
 				store.dispatch(actions.setUserInfo(userInfo));
 				resolve();
 
@@ -248,8 +251,9 @@ export const login = (
 				password,
 			},
 		)
-			.then((userInfo: IUserInfo) => {
+			.then((response) => {
 
+				const userInfo: IUserInfo = response.data;
 				resolve(userInfo);
 
 			})
@@ -273,7 +277,7 @@ export const logout = (
 		"delete",
 		"session",
 	)
-		.then((result) => {
+		.then(() => {
 
 			store.dispatch(actions.clearUserInfo());
 
@@ -289,13 +293,6 @@ export const logout = (
 			console.error(error);
 
 		});
-
-export const mapUser = (
-	data: IDBUserInfo | IDBDerbyEvent | IDBDerbyVenue,
-): IUserInfo => ({
-	id: data.user_id,
-	name: data.user_name,
-});
 
 export const registerUser = (
 	email: string,
@@ -344,8 +341,9 @@ export const searchUsers = (
 				search: term,
 			},
 		)
-			.then((userList: IUserInfo[]) => {
+			.then((response) => {
 
+				const userList: IUserInfo[] = response.data;
 				resolve(userList);
 
 			})
@@ -447,9 +445,9 @@ export const updateUserAsAdmin = (
 					.join(","),
 			}),
 		)
-			.then((response) => {
+			.then(() => {
 
-				resolve(response);
+				resolve();
 
 			})
 			.catch((error) => {
@@ -481,9 +479,9 @@ export const updateUserProfile = (
 			`user/${id}`,
 			changes,
 		)
-			.then((response) => {
+			.then(() => {
 
-				resolve(response);
+				resolve();
 
 			})
 			.catch((error) => {

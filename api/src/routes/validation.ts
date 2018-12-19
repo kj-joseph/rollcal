@@ -3,6 +3,7 @@ import multer from "multer";
 import { MysqlError } from "mysql";
 
 import { decryptCode } from "lib/crypto";
+import { dbObject } from "lib/db";
 
 const router = Router();
 const upload = multer();
@@ -17,7 +18,7 @@ router.put("/", upload.array(), (req: Request, res: Response) => {
 			${res.locals.connection.escape(vObj.username)},
 			${res.locals.connection.escape(vObj.hash)})`,
 
-		(error: MysqlError, results: any) => {
+		(error: MysqlError, response: any) => {
 
 			if (error) {
 				console.error(error);
@@ -27,7 +28,9 @@ router.put("/", upload.array(), (req: Request, res: Response) => {
 
 			} else {
 
-				if (results[0].map((row: {}) => ({...row}))[0].validated) {
+				const userData = dbObject(response[0]);
+
+				if (!userData) {
 
 					res.locals.connection.end();
 					res.status(200).json();

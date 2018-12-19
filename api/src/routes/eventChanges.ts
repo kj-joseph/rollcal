@@ -2,6 +2,11 @@ import { Request, Response, Router } from "express";
 import { MysqlError } from "mysql";
 
 import { checkSession } from "lib/checkSession";
+import { dbArray } from "lib/db";
+
+import { IDBDerbyEventChange } from "interfaces/event";
+
+import { mapEventChange } from "mapping/eventChangeMaps";
 
 const router = Router();
 
@@ -14,14 +19,21 @@ router.get("/", checkSession("reviewer"), (req: Request, res: Response) => {
 		(error: MysqlError, results: any) => {
 
 			if (error) {
-				res.locals.connection.end();
+
 				console.error(error);
+				res.locals.connection.end();
 				res.status(500).send();
 
 			} else {
 
+				const eventChangeData: IDBDerbyEventChange[] = dbArray(results[0]);
+
+				const eventChangeList = eventChangeData
+					.map((change) =>
+						mapEventChange(change));
+
 				res.locals.connection.end();
-				res.status(200).json(results[0].map((row: {}) => ({...row})));
+				res.status(200).json(eventChangeList);
 
 			}
 		});

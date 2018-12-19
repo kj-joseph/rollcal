@@ -1,18 +1,17 @@
 import { Request, Response, Router } from "express";
 import { MysqlError } from "mysql";
 
-import { IDBTimeZone } from "interfaces/time";
-
 import { dbArray } from "lib/db";
 
-import { mapTimezone } from "mapping/timeMaps";
+import { mapFeatureLists } from "mapping/featureMaps";
+
+import { IDBDerbyFeature, IDBDerbyFeatureType } from "interfaces/feature";
 
 const router = Router();
 
 router.get("/", (req: Request, res: Response) => {
 
-	res.locals.connection
-		.query("call getTimeZones()",
+	res.locals.connection.query("call getFeatures()",
 		(error: MysqlError, response: any) => {
 
 			if (error) {
@@ -23,21 +22,20 @@ router.get("/", (req: Request, res: Response) => {
 
 			} else {
 
-				const timezoneData: IDBTimeZone[] = dbArray(response[0]);
+				const featureData: IDBDerbyFeature[] = dbArray(response[0]);
+				const typeData: IDBDerbyFeatureType[] = dbArray(response[1]);
 
-				if (!timezoneData || !timezoneData.length) {
+				if (!featureData || !featureData.length || !typeData || !typeData.length ) {
 
 					res.locals.connection.end();
 					res.status(205).send();
 
 				} else {
 
-					const timezoneList = timezoneData
-						.map((timezone) =>
-							mapTimezone(timezone));
+					const featureTypes = mapFeatureLists(featureData, typeData);
 
 					res.locals.connection.end();
-					res.status(200).json(timezoneList);
+					res.status(200).json(featureTypes);
 
 				}
 

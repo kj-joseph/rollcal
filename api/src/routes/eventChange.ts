@@ -3,7 +3,12 @@ import multer from "multer";
 import { MysqlError } from "mysql";
 
 import { checkSession } from "lib/checkSession";
+import { dbArray, dbObject } from "lib/db";
 import { sendChangeApprovalEmail, sendChangeRejectionEmail } from "lib/email";
+
+import { mapEventChange } from "mapping/eventChangeMaps";
+
+import { IDBDerbyEventChange } from "interfaces/event";
 
 const router = Router();
 const upload = multer();
@@ -20,8 +25,9 @@ router.post("/", upload.array(), checkSession("user"), (req: Request, res: Respo
 			(error: MysqlError, results: any) => {
 
 				if (error) {
-					res.locals.connection.end();
+
 					console.error(error);
+					res.locals.connection.end();
 					res.status(500).send();
 
 				} else {
@@ -52,9 +58,14 @@ router.get("/:changeId", checkSession("reviewer"), (req: Request, res: Response)
 
 			} else {
 
-				const eventChangeData = results[0].map((row: {}) => ({...row}))[0];
+				const eventChangeData: IDBDerbyEventChange = dbObject(results[0]);
 
-				if (eventChangeData && eventChangeData.event_id) {
+				if (!eventChangeData || !eventChangeData.change_id) {
+
+					res.locals.connection.end();
+					res.status(404).send();
+
+				} else if (eventChangeData && eventChangeData.event_id) {
 
 					res.locals.connection
 						.query(`call getEventDays(${res.locals.connection.escape(eventChangeData.event_id)})`,
@@ -62,16 +73,18 @@ router.get("/:changeId", checkSession("reviewer"), (req: Request, res: Response)
 					(dayError: MysqlError, dayResults: any) => {
 
 						if (dayError) {
+
 							res.locals.connection.end();
 							console.error(dayError);
 							res.status(500).send();
 
 						} else {
 
-							eventChangeData.days = dayResults[0].map((row: {}) => ({...row}));
+							eventChangeData.days = dbArray(dayResults[0]);
 
+							const eventChange = mapEventChange(eventChangeData);
 							res.locals.connection.end();
-							res.status(200).json(eventChangeData);
+							res.status(200).json(eventChange);
 
 						}
 
@@ -79,8 +92,9 @@ router.get("/:changeId", checkSession("reviewer"), (req: Request, res: Response)
 
 				} else {
 
+					const eventChange = mapEventChange(eventChangeData);
 					res.locals.connection.end();
-					res.status(200).json(eventChangeData);
+					res.status(200).json(eventChange);
 
 				}
 

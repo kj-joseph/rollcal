@@ -1,11 +1,8 @@
 import { callApi } from "services/apiService";
 
-import { IDBDerbyEventChange, IDerbyEventChange, IDerbyEventChangeObject } from "interfaces/event";
+import { IDerbyEventChange, IDerbyEventChangeObject } from "interfaces/event";
 
-import { mapEvent } from "services/eventService";
 import { getGeography } from "services/geoService";
-
-import moment from "moment";
 
 export const approveEventChange = (
 	id: number,
@@ -39,9 +36,10 @@ export const getEventChange = (
 			"get",
 			`event-change/${id}`,
 		)
-			.then((changeData) => {
+			.then((response) => {
 
-				resolve(mapEventChange(changeData));
+				const changeData: IDerbyEventChange = response.data;
+				resolve(changeData);
 
 			})
 			.catch((error) =>
@@ -69,25 +67,9 @@ export const getEventChangeList = ()
 					"event-changes",
 				))
 
-			.then((changeResult: IDBDerbyEventChange[]) => {
+			.then((response) => {
 
-				const changes: Array<Promise<IDerbyEventChange>> = [];
-
-				for (const changeItem of changeResult) {
-
-					changes.push(mapEventChange(changeItem, false));
-
-				}
-
-				return changes;
-
-			})
-			.then((changes) =>
-
-				Promise.all(changes))
-
-			.then((changeList) => {
-
+				const changeList: IDerbyEventChange[] = response.data;
 				resolve(changeList);
 
 			})
@@ -97,43 +79,6 @@ export const getEventChangeList = ()
 
 		onCancel(() => {
 			apiCall.cancel();
-		});
-
-	});
-
-const mapEventChange = (
-	data: IDBDerbyEventChange,
-	includeFeatures = true,
-): Promise<IDerbyEventChange> =>
-
-	new Promise((resolve, reject, onCancel) => {
-
-		const eventMapping =
-			mapEvent(data, includeFeatures)
-				.then((event) => {
-
-					resolve(Object.assign(event, {
-						changeId: data.change_id,
-						changeObject: data.change_object ?
-							JSON.parse(data.change_object)
-							: undefined as IDerbyEventChangeObject,
-						submittedDuration: moment.duration(moment(data.change_submitted).diff(moment())).humanize(),
-						submittedTime: moment(data.change_submitted).format("MMM D, Y h:mm a"),
-						submitter: {
-							id: data.change_user,
-							name: data.change_user_name,
-						},
-					}));
-
-				})
-				.catch((error) => {
-
-					reject(error);
-
-				});
-
-		onCancel(() => {
-			eventMapping.cancel();
 		});
 
 	});
@@ -170,7 +115,7 @@ export const rejectEventChange = (
 
 		const apiCall = callApi(
 			"put",
-			`event-change/${id}/reject`,
+			`event-change/${id}/rejection`,
 			{
 				comment,
 			},
