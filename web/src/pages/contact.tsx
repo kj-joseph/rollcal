@@ -169,7 +169,7 @@ export default class Contact extends RCComponent<IProps> {
 		));
 
 		sendEmail
-			.then((result) => {
+			.then(() => {
 
 				this.setState({
 					status: "success",

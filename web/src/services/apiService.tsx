@@ -48,9 +48,9 @@ export const callApi = (
 		}
 
 		axios(axiosRequest)
-			.then((result) => {
+			.then((response) => {
 
-				resolve(result);
+				resolve(response);
 
 			})
 			.catch((error) => {

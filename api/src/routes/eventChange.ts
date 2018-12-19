@@ -22,7 +22,7 @@ router.post("/", upload.array(), checkSession("user"), (req: Request, res: Respo
 				${res.locals.connection.escape(req.body.id)},
 				${res.locals.connection.escape(req.body.changeObject)}
 			)`,
-			(error: MysqlError, results: any) => {
+			(error: MysqlError, response: any) => {
 
 				if (error) {
 
@@ -49,7 +49,7 @@ router.get("/:changeId", checkSession("reviewer"), (req: Request, res: Response)
 			${res.locals.connection.escape(req.session.user.id)}
 			)`,
 
-		(error: MysqlError, results: any) => {
+		(error: MysqlError, response: any) => {
 
 			if (error) {
 				res.locals.connection.end();
@@ -58,7 +58,7 @@ router.get("/:changeId", checkSession("reviewer"), (req: Request, res: Response)
 
 			} else {
 
-				const eventChangeData: IDBDerbyEventChange = dbObject(results[0]);
+				const eventChangeData: IDBDerbyEventChange = dbObject(response[0]);
 
 				if (!eventChangeData || !eventChangeData.change_id) {
 
@@ -70,7 +70,7 @@ router.get("/:changeId", checkSession("reviewer"), (req: Request, res: Response)
 					res.locals.connection
 						.query(`call getEventDays(${res.locals.connection.escape(eventChangeData.event_id)})`,
 
-					(dayError: MysqlError, dayResults: any) => {
+					(dayError: MysqlError, dayResponse: any) => {
 
 						if (dayError) {
 
@@ -80,7 +80,7 @@ router.get("/:changeId", checkSession("reviewer"), (req: Request, res: Response)
 
 						} else {
 
-							eventChangeData.days = dbArray(dayResults[0]);
+							eventChangeData.days = dbArray(dayResponse[0]);
 
 							const eventChange = mapEventChange(eventChangeData);
 							res.locals.connection.end();
@@ -113,7 +113,7 @@ router.put("/:changeId/approval", checkSession("reviewer"), (req: Request, res: 
 			${res.locals.connection.escape(req.session.user.id)}
 			)`,
 
-		(error: MysqlError, results: any) => {
+		(error: MysqlError, response: any) => {
 
 			if (error) {
 				res.locals.connection.end();
@@ -122,7 +122,7 @@ router.put("/:changeId/approval", checkSession("reviewer"), (req: Request, res: 
 
 			} else {
 
-				const returnedData = results[0].map((row: {}) => ({...row}))[0];
+				const returnedData = dbObject(response[0]);
 
 				if (returnedData.error) {
 					res.locals.connection.end();
@@ -165,7 +165,7 @@ router.put("/:changeId/rejection", upload.array(), checkSession("reviewer"), (re
 			${res.locals.connection.escape(req.body.comment)}
 			)`,
 
-		(error: MysqlError, results: any) => {
+		(error: MysqlError, response: any) => {
 
 			if (error) {
 				console.error(error);
@@ -175,7 +175,7 @@ router.put("/:changeId/rejection", upload.array(), checkSession("reviewer"), (re
 
 			} else {
 
-				const returnedData = results[0].map((row: {}) => ({...row}))[0];
+				const returnedData = dbObject(response[0]);
 
 				if (returnedData.error) {
 					console.error(returnedData.error);

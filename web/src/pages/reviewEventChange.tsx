@@ -510,7 +510,7 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 			approveEventChange(this.props.match.params.changeId));
 
 		approval
-			.then((result) => {
+			.then(() => {
 
 				this.setState({
 					loading: false,

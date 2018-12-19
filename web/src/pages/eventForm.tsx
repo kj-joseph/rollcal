@@ -1280,7 +1280,7 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 				saveEventChange(dataChanges, this.state.eventData.id));
 
 			saveChange
-				.then((result) => {
+				.then(() => {
 
 					this.setState({
 						processing: false,

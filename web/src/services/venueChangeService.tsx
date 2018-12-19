@@ -1,10 +1,8 @@
 import { callApi } from "services/apiService";
 
-import { IDBDerbyVenueChange, IDerbyVenueChange, IDerbyVenueChangeObject } from "interfaces/venue";
+import { IDerbyVenueChange, IDerbyVenueChangeObject } from "interfaces/venue";
 
 import { getGeography } from "services/geoService";
-
-import moment from "moment";
 
 export const approveVenueChange = (
 	id: number,

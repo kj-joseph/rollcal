@@ -16,7 +16,7 @@ router.get("/", checkSession("reviewer"), (req: Request, res: Response) => {
 	res.locals.connection
 		.query(`call getVenueChangeList(${res.locals.connection.escape(req.session.user.id)})`,
 
-		(error: MysqlError, results: any) => {
+		(error: MysqlError, response: any) => {
 
 			if (error) {
 				console.error(error);
@@ -26,7 +26,7 @@ router.get("/", checkSession("reviewer"), (req: Request, res: Response) => {
 
 			} else {
 
-				const changeData: IDBDerbyVenueChange[] = dbArray(results[0]);
+				const changeData: IDBDerbyVenueChange[] = dbArray(response[0]);
 
 				if (!changeData || !changeData.length) {
 

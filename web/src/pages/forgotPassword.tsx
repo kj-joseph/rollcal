@@ -183,12 +183,12 @@ export default class ForgotPassword extends RCComponent<IProps> {
 			checkForgotPassword(this.state.validationCode));
 
 		checkCode
-			.then((result: IUserInfo) => {
+			.then((userInfo: IUserInfo) => {
 
 				this.setState({
 					status: "form",
-					userId: result.id,
-					userName: result.name,
+					userId: userInfo.id,
+					userName: userInfo.name,
 				});
 
 			}).catch((error) => {

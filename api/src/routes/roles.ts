@@ -13,7 +13,7 @@ const router = Router();
 router.get("/", (req: Request, res: Response) => {
 
 	res.locals.connection.query("call getRolesList()",
-		(error: MysqlError, results: any) => {
+		(error: MysqlError, response: any) => {
 
 			if (error) {
 				console.error(error);
@@ -23,16 +23,16 @@ router.get("/", (req: Request, res: Response) => {
 
 			} else {
 
-				const result: IDBUserRole[] = dbArray(results[0]);
+				const rolesData: IDBUserRole[] = dbArray(response[0]);
 
-				if (!result || !result.length) {
+				if (!rolesData || !rolesData.length) {
 
 					res.locals.connection.end();
 					res.status(205).json();
 
 				} else {
 
-					const roleList = result
+					const roleList = rolesData
 						.map((row) => mapRole(row));
 
 					res.locals.connection.end();

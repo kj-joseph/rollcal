@@ -27,7 +27,7 @@ router.post("/", upload.array(), checkSession("user"), (req: Request, res: Respo
 				${res.locals.connection.escape(req.body.changeObject)}
 			)`,
 
-			(error: MysqlError, results: any) => {
+			(error: MysqlError, response: any) => {
 				if (error) {
 					console.error(error);
 
@@ -53,7 +53,7 @@ router.get("/:changeId", checkSession("reviewer"), (req: Request, res: Response)
 			${res.locals.connection.escape(req.session.user.id)}
 			)`,
 
-		(error: MysqlError, results: any) => {
+		(error: MysqlError, response: any) => {
 
 			if (error) {
 				console.error(error);
@@ -63,7 +63,7 @@ router.get("/:changeId", checkSession("reviewer"), (req: Request, res: Response)
 
 			} else {
 
-				const changeData: IDBDerbyVenueChange = dbObject(results[0]);
+				const changeData: IDBDerbyVenueChange = dbObject(response[0]);
 
 				if (!changeData || !changeData.change_id) {
 
@@ -94,7 +94,7 @@ router.put("/:changeId/approval", checkSession("reviewer"), (req: Request, res: 
 			${res.locals.connection.escape(req.session.user.id)}
 			)`,
 
-		(error: MysqlError, results: any) => {
+		(error: MysqlError, response: any) => {
 
 			if (error) {
 				console.error(error);
@@ -104,7 +104,7 @@ router.put("/:changeId/approval", checkSession("reviewer"), (req: Request, res: 
 
 			} else {
 
-				const returnedData = results[0].map((row: {}) => ({...row}))[0];
+				const returnedData = dbObject(response[0]);
 
 				if (returnedData.error) {
 					console.error(returnedData.error);
@@ -114,7 +114,7 @@ router.put("/:changeId/approval", checkSession("reviewer"), (req: Request, res: 
 
 				} else {
 
-					const venue: IDBVenueAddress = results[1].map((row: {}) => ({...row}))[0];
+					const venue: IDBVenueAddress = dbObject(response[1]);
 
 					getGeocode(
 						`${venue.venue_address1}, ${venue.venue_city}${
@@ -172,7 +172,7 @@ router.put("/:changeId/rejection", upload.array(), checkSession("reviewer"), (re
 			${res.locals.connection.escape(req.body.comment)}
 			)`,
 
-		(error: MysqlError, results: any) => {
+		(error: MysqlError, response: any) => {
 
 			if (error) {
 				console.error(error);
@@ -182,7 +182,7 @@ router.put("/:changeId/rejection", upload.array(), checkSession("reviewer"), (re
 
 			} else {
 
-				const returnedData = results[0].map((row: {}) => ({...row}))[0];
+				const returnedData = dbObject(response[0]);
 
 				if (returnedData.error) {
 					console.error(returnedData.error);

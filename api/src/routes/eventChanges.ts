@@ -16,7 +16,7 @@ router.get("/", checkSession("reviewer"), (req: Request, res: Response) => {
 	res.locals.connection
 		.query(`call getEventChangeList(${res.locals.connection.escape(req.session.user.id)})`,
 
-		(error: MysqlError, results: any) => {
+		(error: MysqlError, response: any) => {
 
 			if (error) {
 
@@ -26,7 +26,7 @@ router.get("/", checkSession("reviewer"), (req: Request, res: Response) => {
 
 			} else {
 
-				const eventChangeData: IDBDerbyEventChange[] = dbArray(results[0]);
+				const eventChangeData: IDBDerbyEventChange[] = dbArray(response[0]);
 
 				const eventChangeList = eventChangeData
 					.map((change) =>

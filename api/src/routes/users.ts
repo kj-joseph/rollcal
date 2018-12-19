@@ -16,7 +16,7 @@ router.get("/", checkSession("admin"), (req: Request, res: Response) => {
 	res.locals.connection
 		.query(`call searchUsers(${res.locals.connection.escape(req.query.search)})`,
 
-		(error: MysqlError, results: any) => {
+		(error: MysqlError, response: any) => {
 
 			if (error) {
 				console.error(error);
@@ -26,7 +26,7 @@ router.get("/", checkSession("admin"), (req: Request, res: Response) => {
 
 			} else {
 
-				const userData: IDBUserInfo[] = dbArray(results[0]);
+				const userData: IDBUserInfo[] = dbArray(response[0]);
 
 				if (!userData || !userData.length) {
 
