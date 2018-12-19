@@ -1,4 +1,4 @@
-import { IDerbyFeatures } from "interfaces/feature";
+import { IDerbyFeatureType } from "interfaces/feature";
 import { IGeoCountry } from "interfaces/geo";
 import { IUserInfo } from "interfaces/user";
 
@@ -8,7 +8,7 @@ export interface IBoxListItem {
 	dates?: string;
 	distance?: number;
 	host?: string;
-	features?: IDerbyFeatures;
+	features?: IDerbyFeatureType[];
 	id?: number;
 	location: string;
 	name: string;

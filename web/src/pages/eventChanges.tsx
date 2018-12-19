@@ -57,14 +57,14 @@ export default class EventChanges extends RCComponent<IProps> {
 			this.props.history.push("/dashboard");
 
 		} else if (window.location.pathname !== this.state.path
-			|| this.props.loggedInUserId !== this.state.userId ) {
+			|| this.props.user.id !== this.state.userId ) {
 
 			this.setState({
 				path: window.location.pathname,
-				userId: this.props.loggedInUserId,
+				userId: this.props.user.id,
 			});
 
-			if (this.props.loggedInUserId) {
+			if (this.props.user.id) {
 				this.loadData();
 			}
 
@@ -104,7 +104,7 @@ export default class EventChanges extends RCComponent<IProps> {
 								data={this.state.eventChanges}
 								itemType="events"
 								listType="review"
-								loggedInUserId={this.props.loggedInUserId}
+								userId={this.props.user.id}
 								noIcons={true}
 								reviewFunction={this.reviewChange}
 							/>
@@ -142,34 +142,41 @@ export default class EventChanges extends RCComponent<IProps> {
 			getEventChangeList());
 
 		getList
-			.then((changeList) =>
+			.then((changeData) => {
 
-				mapEventChangesToBoxList(changeList))
+				if (changeData.length) {
 
-			.then((changePromises) => {
+					const getListItems = this.addPromise(
+						Promise.all(mapEventChangesToBoxList(changeData)));
 
-				const getListItems = this.addPromise(
-					Promise.all(changePromises));
+					getListItems
+						.then((changeList) => {
 
-				getListItems
-					.then((changeList) => {
+							this.setState({
+								eventChanges: changeList,
+								loading: false,
+							});
 
-						this.setState({
-							eventChanges: changeList,
-							loading: false,
-						});
+						})
+						.catch((error) => {
 
-					})
-					.catch((error) => {
+							console.error(error);
+							this.setState({
+								dataError: true,
+								loading: false,
+							});
 
-						console.error(error);
-						this.setState({
-							dataError: true,
-							loading: false,
-						});
+						})
+						.finally(getListItems.clear);
 
-					})
-					.finally(getListItems.clear);
+				} else {
+
+					this.setState({
+						dataError: true,
+						loading: false,
+					});
+
+				}
 
 			})
 

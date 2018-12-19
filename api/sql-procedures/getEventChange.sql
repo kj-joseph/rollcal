@@ -8,24 +8,12 @@ from changes ch
 		on ch.change_user = u.user_id
 	left join
 		(select e.*, c.*, vr.*, tz.*, u.user_id, u.user_name,
-			(select group_concat(distinct derbytype_id) as list
-				from derbytypes dt, event_derbytypes edt
-				where edt.event = e.event_id
-				and edt.derbytype = dt.derbytype_id
-				order by dt.derbytype_id
-			) as derbytypes,
-			(select group_concat(distinct sanction_id) as list
-				from sanctions s, event_sanctions es
-				where es.event = e.event_id
-				and es.sanction = s.sanction_id
-				order by s.sanction_id
-			) as sanctions,
-			(select group_concat(distinct track_id) as list
-				from tracks t, event_tracks et
-				where et.event = e.event_id
-				and et.track = t.track_id
-				order by t.track_id
-			) as tracks
+			(select group_concat(ft.feature_type_code, '-', f.feature_id) as list
+			        from features f, feature_types ft, event_features ef
+			        where ef.feature = f.feature_id
+			            and ft.feature_type_id = f.feature_type
+			            and ef.event = e.event_id
+			    ) as event_features
 		from events e, countries c, users u, timezones tz,
 			(select * from venues left outer join regions on region_id = venue_region) as vr
 		where venue_id = event_venue and country_code = venue_country

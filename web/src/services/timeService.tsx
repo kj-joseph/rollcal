@@ -2,12 +2,15 @@ import actions from "redux/actions";
 import store from "redux/store";
 import { callApi } from "services/apiService";
 
-import { IDBDerbyEvent } from "interfaces/event";
-import { IDBTimeZone, IDerbyDates, ITimeZone } from "interfaces/time";
-import { IDBDerbyVenue } from "interfaces/venue";
+import { ITimeZone } from "interfaces/time";
+
+import moment from "moment";
 
 export const formatDateRange = (
-	dates: IDerbyDates,
+	dates: {
+		start: moment.Moment;
+		end?: moment.Moment;
+	},
 	monthFormat: "long" | "short" = "short",
 ): string => {
 
@@ -50,11 +53,11 @@ export const getTimeZones = ()
 
 			const apiCall = callApi(
 				"get",
-				"geography/getTimeZones",
+				"timezones",
 			)
-				.then((result: IDBTimeZone[]) => {
+				.then((response) => {
 
-					const timeZoneList: ITimeZone[] = result.map((timezone) => mapTimezone(timezone));
+					const timeZoneList: ITimeZone[] = response.data;
 
 					store.dispatch(actions.saveTimeZones(timeZoneList));
 					resolve(timeZoneList);
@@ -73,11 +76,3 @@ export const getTimeZones = ()
 		}
 
 	});
-
-export const mapTimezone = (
-	data: IDBDerbyEvent | IDBDerbyVenue | IDBTimeZone,
-): ITimeZone => ({
-	id: data.timezone_id,
-	name: data.timezone_name,
-	zone: data.timezone_zone,
-});

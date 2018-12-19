@@ -1,4 +1,6 @@
 import { IReduxActionType, IReduxStore } from "interfaces/redux";
+import { IUserInfo } from "interfaces/user";
+
 import initialState from "redux/init";
 
 const rootReducer = (state = initialState, action: IReduxActionType): IReduxStore => {
@@ -10,38 +12,21 @@ const rootReducer = (state = initialState, action: IReduxActionType): IReduxStor
 		case "CLEAR_USER_INFO":
 
 			newState.loggedIn = false;
-			newState.loggedInUserEmail = "",
-			newState.loggedInUserId = null;
-			newState.loggedInUserName = "";
-			newState.loggedInUserRoles = null;
+			newState.user = {} as IUserInfo;
 
 			return newState;
 			break;
 
-		case "SAVE_DATA_DERBYTYPES":
+		case "SAVE_COUNTRY_LIST":
 
-			newState.dataDerbyTypes = action.payload;
+			newState.countryList = action.payload;
 			return newState;
 
 			break;
 
-		case "SAVE_DATA_GEOGRAPHY":
+		case "SAVE_FEATURE_LISTS":
 
-			newState.dataGeography = action.payload;
-			return newState;
-
-			break;
-
-		case "SAVE_DATA_SANCTIONS":
-
-			newState.dataSanctions = action.payload;
-			return newState;
-
-			break;
-
-		case "SAVE_DATA_TRACKS":
-
-			newState.dataTracks = action.payload;
+			newState.featureLists = action.payload;
 			return newState;
 
 			break;
@@ -112,11 +97,8 @@ const rootReducer = (state = initialState, action: IReduxActionType): IReduxStor
 
 		case "SET_USER_INFO":
 
-			newState.loggedIn = action.payload.loggedIn;
-			newState.loggedInUserEmail = action.payload.userEmail;
-			newState.loggedInUserId = action.payload.userId;
-			newState.loggedInUserName = action.payload.userName;
-			newState.loggedInUserRoles = action.payload.userRoles;
+			newState.loggedIn = true;
+			newState.user = action.payload;
 			return newState;
 
 			break;

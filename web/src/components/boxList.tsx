@@ -28,9 +28,9 @@ interface IBoxListProps extends IBoxListDefaultProps {
 	loadingMore?: boolean;
 	loadAllFunction?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 	loadMoreFunction?: (event?: React.MouseEvent<HTMLButtonElement>, loadAll?: boolean) => void;
-	loggedInUserId?: number;
 	reviewFunction?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 	totalItems?: number;
+	userId?: number;
 }
 
 export default class BoxList extends React.Component<IBoxListProps> {
@@ -65,13 +65,13 @@ export default class BoxList extends React.Component<IBoxListProps> {
 						<li
 							key={item.changeId || item.id}
 							className={this.props.listType === "display"
-								&& item.user === this.props.loggedInUserId ?
+								&& item.user.id === this.props.userId ?
 									"myEvent"
 								: ""}
 						>
 
 							{this.props.listType === "display"
-								&& item.user === this.props.loggedInUserId ?
+								&& item.user.id === this.props.userId ?
 
 								<ReactSVG
 									className="myEventIcon"
@@ -91,7 +91,7 @@ export default class BoxList extends React.Component<IBoxListProps> {
 										}</strong>
 										<br />
 										<span title={item.submittedTime}>{item.submittedDuration} ago</span>{" "}
-										by <strong>{item.user.userName}</strong>
+										by <strong>{item.user.name}</strong>
 									</p>
 								</>
 
@@ -178,20 +178,8 @@ export default class BoxList extends React.Component<IBoxListProps> {
 							{this.props.itemType === "events" && item.features && !this.props.noIcons ?
 
 								<FeatureIconSet
-									data={[
-										{
-											items: item.features.tracks,
-											type: "track",
-										},
-										{
-											items: item.features.derbytypes,
-											type: "derbytype",
-										},
-										{
-											items: item.features.sanctions,
-											type: "sanction",
-										},
-									]}
+									data={item.features}
+									labels={false}
 								/>
 
 							: null}

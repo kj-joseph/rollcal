@@ -6,7 +6,7 @@ import { sendContactEmail } from "lib/email";
 const router = Router();
 const upload = multer();
 
-router.post("/sendContactForm", upload.array(), (req: Request, res: Response) => {
+router.post("/contact", upload.array(), (req: Request, res: Response) => {
 
 	sendContactEmail(req.body.email, req.body.name, req.body.message)
 		.then(() => {

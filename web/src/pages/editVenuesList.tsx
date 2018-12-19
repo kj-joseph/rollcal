@@ -61,17 +61,17 @@ export default class EditVenuesList extends RCComponent<IProps> {
 
 			this.props.history.push("/");
 
-		} else if (window.location.pathname !== this.state.path || this.props.loggedInUserId !== this.state.userId ) {
+		} else if (window.location.pathname !== this.state.path || this.props.user.id !== this.state.userId ) {
 
 			const isReviewer = checkUserRole("reviewer");
 
 			this.setState({
 				isReviewer,
 				path: window.location.pathname,
-				userId: this.props.loggedInUserId,
+				userId: this.props.user.id,
 			});
 
-			if (this.props.loggedInUserId) {
+			if (this.props.user.id) {
 				this.loadData(isReviewer);
 			}
 
@@ -119,7 +119,7 @@ export default class EditVenuesList extends RCComponent<IProps> {
 									className={this.state.showAll ? "" : "hidden"}
 									src={CheckIcon}
 								/>
-								Show All Events
+								Show All Venues
 							</a>
 							</div>
 
@@ -130,13 +130,13 @@ export default class EditVenuesList extends RCComponent<IProps> {
 							<BoxList
 								data={mapVenuesToBoxList(
 									this.state.venueData.filter((venue) =>
-										venue.user.userId === this.props.loggedInUserId
+										venue.user.id === this.props.user.id
 										|| (this.state.isReviewer
 											&& this.state.showAll)))}
 								editFunction={this.editVenue}
 								itemType="venues"
 								listType="edit"
-								loggedInUserId={this.props.loggedInUserId}
+								userId={this.props.user.id}
 								noIcons={true}
 							/>
 
@@ -192,7 +192,7 @@ export default class EditVenuesList extends RCComponent<IProps> {
 		const getVenues = this.addPromise(
 			loadVenues(
 				isReviewer ?
-					undefined : this.props.loggedInUserId));
+					undefined : this.props.user.id));
 
 		getVenues
 			.then((venueData: IDerbyVenue[]) => {

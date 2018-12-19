@@ -3,9 +3,7 @@ import actions from "redux/actions";
 import store from "redux/store";
 import { callApi } from "services/apiService";
 
-import { IDBDerbyEvent } from "interfaces/event";
-import { IDBUserInfo, IUserInfo, IUserRole } from "interfaces/user";
-import { IDBDerbyVenue } from "interfaces/venue";
+import { IUserInfo, IUserRole } from "interfaces/user";
 
 export const checkEmail = (
 	email: string,
@@ -16,7 +14,7 @@ export const checkEmail = (
 
 		const apiCall = callApi(
 			"get",
-			"user/checkEmail",
+			"user",
 			{
 				email,
 				id,
@@ -24,7 +22,7 @@ export const checkEmail = (
 		)
 			.then((response) => {
 
-				resolve(response);
+				resolve(response.status === 200);
 
 			})
 			.catch((error) => {
@@ -46,56 +44,24 @@ export const checkForgotPassword = (
 	new Promise((resolve, reject, onCancel) => {
 
 		const apiCall = callApi(
-			"post",
-			"user/checkForgotPassword",
+			"get",
+			"forgot-password",
 			{
 				validationCode: code,
 			},
 		)
-			.then((response: IDBUserInfo) => {
+			.then((response) => {
 
+				const userInfo: IUserInfo = response.data;
 				resolve({
-					userId: response.user_id,
-					userName: response.user_name,
+					id: userInfo.id,
+					name: userInfo.name,
 				});
 
 			})
 			.catch((error) => {
 
 				reject(error);
-
-			});
-
-		onCancel(() => {
-			apiCall.cancel();
-		});
-
-	});
-
-export const checkLoginStatus = (): Promise<boolean> =>
-
-	new Promise((resolve, reject, onCancel) => {
-
-		const apiCall = callApi(
-			"post",
-			"user/getSession",
-		)
-			.then((result: IDBUserInfo) => {
-
-				store.dispatch(actions.setUserInfo({
-					loggedIn: true,
-					userEmail: result.user_email,
-					userId: result.user_id,
-					userName: result.user_name,
-					userRoles: result.user_roles,
-				}));
-
-				resolve();
-
-			})
-			.catch((error) => {
-
-				reject(new Error("User not logged in."));
 
 			});
 
@@ -114,7 +80,7 @@ export const checkUsername = (
 
 		const apiCall = callApi(
 			"get",
-			"user/checkUsername",
+			"user",
 			{
 				id,
 				username,
@@ -122,7 +88,7 @@ export const checkUsername = (
 		)
 			.then((response) => {
 
-				resolve(response);
+				resolve(response.status === 200);
 
 			})
 			.catch((error) => {
@@ -142,7 +108,7 @@ export const checkUserRole = (
 ): boolean => {
 
 	const state = store.getState();
-	return state.loggedInUserRoles.indexOf(role) > -1;
+	return state.user.roles.indexOf(role) > -1;
 
 };
 
@@ -174,25 +140,21 @@ export const getUserDetails = (
 
 		const apiCall = callApi(
 			"get",
-			`admin/getUserDetailsById/${id}`,
+			`user/${id}`,
 		)
-			.then((result: IDBUserInfo) => {
+			.then((response) => {
 
-				if (result.user_id === state.loggedInUserId
-					|| (result.user_roles.indexOf("admin") > -1)
+				const userInfo: IUserInfo = response.data;
+
+				if (userInfo.id === state.user.id
+					|| (userInfo.roles.indexOf("admin") > -1)
 						&& !checkUserRole("superadmin")) {
 
 					reject(new Error("Access to this user denied."));
 
 				} else {
 
-					resolve({
-						userEmail: result.user_email,
-						userId: result.user_id,
-						userName: result.user_name,
-						userRoles: result.user_roles,
-						userStatus: result.user_status,
-					});
+					resolve(userInfo);
 				}
 
 			})
@@ -223,11 +185,12 @@ export const getUserRoleList = ()
 
 			const apiCall = callApi(
 				"get",
-				"user/getRolesList",
+				"roles",
 			)
-				.then((result: IUserRole[]) => {
+				.then((response) => {
 
-					const roleList = result.filter((role) => role.name !== "superadmin");
+					const roles: IUserRole[] = response.data;
+					const roleList = roles.filter((role) => role.name !== "superadmin");
 					store.dispatch(actions.saveRolesList(roleList));
 					resolve(roleList);
 
@@ -246,6 +209,33 @@ export const getUserRoleList = ()
 
 	});
 
+export const getUserSession = (): Promise<boolean> =>
+
+	new Promise((resolve, reject, onCancel) => {
+
+		const apiCall = callApi(
+			"get",
+			"session",
+		)
+			.then((response) => {
+
+				const userInfo: IUserInfo = response.data;
+				store.dispatch(actions.setUserInfo(userInfo));
+				resolve();
+
+			})
+			.catch((error) => {
+
+				reject(new Error("User not logged in."));
+
+			});
+
+		onCancel(() => {
+			apiCall.cancel();
+		});
+
+	});
+
 export const login = (
 	email: string,
 	password: string,
@@ -255,20 +245,16 @@ export const login = (
 
 		const apiCall = callApi(
 			"post",
-			"user/login",
+			"session",
 			{
 				email,
 				password,
 			},
 		)
-			.then((result: IDBUserInfo) => {
+			.then((response) => {
 
-				resolve({
-					userEmail: result.user_email,
-					userId: result.user_id,
-					userName: result.user_name,
-					userRoles: result.user_roles,
-				});
+				const userInfo: IUserInfo = response.data;
+				resolve(userInfo);
 
 			})
 			.catch((error) => {
@@ -288,10 +274,10 @@ export const logout = (
 ): Promise<void> =>
 
 	callApi(
-		"get",
-		"user/logout",
+		"delete",
+		"session",
 	)
-		.then((result) => {
+		.then(() => {
 
 			store.dispatch(actions.clearUserInfo());
 
@@ -308,13 +294,6 @@ export const logout = (
 
 		});
 
-export const mapUser = (
-	data: IDBUserInfo | IDBDerbyEvent | IDBDerbyVenue,
-): IUserInfo => ({
-	userId: data.user_id,
-	userName: data.user_name,
-});
-
 export const registerUser = (
 	email: string,
 	password: string,
@@ -325,7 +304,7 @@ export const registerUser = (
 
 		const apiCall = callApi(
 			"post",
-			"user/register",
+			"user",
 			{
 				email,
 				password,
@@ -357,18 +336,15 @@ export const searchUsers = (
 
 		const apiCall = callApi(
 			"get",
-			`admin/searchUsers/${term}`,
+			"users",
+			{
+				search: term,
+			},
 		)
-			.then((response: IDBUserInfo[]) => {
+			.then((response) => {
 
-				resolve(response
-					.map((user): IUserInfo => ({
-						userEmail: user.user_email,
-						userId: user.user_id,
-						userName: user.user_name,
-						userRoles: user.user_roles,
-						userStatus: user.user_status,
-					})));
+				const userList: IUserInfo[] = response.data;
+				resolve(userList);
 
 			})
 			.catch((error) => {
@@ -392,8 +368,8 @@ export const setNewPassword = (
 	new Promise((resolve, reject, onCancel) => {
 
 		const apiCall = callApi(
-			"post",
-			"user/account/setNewPassword",
+			"put",
+			"user",
 			{
 				id,
 				password,
@@ -425,7 +401,7 @@ export const submitForgotPassword = (
 
 		const apiCall = callApi(
 			"post",
-			"user/submitForgotPassword",
+			"forgot-password",
 			{
 				email,
 			},
@@ -462,15 +438,16 @@ export const updateUserAsAdmin = (
 
 		const apiCall = callApi(
 			"put",
-			"admin/updateUser",
+			`user/${id}`,
 			Object.assign(changes, {
-				id,
-				roles: changes.roles.map((role) => role.id).join(","),
+				roles: changes.roles
+					.map((role) => role.id)
+					.join(","),
 			}),
 		)
-			.then((response) => {
+			.then(() => {
 
-				resolve(response);
+				resolve();
 
 			})
 			.catch((error) => {
@@ -499,14 +476,12 @@ export const updateUserProfile = (
 
 		const apiCall = callApi(
 			"put",
-			"user/account/update",
-			Object.assign(changes, {
-				id,
-			}),
+			`user/${id}`,
+			changes,
 		)
-			.then((response) => {
+			.then(() => {
 
-				resolve(response);
+				resolve();
 
 			})
 			.catch((error) => {
@@ -528,8 +503,8 @@ export const validateAccount = (
 	new Promise((resolve, reject, onCancel) => {
 
 		const apiCall = callApi(
-			"post",
-			"user/account/validate",
+			"put",
+			"validation",
 			{
 				validationCode: code,
 			},

@@ -2,172 +2,64 @@ import actions from "redux/actions";
 import store from "redux/store";
 import { callApi } from "services/apiService";
 
-import { IDBDerbySanction, IDBDerbyTrack, IDBDerbyType, IDerbyFeature, IDerbyFeatures } from "interfaces/feature";
+import { IDerbyFeature, IDerbyFeatureType } from "interfaces/feature";
 
-export const filterDerbyTypes = (
-	derbytypes: string[],
-): Promise<IDerbyFeature[]> =>
+export const findFeatureByString = (
+	featureString: string,
+): IDerbyFeature => {
 
-	new Promise((resolve, reject, onCancel) => {
+	const state = store.getState();
 
-		const getData = getDerbyTypes()
-			.then((derbytypeList) => {
-				resolve (derbytypeList.filter((derbytype) =>
-					derbytypes.indexOf(derbytype.id.toString()) > -1));
-			});
+	if (!featureString
+		|| !featureString.search("-")
+		|| !state.featureLists
+		|| !state.featureLists.length) {
 
-		onCancel(() => {
-			getData.cancel();
-		});
+		return undefined;
 
-	});
+	}
 
-export const filterSanctions = (
-	sanctions: string[],
-): Promise<IDerbyFeature[]> =>
+	const [type, id] = featureString.split("-");
 
-	new Promise((resolve, reject, onCancel) => {
+	const featureType = state.featureLists
+		.filter((ftype) =>
+			ftype.code === type)[0];
 
-		const getData = getDerbySanctions()
-			.then((sanctionList) => {
-				resolve (sanctionList.filter((sanction) =>
-					sanctions.indexOf(sanction.id.toString()) > -1));
-			});
+	if (!featureType) {
 
-		onCancel(() => {
-			getData.cancel();
-		});
+		return undefined;
 
-	});
+	}
 
-export const filterTracks = (
-	tracks: string[],
-): Promise<IDerbyFeature[]> =>
+	return featureType.features
+		.filter((feature) =>
+			feature.id.toString() === id)[0];
 
-	new Promise((resolve, reject, onCancel) => {
+};
 
-		const getData = getDerbyTracks()
-			.then((trackList) => {
-				resolve (trackList.filter((track) =>
-					tracks.indexOf(track.id.toString()) > -1));
-			});
-
-		onCancel(() => {
-			getData.cancel();
-		});
-
-	});
-
-export const getDerbySanctions = (): Promise<IDerbyFeature[]> =>
+export const getFeatures = ()
+	: Promise<IDerbyFeatureType[]> =>
 
 	new Promise((resolve, reject, onCancel) => {
 
 		const state = store.getState();
 
-		if (state.dataSanctions && state.dataSanctions.length) {
+		if (state.featureLists && state.featureLists.length) {
 
-			resolve(state.dataSanctions);
-
-		} else {
-
-			const apiCall = callApi(
-				"get",
-				"eventFeatures/getSanctionTypes",
-			)
-				.then((result: IDBDerbySanction[]) => {
-
-					const sanctions: IDerbyFeature[] = result.map((sanction) => ({
-						abbreviation: sanction.sanction_abbreviation,
-						id: sanction.sanction_id,
-						name: sanction.sanction_name,
-					}));
-
-					store.dispatch(actions.saveDataSanctions(sanctions));
-					resolve(sanctions);
-
-				})
-				.catch((error) => {
-
-					reject(error);
-
-				});
-
-			onCancel(() => {
-				apiCall.cancel();
-			});
-
-		}
-
-	});
-
-export const getDerbyTracks = (): Promise<IDerbyFeature[]> =>
-
-	new Promise((resolve, reject, onCancel) => {
-
-		const state = store.getState();
-
-		if (state.dataTracks && state.dataTracks.length) {
-
-			resolve(state.dataTracks);
+			resolve(state.featureLists);
 
 		} else {
 
 			const apiCall = callApi(
 				"get",
-				"eventFeatures/getTracks",
+				"features",
 			)
-				.then((result: IDBDerbyTrack[]) => {
+				.then((response) => {
 
-					const tracks: IDerbyFeature[] = result.map((track) => ({
-						abbreviation: track.track_abbreviation,
-						id: track.track_id,
-						name: track.track_name,
-					}));
+					const featureTypes: IDerbyFeatureType[] = response.data;
 
-					store.dispatch(actions.saveDataTracks(tracks));
-					resolve(tracks);
-
-				})
-				.catch((error) => {
-
-					reject(error);
-
-				});
-
-			onCancel(() => {
-				apiCall.cancel();
-			});
-
-		}
-
-	});
-
-export const getDerbyTypes = (): Promise<IDerbyFeature[]> =>
-
-	new Promise((resolve, reject, onCancel) => {
-
-		const state = store.getState();
-
-		if (state.dataDerbyTypes && state.dataDerbyTypes.length) {
-
-			resolve(state.dataDerbyTypes);
-
-		} else {
-
-			const apiCall = callApi(
-				"get",
-				"eventFeatures/getDerbyTypes",
-			)
-				.then((result: IDBDerbyType[]) => {
-
-					const derbytypes: IDerbyFeature[] = result.map((derbytype) => ({
-						abbreviation: derbytype.derbytype_abbreviation,
-						id: derbytype.derbytype_id,
-						name: derbytype.derbytype_name,
-					}));
-
-					store.dispatch(actions.saveDataDerbyTypes(derbytypes));
-					resolve(derbytypes);
+					store.dispatch(actions.saveFeatureLists(featureTypes));
+					resolve(featureTypes);
 
 				})
 				.catch((error) => {
@@ -185,34 +77,42 @@ export const getDerbyTypes = (): Promise<IDerbyFeature[]> =>
 	});
 
 export const mapFeatures = (
-	featureLists: {
-		derbytypes: string[],
-		sanctions: string[],
-		tracks: string[],
+	selectedFeatureLists: {
+		[key: string]: string[],
 	},
-): Promise<IDerbyFeatures> =>
+): Promise<IDerbyFeatureType[]> =>
 
 	new Promise((resolve, reject, onCancel) => {
 
-		const featureFilters = Promise.all([
-			filterDerbyTypes(featureLists.derbytypes),
-			filterSanctions(featureLists.sanctions),
-			filterTracks(featureLists.tracks),
-		])
-			.then((data) => {
+		const featureFilters = getFeatures()
+			.then((featureLists) => {
 
-				const [
-					derbytypes,
-					sanctions,
-					tracks,
-				]
-					= data;
+				const selectedFeatures: IDerbyFeatureType[] = [];
 
-				resolve({
-					derbytypes,
-					sanctions,
-					tracks,
-				});
+				for (const featureType in selectedFeatureLists) {
+					if (selectedFeatureLists.hasOwnProperty(featureType)) {
+
+						const type = Object.assign({},
+							featureLists
+								.filter((ft) =>
+									ft.code === featureType)[0]);
+
+						type.features = featureLists
+								.filter((ft) =>
+									ft.code === featureType)[0].features
+										.filter((feature) =>
+											selectedFeatureLists[featureType].indexOf(feature.id.toString()) > -1);
+
+						selectedFeatures.push(type);
+
+					}
+				}
+
+				resolve (selectedFeatures
+					.sort((a, b) =>
+						a.order > b.order ? 1
+						: a.order < b.order ? -1
+						: 0));
 
 			});
 
@@ -224,34 +124,47 @@ export const mapFeatures = (
 
 export const mapFeaturesFromText = (
 	featureStrings: string[],
-): Promise<IDerbyFeatures> =>
+): Promise<IDerbyFeatureType[]> =>
 
 	new Promise((resolve, reject, onCancel) => {
 
-		const eventFeatures: {
-			derbytypes: string[],
-			sanctions: string[],
-			tracks: string[],
-		} = {
-			derbytypes: [],
-			sanctions: [],
-			tracks: [],
-		};
-
-		for (const feature of featureStrings) {
-
-			const [label, value] = feature.split("-");
-			const featureName: keyof IDerbyFeatures = `${label}s` as keyof IDerbyFeatures;
-			eventFeatures[featureName].push(value);
-
-		}
-
 		const featureMap =
-			mapFeatures(eventFeatures)
-				.then((features) => resolve(features));
+			mapFeatures(mapFeaturesToArrays(featureStrings))
+				.then((features) =>
+					resolve(features));
 
 		onCancel(() => {
 			featureMap.cancel();
 		});
 
 	});
+
+export const mapFeaturesToArrays = (
+	featureStrings: string[],
+): {
+	[key: string]: string[],
+} => {
+
+	const eventFeatures: {
+		[key: string]: string[],
+	} = {};
+
+	for (const feature of featureStrings) {
+
+		const [type, value] = feature.split("-");
+
+		if (!eventFeatures[type]) {
+
+			eventFeatures[type] = [value];
+
+		} else {
+
+			eventFeatures[type].push(value);
+
+		}
+
+	}
+
+	return eventFeatures;
+
+};

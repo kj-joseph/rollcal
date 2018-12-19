@@ -1,4 +1,4 @@
-import { IDerbyFeature, IDerbyFeatures } from "interfaces/feature";
+import { IDerbyFeatureChanges, IDerbyFeatureType } from "interfaces/feature";
 import { IGeoCountry } from "interfaces/geo";
 import { IDBUserInfo, IUserInfo } from "interfaces/user";
 import { IDBDerbyVenue, IDerbyVenue, INewDerbyVenue } from "interfaces/venue";
@@ -7,10 +7,10 @@ import moment from "moment";
 
 export interface IDBDerbyEvent extends IDBDerbyVenue, IDBUserInfo {
 	days: IDBDerbyEventDay[];
-	derbytypes: string;
 	event_approved: number;
 	event_description?: string;
 	event_eventtype: number;
+	event_features: string;
 	event_first_day: string;
 	event_host: string;
 	event_id: number;
@@ -20,8 +20,6 @@ export interface IDBDerbyEvent extends IDBDerbyVenue, IDBUserInfo {
 	event_timezone: number;
 	event_user: number;
 	event_venue: number;
-	sanctions: string;
-	tracks: string;
 }
 
 export interface IDBDerbyEventChange extends IDBDerbyEvent {
@@ -47,14 +45,17 @@ export interface IDBDerbyEventDay {
 }
 
 export interface IDerbyEvent {
-	dates?: string;
+	dates?: {
+		end: string,
+		start: string,
+	};
 	days?: IDerbyEventDay[];
 	description?: string;
-	features?: IDerbyFeatures;
+	features?: string[];
+	featureObjects?: IDerbyFeatureType[];
 	host?: string;
 	id: number;
 	link?: string;
-	multiDay?: boolean;
 	name: string;
 	user?: IUserInfo;
 	venue: IDerbyVenue;
@@ -64,20 +65,7 @@ export interface IDerbyEventChange extends IDerbyEvent {
 	changeId: number;
 	changeObject: IDerbyEventChangeObject;
 	dayChanges?: IDerbyEventChangeObjectDayChange[];
-	featureChanges?: {
-		derbytypes?: Array<{
-			name: string;
-			status: string;
-		}>;
-		sanctions?: Array<{
-			name: string;
-			status: string;
-		}>;
-		tracks?: Array<{
-			name: string;
-			status: string;
-		}>;
-	};
+	featureChanges?: IDerbyFeatureChanges;
 	newVenue?: IDerbyVenue;
 	submittedDuration: string;
 	submittedTime: string;
@@ -138,13 +126,11 @@ export interface IDerbyEventDay {
 
 export interface ISearchObject {
 	address?: string;
-	derbytypes?: IDerbyFeature[];
 	distance?: number;
 	distanceUnits?: "mi" | "km";
 	endDate?: string;
+	features?: string[];
 	locations?: IGeoCountry[];
-	sanctions?: IDerbyFeature[];
 	startDate?: string;
-	tracks?: IDerbyFeature[];
 	user?: number;
 }

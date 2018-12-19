@@ -19,7 +19,7 @@ if (app) {
 
 		if (isNaN(portNum)) {
 		// named pipe
-		return val;
+			return val;
 		}
 
 		if (portNum >= 0) {

@@ -1,11 +1,6 @@
 import { callApi } from "services/apiService";
 
-import { IDBDerbyEvent } from "interfaces/event";
-import { IDBDerbyVenue, IDerbyVenue } from "interfaces/venue";
-
-import { mapCountry, mapRegion } from "services/geoService";
-import { mapTimezone } from "services/timeService";
-import { mapUser } from "services/userService";
+import { IDerbyVenue } from "interfaces/venue";
 
 export const buildLocation = (
 	address: {
@@ -55,7 +50,7 @@ export const getVenueDetails = (
 
 		const apiCall = callApi(
 			"get",
-			`venues/getVenueDetails/${id}`,
+			`venue/${id}`,
 		);
 
 		onCancel(() => {
@@ -63,9 +58,10 @@ export const getVenueDetails = (
 		});
 
 		apiCall
-			.then((venueData: IDBDerbyVenue) => {
+			.then((response) => {
 
-				resolve(mapVenue(venueData));
+				const venueData: IDerbyVenue = response.data;
+				resolve(venueData);
 
 			})
 			.catch((error) =>
@@ -86,17 +82,17 @@ export const loadVenues = (
 
 		const apiCall = callApi(
 			"get",
-			"venues/getVenues",
+			"venues",
 			{
 				user: userId || undefined,
 			},
 		);
 
 		apiCall
-			.then((venueData: IDBDerbyVenue[]) => {
+			.then((response) => {
 
-				resolve(venueData
-					.map((venue) => mapVenue(venue)));
+				const venueList: IDerbyVenue[] = response.data;
+				resolve(venueList);
 
 			})
 			.catch((error) =>
@@ -108,21 +104,3 @@ export const loadVenues = (
 		});
 
 	});
-
-export const mapVenue = (
-	data: IDBDerbyEvent | IDBDerbyVenue,
-): IDerbyVenue => ({
-	address1: data.venue_address1,
-	address2: data.venue_address2,
-	city: data.venue_city,
-	country: mapCountry(data),
-	description: data.venue_description,
-	distance: data.venue_distance,
-	id: data.venue_id,
-	link: data.venue_link,
-	name: data.venue_name,
-	postcode: data.venue_postcode,
-	region: mapRegion(data),
-	timezone: mapTimezone(data),
-	user: mapUser(data),
-});

@@ -4,7 +4,9 @@ import FormatText from "react-format-text";
 import { Link } from "react-router-dom";
 
 import { getEventDetails } from "services/eventService";
+import { mapFeaturesFromText } from "services/featureService";
 import { getSearchUrl } from "services/searchService";
+import { formatDateRange } from "services/timeService";
 
 import FeatureIconSet from "components/featureIconSet";
 import Flag from "components/flag";
@@ -12,11 +14,13 @@ import Flag from "components/flag";
 import moment from "moment";
 
 import { IDerbyEvent, IDerbyEventDay } from "interfaces/event";
+import { IDerbyFeatureType } from "interfaces/feature";
 import { IProps } from "interfaces/redux";
 
 interface IEventDetailsState {
 	dataError: boolean;
 	eventData: IDerbyEvent;
+	features: IDerbyFeatureType[];
 	loading: boolean;
 	path: string;
 }
@@ -26,6 +30,7 @@ export default class EventDetails extends RCComponent<IProps> {
 	state: IEventDetailsState = {
 		dataError: false,
 		eventData: null,
+		features: [],
 		loading: true,
 		path: null,
 	};
@@ -97,7 +102,7 @@ export default class EventDetails extends RCComponent<IProps> {
 
 						<div className="eventDetails">
 
-							{this.state.eventData.user.userId === this.props.loggedInUserId ?
+							{this.state.eventData.user.id === this.props.user.id ?
 								<div className="buttonRow cornerButton">
 									<button type="button" onClick={this.editEvent} className="largeButton">Edit Event</button>
 								</div>
@@ -116,7 +121,14 @@ export default class EventDetails extends RCComponent<IProps> {
 										<h3>Hosted by {this.state.eventData.host}</h3>
 									: null}
 
-									<p className="eventDate"><strong>{this.state.eventData.dates}</strong></p>
+									<p className="eventDate">
+										<strong>
+											{formatDateRange({
+												end: moment(this.state.eventData.dates.end),
+												start: moment(this.state.eventData.dates.start),
+											})}
+										</strong>
+									</p>
 
 									{(this.state.eventData.link) ?
 										<p className="eventLink">
@@ -208,8 +220,8 @@ export default class EventDetails extends RCComponent<IProps> {
 								<p><em>All times shown are local to the venue.</em></p>
 
 								<p className="eventUser">
-									Event added by {this.state.eventData.user.userName}
-									{this.state.eventData.user.userId === this.props.loggedInUserId ?
+									Event added by {this.state.eventData.user.name}
+									{this.state.eventData.user.id === this.props.user.id ?
 										" (thank you!)"
 									: null}
 								</p>
@@ -217,32 +229,8 @@ export default class EventDetails extends RCComponent<IProps> {
 							</div>
 
 							<FeatureIconSet
-								data={[
-									{
-										items: this.state.eventData.features.tracks,
-										label: {
-											plural: "Tracks",
-											singular: "Track",
-										},
-										type: "track",
-									},
-									{
-										items: this.state.eventData.features.derbytypes,
-										label: {
-											plural: "Derby Types",
-											singular: "Derby Type",
-										},
-										type: "derbytype",
-									},
-									{
-										items: this.state.eventData.features.sanctions,
-										label: {
-											plural: "Sanctions",
-											singular: "sanction",
-										},
-										type: "sanction",
-									},
-								]}
+								data={this.state.features}
+								labels={true}
 							/>
 
 						</div>
@@ -275,7 +263,7 @@ export default class EventDetails extends RCComponent<IProps> {
 	loadData(): void {
 
 		const getEventData = this.addPromise(
-			getEventDetails(this.props.match.params.eventId));
+			getEventDetails(Number(this.props.match.params.eventId)));
 
 		getEventData
 			.then((event: IDerbyEvent) => {
@@ -284,13 +272,35 @@ export default class EventDetails extends RCComponent<IProps> {
 					detail: event.name ? event.name : event.host,
 				});
 
-				this.setState({
-					eventData: event,
-					loading: false,
-				});
+				const getFeatures = this.addPromise(
+					mapFeaturesFromText(event.features));
+
+				getFeatures
+					.then((features: IDerbyFeatureType[]) => {
+
+						this.setState({
+							eventData: event,
+							features,
+							loading: false,
+						});
+
+					})
+					.catch((error) => {
+
+						console.error(error);
+
+						this.setState({
+							dataError: true,
+							loading: false,
+						});
+
+					})
+					.finally(getEventData.clear);
 
 			})
-			.catch((error: ErrorEvent) => {
+			.catch((error) => {
+
+				console.error(error);
 
 				this.setState({
 					dataError: true,

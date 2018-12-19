@@ -77,17 +77,17 @@ export default class EditEventsList extends RCComponent<IProps> {
 
 			this.props.history.push("/");
 
-		} else if (window.location.pathname !== this.state.path || this.props.loggedInUserId !== this.state.userId ) {
+		} else if (window.location.pathname !== this.state.path || this.props.user.id !== this.state.userId ) {
 
 			const isReviewer = checkUserRole("reviewer");
 
 			this.setState({
 				isReviewer,
 				path: window.location.pathname,
-				userId: this.props.loggedInUserId,
+				userId: this.props.user.id,
 			});
 
-			if (this.props.loggedInUserId) {
+			if (this.props.user.id) {
 				this.loadData(isReviewer);
 			}
 
@@ -146,13 +146,13 @@ export default class EditEventsList extends RCComponent<IProps> {
 							<BoxList
 								data={mapEventsToBoxList(
 									this.state.eventData.filter((event) =>
-										event.user.userId === this.props.loggedInUserId
+										event.user.id === this.props.user.id
 										|| (this.state.isReviewer && this.state.showAll)))}
 								deleteFunction={this.deleteEvent}
 								editFunction={this.editEvent}
 								itemType="events"
 								listType="edit"
-								loggedInUserId={this.props.loggedInUserId}
+								userId={this.props.user.id}
 								noIcons={true}
 							/>
 
@@ -311,7 +311,7 @@ export default class EditEventsList extends RCComponent<IProps> {
 		const getEvents = this.addPromise(
 			loadEvents({
 				startDate: moment().format("Y-MM-DD"),
-				user: isReviewer ? undefined : this.props.loggedInUserId,
+				user: isReviewer ? undefined : this.props.user.id,
 			}));
 
 		getEvents

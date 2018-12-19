@@ -9,7 +9,7 @@ import { connectClass } from "redux/connect";
 import store from "redux/store";
 
 import history from "components/history";
-import { checkLoginStatus } from "services/userService";
+import { getUserSession } from "services/userService";
 
 import Analytics from "react-ga";
 Analytics.initialize("UA-2467744-6");
@@ -67,7 +67,7 @@ class AppRouter extends React.Component < IProps > {
 
 		if (!this.props.sessionInitialized) {
 
-			checkLoginStatus()
+			getUserSession()
 				.then(() => {
 
 					this.props.setSessionState(true);

@@ -1,50 +1,50 @@
 import { Request, Response, Router } from "express";
 import { MysqlError } from "mysql";
 
+import { dbArray } from "lib/db";
+
+import { mapGeography } from "mapping/geoMaps";
+
+import { IDBGeoCountry, IDBGeoRegion } from "interfaces/geo";
+
 const router = Router();
 
-router.get("/getGeography", (req: Request, res: Response) => {
+router.get("/countries", (req: Request, res: Response) => {
 
 	res.locals.connection
 		.query(`call getAllCountries();
 			call getAllRegions();`,
 
-		(error: MysqlError, results: any) => {
+		(error: MysqlError, response: any) => {
 
 			if (error) {
+
 				console.error(error);
 
 				res.locals.connection.end();
-				res.status(500).send();
-			} else {
-
-				res.locals.connection.end();
-				res.status(200).json({
-					countries: results[0].map((row: {}) => ({...row})),
-					regions: results[2].map((row: {}) => ({...row})),
-				});
-			}
-		});
-});
-
-router.get("/getTimeZones", (req: Request, res: Response) => {
-
-	res.locals.connection
-		.query("call getTimeZones()",
-		(error: MysqlError, results: any) => {
-
-			if (error) {
-				console.error(error);
-
-				res.locals.connection.end();
-				res.status(500).send();
+				res.status(500).send(error);
 
 			} else {
 
-				res.locals.connection.end();
-				res.status(200).json(results[0].map((row: {}) => ({...row})));
+				const countries: IDBGeoCountry[] = dbArray(response[0]);
+				const regions: IDBGeoRegion[] = dbArray(response[2]);
+
+				if (!countries || !countries.length) {
+
+					res.locals.connection.end();
+					res.status(205).send();
+
+				} else {
+
+					const countryList = mapGeography(countries, regions);
+
+					res.locals.connection.end();
+					res.status(200).json(countryList);
+
+				}
 
 			}
+
 		});
 });
 

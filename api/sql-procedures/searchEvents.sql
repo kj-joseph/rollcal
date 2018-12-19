@@ -32,22 +32,10 @@ if endDate != "" then
 		"  and eventday_datetime <= ", quote(concat(endDate, " 00:00:00.000")));
 end if;
 
-if derbytypes != "" then
-	set @from = concat(@from, ", event_derbytypes edt");
+if features != "" then
+	set @from = concat(@from, ", event_features ef");
 	set @where = concat(@where,
-		" and edt.event = event_id and edt.derbytype in (", derbytypes, ")");
-end if;
-
-if sanctions != "" then
-	set @from = concat(@from, ", event_sanctions es");
-	set @where = concat(@where,
-		" and es.event = event_id and es.sanction in (", sanctions, ")");
-end if;
-
-if tracks != "" then
-	set @from = concat(@from, ", event_tracks et");
-	set @where = concat(@where,
-		" and et.event = event_id and et.track in (", tracks, ")");
+		" and ef.event = event_id and ef.feature in (", features, ")");
 end if;
 
 if lat and lng and distance then
@@ -101,7 +89,7 @@ set @query = concat(
 	"select eventlist.*,
 	convert_tz(ed.event_first_day, 'UTC', eventlist.timezone_zone) as event_first_day,
 	convert_tz(ed.event_last_day, 'UTC', eventlist.timezone_zone) as event_last_day,
-	derbytypeslist.list as derbytypes, sanctionslist.list as sanctions, trackslist.list as tracks",
+	featureslist.list as event_features",
 	" from (
 	", @select, @from, @where, @group, "
 	) eventlist
@@ -109,26 +97,13 @@ set @query = concat(
 	join (select eventday_event, min(eventday_datetime) event_first_day, max(eventday_datetime) event_last_day from eventdays group by eventday_event) ed
 		on ed.eventday_event = eventlist.event_id
 
-	left join (select edt.event as id, group_concat(distinct derbytype_id) as list
-	    	from derbytypes dt, event_derbytypes edt
-	     	where edt.derbytype = dt.derbytype_id
-         	group by edt.event
-	    ) as derbytypeslist
-	    on derbytypeslist.id = eventlist.event_id
-
-	left join (select es.event as id, group_concat(distinct sanction_id) as list
-	    	from sanctions s, event_sanctions es
-	     	where es.sanction = s.sanction_id
-         	group by es.event
-	    ) as sanctionslist
-	    on sanctionslist.id = eventlist.event_id
-
-	left join(select et.event as id, group_concat(distinct track_id) as list
-	    	from tracks t, event_tracks et
-	     	where et.track = t.track_id
-         	group by et.event
-	    ) as trackslist
-		on trackslist.id = eventlist.event_id
+	left join (select ef.event as id, group_concat(ft.feature_type_code, '-', f.feature_id) as list
+	    	from features f, feature_types ft, event_features ef
+	     	where ef.feature = f.feature_id
+	     		and ft.feature_type_id = f.feature_type
+         	group by ef.event
+	    ) as featureslist
+	    on featureslist.id = eventlist.event_id
 
 	order by ed.event_first_day"
 );

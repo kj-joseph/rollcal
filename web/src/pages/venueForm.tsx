@@ -71,14 +71,14 @@ export default class VenueForm extends RCComponent<IProps> {
 			this.props.history.push("/");
 
 		} else if (window.location.pathname !== this.state.path
-			|| this.props.loggedInUserId !== this.state.userId ) {
+			|| this.props.user.id !== this.state.userId ) {
 
 			this.setState({
 				path: window.location.pathname,
-				userId: this.props.loggedInUserId,
+				userId: this.props.user.id,
 			});
 
-			if (this.props.loggedInUserId && this.state.pageFunction !== "Error") {
+			if (this.props.user.id && this.state.pageFunction !== "Error") {
 				this.loadData();
 			} else {
 				this.setState({

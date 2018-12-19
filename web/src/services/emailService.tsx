@@ -8,7 +8,7 @@ export const sendContactEmail = (
 
 	new Promise((resolve, reject, onCancel) => {
 
-		const apiCall = callApi("post", "contact/sendContactForm", {
+		const apiCall = callApi("post", "email/contact", {
 			email,
 			message,
 			name,

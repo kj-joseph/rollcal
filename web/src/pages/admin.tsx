@@ -62,11 +62,11 @@ export default class AdminDashboard extends RCComponent<IProps> {
 			this.props.history.push("/dashboard");
 
 		} else if (window.location.pathname !== this.state.path
-			|| this.props.loggedInUserId !== this.state.userId ) {
+			|| this.props.user.id !== this.state.userId ) {
 
 			this.setState({
 				path: window.location.pathname,
-				userId: this.props.loggedInUserId,
+				userId: this.props.user.id,
 			});
 
 		}
@@ -135,21 +135,21 @@ export default class AdminDashboard extends RCComponent<IProps> {
 
 								<tbody>
 									{this.state.searchResults.map((user) => (
-										<tr key={user.userId}>
+										<tr key={user.id}>
 											<td>
-												{ user.userId === this.props.loggedInUserId
-													|| (user.userRoles.indexOf("admin") > -1
+												{ user.id === this.props.user.id
+													|| (user.roles.indexOf("admin") > -1
 														&& !checkUserRole("superadmin")) ?
-													user.userName
+													user.name
 												:
-													<Link to={`/dashboard/admin/user/${user.userId}`}>{user.userName}</Link>
+													<Link to={`/dashboard/admin/user/${user.id}`}>{user.name}</Link>
 												}
 											</td>
 											<td>
-												{user.userEmail}
+												{user.email}
 											</td>
 											<td>
-												{user.userStatus}
+												{user.status}
 											</td>
 										</tr>
 									))}

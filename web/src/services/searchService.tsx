@@ -1,11 +1,11 @@
 import { loadEvents } from "services/eventService";
-import { filterDerbyTypes, filterSanctions, filterTracks } from "services/featureService";
+import { mapFeaturesToArrays } from "services/featureService";
 import { filterLocationsByString } from "services/geoService";
 
 import { IDerbyEvent, ISearchObject } from "interfaces/event";
 import { IGeoCountry, IGeoRegion } from "interfaces/geo";
 
-const getSearchObject = (
+const getSearchObjectFromUrl = (
 	search: string,
 ): Promise<ISearchObject> =>
 
@@ -16,7 +16,9 @@ const getSearchObject = (
 		}
 
 		const promises: Array<Promise<void>> = [];
-		const searchObject: ISearchObject = {} as ISearchObject;
+		const searchObject: ISearchObject = {
+			features: [],
+		} as ISearchObject;
 		const usedParts: string[] = [];
 
 		for (const searchPart of search.split("/")) {
@@ -68,38 +70,18 @@ const getSearchObject = (
 					promises.push(
 						filterLocationsByString(value)
 							.then((locations) => {
+
 								searchObject.locations = locations;
+
 							}));
 
 					break;
 
 				case "derbytypes":
-
-					promises.push(
-						filterDerbyTypes(value.split(","))
-							.then((derbytypes) => {
-								searchObject.derbytypes = derbytypes;
-							}));
-
-					break;
-
 				case "sanctions":
-
-					promises.push(
-						filterSanctions(value.split(","))
-							.then((sanctions) => {
-								searchObject.sanctions = sanctions;
-							}));
-
-					break;
-
 				case "tracks":
 
-					promises.push(
-						filterTracks(value.split(","))
-							.then((tracks) => {
-								searchObject.tracks = tracks;
-							}));
+					searchObject.features.push(`${label.substring(0, label.length - 1)}-${value.split(",")}`);
 
 					break;
 
@@ -107,11 +89,15 @@ const getSearchObject = (
 
 			const loadData = Promise.all(promises)
 				.then(() => {
+
 					if (searchObject.address && searchObject.distance && searchObject.distanceUnits) {
+
 						delete searchObject.locations;
+
 					}
 
 					resolve(searchObject);
+
 				});
 
 			onCancel(() => {
@@ -157,36 +143,24 @@ export const getSearchUrl = (
 
 	}
 
-	if (search.derbytypes && search.derbytypes.length) {
+	if (search.features && search.features.length) {
 
-		queryParts.push(`derbytypes(${
-			search.derbytypes
-				.map((derbytype) =>
-					derbytype.id)
-				.sort()
-				.join(",")})`);
+		const selectedFeatures = mapFeaturesToArrays(search.features);
 
-	}
+		for (const type in selectedFeatures) {
 
-	if (search.sanctions && search.sanctions.length) {
+			if (selectedFeatures.hasOwnProperty(type)) {
 
-		queryParts.push(`sanctions(${
-			search.sanctions
-				.map((sanction) =>
-					sanction.id)
-				.sort()
-				.join(",")})`);
+				queryParts.push(`${type}s(${
+					selectedFeatures[type]
+						.map((feature) =>
+							feature)
+						.sort()
+						.join(",")})`);
 
-	}
+			}
 
-	if (search.tracks && search.tracks.length) {
-
-		queryParts.push(`tracks(${
-			search.tracks
-				.map((track) =>
-					track.id)
-				.sort()
-				.join(",")})`);
+		}
 
 	}
 
@@ -204,5 +178,5 @@ export const searchEventsByString = (
 	total: number,
 }> =>
 
-	getSearchObject(searchString)
+	getSearchObjectFromUrl(searchString)
 		.then((searchObject) => loadEvents(searchObject, count, start));

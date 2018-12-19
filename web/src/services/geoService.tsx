@@ -2,9 +2,7 @@ import actions from "redux/actions";
 import store from "redux/store";
 import { callApi } from "services/apiService";
 
-import { IDBDerbyEvent } from "interfaces/event";
-import { IDBGeoCountry, IDBGeoRegion, IGeoCountry, IGeoCountryFilter, IGeoRegion } from "interfaces/geo";
-import { IDBDerbyVenue } from "interfaces/venue";
+import { IGeoCountry, IGeoCountryFilter } from "interfaces/geo";
 
 export const filterLocations = (
 	search: IGeoCountryFilter[],
@@ -95,40 +93,21 @@ export const getGeography = ()
 
 		const state = store.getState();
 
-		if (state.dataGeography && state.dataGeography.length) {
+		if (state.countryList && state.countryList.length) {
 
-			resolve(state.dataGeography);
+			resolve(state.countryList);
 
 		} else {
 
 			const apiCall = callApi(
 				"get",
-				"geography/getGeography",
+				"geography/countries",
 			)
-				.then((result) => {
+				.then((response) => {
 
-					const countries: IDBGeoCountry[] = result.countries;
-					const regions: IDBGeoRegion[] = result.regions;
+					const countryList: IGeoCountry[] = response.data;
 
-					const countryList = countries
-						.map((country): IGeoCountry => ({
-							code: country.country_code,
-							flag: country.country_flag,
-							name: country.country_name,
-							regionType: country.country_region_type,
-							regions: country.country_region_type ?
-								regions
-									.filter((region) => region.region_country === country.country_code)
-									.map((region) => ({
-										abbreviation: region.region_abbreviation,
-										country: region.region_country,
-										id: region.region_id,
-										name: region.region_name,
-									}))
-								: undefined,
-						}));
-
-					store.dispatch(actions.saveDataGeography(countryList));
+					store.dispatch(actions.saveCountryList(countryList));
 					resolve(countryList);
 
 				})
@@ -145,21 +124,3 @@ export const getGeography = ()
 		}
 
 	});
-
-export const mapCountry = (
-	data: IDBDerbyEvent | IDBDerbyVenue,
-): IGeoCountry => ({
-	code: data.country_code,
-	flag: data.country_flag,
-	name: data.country_name,
-	regionType: data.country_region_type,
-});
-
-export const mapRegion = (
-	data: IDBDerbyEvent | IDBDerbyVenue,
-): IGeoRegion => ({
-	abbreviation: data.region_abbreviation,
-	country: data.region_country,
-	id: data.region_id,
-	name: data.region_name,
-});

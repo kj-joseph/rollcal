@@ -1,5 +1,5 @@
 import { ISearchObject } from "interfaces/event";
-import { IDerbyFeature } from "interfaces/feature";
+import { IDerbyFeatureType } from "interfaces/feature";
 import { IGeoCountry } from "interfaces/geo";
 import { IPageTitle, IProps, IReduxActions, IReduxActionType } from "interfaces/redux";
 import { ITimeZone } from "interfaces/time";
@@ -16,10 +16,8 @@ const mapStateToProps = (reduxState: IProps): IProps => {
 const mapDispatchToProps = (dispatch: Dispatch<IReduxActionType>): IReduxActions => {
 	return {
 		clearUserInfo: () => dispatch(reduxActions.clearUserInfo()),
-		saveDataDerbyTypes: (data: IDerbyFeature[]) => dispatch(reduxActions.saveDataDerbyTypes(data)),
-		saveDataGeography: (data: IGeoCountry[]) => dispatch(reduxActions.saveDataGeography(data)),
-		saveDataSanctions: (data: IDerbyFeature[]) => dispatch(reduxActions.saveDataSanctions(data)),
-		saveDataTracks: (data: IDerbyFeature[]) => dispatch(reduxActions.saveDataTracks(data)),
+		saveCountryList: (data: IGeoCountry[]) => dispatch(reduxActions.saveCountryList(data)),
+		saveFeatureLists: (data: IDerbyFeatureType[]) => dispatch(reduxActions.saveFeatureLists(data)),
 		saveLastSearch: (search: ISearchObject) => dispatch(reduxActions.saveLastSearch(search)),
 		saveRolesList: (data: IUserRole[]) => dispatch(reduxActions.saveRolesList(data)),
 		saveTimeZones: (data: ITimeZone[]) => dispatch(reduxActions.saveTimeZones(data)),

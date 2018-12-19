@@ -14,6 +14,11 @@ export interface IDBGeoRegion {
 	region_abbreviation: string;
 }
 
+export interface IGeocode {
+	lat: number;
+	lng: number;
+}
+
 export interface IGeoCountry {
 	code: string;
 	disabled?: boolean;

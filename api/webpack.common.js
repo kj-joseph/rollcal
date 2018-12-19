@@ -13,7 +13,7 @@ module.exports = () => {
 		resolve: {
 			modules: [
 				src_dir,
-				"node_modules",
+				"node_modules"
 			],
 			extensions: [".ts", ".js", ".json"]
 		},
@@ -26,12 +26,12 @@ module.exports = () => {
 			{
 				test: /\.jsx?/,
 				include: src_dir,
-				loader: "babel-loader",
+				loader: "babel-loader"
 			},
 			{
 				test: /\.tsx?/,
 				include: src_dir,
-				loader: "babel-loader",
+				loader: "babel-loader"
 			},
 			],
 		},

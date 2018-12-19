@@ -2,19 +2,15 @@ import React from "react";
 
 import FeatureIcon from "components/featureIcon";
 
-import { IDerbyFeature } from "interfaces/feature";
+import { IDerbyFeatureType } from "interfaces/feature";
 
-interface IFeatureData {
-	items: IDerbyFeature[];
-	label?: string | {
-		plural: string,
-		singular: string,
-	};
-	type: string;
+interface IFeatureLabels {
+	[key: string]: string[];
 }
 
 interface IFeatureSetProps {
-	data: IFeatureData[];
+	data: IDerbyFeatureType[];
+	labels: IFeatureLabels | boolean;
 	includeEmpty: boolean;
 	selected?: string[];
 	toggle?: (event: React.MouseEvent<any>) => void;
@@ -22,12 +18,14 @@ interface IFeatureSetProps {
 
 interface IFeatureSetDefaultProps {
 	includeEmpty: boolean;
+	labels: boolean;
 }
 
 export default class FeatureIconSet extends React.Component<IFeatureSetProps> {
 
 	static defaultProps: IFeatureSetDefaultProps = {
 		includeEmpty: false,
+		labels: true,
 	};
 
 	constructor(props: IFeatureSetProps) {
@@ -44,40 +42,40 @@ export default class FeatureIconSet extends React.Component<IFeatureSetProps> {
 
 					{this.props.data.map((featureGroup) => (
 
-						featureGroup.items.length || this.props.includeEmpty ?
+						featureGroup.features.length || this.props.includeEmpty ?
 
-							<span className="featureIconGroup" key={featureGroup.type}>
+							<span className="featureIconGroup" key={featureGroup.code}>
 
-								{featureGroup.label ?
+								{this.props.labels === true
+									|| (typeof this.props.labels === "object"
+										&& this.props.labels[featureGroup.code]
+										&& this.props.labels[featureGroup.code].length) ?
 
 									<span className="label">
-										{typeof featureGroup.label === "string" ?
-											featureGroup.label
-										: featureGroup.label.singular && featureGroup.label.plural ?
-											featureGroup.items.length === 1 ?
-												featureGroup.label.singular
-												: featureGroup.label.plural
-											: featureGroup.label.singular ?
-												featureGroup.label.singular
-											: featureGroup.label.plural ?
-												featureGroup.label.plural
-											: null
+										{
+											this.props.labels === true ?
+												featureGroup.features.length === 1 ?
+													featureGroup.singular
+												: featureGroup.plural
+											:
+												featureGroup.features.length > 1
+													&& this.props.labels[featureGroup.code][1] ?
+													this.props.labels[featureGroup.code][1]
+												: this.props.labels[featureGroup.code][0]
 										}
-
-
 									</span>
 
 								: null}
 
-								{featureGroup.items.map((item) => (
+								{featureGroup.features.map((item) => (
 
 									<FeatureIcon
 										key={item.id}
 										feature={item}
 										selected={this.props.selected && this.props.toggle ?
-											this.props.selected.indexOf(`${featureGroup.type}-${item.id}`) > -1 : false}
+											this.props.selected.indexOf(`${featureGroup.code}-${item.id}`) > -1 : false}
 										toggle={this.props.toggle || null}
-										type={featureGroup.type}
+										type={featureGroup.code}
 									/>
 
 								))}

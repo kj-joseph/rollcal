@@ -84,11 +84,11 @@ export default class EditUser extends RCComponent<IProps> {
 			this.props.history.push("/dashboard");
 
 		} else if (window.location.pathname !== this.state.path
-			|| this.props.loggedInUserId !== this.state.userId ) {
+			|| this.props.user.id !== this.state.userId ) {
 
 			this.setState({
 				path: window.location.pathname,
-				userId: this.props.loggedInUserId,
+				userId: this.props.user.id,
 			});
 
 			this.loadData();
@@ -318,16 +318,16 @@ export default class EditUser extends RCComponent<IProps> {
 			.then((userData: IUserInfo) => {
 
 				this.setState({
-					editUserEmail: userData.userEmail,
-					editUserId: userData.userId,
-					editUserName: userData.userName,
+					editUserEmail: userData.email,
+					editUserId: userData.id,
+					editUserName: userData.name,
 					editUserStatus: {
-						label: userData.userStatus,
-						value: userData.userStatus,
+						label: userData.status,
+						value: userData.status,
 					},
 				});
 
-				return userData.userRoles;
+				return userData.roles;
 
 			})
 			.then((userRoles) => filterUserRoles(userRoles))
@@ -348,6 +348,8 @@ export default class EditUser extends RCComponent<IProps> {
 
 			})
 			.catch((error) => {
+
+				console.error(error);
 
 				this.setState({
 					dataError: true,

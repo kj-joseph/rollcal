@@ -1,24 +1,22 @@
 import { Request, Response, Router } from "express";
-import multer from "multer";
 import { MysqlError } from "mysql";
 
-import { IDBVenueAddress, IGeocode, IRequestWithSession } from "interfaces";
+import { IDBDerbyVenue, IDerbyVenue } from "interfaces/venue";
 
-import { checkSession } from "lib/checkSession";
-import { sendChangeApprovalEmail, sendChangeRejectionEmail } from "lib/email";
-import { getGeocode } from "lib/googleMaps";
+import { dbArray } from "lib/db";
+
+import { mapVenue } from "mapping/venueMaps";
 
 const router = Router();
-const upload = multer();
 
 
-router.get("/getVenues", (req: Request, res: Response) => {
+router.get("/", (req: Request, res: Response) => {
 
 	res.locals.connection
 		.query(req.query.user ?
-			`call getVenuesByUser(${res.locals.connection.escape(req.query.user)})`
+			`call getVenuesByUsder(${res.locals.connection.escape(req.query.user)})`
 			: "call getAllVenues()",
-		(error: MysqlError, results: any) => {
+		(error: MysqlError, response: any) => {
 
 			if (error) {
 				console.error(error);
@@ -28,242 +26,27 @@ router.get("/getVenues", (req: Request, res: Response) => {
 
 			} else {
 
-				res.locals.connection.end();
-				res.status(200).json(results[0].map((row: {}) => ({...row})));
+				const venueData: IDBDerbyVenue[] = dbArray(response[0]);
 
-			}
-
-		});
-});
-
-
-router.get("/getVenueDetails/:id", (req: Request, res: Response) => {
-
-	res.locals.connection
-		.query(`call getVenueDetails(${res.locals.connection.escape(req.params.id)})`,
-		(error: MysqlError, results: any) => {
-
-			if (error) {
-				console.error(error);
-
-				res.locals.connection.end();
-				res.status(500).send();
-
-			} else {
-
-				res.locals.connection.end();
-				res.status(200).json(results[0].map((row: {}) => ({...row}))[0]);
-
-			}
-
-		});
-});
-
-
-router.put("/saveChanges", upload.array(), checkSession("user"), (req: IRequestWithSession, res: Response) => {
-
-	res.locals.connection
-		.query(`call saveVenueChanges(
-				${res.locals.connection.escape(req.session.user.id)},
-				${res.locals.connection.escape(req.body.id)},
-				${res.locals.connection.escape(req.body.changeObject)}
-			)`,
-
-			(error: MysqlError, results: any) => {
-				if (error) {
-					console.error(error);
+				if (!venueData || !venueData.length) {
 
 					res.locals.connection.end();
-					res.status(500).send();
+					res.status(205).send();
 
 				} else {
 
-					res.locals.connection.end();
-					res.status(200).send();
-
-				}
-			});
-
-});
-
-
-router.get("/getChangeList", checkSession("reviewer"), (req: IRequestWithSession, res: Response) => {
-
-	res.locals.connection
-		.query(`call getVenueChangeList(${res.locals.connection.escape(req.session.user.id)})`,
-
-		(error: MysqlError, results: any) => {
-
-			if (error) {
-				console.error(error);
-
-				res.locals.connection.end();
-				res.status(500).send();
-
-			} else {
-
-				res.locals.connection.end();
-				res.status(200).json(results[0].map((row: {}) => ({...row})));
-
-			}
-		});
-
-});
-
-
-router.get("/getChange/:changeId", checkSession("reviewer"), (req: IRequestWithSession, res: Response) => {
-
-	res.locals.connection
-		.query(`call getVenueChange(
-			${res.locals.connection.escape(req.params.changeId)},
-			${res.locals.connection.escape(req.session.user.id)}
-			)`,
-
-		(error: MysqlError, results: any) => {
-
-			if (error) {
-				console.error(error);
-
-				res.locals.connection.end();
-				res.status(500).send();
-
-			} else {
-
-				res.locals.connection.end();
-				res.status(200).json(results[0].map((row: {}) => ({...row}))[0]);
-
-			}
-		});
-
-});
-
-
-router.post("/approveChange/:changeId", checkSession("reviewer"), (req: IRequestWithSession, res: Response) => {
-
-	res.locals.connection
-		.query(`call approveVenueChange(
-			${res.locals.connection.escape(req.params.changeId)},
-			${res.locals.connection.escape(req.session.user.id)}
-			)`,
-
-		(error: MysqlError, results: any) => {
-
-			if (error) {
-				console.error(error);
-
-				res.locals.connection.end();
-				res.status(500).send();
-
-			} else {
-
-				const returnedData = results[0].map((row: {}) => ({...row}))[0];
-
-				if (returnedData.error) {
-					console.error(returnedData.error);
+					const venueList: IDerbyVenue[] = venueData
+						.map((venue) =>
+							mapVenue(venue));
 
 					res.locals.connection.end();
-					res.status(500).send();
+					res.status(200).json(venueList);
 
-				} else {
-
-					const venue: IDBVenueAddress = results[1].map((row: {}) => ({...row}))[0];
-
-					getGeocode(
-						`${venue.venue_address1}, ${venue.venue_city}${
-							venue.region_abbreviation ? `, ${venue.region_abbreviation}` : ""
-						}${
-							venue.venue_postcode ? ` ${venue.venue_postcode}` : ""
-						}`,
-						venue.country_flag)
-						.then((geocode: IGeocode) => {
-
-							if (geocode) {
-
-								res.locals.connection
-									.query(`call saveVenueGeocode(
-										${res.locals.connection.escape(returnedData.venue_id)},
-										${res.locals.connection.escape(geocode.lat)},
-										${res.locals.connection.escape(geocode.lng)}
-										)`);
-
-							}
-
-						});
-
-					sendChangeApprovalEmail
-						(returnedData.email, returnedData.username, req.params.changeId, "venue", returnedData.isNew, returnedData.venue_name)
-						.then(() => {
-
-							res.locals.connection.end();
-							res.status(200).send({
-								success: true,
-								venueId: returnedData.venue_id,
-							});
-
-						}).catch((mailError: ErrorEventHandler) => {
-							console.error(mailError);
-
-							res.locals.connection.end();
-							res.status(500).send();
-
-						});
 
 				}
+
 			}
-		});
 
-});
-
-
-router.post("/rejectChange/:changeId", upload.array(), checkSession("reviewer"), (req: IRequestWithSession, res: Response) => {
-
-	res.locals.connection
-		.query(`call rejectVenueChange(
-			${res.locals.connection.escape(req.params.changeId)},
-			${res.locals.connection.escape(req.session.user.id)},
-			${res.locals.connection.escape(req.body.comment)}
-			)`,
-
-		(error: MysqlError, results: any) => {
-
-			if (error) {
-				console.error(error);
-
-				res.locals.connection.end();
-				res.status(500).send();
-
-			} else {
-
-				const returnedData = results[0].map((row: {}) => ({...row}))[0];
-
-				if (returnedData.error) {
-					console.error(returnedData.error);
-
-					res.locals.connection.end();
-					res.status(500).send();
-
-				} else {
-
-					sendChangeRejectionEmail
-						(returnedData.email, returnedData.username, req.params.changeId, "venue", returnedData.isNew, returnedData.venue_name, req.body.comment)
-						.then(() => {
-
-							res.locals.connection.end();
-							res.status(200).send({
-								success: true,
-								venueId: returnedData.venue_id,
-							});
-
-						}).catch((mailError: ErrorEventHandler) => {
-							console.error(mailError);
-
-							res.locals.connection.end();
-							res.status(500).send();
-
-						});
-
-				}
-			}
 		});
 
 });
