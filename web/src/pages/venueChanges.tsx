@@ -150,7 +150,9 @@ export default class VenueChanges extends RCComponent<IProps> {
 
 				this.setState({
 					loading: false,
-					venueChanges: mapVenueChangesToBoxList(changeList),
+					venueChanges: changeList.length ?
+						mapVenueChangesToBoxList(changeList)
+						: [],
 				});
 
 			})
