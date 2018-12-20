@@ -28,12 +28,21 @@ router.get("/", checkSession("reviewer"), (req: Request, res: Response) => {
 
 				const eventChangeData: IDBDerbyEventChange[] = dbArray(response[0]);
 
-				const eventChangeList = eventChangeData
-					.map((change) =>
-						mapEventChange(change));
+				if (!eventChangeData || !eventChangeData.length) {
 
-				res.locals.connection.end();
-				res.status(200).json(eventChangeList);
+					res.locals.connection.end();
+					res.status(205).send();
+
+				} else {
+
+					const eventChangeList = eventChangeData
+						.map((change) =>
+							mapEventChange(change));
+
+					res.locals.connection.end();
+					res.status(200).json(eventChangeList);
+
+				}
 
 			}
 		});

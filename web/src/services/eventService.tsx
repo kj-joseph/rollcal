@@ -173,27 +173,39 @@ export const loadEvents = (
 				const eventData: IDerbyEvent[] = response.data.events;
 				const total: number = response.data.total;
 
-				const eventResolution =
-					Promise.all(
-						eventData
-							.map((eventItem) =>
-								mapEventFeatures(eventItem)))
+				if (!eventData || !eventData.length) {
 
-						.then((eventList: IDerbyEvent[]) => {
+					resolve({
+						events: [],
+						search,
+						total: 0,
+					});
 
-							store.dispatch(actions.saveLastSearch(search));
+				} else {
 
-							resolve({
-								events: eventList,
-								search,
-								total,
+					const eventResolution =
+						Promise.all(
+							eventData
+								.map((eventItem) =>
+									mapEventFeatures(eventItem)))
+
+							.then((eventList: IDerbyEvent[]) => {
+
+								store.dispatch(actions.saveLastSearch(search));
+
+								resolve({
+									events: eventList,
+									search,
+									total,
+								});
+
 							});
 
-						});
+					onCancel(() => {
+						eventResolution.cancel();
+					});
 
-				onCancel(() => {
-					eventResolution.cancel();
-				});
+				}
 
 			})
 			.catch((error) =>
