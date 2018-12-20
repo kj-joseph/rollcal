@@ -839,12 +839,13 @@ export default class ReviewEventChange extends RCComponent<IProps> {
 
 									const [type ] = change.split("-");
 									const newFeature = findFeatureByString(change);
-									const newFeatureChange: IDerbyFeatureChange = {
-										name: newFeature.name,
-										status: "add",
-									};
 
 									if (newFeature) {
+
+										const newFeatureChange: IDerbyFeatureChange = {
+											name: newFeature.name,
+											status: "add",
+										};
 
 										const featureType = featuresLists
 											.filter((fType) =>

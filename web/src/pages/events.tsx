@@ -3,6 +3,7 @@ import React from "react";
 
 import { mapEventsToBoxList } from "services/boxListService";
 import { loadEvents } from "services/eventService";
+import { mapFeaturesFromText } from "services/featureService";
 import { searchEventsByString } from "services/searchService";
 import { formatDateRange } from "services/timeService";
 import { buildLocation } from "services/venueService";
@@ -10,6 +11,7 @@ import { buildLocation } from "services/venueService";
 import BoxList from "components/boxList";
 
 import { IDerbyEvent, ISearchObject } from "interfaces/event";
+import { IDerbyFeatureType } from "interfaces/feature";
 import { IProps } from "interfaces/redux";
 
 import moment from "moment";
@@ -17,6 +19,7 @@ import moment from "moment";
 interface IEventsState {
 	dataError: boolean;
 	eventList: IDerbyEvent[];
+	featuresSearched: IDerbyFeatureType[];
 	isSearch: string;
 	listItemsTotal: number;
 	listPageLength: number;
@@ -37,6 +40,7 @@ export default class Events extends RCComponent<IProps> {
 	state: IEventsState = {
 		dataError: false,
 		eventList: [],
+		featuresSearched: [],
 		isSearch: (this.props.match.params.startDate || window.location.pathname !== "/"),
 		listItemsTotal: 0,
 		listPageLength: this.props.listPageLength,
@@ -96,29 +100,32 @@ export default class Events extends RCComponent<IProps> {
 						{this.state.loading ?
 							""
 						:
-						<div className="searchDisplay">
+							<div className="searchDisplay">
 
-							<p><strong>Dates:</strong> {
-								formatDateRange({
-									end: this.state.searchObject.endDate ? moment(this.state.searchObject.endDate, "Y-MM-DD") : null,
-									start: this.state.searchObject.startDate ? moment(this.state.searchObject.startDate, "Y-MM-DD") : moment(),
-								}, "long")
-							}{this.state.searchObject.endDate ? "" : " – (all)"}</p>
+								{this.state.searchObject.startDate ?
 
-							{this.state.searchObject.address
-								&& this.state.searchObject.distance
-								&& this.state.searchObject.distanceUnits ?
+									<p><strong>Dates:</strong> {
+										formatDateRange({
+											end: this.state.searchObject.endDate ? moment(this.state.searchObject.endDate, "Y-MM-DD") : null,
+											start: this.state.searchObject.startDate ? moment(this.state.searchObject.startDate, "Y-MM-DD") : moment(),
+										}, "long")
+									}{this.state.searchObject.endDate ? "" : " – (all)"}</p>
 
-								<p><strong>Distance:</strong> {}{
-									`within ${Number(this.state.searchObject.distance).toLocaleString()
-										} ${this.state.searchObject.distanceUnits} of `}
-									<em className="searchAddress">{this.displaySearchAddress(this.state.searchObject.address)}</em>
-								</p>
+								: null}
 
-							:
+								{this.state.searchObject.address
+									&& this.state.searchObject.distance
+									&& this.state.searchObject.distanceUnits ?
 
-								<p><strong>Locations:</strong> {
-									this.state.searchObject.locations && this.state.searchObject.locations.length ?
+									<p><strong>Distance:</strong> {}{
+										`within ${Number(this.state.searchObject.distance).toLocaleString()
+											} ${this.state.searchObject.distanceUnits} of `}
+										<em className="searchAddress">{this.displaySearchAddress(this.state.searchObject.address)}</em>
+									</p>
+
+								: this.state.searchObject.locations && this.state.searchObject.locations.length ?
+
+									<p><strong>Locations:</strong> {
 										this.state.searchObject.locations
 											.sort((a, b) => a.name > b.name ? 1 : a.name < b.name ? -1 : 0)
 											.map((country) =>
@@ -130,30 +137,48 @@ export default class Events extends RCComponent<IProps> {
 															.join(", ")
 														})`
 													: ""}`).join(", ")
-									: "all"
-								}</p>
+									}</p>
 
-							}
-{/*
-							<p><strong>Derby Type{!this.state.searchObject.derbytypes || this.state.searchObject.derbytypes.length !== 1 ? "s" : ""}:</strong> {
-								this.state.searchObject.derbytypes && this.state.searchObject.derbytypes.length ?
-									this.state.searchObject.derbytypes.length === this.props.dataDerbyTypes.length ? "all"
-									: this.state.searchObject.derbytypes.map((derbytype) => derbytype.name).join(", ")
-								 : "all"}</p>
+								: null}
 
-							<p><strong>Sanction{!this.state.searchObject.sanctions || this.state.searchObject.sanctions.length !== 1 ? "s" : ""}:</strong> {
-								this.state.searchObject.sanctions && this.state.searchObject.sanctions.length ?
-									this.state.searchObject.sanctions.length === this.props.dataSanctions.length ? "all events with sanctioned games"
-									: this.state.searchObject.sanctions.map((sanction) => sanction.abbreviation).join(", ")
-								 : "all events (sanctioned or unsanctioned)"}</p>
+								{this.state.featuresSearched && this.state.featuresSearched.length ?
 
-							<p><strong>Track{!this.state.searchObject.tracks || this.state.searchObject.tracks.length !== 1 ? "s" : ""}:</strong> {
-								this.state.searchObject.tracks && this.state.searchObject.tracks.length ?
-									this.state.searchObject.tracks.length === this.props.dataTracks.length ? "all"
-									: this.state.searchObject.tracks.map((track) => track.name).join(", ")
-								 : "all"}</p>
-*/}
-						</div>
+									this.state.featuresSearched
+										.map((type) => (
+
+											type.features && type.features.length ?
+
+												<p key={type.code}>
+													<strong>
+														{type.features.length === 1 ?
+															type.singular
+														: type.plural}:
+													</strong>
+
+													{type.features
+														.map((feature) => {
+
+															switch (type.code) {
+
+																case "sanction":
+																	return feature.abbreviation;
+																	break;
+
+																default:
+																	return feature.name;
+																	break;
+															}
+
+														}).join(", ")}
+												</p>
+
+											: null
+
+										))
+
+								: null}
+
+							</div>
 						}
 					</>
 				:
@@ -234,15 +259,43 @@ export default class Events extends RCComponent<IProps> {
 			searchEventsByString(searchString, this.state.listPageLength));
 
 		searchEvents
-			.then(({events, total, search}) => {
+			.then((data: {
+					events: IDerbyEvent,
+					total: number,
+					search: ISearchObject}) => {
 
-				this.setState({
-					eventList: events,
-					listItemsTotal: total,
-					loading: false,
-					loadingMore: false,
-					searchObject: search,
-				});
+				const {events, total, search} = data;
+
+				const mapFeatures = this.addPromise(
+					mapFeaturesFromText(search.features));
+
+				mapFeatures
+					.then((featuresSearched) => {
+
+						this.setState({
+							eventList: events,
+							featuresSearched,
+							listItemsTotal: total,
+							loading: false,
+							loadingMore: false,
+							searchObject: search,
+						});
+
+					})
+					.catch((error) => {
+
+						console.error(error);
+
+						this.setState({
+							dataError: true,
+							loading: false,
+							loadingMore: false,
+						});
+
+					})
+					.finally(mapFeatures.clear);
+
+
 
 			})
 			.catch((error) => {

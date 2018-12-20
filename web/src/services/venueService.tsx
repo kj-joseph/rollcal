@@ -61,7 +61,16 @@ export const getVenueDetails = (
 			.then((response) => {
 
 				const venueData: IDerbyVenue = response.data;
-				resolve(venueData);
+
+				if (venueData && venueData.id.toString() === id.toString()) {
+
+					resolve(venueData);
+
+				} else {
+
+					reject(new Error("Venue not found"));
+
+				}
 
 			})
 			.catch((error) =>

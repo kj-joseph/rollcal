@@ -81,7 +81,10 @@ const getSearchObjectFromUrl = (
 				case "sanctions":
 				case "tracks":
 
-					searchObject.features.push(`${label.substring(0, label.length - 1)}-${value.split(",")}`);
+					searchObject.features = searchObject.features.concat(
+						value.split(",")
+							.map((feature) =>
+								`${label.substring(0, label.length - 1)}-${feature}`));
 
 					break;
 
