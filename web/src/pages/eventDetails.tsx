@@ -184,7 +184,7 @@ export default class EventDetails extends RCComponent<IProps> {
 									: null}
 								</div>
 
-								{this.state.eventData.days && this.state.eventData.days.length ?
+								{this.state.eventData.days && this.state.eventData.days.length > 1 ?
 
 									<div className="eventDays">
 										<h4>Days</h4>
@@ -209,9 +209,9 @@ export default class EventDetails extends RCComponent<IProps> {
 
 									<div className="eventTime">
 										<p>
-											<strong>Start time:</strong> {this.state.eventData.days[0].startTime}
+											<strong>Start time:</strong> {moment(this.state.eventData.days[0].startTime, "HH:mm:00").format("h:mm a")}
 											{this.state.eventData.days[0].doorsTime
-												? ` (Doors: ${this.state.eventData.days[0].doorsTime})` : null}
+												? ` (Doors: ${moment(this.state.eventData.days[0].doorsTime, "HH:mm:00").format("h:mm a")})` : null}
 										</p>
 									</div>
 
