@@ -2,7 +2,7 @@ import actions from "redux/actions";
 import store from "redux/store";
 import { callApi } from "services/apiService";
 
-import { getFeatures, mapFeaturesFromText } from "services/featureService";
+import { getFeatures, mapFeaturesFromText, mapFeaturesToArrays } from "services/featureService";
 import { buildLocation } from "services/venueService";
 
 import { IDerbyEvent, ISearchObject } from "interfaces/event";
@@ -86,18 +86,31 @@ export const loadEvents = (
 		const loadData = getFeatures()
 			.then(() => {
 
+				let featureSearch: string = "";
+
+				if (search.features && search.features.length) {
+
+					const featureArrays = mapFeaturesToArrays(search.features);
+
+					for (const type in featureArrays) {
+						if (featureArrays.hasOwnProperty(type)) {
+
+							featureSearch +=
+								(featureSearch ? "." : "")
+								+ featureArrays[type].join(",");
+
+						}
+					}
+
+				}
+
 				const apiSearch = {
 					address: undefined as string,
 					count,
 					country: undefined as string,
 					distance: undefined as number,
 					endDate: search.endDate,
-					features: search.features && search.features.length ?
-						search.features
-							.map((feature) =>
-								feature.split("-")[1])
-							.join(",")
-						: undefined,
+					features: featureSearch || undefined,
 					locations: search.locations ? search.locations.map((country) =>
 						`${country.code}${country.regions ?
 							`-${country.regions.map((region) => region.id).join(" ")}`

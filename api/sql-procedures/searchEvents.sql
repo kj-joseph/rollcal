@@ -32,10 +32,30 @@ if endDate != "" then
 		"  and eventday_datetime <= ", quote(concat(endDate, " 00:00:00.000")));
 end if;
 
+set @counter = 0;
+
 if features != "" then
-	set @from = concat(@from, ", event_features ef");
-	set @where = concat(@where,
-		" and ef.event = event_id and ef.feature in (", features, ")");
+	set @temp_features = features;
+
+	feat: loop
+		if length(@temp_features) = 0 then
+			leave feat;
+		end if;
+
+		set @featureSet = substring_index(@temp_features, ".", 1);
+
+		set @from = concat(@from, ", event_features ef", @counter);
+		set @where = concat(@where,
+			" and ef", @counter, ".event = event_id");
+		set @where = concat(@where,
+			" and ef", @counter, ".feature in (", @featureSet, ")");
+
+		set @temp_features = substring(@temp_features, length(@featureSet) + 2);
+
+		set @counter = @counter + 1;
+
+	end loop;
+
 end if;
 
 if lat and lng and distance then
@@ -97,7 +117,9 @@ set @query = concat(
 	join (select eventday_event, min(eventday_datetime) event_first_day, max(eventday_datetime) event_last_day from eventdays group by eventday_event) ed
 		on ed.eventday_event = eventlist.event_id
 
-	left join (select ef.event as id, group_concat(ft.feature_type_code, '-', f.feature_id) as list
+	left join (select ef.event as id,
+			group_concat(ft.feature_type_code, '-', f.feature_id
+				order by ft.feature_type_code, f.feature_id) as list
 	    	from features f, feature_types ft, event_features ef
 	     	where ef.feature = f.feature_id
 	     		and ft.feature_type_id = f.feature_type
@@ -119,5 +141,7 @@ execute stmt;
 deallocate prepare stmt;
 
 select @eventCount as eventCount;
+
+select @query as query;
 
 END

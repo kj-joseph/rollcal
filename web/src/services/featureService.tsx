@@ -128,14 +128,22 @@ export const mapFeaturesFromText = (
 
 	new Promise((resolve, reject, onCancel) => {
 
-		const featureMap =
-			mapFeatures(mapFeaturesToArrays(featureStrings))
-				.then((features) =>
-					resolve(features));
+		if (!featureStrings || !featureStrings.length) {
 
-		onCancel(() => {
-			featureMap.cancel();
-		});
+			resolve();
+
+		} else {
+
+			const featureMap =
+				mapFeatures(mapFeaturesToArrays(featureStrings))
+					.then((features) =>
+						resolve(features));
+
+			onCancel(() => {
+				featureMap.cancel();
+			});
+
+		}
 
 	});
 
