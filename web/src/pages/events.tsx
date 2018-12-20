@@ -26,12 +26,6 @@ interface IEventsState {
 	loading: boolean;
 	loadingMore: boolean;
 	path: string;
-	searchDisplayDates: string;
-	searchDisplayDerbyTypes: string;
-	searchDisplayDistance: string;
-	searchDisplayLocations: string;
-	searchDisplaySanctions: string;
-	searchDisplayTracks: string;
 	searchObject: ISearchObject;
 }
 
@@ -47,12 +41,6 @@ export default class Events extends RCComponent<IProps> {
 		loading: true,
 		loadingMore: false,
 		path: null,
-		searchDisplayDates: null,
-		searchDisplayDerbyTypes: null,
-		searchDisplayDistance: null,
-		searchDisplayLocations: null,
-		searchDisplaySanctions: null,
-		searchDisplayTracks: null,
 		searchObject: {} as ISearchObject,
 	};
 
