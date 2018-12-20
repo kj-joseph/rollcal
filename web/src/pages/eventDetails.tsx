@@ -263,7 +263,7 @@ export default class EventDetails extends RCComponent<IProps> {
 	loadData(): void {
 
 		const getEventData = this.addPromise(
-			getEventDetails(Number(this.props.match.params.eventId)));
+			getEventDetails(this.props.match.params.eventId));
 
 		getEventData
 			.then((event: IDerbyEvent) => {

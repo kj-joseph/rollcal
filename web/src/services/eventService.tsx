@@ -46,7 +46,7 @@ export const getEventDetails = (
 
 				const eventData: IDerbyEvent = response.data;
 
-				if (eventData && eventData.id === id) {
+				if (eventData && eventData.id.toString() === id.toString()) {
 
 					return mapEventFeatures(eventData);
 
