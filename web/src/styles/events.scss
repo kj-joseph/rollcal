@@ -6,10 +6,23 @@
 		line-height: 1.3em;
 		margin-bottom: 0;
 
+		.searchAddress {
+			display: block;
+			color: $blue;
+		}
+
 		strong {
 			margin-right: .2em;
 		}
 
+	}
+
+}
+
+@include respond-to("small") {
+
+	.searchDisplay p .searchAddress {
+		display: inline;
 	}
 
 }

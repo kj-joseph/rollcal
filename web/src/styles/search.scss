@@ -2,6 +2,36 @@
 
 	.searchDatesLocations {
 		min-width: 240px;
+		margin-bottom: 3em;
+
+		.locationTabs {
+
+			span {
+				margin-left: 1em;
+				cursor: pointer;
+
+				&.activeTab {
+					color: $pink;
+					font-weight: bold;
+					cursor: default;
+				}
+			}
+
+		}
+
+		.distanceUnits {
+
+			span {
+				cursor: pointer;
+
+				&.activeTab {
+					color: $pink;
+					font-weight: bold;
+					cursor: default;
+				}
+			}
+
+		}
 
 		.searchDates {
 			min-width: 240px;
@@ -22,107 +52,109 @@
 
 		}
 
+		.locationButton {
+			margin: .2em 0 .8em;
+
+			button:disabled {
+				opacity: 0;
+			}
+		}
+
 		.searchLocations {
 			min-width: 240px;
 			max-width: 400px;
-			margin-bottom: 2em;
 
-			.searchSelectCountries {
-				z-index: 65
-			}
+			.selectedLocationsContainer {
+				margin-top: 1em;
+				padding-bottom: 10px;
+				border: 1px solid $pink;
 
-			.searchSelectRegions {
-				z-index: 62
-			}
-
-			.selectedLocationsHeader {
-				font-size: 1.4rem;
-				margin: 1.5em 0 .5em;
-			}
-
-			.selectChoiceText {
-				font-size: 1.4rem;
-				margin-bottom: .3em;
-			}
-
-			.locationButton {
-				margin: .2em 0 .8em;
-
-				button:disabled {
-					opacity: 0;
+				.selectedLocationsHeader {
+					font-size: 1.4rem;
+					color: $white;
+					font-weight: bold;
+					margin-bottom: 10px;
+					padding: 3px 10px;
+					background: $pink;
 				}
-			}
 
-			ul.selectedLocations {
+				ul.selectedLocations {
+					margin: 0 10px;
 
-				li {
-					margin-bottom: .6em;
+					li {
+						margin-bottom: .6em;
 
-					ul {
-						margin: .2em 0 0 1em;
-
-						li {
-							margin-bottom: .2em;
+						&:last-child {
+							margin-bottom: 0;
 						}
+
+						ul {
+							margin: .2em 0 0 1em;
+
+							li {
+								margin-bottom: .2em;
+							}
+						}
+
 					}
 
-				}
-
-				.removeGeoButton {
-					display: inline;
-					margin-left: .75em;
-
-					div {
+					.removeGeoButton {
 						display: inline;
-					}
+						margin-left: .75em;
 
-					svg {
-						fill: $blue;
-						height: 1.2em;
-						margin-bottom: .2em;
-						vertical-align: middle;
+						div {
+							display: inline;
+						}
 
-						&:hover {
-							fill: $pink;
+						svg {
+							fill: $blue;
+							height: 1.2em;
+							margin-bottom: .2em;
+							vertical-align: middle;
+
+							&:hover {
+								fill: $pink;
+							}
 						}
 					}
 				}
 			}
+
+
 		}
 
 	}
 
-}
+	.featureIcons {
+		margin-bottom: 2em;
 
-.derbyFeatures {
-	margin-bottom: 2em;
-
-	.eventIconGroup {
-		display: block;
-		margin-bottom: 1em;
-
-		.label {
+		.featureIconGroup {
 			display: block;
-			color: $blue;
-			font-weight: bold;
-			margin-bottom: .5em;
+			margin-bottom: 1em;
+
+			.label {
+				display: block;
+				font-weight: bold;
+				margin-bottom: .5em;
+			}
+
 		}
 
-	}
+		.featureIcon, .featureIcon div {
+			display: inline;
+		}
 
-	.featureIcon, .featureIcon div {
-		display: inline;
-	}
+		svg {
+			opacity: .4;
+			height: 60px;
+			margin-right: 10px;
+			cursor: pointer;
+		}
 
-	svg {
-		opacity: .4;
-		height: 60px;
-		margin-right: 10px;
-		cursor: pointer;
-	}
+		.featureIcon.selected svg {
+			opacity: 1;
+		}
 
-	.featureIcon.selected svg {
-		opacity: 1;
 	}
 
 }
@@ -130,7 +162,7 @@
 
 @include respond-to("xsmall") {
 
-	.derbyFeatures {
+	.searchForm .featureIcons {
 		svg {
 			height: 75px;
 			margin: 0 5px;
@@ -141,7 +173,7 @@
 
 @include respond-to("small") {
 
-	.derbyFeatures {
+	.searchForm .featureIcons {
 		svg {
 			height: 90px;
 		}
@@ -160,11 +192,11 @@
 			margin-right: 40px;
 		}
 
-	}
+		.featureIcons {
+			margin-top: .3em;
+			width: calc(50%);
+		}
 
-	.derbyFeatures {
-		margin-top: .3em;
-		width: calc(50%);
 	}
 
 }

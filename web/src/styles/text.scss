@@ -18,7 +18,7 @@ a:hover {
 }
 
 .flag-icon {
-	margin-left: .3em;
+	margin-left: .5em;
 }
 
 h1 {
@@ -61,6 +61,11 @@ p {
 	line-height: 1.5em;
 	margin-bottom: 1.2em;
 
+	&.info {
+		font-size: .9em;
+		color: $blue;
+	}
+
 }
 
 .callout {
@@ -74,7 +79,8 @@ p {
 
 		&.header {
 			color: $white;
-			font-weight: strong;
+			font-weight: bold;
+			text-transform: uppercase;
 			margin: 0 0 .2em;
 			padding: 0 6px 2px;
 			background: $pink;

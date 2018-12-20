@@ -14,6 +14,7 @@ module.exports = env => {
 		plugins: [
 			new webpack.DefinePlugin({
 				"process.env.FEEDBACK_EMAIL": JSON.stringify(""),
+				"process.env.GOOGLE_GEOCODE_KEY": JSON.stringify(""),
 				"process.env.ROLLCAL_API_PORT": JSON.stringify("55022"),
 				"process.env.ROLLCAL_ALLOW_ORIGIN": JSON.stringify("http://localhost:3000"),
 				"process.env.ROLLCAL_DEV_DBHOST": JSON.stringify(""),

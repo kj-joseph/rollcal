@@ -8,12 +8,23 @@ import cors from "cors";
 const logger = require("morgan");
 const path = require("path");
 
-import adminRouter from "routes/admin";
-import contactRouter from "routes/contact";
-import eventFeaturesRouter from "routes/eventFeatures";
+import emailRouter from "routes/email";
+import eventRouter from "routes/event";
+import eventChangeRouter from "routes/eventChange";
+import eventChangesRouter from "routes/eventChanges";
 import eventsRouter from "routes/events";
+import featuresRouter from "routes/features";
+import forgotPasswordRouter from "routes/forgotPassword";
 import geographyRouter from "routes/geography";
+import rolesRouter from "routes/roles";
+import sessionRouter from "routes/session";
+import timezonesRouter from "routes/timezones";
 import userRouter from "routes/user";
+import usersRouter from "routes/users";
+import validationRouter from "routes/validation";
+import venueRouter from "routes/venue";
+import venueChangeRouter from "routes/venueChange";
+import venueChangesRouter from "routes/venueChanges";
 import venuesRouter from "routes/venues";
 
 import { createPool } from "mysql";
@@ -80,13 +91,36 @@ if ((process.env.ROLLCAL_DEV_DBHOST || process.env.ROLLCAL_STAGE_DBHOST || proce
 		store: sessionStore,
 	}));
 
-	app.use("/admin", adminRouter);
-	app.use("/contact", contactRouter);
-	app.use("/eventFeatures", eventFeaturesRouter);
+	app.use("/email", emailRouter);
+
+	app.use("/features", featuresRouter);
+
+	app.use("/event", eventRouter);
 	app.use("/events", eventsRouter);
+
+	app.use("/event-change", eventChangeRouter);
+	app.use("/event-changes", eventChangesRouter);
+
 	app.use("/geography", geographyRouter);
+
+	app.use("/roles", rolesRouter);
+
+	app.use("/timezones", timezonesRouter);
+
+	app.use("/session", sessionRouter);
+
 	app.use("/user", userRouter);
+	app.use("/users", usersRouter);
+
+	app.use("/forgot-password", forgotPasswordRouter);
+
+	app.use("/validation", validationRouter);
+
+	app.use("/venue", venueRouter);
 	app.use("/venues", venuesRouter);
+
+	app.use("/venue-change", venueChangeRouter);
+	app.use("/venue-changes", venueChangesRouter);
 
 } else {
 	console.error("ERROR: Environment variables missing.");

@@ -1,5 +1,7 @@
-import { IDerbySanction, IDerbyTrack, IDerbyType } from "interfaces/feature";
-import { IGeoData, ITimeZone } from "interfaces/geo";
+import { ISearchObject } from "interfaces/event";
+import { IDerbyFeatureType } from "interfaces/feature";
+import { IGeoCountry } from "interfaces/geo";
+import { ITimeZone } from "interfaces/time";
 import { IUserInfo, IUserRole } from "interfaces/user";
 
 import { RouteComponentProps } from "react-router";
@@ -18,11 +20,9 @@ export interface IProps extends IReduxActions, IReduxStore, RouteComponentProps<
 
 export interface IReduxActions {
 	clearUserInfo: () => IReduxActionType;
-	saveDataDerbyTypes: (data: IDerbyType[]) => IReduxActionType;
-	saveDataGeography: (data: IGeoData) => IReduxActionType;
-	saveDataSanctions: (data: IDerbySanction[]) => IReduxActionType;
-	saveDataTracks: (data: IDerbyTrack[]) => IReduxActionType;
-	saveLastSearch: (search: string) => IReduxActionType;
+	saveCountryList: (data: IGeoCountry[]) => IReduxActionType;
+	saveFeatureLists: (data: IDerbyFeatureType[]) => IReduxActionType;
+	saveLastSearch: (search: ISearchObject) => IReduxActionType;
 	saveRolesList: (roles: IUserRole[]) => IReduxActionType;
 	saveTimeZones: (data: ITimeZone[]) => IReduxActionType;
 	setLoginModalState: (loginModalState: boolean) => IReduxActionType;
@@ -38,22 +38,17 @@ export interface IReduxActionType {
 
 export interface IReduxStore {
 	apiLocation: string;
-	dataDerbyTypes: IDerbyType[];
-	dataGeography: IGeoData;
-	dataSanctions: IDerbySanction[];
-	dataTracks: IDerbyTrack[];
-	lastSearch: string;
-	listPageLength: 9;
-	loggedIn: false;
-	loggedInUserEmail: string;
-	loggedInUserId: number;
-	loggedInUserName: string;
-	loggedInUserRoles: string[];
+	countryList: IGeoCountry[];
+	featureLists: IDerbyFeatureType[];
+	kmConverter: number;
+	lastSearch: ISearchObject;
+	listPageLength: number;
+	loggedIn: boolean;
 	loginModalOpen: false;
-	page: "home";
 	pageTitle: IPageTitle;
 	rolesList: IUserRole[];
-	sessionInitialized: false;
+	sessionInitialized: boolean;
 	timeZones: ITimeZone[];
+	user: IUserInfo;
 	userStatusList: string[];
 }

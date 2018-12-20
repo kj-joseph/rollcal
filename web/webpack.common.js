@@ -26,7 +26,7 @@ module.exports = {
 	plugins: [
 		new HtmlWebpackPlugin({
 			title: "Roll-Cal - Roller derby event calendar",
-			template: "src/index.html",
+			template: "src/static/index.html",
 			minify: false,
 		})
 	],
@@ -39,6 +39,16 @@ module.exports = {
 					loader: "file-loader",
 					options: {
 						name: "[name]",
+						outputPath: "/",
+					}
+				}
+			},
+			{
+				test: /robots\.txt$/,
+				use: {
+					loader: "file-loader",
+					options: {
+						name: "[name].[ext]",
 						outputPath: "/",
 					}
 				}

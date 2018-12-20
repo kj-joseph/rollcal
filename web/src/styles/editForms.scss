@@ -7,71 +7,132 @@
 
 	}
 
-	.derbyFeatures {
-		width: auto;
+	.featureIcons {
+		margin-bottom: 2em;
 
-		.eventIconGroup .label {
-			font-weight: normal;
+		.featureIconGroup {
+			display: block;
+			margin-bottom: 1em;
+
+			.label {
+				display: block;
+				font-weight: bold;
+				margin-bottom: .5em;
+			}
+
 		}
-	}
 
-}
+		.featureIcon, .featureIcon div {
+			display: inline;
+		}
 
-h3.formSectionHeader {
-	display: inline-block;
-	position: relative;
-	font-size: 2rem;
-	cursor: pointer;
-	margin-bottom: 1em;
-	padding-left: 25px;
+		svg {
+			opacity: .4;
+			height: 60px;
+			margin-right: 10px;
+			cursor: pointer;
+		}
 
-	span {
-		text-decoration: underline;
-	}
+		.featureIcon.selected svg {
+			opacity: 1;
+		}
 
-	&.noOpener {
-		cursor: auto;
-		padding-left: 0;
-	}
-
-	&.closed::before {
-		position: absolute;
-		top: 0;
-		left: 4px;
-		width: 0;
-		height: 0;
-		border-top: 9px solid transparent;
-		border-bottom: 9px solid transparent;
-		border-left: 9px solid $blue;
-		content: "";
-		margin-right: .5em;
-	}
-
-	&.open::before {
-		position: absolute;
-		top: .35em;
-		left: 0;
-		width: 0;
-		height: 0;
-		border-left: 9px solid transparent;
-		border-right: 9px solid transparent;
-		border-top: 9px solid $blue;
-		content: "";
-		margin-right: .5em;
-	}
-
-	&.ok::after {
-		content: "\2713";
-		color: $pink;
-		margin-left: .5em;
 	}
 
 }
 
 .formSection {
 
+	position: relative;
+	z-index: 45;
+
+	&:nth-child(1) {
+		z-index: 44;
+	}
+
+	&:nth-child(2) {
+		z-index: 43;
+	}
+
+	&:nth-child(3) {
+		z-index: 42;
+	}
+
+	&:nth-child(4) {
+		z-index: 41;
+	}
+
+	.formSectionHeader {
+		display: inline-block;
+		position: relative;
+		font-size: 2rem;
+		cursor: pointer;
+		margin-bottom: 1em;
+		padding-left: 25px;
+
+		span {
+			text-decoration: underline;
+		}
+
+	}
+
+	&.open {
+
+		.formSectionHeader::before {
+			position: absolute;
+			top: .35em;
+			left: 0;
+			width: 0;
+			height: 0;
+			border-left: 9px solid transparent;
+			border-right: 9px solid transparent;
+			border-top: 9px solid $blue;
+			content: "";
+			margin-right: .5em;
+		}
+
+	}
+
 	&.closed {
-		display: none;
+
+		.formSectionHeader::before {
+			position: absolute;
+			top: 0;
+			left: 4px;
+			width: 0;
+			height: 0;
+			border-top: 9px solid transparent;
+			border-bottom: 9px solid transparent;
+			border-left: 9px solid $blue;
+			content: "";
+			margin-right: .5em;
+		}
+
+		.formSectionContent {
+
+			display: none;
+
+		}
+
+	}
+
+	&.ok {
+
+		.formSectionHeader::after {
+			content: "\2713";
+			color: $pink;
+			margin-left: .5em;
+		}
+
+	}
+
+	&.noOpener {
+
+		.formSectionHeader {
+			cursor: auto;
+			padding-left: 0;
+		}
+
 	}
 
 	margin-bottom: 1.5em;
@@ -82,14 +143,6 @@ h3.formSectionHeader {
 
 	.inputGroup .Select {
 		margin-bottom: 0;
-	}
-
-	.selectRegion .Select {
-		z-index: 52;
-	}
-
-	.selectTimeZone .Select {
-		z-index: 50;
 	}
 
 	.inputGroup:last-child {
@@ -207,8 +260,25 @@ h3.formSectionHeader {
 
 	}
 
-	.derbyFeatures {
-		margin-top: 0;
+}
+
+@include respond-to("xsmall") {
+
+	.entryForm .featureIcons {
+		svg {
+			height: 75px;
+			margin: 0 5px;
+		}
+	}
+
+}
+
+@include respond-to("small") {
+
+	.entryForm .featureIcons {
+		svg {
+			height: 90px;
+		}
 	}
 
 }
@@ -266,6 +336,10 @@ h3.formSectionHeader {
 
 		}
 
+	}
+
+	.entryForm .featureIcons {
+		margin-top: .3em;
 	}
 
 }

@@ -15,7 +15,7 @@ module.exports = merge(common, {
 	},
 	plugins: [
 		new webpack.DefinePlugin({
-			"process.env.API_URL": JSON.stringify("http://localhost:55002/"),
+			"process.env.API_URL": JSON.stringify("http://localhost:55022/"),
 			"process.env.ENV": JSON.stringify("local")
 		})
 	]

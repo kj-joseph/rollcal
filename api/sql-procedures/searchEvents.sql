@@ -1,16 +1,18 @@
 BEGIN
 
-set @select = "select distinct e.*, c.*, vr.*, tz.timezone_zone, u.user_id, u.user_name";
+set @select = "select distinct e.*, c.*, v.*, tz.*, u.user_id, u.user_name";
 
 set @from = "
 	from events e inner join eventdays on eventday_event = event_id,
 		countries c, timezones tz, users u,
-		(select * from venues left outer join regions on region_id = venue_region) vr
+		(select * from venues left outer join regions on region_id = venue_region) v
 	";
 
 set @where = "
-	where vr.venue_id = event_venue and country_code = vr.venue_country
-		and event_user = user_id and timezone_id = vr.venue_timezone
+	where v.venue_id = event_venue
+		and country_code = v.venue_country
+		and event_user = user_id
+		and timezone_id = v.venue_timezone
 	";
 
 set @group = " group by e.event_id";
@@ -30,26 +32,39 @@ if endDate != "" then
 		"  and eventday_datetime <= ", quote(concat(endDate, " 00:00:00.000")));
 end if;
 
-if derbytypes != "" then
-	set @from = concat(@from, ", event_derbytypes edt");
-	set @where = concat(@where,
-		" and edt.event = event_id and edt.derbytype in (", derbytypes, ")");
+set @counter = 0;
+
+if features != "" then
+	set @temp_features = features;
+
+	feat: loop
+		if length(@temp_features) = 0 then
+			leave feat;
+		end if;
+
+		set @featureSet = substring_index(@temp_features, ".", 1);
+
+		set @from = concat(@from, ", event_features ef", @counter);
+		set @where = concat(@where,
+			" and ef", @counter, ".event = event_id");
+		set @where = concat(@where,
+			" and ef", @counter, ".feature in (", @featureSet, ")");
+
+		set @temp_features = substring(@temp_features, length(@featureSet) + 2);
+
+		set @counter = @counter + 1;
+
+	end loop;
+
 end if;
 
-if sanctions != "" then
-	set @from = concat(@from, ", event_sanctions es");
-	set @where = concat(@where,
-		" and es.event = event_id and es.sanction in (", sanctions, ")");
-end if;
+if lat and lng and distance then
+	set @select = concat(@select, ", getDistance(", lat, ",", lng, ", v.venue_lat, v.venue_lng) as venue_distance");
+	set @where = concat(@where, " and event_venue = v.venue_id
+		and getDistance(", lat, ",", lng, ", v.venue_lat, v.venue_lng) < ", distance, "
+		");
 
-if tracks != "" then
-	set @from = concat(@from, ", event_tracks et");
-	set @where = concat(@where,
-		" and et.event = event_id and et.track in (", tracks, ")");
-end if;
-
-if locations != "" then
-	set @from = concat(@from, ", venues v");
+elseif locations != "" then
 	set @where = concat(@where, " and event_venue = v.venue_id and (");
 	set @temp_locations = locations;
 
@@ -91,7 +106,10 @@ execute stmt;
 deallocate prepare stmt;
 
 set @query = concat(
-	"select eventlist.*, ed.*, derbytypeslist.list as derbytypes, sanctionslist.list as sanctions, trackslist.list as tracks",
+	"select eventlist.*,
+	convert_tz(ed.event_first_day, 'UTC', eventlist.timezone_zone) as event_first_day,
+	convert_tz(ed.event_last_day, 'UTC', eventlist.timezone_zone) as event_last_day,
+	featureslist.list as event_features",
 	" from (
 	", @select, @from, @where, @group, "
 	) eventlist
@@ -99,26 +117,15 @@ set @query = concat(
 	join (select eventday_event, min(eventday_datetime) event_first_day, max(eventday_datetime) event_last_day from eventdays group by eventday_event) ed
 		on ed.eventday_event = eventlist.event_id
 
-	left join (select edt.event as id, group_concat(distinct derbytype_id) as list
-	    	from derbytypes dt, event_derbytypes edt
-	     	where edt.derbytype = dt.derbytype_id
-         	group by edt.event
-	    ) as derbytypeslist
-	    on derbytypeslist.id = eventlist.event_id
-
-	left join (select es.event as id, group_concat(distinct sanction_id) as list
-	    	from sanctions s, event_sanctions es
-	     	where es.sanction = s.sanction_id
-         	group by es.event
-	    ) as sanctionslist
-	    on sanctionslist.id = eventlist.event_id
-
-	left join(select et.event as id, group_concat(distinct track_id) as list
-	    	from tracks t, event_tracks et
-	     	where et.track = t.track_id
-         	group by et.event
-	    ) as trackslist
-		on trackslist.id = eventlist.event_id
+	left join (select ef.event as id,
+			group_concat(ft.feature_type_code, '-', f.feature_id
+				order by ft.feature_type_code, f.feature_id) as list
+	    	from features f, feature_types ft, event_features ef
+	     	where ef.feature = f.feature_id
+	     		and ft.feature_type_id = f.feature_type
+         	group by ef.event
+	    ) as featureslist
+	    on featureslist.id = eventlist.event_id
 
 	order by ed.event_first_day"
 );
@@ -134,5 +141,7 @@ execute stmt;
 deallocate prepare stmt;
 
 select @eventCount as eventCount;
+
+select @query as query;
 
 END

@@ -1,86 +1,52 @@
-import { IGeoData, ITimeZone } from "interfaces/geo";
 import { IReduxActionType, IReduxStore } from "interfaces/redux";
+import { IUserInfo } from "interfaces/user";
 
-const initialState: IReduxStore = {
-	apiLocation: process.env.API_URL,
-	dataDerbyTypes: [],
-	dataGeography: {
-		countries: [],
-		regions: {},
-	} as IGeoData,
-	dataSanctions: [],
-	dataTracks: [],
-	lastSearch: "",
-	listPageLength: 9,
-	loggedIn: false,
-	loggedInUserEmail: "",
-	loggedInUserId: null,
-	loggedInUserName: "",
-	loggedInUserRoles: null,
-	loginModalOpen: false,
-	page: "home",
-	pageTitle: {
-		detail: null,
-		page: null,
-	},
-	rolesList: [],
-	sessionInitialized: false,
-	timeZones: [] as ITimeZone[],
-	userStatusList: [
-		"active",
-		"unvalidated",
-		"deactivated",
-		"suspended",
-		"banned",
-	],
-};
+import initialState from "redux/init";
 
-const rootReducer = (state = initialState, action: IReduxActionType) => {
+const rootReducer = (state = initialState, action: IReduxActionType): IReduxStore => {
 
 	const newState: IReduxStore = JSON.parse(JSON.stringify(state));
 
 	switch (action.type) {
 
 		case "CLEAR_USER_INFO":
+
 			newState.loggedIn = false;
-			newState.loggedInUserEmail = "",
-			newState.loggedInUserId = null;
-			newState.loggedInUserName = "";
-			newState.loggedInUserRoles = null;
+			newState.user = {} as IUserInfo;
+
 			return newState;
 			break;
 
-		case "SAVE_DATA_DERBYTYPES":
-			newState.dataDerbyTypes = action.payload;
+		case "SAVE_COUNTRY_LIST":
+
+			newState.countryList = action.payload;
 			return newState;
+
 			break;
 
-		case "SAVE_DATA_GEOGRAPHY":
-			newState.dataGeography = action.payload;
-			return newState;
-			break;
+		case "SAVE_FEATURE_LISTS":
 
-		case "SAVE_DATA_SANCTIONS":
-			newState.dataSanctions = action.payload;
+			newState.featureLists = action.payload;
 			return newState;
-			break;
 
-		case "SAVE_DATA_TRACKS":
-			newState.dataTracks = action.payload;
-			return newState;
 			break;
 
 		case "SAVE_LAST_SEARCH":
+
 			newState.lastSearch = action.payload;
 			return newState;
+
 			break;
 
 		case "SAVE_TIME_ZONES":
+
 			newState.timeZones = action.payload;
 			return newState;
+
 			break;
 
 		case "SET_LOGIN_MODAL_STATE":
+
 			newState.loginModalOpen = action.payload;
 
 			if (newState.loginModalOpen) {
@@ -112,30 +78,35 @@ const rootReducer = (state = initialState, action: IReduxActionType) => {
 				+ "Roll-Cal - Roller derby event calendar";
 
 			return newState;
+
 			break;
 
 		case "SAVE_ROLES_LIST":
+
 			newState.rolesList = action.payload;
 			return newState;
+
 			break;
 
 		case "SET_SESSION_STATE":
+
 			newState.sessionInitialized = action.payload;
 			return newState;
+
 			break;
 
 		case "SET_USER_INFO":
-			newState.loggedIn = action.payload.loggedIn;
-			newState.loggedInUserEmail = action.payload.userEmail;
-			newState.loggedInUserId = action.payload.userId;
-			newState.loggedInUserName = action.payload.userName;
-			newState.loggedInUserRoles = action.payload.userRoles;
 
+			newState.loggedIn = true;
+			newState.user = action.payload;
 			return newState;
+
 			break;
 
 		default:
+
 			return state;
+
 	}
 
 };

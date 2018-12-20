@@ -47,15 +47,20 @@ ul.boxList {
 
 		.listLocation {
 			margin-bottom: .5em;
+
+			.distance {
+				font-size: .95em;
+				margin-left: .5em;
+			}
 		}
 
-		.listIcons {
+		.featureIcons {
 
 			position: absolute;
 			bottom: 8px;
 			left: 10px;
 
-			.listIconGroup {
+			.featureIconGroup {
 				margin-right: 20px;
 
 				&:last-child {
@@ -63,7 +68,7 @@ ul.boxList {
 				}
 			}
 
-			.icon, .icon div {
+			.featureIcon, .featureIcon div {
 				display: inline;
 			}
 
@@ -103,7 +108,7 @@ ul.boxList {
 		li {
 			padding-bottom: 40px;
 
-			.listIcons {
+			.featureIcons {
 				bottom: 7px;
 
 				svg {
