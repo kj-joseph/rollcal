@@ -33,12 +33,12 @@ router.put("/", upload.array(), (req: Request, res: Response) => {
 				if (!userData) {
 
 					res.locals.connection.end();
-					res.status(200).json();
+					res.status(403).send();
 
 				} else {
 
 					res.locals.connection.end();
-					res.status(403).send();
+					res.status(200).send();
 
 				}
 
