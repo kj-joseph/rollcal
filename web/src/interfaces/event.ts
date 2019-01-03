@@ -18,6 +18,7 @@ export interface IDBDerbyEvent extends IDBDerbyVenue, IDBUserInfo {
 	event_link?: string;
 	event_name?: string;
 	event_timezone: number;
+	event_updated: string;
 	event_user: number;
 	event_venue: number;
 }
@@ -34,12 +35,12 @@ export interface IDBDerbyEventChange extends IDBDerbyEvent {
 export interface IDBDerbyEventDay {
 	eventday_description?: string;
 	eventday_event: number;
-	eventday_games?: number;
+	eventday_datetime: string;
 	eventday_doors: string;
 	eventday_doors_user?: string;
 	eventday_doors_venue: string;
+	eventday_games?: number;
 	eventday_id: number;
-	eventday_start: string;
 	eventday_start_user?: string;
 	eventday_start_venue: string;
 }
@@ -57,6 +58,7 @@ export interface IDerbyEvent {
 	id: number;
 	link?: string;
 	name: string;
+	updated?: moment.Moment;
 	user?: IUserInfo;
 	venue: IDerbyVenue;
 }
@@ -117,10 +119,12 @@ export interface IDerbyEventDay {
 	date?: string;
 	dateObject?: moment.Moment;
 	doorsTime?: string;
+	doorsTimeUTC?: string;
 	editing?: boolean;
 	id?: number;
 	sortValue?: string;
 	startTime: string;
+	startTimeUTC?: string;
 	description?: string;
 }
 
