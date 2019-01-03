@@ -159,7 +159,7 @@ router.get("/:format?", (req: Request, res: Response) => {
 															`\n\n-----\n\n${event.description}`
 														: ""),
 													location: venueLocation,
-													start: moment(event.days[0].startTimeUTC),
+													start: moment(day.startTimeUTC),
 													summary: eventSummary,
 													timestamp: event.updated,
 													uid: `${event.id}${isMultiDay ?
