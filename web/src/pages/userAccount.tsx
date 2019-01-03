@@ -142,14 +142,13 @@ export default class UserAccount extends RCComponent<IProps> {
 										</div>
 
 										<div className="inputGroup">
-											<label htmlFor="accountUsername">Display name (2+ characters)</label>
+											<label htmlFor="accountUsername">Display name (2+ characters, start with letter)</label>
 											<input
 												id="accountUsername"
 												name="accountUsername"
 												type="text"
 												required={true}
-												title="Must start with a letter; only letters, numbers, -, _, and ."
-												pattern="[A-Za-z][A-Za-z0-9-_\.]+"
+												pattern="[A-Za-z].+"
 												disabled={this.state.processing}
 												value={this.state.accountUsername}
 												onChange={this.handleInputChange}
