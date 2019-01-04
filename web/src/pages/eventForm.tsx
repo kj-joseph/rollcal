@@ -777,9 +777,9 @@ export default class EventForm<Props> extends RCComponent<IProps> {
 	getVenueLabel(venue: IDerbyVenue): string {
 
 		return venue && venue.name ?
-			!venue.country || !venue.country.code ?
-				`${venue.name} - ${venue.city}`
-			: buildVenueLocation(venue)
+			`${venue.name} - ${!venue.country || !venue.country.code ?
+				venue.city
+			: buildVenueLocation(venue)}`
 		: "(Type here to search venues)";
 
 	}
