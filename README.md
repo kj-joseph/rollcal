@@ -1,7 +1,7 @@
 # rollcal
 Searchable calendar for roller derby events
 
-![Roll-Cal logo](https://www.roll-cal.com/images/header-logo.png)
+![Roll-Cal logo](web/src/images/header-logo.png)
 
 The site is live: https://www.roll-cal.com/.
 
