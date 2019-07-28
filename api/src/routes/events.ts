@@ -164,7 +164,7 @@ router.get("/:format?", (req: Request, res: Response) => {
 													timestamp: event.updated,
 													uid: `${event.id}${isMultiDay ?
 															`.${dayCounter}` : ""}`,
-													url: event.link || `https://roll-cal.com/event/${event.id}`,
+													url: event.link || `https://www.roll-cal.com/event/${event.id}`,
 												});
 
 											});
