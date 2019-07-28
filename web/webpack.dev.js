@@ -7,7 +7,7 @@ const build_dir = path.resolve(__dirname, "build");
 module.exports = merge(common, {
 	plugins: [
 		new webpack.DefinePlugin({
-			"process.env.API_URL": JSON.stringify("/api/"),
+			"process.env.API_URL": JSON.stringify("https://api.roll-cal.com/"),
 		})
 	]
 });
