@@ -1,13 +1,13 @@
 import * as nodemailer from "nodemailer";
 
 const mailConfig =
-	process.env.TEST_EMAIL_HOST && process.env.TEST_EMAIL_USER && process.env.TEST_EMAIL_PASS ?
+	process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS ?
 		{
 		    auth: {
-		        pass: process.env.TEST_EMAIL_PASS,
-		        user: process.env.TEST_EMAIL_USER,
+		        pass: process.env.SMTP_PASS,
+		        user: process.env.SMTP_USER,
 		    },
-		    host: process.env.TEST_EMAIL_HOST,
+		    host: process.env.SMTP_HOST,
 		    port: 587,
 		}
 	:
