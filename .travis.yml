@@ -36,7 +36,7 @@ matrix:
     - chmod 600 /tmp/travis_rsa
     - ssh-add /tmp/travis_rsa
     addons:
-      ssh_known_hosts: server.bykev.in
+      ssh_known_hosts: dream.bykev.in
   - name: "api"
     language: node_js
     node_js:
@@ -67,4 +67,4 @@ matrix:
     - chmod 600 /tmp/travis_rsa
     - ssh-add /tmp/travis_rsa
     addons:
-      ssh_known_hosts: server.bykev.in
+      ssh_known_hosts: dream.bykev.in
