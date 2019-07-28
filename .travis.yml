@@ -24,23 +24,8 @@ matrix:
     deploy:
     - provider: script
       skip_cleanup: true
-      script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/* kj767@dream.bykev.in:/var/www/roll-cal/dev;
-        rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/.htaccess kj767@dream.bykev.in:/var/www/roll-cal/dev;
-        fi
-      on:
-        branch: dev
-    - provider: script
-      skip_cleanup: true
-      script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/* kj767@dream.bykev.in:/var/www/roll-cal/stage;
-        rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/.htaccess kj767@dream.bykev.in:/var/www/roll-cal/stage;
-        fi
-      on:
-        all_branches: true
-        condition: $TRAVIS_BRANCH =~ ^(release|hotfix)\/.*$
-    - provider: script
-      skip_cleanup: true
-      script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/* kj767@dream.bykev.in:/var/www/roll-cal/prod;
-        rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/.htaccess kj767@dream.bykev.in:/var/www/roll-cal/prod;
+      script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/* kj767@dream.bykev.in:/home/kj767/roll-cal.com;
+        rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/web/build/.htaccess kj767@dream.bykev.in:/home/kj767/roll-cal.com;
         fi
       on:
         branch: master
