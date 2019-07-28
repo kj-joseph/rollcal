@@ -10,6 +10,28 @@ import {  } from "interfaces/feature";
 
 import moment from "moment";
 
+const createCalendarURL = (
+	searchURL: string,
+): string => {
+
+	const urlParts = searchURL.split("?");
+	const searchParts = urlParts[1].split("&");
+	const keptParts: string[] = [];
+
+	searchParts.forEach((part) => {
+
+		if (part.split("=")[0].match(/features|locations|distance|address/) ) {
+
+			keptParts.push(part);
+
+		}
+
+	});
+
+	return `${urlParts[0]}/ical?${keptParts.join("&")}`;
+
+};
+
 export const deleteEvent = (
 	id: number,
 ): Promise<void> =>
@@ -74,6 +96,7 @@ export const loadEvents = (
 	count: number | "all" = "all",
 	start: number = 0,
 ): Promise<{
+	calendarURL: string,
 	events: IDerbyEvent[],
 	search: ISearchObject,
 	total: number,
@@ -176,6 +199,7 @@ export const loadEvents = (
 				if (!eventData || !eventData.length) {
 
 					resolve({
+						calendarURL: createCalendarURL(response.request.responseURL),
 						events: [],
 						search,
 						total: 0,
@@ -194,6 +218,7 @@ export const loadEvents = (
 								store.dispatch(actions.saveLastSearch(search));
 
 								resolve({
+									calendarURL: createCalendarURL(response.request.responseURL),
 									events: eventList,
 									search,
 									total,

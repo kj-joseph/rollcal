@@ -17,6 +17,7 @@ import { IProps } from "interfaces/redux";
 import moment from "moment";
 
 interface IEventsState {
+	calendarURL: string;
 	dataError: boolean;
 	eventList: IDerbyEvent[];
 	featuresSearched: IDerbyFeatureType[];
@@ -32,6 +33,7 @@ interface IEventsState {
 export default class Events extends RCComponent<IProps> {
 
 	state: IEventsState = {
+		calendarURL: undefined,
 		dataError: false,
 		eventList: [],
 		featuresSearched: [],
@@ -248,11 +250,12 @@ export default class Events extends RCComponent<IProps> {
 
 		searchEvents
 			.then((data: {
+					calendarURL: string,
 					events: IDerbyEvent,
 					total: number,
 					search: ISearchObject}) => {
 
-				const {events, total, search} = data;
+				const {calendarURL, events, total, search} = data;
 
 				const mapFeatures = this.addPromise(
 					mapFeaturesFromText(search.features));
@@ -261,6 +264,7 @@ export default class Events extends RCComponent<IProps> {
 					.then((featuresSearched) => {
 
 						this.setState({
+							calendarURL,
 							eventList: events,
 							featuresSearched,
 							listItemsTotal: total,

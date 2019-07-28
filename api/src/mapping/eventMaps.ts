@@ -14,9 +14,11 @@ export const mapDay = (
 	doorsTime: data.eventday_doors_venue
 		&& data.eventday_doors_venue < data.eventday_start_venue ?
 			moment.utc(data.eventday_doors_venue).format("HH:mm:00")
-		: "",
+		: undefined,
+	doorsTimeUTC: data.eventday_doors,
 	id: data.eventday_id,
 	startTime: moment.utc(data.eventday_start_venue).format("HH:mm:00"),
+	startTimeUTC: data.eventday_datetime,
 });
 
 export const mapEvent = (
@@ -39,6 +41,7 @@ export const mapEvent = (
 	id: data.event_id,
 	link: data.event_link,
 	name: data.event_name,
+	updated: moment.utc(data.event_updated),
 	user: mapUser(data),
 	venue: mapVenue(data),
 });
