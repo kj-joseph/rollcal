@@ -27,7 +27,7 @@
 	},
 	"dependencies": {
 		"@babel/polyfill": "^7.4.4",
-		"axios": "^0.18.1",
+		"axios": "^0.21.1",
 		"bluebird": "^3.5.5",
 		"react": "^16.8.6",
 		"react-dates": "^18.5.0",
