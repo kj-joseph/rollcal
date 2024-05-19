@@ -93,7 +93,7 @@ router.get("/:format?", (req: Request, res: Response) => {
 								product: "Roll-Cal.com",
 							},
 							ttl: 60 * 60 * 4, // 4 h
-							url: `https://www.roll-cal.com/api${req.originalUrl}`,
+							url: `https://roll-cal.com/api/${req.originalUrl}`,
 						});
 
 

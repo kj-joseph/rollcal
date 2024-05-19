@@ -13,7 +13,7 @@ module.exports = merge(common, {
 				"process.env.NODE_ENV": JSON.stringify("production")
 			}),
 		new webpack.DefinePlugin({
-			"process.env.API_URL": JSON.stringify("https://api.roll-cal.com/"),
+			"process.env.API_URL": JSON.stringify("/api/"),
 		}),
 	]
 });
